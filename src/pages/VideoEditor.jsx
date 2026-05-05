@@ -207,17 +207,17 @@ export default function VideoEditor() {
                       <Trash2 className="w-4 h-4" />
                     </Button>
                     </div>
+                    </div>
                     ) : (
-                  <label className="flex flex-col items-center justify-center aspect-video border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-slate-400 transition-colors">
+                    <label className="flex flex-col items-center justify-center aspect-video border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-slate-400 transition-colors">
                     <Upload className="w-12 h-12 text-slate-400 mb-2" />
                     <p className="font-medium text-slate-900">Upload Video</p>
                     <p className="text-sm text-slate-500">MP4, WebM, or OGG</p>
                     <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
-                  </label>
-                )}
-              </motion.div>
-            </div>
-          </div>
+                    </label>
+                    )}
+                    </motion.div>
+                    </div>
 
           {/* Controls Sidebar */}
           <div className="space-y-4">
