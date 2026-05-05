@@ -273,6 +273,7 @@ export default function ArtForgeStudio() {
   const [mode, setMode] = useState("image");
   const [prompt, setPrompt] = useState("");
   const [refImages, setRefImages] = useState([]);
+  const [uploadingRefs, setUploadingRefs] = useState(false);
   const [results, setResults] = useState([]);
   const [genLoading, setGenLoading] = useState(false);
   const [batchCount, setBatchCount] = useState(1);
@@ -281,6 +282,17 @@ export default function ArtForgeStudio() {
   const [estimatedTime, setEstimatedTime] = useState(0);
   const [countdownTime, setCountdownTime] = useState(0);
   const [gifLoading, setGifLoading] = useState(false);
+
+  const uploadRefImage = async (file) => {
+    try {
+      const uploaded = await base44.integrations.Core.UploadFile({ file });
+      return uploaded?.file_url;
+    } catch (err) {
+      console.error("Ref upload failed:", err);
+      toast.error("Failed to upload reference image");
+      return null;
+    }
+  };
 
   // Sticker-specific state
   const [stickerStyle, setStickerStyle] = useState("kawaii");
@@ -719,10 +731,14 @@ export default function ArtForgeStudio() {
                       <p className="text-sm text-blue-400/50 group-hover:text-blue-300 transition-colors">
                         Upload reference <span className="text-[#1e78ff]">for exact style match</span>
                       </p>
-                      <input type="file" accept="image/*" multiple className="hidden"
-                        onChange={(e) => {
+                      <input type="file" accept="image/*" multiple className="hidden" disabled={uploadingRefs}
+                        onChange={async (e) => {
                           const files = Array.from(e.target.files || []);
-                          setRefImages(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
+                          if (files.length === 0) return;
+                          setUploadingRefs(true);
+                          const urls = await Promise.all(files.map(f => uploadRefImage(f)));
+                          setRefImages(prev => [...prev, ...urls.filter(url => url)]);
+                          setUploadingRefs(false);
                         }}
                       />
                     </label>
