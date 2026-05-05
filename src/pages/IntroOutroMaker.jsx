@@ -1,24 +1,27 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Trash2, Download, Eye, Type } from "lucide-react";
+import { Download, Eye, Type, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-const templates = [
+const TEMPLATES = [
   { id: 1, name: "Cinematic", bg: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)", textColor: "#fff", animation: "slide" },
   { id: 2, name: "Neon", bg: "linear-gradient(135deg, #0f0f1e 0%, #1a0033 100%)", textColor: "#00ffff", animation: "fade" },
   { id: 3, name: "Sunset", bg: "linear-gradient(135deg, #ff6b00 0%, #ff0066 100%)", textColor: "#fff", animation: "zoom" },
   { id: 4, name: "Minimal", bg: "#ffffff", textColor: "#000", animation: "slide" },
   { id: 5, name: "Gaming", bg: "linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)", textColor: "#00ff00", animation: "bounce" },
+  { id: 6, name: "Pastel", bg: "linear-gradient(135deg, #ffeef8 0%, #e0f4ff 100%)", textColor: "#5a4a7a", animation: "fade" },
+  { id: 7, name: "Dark Wood", bg: "linear-gradient(135deg, #3e2723 0%, #1b0000 100%)", textColor: "#ffd700", animation: "slide" },
 ];
 
 export default function IntroOutroMaker() {
-  const [selectedTemplate, setSelectedTemplate] = useState(templates[0]);
+  const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[0]);
   const [introText, setIntroText] = useState("Your Channel");
   const [outroText, setOutroText] = useState("Thanks for Watching!");
   const [duration, setDuration] = useState(3);
   const [fontSize, setFontSize] = useState(48);
+  const [history, setHistory] = useState([]);
 
   const handleDownload = (type) => {
     toast.success(`${type === "intro" ? "Intro" : "Outro"} generated! Ready for download.`);
@@ -32,6 +35,20 @@ export default function IntroOutroMaker() {
       bounce: "translate-y-[50px] animate-[bounceIn_0.8s_ease-out_forwards]",
     };
     return animations[selectedTemplate.animation] || "";
+  };
+
+  const applyTemplate = (template) => {
+    setHistory([...history, { selectedTemplate }]);
+    setSelectedTemplate(template);
+    toast.success(`Applied ${template.name} template`);
+  };
+
+  const handleUndo = () => {
+    if (history.length === 0) return;
+    const prev = history[history.length - 1];
+    setSelectedTemplate(prev.selectedTemplate);
+    setHistory(history.slice(0, -1));
+    toast.success("Undo applied");
   };
 
   return (
@@ -101,16 +118,26 @@ export default function IntroOutroMaker() {
           {/* Settings */}
           <div className="space-y-4">
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-              <h3 className="font-semibold text-slate-900 mb-4">Templates</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {templates.map((t) => (
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-slate-900 text-sm">✨ Templates</h3>
+                {history.length > 0 && (
+                  <button
+                    onClick={handleUndo}
+                    className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1"
+                    title="Undo last change"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto">
+                {TEMPLATES.map((t) => (
                   <button
                     key={t.id}
-                    onClick={() => setSelectedTemplate(t)}
-                    className={`p-3 rounded-lg border-2 transition-all ${
+                    onClick={() => applyTemplate(t)}
+                    className={`p-2 rounded-lg border-2 transition-all ${
                       selectedTemplate.id === t.id ? "border-cyan-500 bg-cyan-50" : "border-slate-200 hover:border-slate-300"
                     }`}
-                    style={{ background: selectedTemplate.id === t.id ? undefined : "white" }}
                   >
                     <div
                       className="w-full h-8 rounded mb-1"
@@ -119,19 +146,19 @@ export default function IntroOutroMaker() {
                         border: `1px solid ${t.textColor === "#fff" ? "#ccc" : "#f0f0f0"}`,
                       }}
                     />
-                    <p className="text-xs font-medium text-slate-700">{t.name}</p>
+                    <p className="text-xs font-medium text-slate-700 truncate">{t.name}</p>
                   </button>
                 ))}
               </div>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-              <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                <Type className="w-4 h-4" /> Text
+              <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2 text-sm">
+                <Type className="w-4 h-4" /> Text & Timing
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-2">Intro Text</label>
+                  <label className="text-xs font-medium text-slate-600 block mb-1">Intro Text</label>
                   <Input
                     value={introText}
                     onChange={(e) => setIntroText(e.target.value)}
@@ -140,7 +167,7 @@ export default function IntroOutroMaker() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-2">Outro Text</label>
+                  <label className="text-xs font-medium text-slate-600 block mb-1">Outro Text</label>
                   <Input
                     value={outroText}
                     onChange={(e) => setOutroText(e.target.value)}
@@ -149,12 +176,18 @@ export default function IntroOutroMaker() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-2">Font Size: {fontSize}px</label>
-                  <input type="range" min="24" max="72" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full" />
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-medium text-slate-600">Font Size</label>
+                    <span className="text-xs text-slate-500 font-mono">{fontSize}px</span>
+                  </div>
+                  <input type="range" min="24" max="72" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full accent-cyan-500" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-2">Duration: {duration}s</label>
-                  <input type="range" min="1" max="10" value={duration} onChange={(e) => setDuration(parseInt(e.target.value))} className="w-full" />
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-medium text-slate-600">Duration</label>
+                    <span className="text-xs text-slate-500 font-mono">{duration}s</span>
+                  </div>
+                  <input type="range" min="1" max="10" value={duration} onChange={(e) => setDuration(parseInt(e.target.value))} className="w-full accent-cyan-500" />
                 </div>
               </div>
             </motion.div>
