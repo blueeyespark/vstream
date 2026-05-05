@@ -375,7 +375,11 @@ export default function ArtForgeStudio() {
   };
 
   const buildVideoPrompt = () => {
-    return `${prompt}${memoizedStyleStr}${currentMode?.suffix || ""}`;
+    let basePrompt = `${prompt}${memoizedStyleStr}${currentMode?.suffix || ""}`;
+    if (refImages.length > 0) {
+      basePrompt = `Reference images provided. Extract visual details: character, environment, objects, lighting, composition, style, colors. Apply to: ${basePrompt}`;
+    }
+    return basePrompt;
   };
 
   const getCurrentSubMode = () => {
@@ -457,10 +461,7 @@ export default function ArtForgeStudio() {
         });
         toast.success("3D model ready ✓");
       } else if (isVideo) {
-        let videoPrompt = buildVideoPrompt();
-        if (refImages.length > 0) {
-          videoPrompt = `YOU MUST FOLLOW THE USER'S PROMPT EXACTLY.\n\nReference images are ONLY for visual style (colors, mood, aesthetic). Use their style but generate what the user requested.\n\n${videoPrompt}`;
-        }
+        const videoPrompt = buildVideoPrompt();
         const response = await base44.integrations.Core.GenerateVideo({
           prompt: videoPrompt,
           duration: Math.max(1, Math.min(3600, videoDuration)),
@@ -531,9 +532,8 @@ export default function ArtForgeStudio() {
       }
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
     } catch (e) {
-      const errorMsg = (e?.message || "Generation failed").slice(0, 100);
       console.error("Generation error:", e);
-      toast.error("Generation failed: " + errorMsg);
+      toast.error("Generation failed - try again");
       setResults([]);
     } finally {
       setGenLoading(false);
@@ -577,7 +577,7 @@ export default function ArtForgeStudio() {
     }
     setGifLoading(true);
     try {
-      const gifPrompt = `GENERATE THE USER'S EXACT REQUEST:\n${prompt || "Animation"}\n\nStyle: animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement. Make it loop-ready.`;
+      const gifPrompt = `${prompt || "Animation"}, animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement. Make it loop-ready.`;
       const response = await base44.integrations.Core.GenerateImage({
         prompt: gifPrompt,
         existing_image_urls: [videoUrl],
