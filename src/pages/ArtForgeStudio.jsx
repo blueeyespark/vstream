@@ -27,7 +27,7 @@ const MODES = [
   },
   {
     id: "2d_model",
-    label: "2D / Sprite",
+    label: "2D Model",
     desc: "Game sprites, VTuber sheets & art",
     icon: Layers,
     gradient: "from-[#a855f7] to-[#1e78ff]",
@@ -38,7 +38,7 @@ const MODES = [
   },
   {
     id: "3d_model",
-    label: "3D Render",
+    label: "3D Model",
     desc: "VRChat, VRM & 3D model renders",
     icon: Box,
     gradient: "from-[#f97316] to-[#a855f7]",
