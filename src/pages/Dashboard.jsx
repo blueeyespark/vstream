@@ -8,7 +8,7 @@ import {
   Users, Zap, Star, PlusCircle, BarChart2, Sparkles, Eye,
   Radio, Bookmark, Gift, Coffee, ChevronRight, Bell, Smile,
   Moon, Sun, Swords, Palette, Headphones, Laugh, Brain, Heart,
-  Play, Filter, Hash, Volume2, Award, UserPlus, Tv
+  Play, Filter, Hash, Volume2, Award, UserPlus, Tv, MessageSquare
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
@@ -662,8 +662,8 @@ export default function Dashboard() {
                 { label: "View My Channel", to: "/Channel", icon: Tv, color: "text-yellow-400" },
                 { label: "Browse Live", to: "/Live", icon: Radio, color: "text-red-400" },
                 { label: "My Clips", to: "/Shorts", icon: PlaySquare, color: "text-green-400" },
-                { label: "Spot Call World Chat", to: "#", icon: Users, color: "text-cyan-400" },
-                { label: "Deep Scan Discord", to: "#", icon: Hash, color: "text-purple-400" },
+                { label: "World Chat", to: "/WorldChat", icon: MessageSquare, color: "text-cyan-400" },
+                { label: "Spot Call", to: "#", icon: Users, color: "text-blue-400" },
               ].map(a => {
                 const Icon = a.icon;
                 return (

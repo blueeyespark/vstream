@@ -17,6 +17,7 @@ import CreatorStudio from './pages/CreatorStudio';
 import ArtForgeStudio from './pages/ArtForgeStudio';
 import Apply from './pages/Apply';
 import TalentNexus from './pages/TalentNexus';
+import WorldChat from './pages/WorldChat';
 import TalentProfile from './pages/TalentProfile';
 import ChronosArchive from './pages/ChronosArchive';
 import MusicEditor from './pages/MusicEditor';
@@ -101,6 +102,7 @@ const AuthenticatedApp = () => {
       <Route path="/Apply" element={<LayoutWrapper currentPageName="Apply"><Apply /></LayoutWrapper>} />
       <Route path="/TalentProfile" element={<LayoutWrapper currentPageName="TalentProfile"><TalentProfile /></LayoutWrapper>} />
       <Route path="/MusicEditor" element={<LayoutWrapper currentPageName="MusicEditor"><MusicEditor /></LayoutWrapper>} />
+      <Route path="/WorldChat" element={<LayoutWrapper currentPageName="WorldChat"><WorldChat /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
