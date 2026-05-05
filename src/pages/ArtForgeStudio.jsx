@@ -450,7 +450,7 @@ export default function ArtForgeStudio() {
       } else if (isVideo) {
         let videoPrompt = buildVideoPrompt();
         if (refImages.length > 0) {
-          videoPrompt = `CRITICAL: Follow reference images for style and appearance.\n\n${videoPrompt}`;
+          videoPrompt = `Match reference image style exactly. ${videoPrompt}`;
         }
         const response = await base44.integrations.Core.GenerateVideo({
           prompt: videoPrompt,
@@ -484,16 +484,19 @@ export default function ArtForgeStudio() {
         const buildImagePrompt = (idx) => {
           let basePrompt = mode === "sticker" ? buildStickerVariantPrompt(idx) : finalPrompt;
           if (refImages.length > 0) {
-            basePrompt = `CRITICAL INSTRUCTION: Strictly follow the reference images for style, appearance, clothing, poses, and all visual details.\n\n${basePrompt}`;
+            basePrompt = `You MUST match the reference image style, appearance, and details exactly. Reference provides the visual style guide. User request: ${basePrompt}`;
           }
           return basePrompt;
         };
 
-        const generateOne = (i) => base44.integrations.Core.GenerateImage({
-          prompt: buildImagePrompt(i),
-          existing_image_urls: (Array.isArray(refImages) && refImages.length > 0) ? refImages : undefined,
-          model: "claude_opus_4_7",
-        });
+        const generateOne = (i) => {
+          const hasRefs = Array.isArray(refImages) && refImages.length > 0;
+          return base44.integrations.Core.GenerateImage({
+            prompt: buildImagePrompt(i),
+            existing_image_urls: hasRefs ? refImages : undefined,
+            model: hasRefs ? "gpt_5_4" : "claude_opus_4_7", // Use GPT-4 vision for reference matching
+          });
+        };
 
         const responses = await Promise.all(Array.from({ length: count }, (_, i) => generateOne(i)));
         const urls = responses
@@ -707,12 +710,12 @@ export default function ArtForgeStudio() {
                   {/* Reference images */}
                   <div>
                     <p className="text-xs font-semibold text-blue-400/50 uppercase tracking-wider mb-2">
-                      Reference Images <span className="font-normal normal-case opacity-70">(optional)</span>
+                      Reference Images <span className="font-normal normal-case opacity-70">(for style matching)</span>
                     </p>
                     <label className="cursor-pointer rounded-xl border-2 border-dashed border-blue-900/40 px-4 py-3 text-center transition-all hover:border-[#1e78ff]/40 hover:bg-[#1e78ff]/5 flex items-center justify-center gap-2 group">
                       <Plus className="w-4 h-4 text-blue-400/40 group-hover:text-[#1e78ff] transition-colors" />
                       <p className="text-sm text-blue-400/50 group-hover:text-blue-300 transition-colors">
-                        Add reference images <span className="text-[#1e78ff]">or drop here</span>
+                        Upload reference <span className="text-[#1e78ff]">for exact style match</span>
                       </p>
                       <input type="file" accept="image/*" multiple className="hidden"
                         onChange={(e) => {
