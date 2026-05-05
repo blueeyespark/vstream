@@ -15,6 +15,9 @@ import SavedVideos from './pages/SavedVideos';
 import Playlists from './pages/Playlists';
 import CreatorStudio from './pages/CreatorStudio';
 import ArtForgeStudio from './pages/ArtForgeStudio';
+import Apply from './pages/Apply';
+import TalentNexus from './pages/TalentNexus';
+import ChronosArchive from './pages/ChronosArchive';
 import Dashboard from './pages/Dashboard';
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -91,6 +94,9 @@ const AuthenticatedApp = () => {
       <Route path="/SavedVideos" element={<LayoutWrapper currentPageName="SavedVideos"><SavedVideos /></LayoutWrapper>} />
       <Route path="/Playlists" element={<LayoutWrapper currentPageName="Playlists"><Playlists /></LayoutWrapper>} />
       <Route path="/ArtForge" element={<LayoutWrapper currentPageName="ArtForge"><ArtForgeStudio /></LayoutWrapper>} />
+      <Route path="/TalentNexus" element={<LayoutWrapper currentPageName="TalentNexus"><TalentNexus /></LayoutWrapper>} />
+      <Route path="/Archive" element={<LayoutWrapper currentPageName="Archive"><ChronosArchive /></LayoutWrapper>} />
+      <Route path="/Apply" element={<LayoutWrapper currentPageName="Apply"><Apply /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

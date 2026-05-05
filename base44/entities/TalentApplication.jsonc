@@ -1,0 +1,72 @@
+{
+  "name": "TalentApplication",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Applicant's full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Applicant's email address"
+    },
+    "channel_name": {
+      "type": "string",
+      "description": "Name of the applicant's channel"
+    },
+    "channel_url": {
+      "type": "string",
+      "description": "URL to the applicant's channel"
+    },
+    "portfolio_link": {
+      "type": "string",
+      "description": "Link to portfolio or highlight reel"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Short bio / why they want to join"
+    },
+    "content_category": {
+      "type": "string",
+      "enum": [
+        "gaming",
+        "variety",
+        "art",
+        "music",
+        "education",
+        "lifestyle",
+        "other"
+      ],
+      "description": "Primary content category"
+    },
+    "avg_viewers": {
+      "type": "string",
+      "description": "Average concurrent viewers or subscribers"
+    },
+    "social_links": {
+      "type": "string",
+      "description": "Additional social media links (comma separated)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewing",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Review status of the application"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Internal notes from admin review"
+    }
+  },
+  "required": [
+    "full_name",
+    "email",
+    "channel_name",
+    "bio"
+  ]
+}
