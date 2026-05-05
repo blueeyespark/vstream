@@ -47,36 +47,12 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Blog from './pages/Blog';
-import Budget from './pages/Budget';
-import Calendar from './pages/Calendar';
-import Dashboard from './pages/Dashboard';
-import Meetings from './pages/Meetings';
-import Planner from './pages/Planner';
-import PlannerDetail from './pages/PlannerDetail';
-import ProjectDetail from './pages/ProjectDetail';
-import Projects from './pages/Projects';
-import ReminderGroups from './pages/ReminderGroups';
-import Reports from './pages/Reports';
 import Settings from './pages/Settings';
-import SocialMedia from './pages/SocialMedia';
 import __Layout from './Layout.jsx';
 
-
+// Only pages NOT handled by explicit routes in App.jsx go here
 export const PAGES = {
-    "Blog": Blog,
-    "Budget": Budget,
-    "Calendar": Calendar,
-    "Dashboard": Dashboard,
-    "Meetings": Meetings,
-    "Planner": Planner,
-    "PlannerDetail": PlannerDetail,
-    "ProjectDetail": ProjectDetail,
-    "Projects": Projects,
-    "ReminderGroups": ReminderGroups,
-    "Reports": Reports,
     "Settings": Settings,
-    "SocialMedia": SocialMedia,
 }
 
 export const pagesConfig = {

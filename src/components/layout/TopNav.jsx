@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// TopNav — YouTube-style nav with avatar dropdown
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Menu, X, Moon, Sun, Settings, LogOut, Search,
+  X, Moon, Sun, Settings, LogOut, Search,
   Tv, Users, Scan, LayoutDashboard,
   Radio, PlaySquare, ChevronRight
 } from "lucide-react";
