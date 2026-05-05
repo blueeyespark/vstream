@@ -501,11 +501,10 @@ export default function ArtForgeStudio() {
 
         const generateOne = (i) => {
            const hasRefs = Array.isArray(refImages) && refImages.length > 0;
-           // Use GPT-4 which respects user intent better than Claude Opus's aggressive filtering
            return base44.integrations.Core.GenerateImage({
              prompt: buildImagePrompt(i),
              existing_image_urls: hasRefs ? refImages : undefined,
-             model: "gpt_5_5", // More respectful of user prompts
+             model: "gpt_5_4", // OpenAI with fewer restrictions
            });
          };
 
@@ -581,7 +580,7 @@ export default function ArtForgeStudio() {
       const response = await base44.integrations.Core.GenerateImage({
         prompt: gifPrompt,
         existing_image_urls: [videoUrl],
-        model: "gpt_5_5",
+        model: "gpt_5_4",
       });
       const gifUrl = response?.url;
       if (!gifUrl) throw new Error("GIF generation returned no URL");
