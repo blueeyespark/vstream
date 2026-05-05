@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import ArtForgeGenerationComments from "@/components/ArtForgeGenerationComments";
 import {
   WandSparkles, Layers, Box, Plus, X, Sparkles, Download,
   RefreshCw, Image, LayoutGrid, Clock, Trash2, FileText,
@@ -984,12 +985,13 @@ export default function ArtForgeStudio() {
                   </div>
                 </motion.div>
 
-                {/* Right panel: Results */}
-                <motion.div
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="bg-[#060d18]/60 border border-blue-900/30 rounded-2xl p-6 backdrop-blur-sm flex flex-col min-h-[400px]"
-                >
+                {/* Right panel: Results + Comments */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:col-span-1">
+                  <motion.div
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="lg:col-span-2 bg-[#060d18]/60 border border-blue-900/30 rounded-2xl p-6 backdrop-blur-sm flex flex-col min-h-[400px]"
+                  >
                   <AnimatePresence mode="wait">
                     {genLoading ? (
                        <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col items-center justify-center gap-4">
@@ -1098,7 +1100,17 @@ export default function ArtForgeStudio() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </motion.div>
+                  </motion.div>
+
+                  {/* Comments sidebar */}
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="lg:col-span-1 min-h-[400px]"
+                  >
+                    <ArtForgeGenerationComments />
+                  </motion.div>
+                </div>
               </div>
             </motion.div>
           )}
