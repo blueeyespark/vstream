@@ -417,40 +417,37 @@ export default function ArtForgeStudio() {
       const is3D = currentMode?.supportsTripo;
 
       if (is3D) {
-        // Check if Meshy requires payment
         const selected3DProvider = SUBMODES_3D.find(s => s.id === subMode3D);
         if (selected3DProvider?.requiresPayment) {
-          // Charge for Meshy
           const paymentRes = await base44.functions.invoke('processPayment', {
-            amount: Math.round(selected3DProvider.price * 100), // Convert to cents
-            description: `Meshy 3D Model Generation: ${prompt.slice(0, 50)}`,
+            amount: Math.round(selected3DProvider.price * 100),
+            description: `Meshy 3D: ${prompt.slice(0, 50)}`,
             provider: "meshy",
           });
-          if (!paymentRes?.data?.success) throw new Error("Payment failed");
-          toast.success("Payment processed! Generating 3D model...");
+          if (!paymentRes?.data?.success) throw new Error("Payment failed. Try again.");
+          toast.success("Payment processed ✓");
         }
 
-        // Generate 3D model with selected provider
         const response = await base44.functions.invoke('generate3DModel', {
           prompt: finalPrompt,
           provider: selected3DProvider?.provider || "tripo3d",
         });
         const modelUrl = response?.data?.modelUrl;
-        if (!modelUrl) throw new Error("No model URL returned from 3D generation");
+        if (!modelUrl) throw new Error("3D generation failed - no model returned");
         
-        setResults([{ url: modelUrl, type: "3d_model", editable: true }]);
+        setResults([{ url: modelUrl, type: "3d_model" }]);
         await base44.entities.MediaAsset.create({
-          name: (prompt || "Generated").slice(0, 60),
+          name: (prompt || "3D Model").slice(0, 60),
           url: modelUrl,
           type: "3d_model",
           description: finalPrompt,
-          category: selected3DProvider?.provider,
+          category: selected3DProvider?.provider || "tripo3d"
         });
-        toast.success("3D model saved to gallery!");
+        toast.success("3D model ready ✓");
       } else if (isVideo) {
         let videoPrompt = buildVideoPrompt();
         if (refImages.length > 0) {
-          videoPrompt = `Match reference image style exactly. ${videoPrompt}`;
+          videoPrompt = `REFERENCE MATCH REQUIRED: Analyze the reference image's visual style, aesthetic, color palette, and design approach. Create video with the exact same visual style.\n\n${videoPrompt}`;
         }
         const response = await base44.integrations.Core.GenerateVideo({
           prompt: videoPrompt,
@@ -484,7 +481,7 @@ export default function ArtForgeStudio() {
         const buildImagePrompt = (idx) => {
           let basePrompt = mode === "sticker" ? buildStickerVariantPrompt(idx) : finalPrompt;
           if (refImages.length > 0) {
-            basePrompt = `You MUST match the reference image style, appearance, and details exactly. Reference provides the visual style guide. User request: ${basePrompt}`;
+            basePrompt = `STRICT INSTRUCTION: You are looking at a reference image. Analyze its style, colors, composition, character design, and visual elements CAREFULLY. Generate an image that EXACTLY matches the reference style while incorporating: ${basePrompt}\n\nMatch the reference image's visual approach completely.`;
           }
           return basePrompt;
         };
@@ -494,27 +491,30 @@ export default function ArtForgeStudio() {
           return base44.integrations.Core.GenerateImage({
             prompt: buildImagePrompt(i),
             existing_image_urls: hasRefs ? refImages : undefined,
-            model: hasRefs ? "gpt_5_4" : "claude_opus_4_7", // Use GPT-4 vision for reference matching
+            model: "claude_opus_4_7",
           });
         };
 
         const responses = await Promise.all(Array.from({ length: count }, (_, i) => generateOne(i)));
         const urls = responses
-          .map(r => r?.url)
-          .filter(url => typeof url === "string" && url.trim());
+          .map(r => r?.url || r?.data?.url)
+          .filter(url => typeof url === "string" && url.length > 0);
         
-        if (urls.length === 0) throw new Error("No images generated");
+        if (urls.length === 0) throw new Error("Generation failed - no images returned. Try simpler prompt.");
         
         setResults(urls.map(url => ({ url, type: mode === "sticker" ? "sticker" : mode })));
+        
         await Promise.all(urls.map(url =>
           base44.entities.MediaAsset.create({
-            name: (prompt || "Generated").slice(0, 60),
+            name: (prompt || "Generated").slice(0, 55),
             url,
             type: mode,
-            description: finalPrompt,
-          }).catch(err => console.error("Failed to save asset:", err))
+            description: finalPrompt.slice(0, 200),
+            category: mode
+          }).catch(err => console.error("Save failed:", err))
         ));
-        toast.success(`${urls.length} ${mode === "sticker" ? "sticker" : "creation"}${urls.length > 1 ? "s" : ""} saved to gallery!`);
+        
+        toast.success(`Generated ${urls.length} ${mode === "sticker" ? "sticker" : "creation"}${urls.length > 1 ? "s" : ""} ✓`);
       }
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
     } catch (e) {
@@ -564,27 +564,28 @@ export default function ArtForgeStudio() {
     }
     setGifLoading(true);
     try {
-      const gifPrompt = `${prompt || "Animation"}, animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement`;
+      const gifPrompt = `Create animated GIF: ${prompt || "Animation"}. Style: animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement. Make it loop-ready.`;
       const response = await base44.integrations.Core.GenerateImage({
         prompt: gifPrompt,
         existing_image_urls: [videoUrl],
         model: "claude_opus_4_7",
       });
       const gifUrl = response?.url;
-      if (!gifUrl) throw new Error("No GIF generated");
+      if (!gifUrl) throw new Error("GIF generation returned no URL");
       
       await base44.entities.MediaAsset.create({
-        name: `GIF: ${(prompt || "Generated").slice(0, 50)}`,
+        name: `GIF: ${(prompt || "Generated").slice(0, 45)}`,
         url: gifUrl,
         type: "image",
         description: gifPrompt,
         tags: ["gif", "animated"],
+        category: "animation"
       });
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
       toast.success("GIF saved to gallery!");
     } catch (e) {
       console.error("GIF error:", e);
-      toast.error("GIF failed: " + (e?.message || "Unknown error").slice(0, 80));
+      toast.error("GIF failed: " + (e?.message || "Generation error").slice(0, 80));
     } finally {
       setGifLoading(false);
     }
