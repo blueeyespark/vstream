@@ -396,7 +396,7 @@ export default function ArtForgeStudio() {
     // Calculate estimated time
     let estTime = 0;
     if (currentMode?.supportsVideo) {
-      estTime = Math.ceil((videoDuration / 4) * 40 + 10); // ~40s per 4s of video
+      estTime = Math.ceil((videoDuration / 4) * 40 + 10);
     } else if (mode === "sticker") {
       estTime = Math.max(1, stickerPackSize * 20);
     } else {
@@ -405,19 +405,12 @@ export default function ArtForgeStudio() {
     setEstimatedTime(estTime);
     setCountdownTime(estTime);
     
-    // Clear any existing interval before starting a new one
-    if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current);
-    }
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     
-    // Start countdown timer
     countdownIntervalRef.current = setInterval(() => {
       setCountdownTime(prev => {
         if (prev <= 1) {
-          if (countdownIntervalRef.current) {
-            clearInterval(countdownIntervalRef.current);
-            countdownIntervalRef.current = null;
-          }
+          if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
           return 0;
         }
         return prev - 1;
@@ -425,7 +418,39 @@ export default function ArtForgeStudio() {
     }, 1000);
 
     try {
+      // Upload reference images if present
+      let uploadedRefUrls = [];
+      if (Array.isArray(refImages) && refImages.length > 0) {
+        try {
+          // Filter out blob URLs and get actual files
+          const refFilesToUpload = [];
+          for (const url of refImages) {
+            if (url.startsWith('blob:')) {
+              // Can't directly upload blob URLs; skip them
+              continue;
+            }
+            refFilesToUpload.push(url);
+          }
+          
+          // Upload actual file URLs if any
+          for (const fileUrl of refFilesToUpload) {
+            try {
+              const uploadRes = await base44.integrations.Core.UploadFile({ file: fileUrl });
+              if (uploadRes?.file_url) uploadedRefUrls.push(uploadRes.file_url);
+            } catch (e) {
+              console.warn("Failed to upload reference image:", e);
+            }
+          }
+        } catch (e) {
+          console.warn("Reference upload error:", e);
+        }
+      }
+
       const finalPrompt = buildPrompt();
+      const refPromptPrefix = uploadedRefUrls.length > 0 
+        ? `CRITICAL: Follow these reference images EXACTLY for the style, design, and appearance. ${prompt}` 
+        : prompt;
+      
       const isVideo = currentMode?.supportsVideo;
       const is3D = currentMode?.supportsTripo;
 
@@ -492,9 +517,9 @@ export default function ArtForgeStudio() {
         };
 
         const generateOne = (i) => base44.integrations.Core.GenerateImage({
-          prompt: mode === "sticker" ? buildStickerVariantPrompt(i) : finalPrompt,
-          existing_image_urls: (Array.isArray(refImages) && refImages.length > 0) ? refImages : undefined,
-          model: "claude_opus_4_7", // Use advanced model for better reference sheet detail adherence
+          prompt: mode === "sticker" ? buildStickerVariantPrompt(i) : refPromptPrefix,
+          existing_image_urls: uploadedRefUrls.length > 0 ? uploadedRefUrls : undefined,
+          model: "claude_opus_4_7", // Advanced model with vision+details
         });
 
         const responses = await Promise.all(Array.from({ length: count }, (_, i) => generateOne(i)));
