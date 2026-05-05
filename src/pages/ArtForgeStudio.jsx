@@ -28,22 +28,24 @@ const MODES = [
   {
     id: "2d_model",
     label: "2D / Sprite",
-    desc: "Flat art & sprite sheets",
+    desc: "Game sprites, VTuber sheets & art",
     icon: Layers,
     gradient: "from-[#a855f7] to-[#1e78ff]",
-    placeholder: "A pixel art warrior character, 16-bit style, front-facing idle pose, transparent background...",
-    suffix: ", 2D game asset, flat vector illustration, clean hard edges, crisp pixel-perfect lines, transparent background, no shadows, no gradients, isolated character",
+    placeholder: "A warrior mage character, front-facing idle pose, clean linework, transparent background...",
+    suffix: "", // handled by 2D sub-mode
     supportsVideo: false,
+    hasSubModes: true,
   },
   {
     id: "3d_model",
     label: "3D Render",
-    desc: "Textured 3D model render",
+    desc: "VRChat, VRM & 3D model renders",
     icon: Box,
     gradient: "from-[#f97316] to-[#a855f7]",
-    placeholder: "A low-poly 3D fox character, textured, suitable for a VRM avatar, anime style...",
-    suffix: ", professional 3D render, octane render, PBR textures, subsurface scattering, depth of field, soft studio HDRI lighting, clean white background, turntable view",
+    placeholder: "A fox girl character, pastel outfit, suitable for VRChat, anime toon shader style...",
+    suffix: "", // handled by 3D sub-mode
     supportsVideo: false,
+    hasSubModes: true,
   },
   {
     id: "sticker",
@@ -74,6 +76,105 @@ const MODES = [
     placeholder: "A majestic eagle soaring above snow-capped mountains, golden hour light, cinematic wide shot...",
     suffix: ", cinematic quality, smooth camera motion, professional color grading, 4K resolution, high frame rate, dramatic lighting",
     supportsVideo: true,
+  },
+];
+
+// ─── 2D Sub-modes ─────────────────────────────────────────────────────────────
+const SUBMODES_2D = [
+  {
+    id: "sprite",
+    label: "Game Sprite",
+    desc: "Pixel & vector game characters",
+    placeholder: "A knight character, sword raised, idle pose, pixel art style...",
+    suffix: ", game sprite asset, crisp pixel art, flat vector illustration, clean hard edges, transparent background, no shadows, no background, isolated character on alpha, ready for Unity/Godot",
+  },
+  {
+    id: "spritesheet",
+    label: "Sprite Sheet",
+    desc: "Animation frame layout",
+    placeholder: "A slime creature with walk, idle, and attack animation frames, 8 frames each...",
+    suffix: ", sprite sheet layout, multiple animation frames in a grid, 8x8 grid format, pixel art, consistent character across all frames, transparent background, game ready",
+  },
+  {
+    id: "vtuber_live2d",
+    label: "VTuber / Live2D",
+    desc: "VTuber model reference sheet",
+    placeholder: "A fox girl VTuber with silver hair, golden eyes, hoodie with ears, cheerful expression...",
+    suffix: ", VTuber character design, Live2D rigging reference sheet, front-facing neutral pose, clean anime linework, separate body parts visible (hair, face, body, hands), flat cel shading, white background, professional VTuber model quality, suitable for Live2D rigging, inspired by Hololive and Nijisanji model quality",
+  },
+  {
+    id: "pngtuber",
+    label: "PNGTuber",
+    desc: "Talking PNG avatar for streaming",
+    placeholder: "A cute chibi cat VTuber avatar, open mouth and closed mouth versions, soft pastel colors...",
+    suffix: ", PNGTuber streaming avatar, chibi proportions, 2 states: mouth open and mouth closed side by side, expressive large eyes, pure white or transparent background, clean vector cartoon style, suitable for VTube Studio / veadotube mini, streamer avatar quality",
+  },
+  {
+    id: "reference_sheet",
+    label: "Character Sheet",
+    desc: "Full character reference design",
+    placeholder: "A dark elf ranger with a longbow, leather armor, turquoise eyes, showing front/side/back views...",
+    suffix: ", full character reference sheet, front view center + side view right + back view left, clean anime/illustration style, labeled color swatches, white background, professional concept art quality, used by game studios and anime studios",
+  },
+  {
+    id: "ui_asset",
+    label: "UI Asset",
+    desc: "Game UI icons and elements",
+    placeholder: "A set of RPG inventory icons: sword, shield, potion, key, map, all in fantasy style...",
+    suffix: ", game UI asset, icon set, consistent art style across all items, flat or slightly skeuomorphic, 512x512 each, transparent background, clean linework, suitable for Unity/Unreal Engine HUD",
+  },
+];
+
+// ─── 3D Sub-modes ─────────────────────────────────────────────────────────────
+const SUBMODES_3D = [
+  {
+    id: "vrchat_anime",
+    label: "VRChat Anime",
+    desc: "Anime avatar for VRChat/VRM",
+    placeholder: "A magical girl with long pink twin tails, white dress, star wand, anime style...",
+    suffix: ", VRChat-ready anime avatar render, VRM avatar format reference, toon shader cel shading, Unity HDRP compatible, clean topology humanoid rig, expressive face bones, anime proportions, inspired by popular VRChat anime avatars, studio lighting on white background, T-pose or A-pose, Blender Eevee quality render",
+  },
+  {
+    id: "vrchat_furry",
+    label: "VRChat Furry",
+    desc: "Furry / anthro avatar for VRChat",
+    placeholder: "A wolf anthro character with blue fur, leather jacket, glowing cyan eyes, VRChat avatar...",
+    suffix: ", VRChat furry anthro avatar concept, VRCArena quality, digitigrade or plantigrade legs, fur texture detail, fully rigged humanoid skeleton compatible, expressive face for blendshapes, clean white studio background, front-facing A-pose, Blender Cycles render, high polygon fur card detail",
+  },
+  {
+    id: "vrchat_scifi",
+    label: "VRChat Sci-Fi",
+    desc: "Futuristic / mech avatar",
+    placeholder: "A cybernetic android with glowing blue circuits, chrome armor, holographic visor...",
+    suffix: ", VRChat sci-fi avatar concept art, hard surface armor modeling reference, PBR metallic/roughness textures, emissive glowing elements, humanoid bone structure, Unity compatible, octane render quality, clean studio HDRI lighting, front A-pose turntable view",
+  },
+  {
+    id: "vrchat_fantasy",
+    label: "VRChat Fantasy",
+    desc: "Fantasy creature or knight",
+    placeholder: "A dark elf warlock with horns, tattered robe, glowing purple runes on skin...",
+    suffix: ", VRChat fantasy avatar design, detailed fantasy character concept, rigging-ready humanoid proportions, high quality PBR textures reference, dynamic cloth and hair simulation capable, expressive blendshape face reference, Sketchfab/Gumroad quality avatar, clean white background render",
+  },
+  {
+    id: "vrm_model",
+    label: "VRM / VSeeFace",
+    desc: "VRM model for VTubing in 3D",
+    placeholder: "A 3D VTuber character, boy with spiky blue hair, streamer hoodie, holding a mic...",
+    suffix: ", VRM 3D avatar for VTubing, VSeeFace/ThreeDPoseTracker compatible, clean anime toon shader, expressive blendshapes reference (happy, sad, surprised, angry), A-pose front view with side view, humanoid rig visible, suitable for export from VRoid Studio, Hololive 3D model quality standard",
+  },
+  {
+    id: "lowpoly",
+    label: "Low Poly",
+    desc: "Stylized low-poly game model",
+    placeholder: "A low-poly fox character, geometric faceted style, autumn colors, game ready...",
+    suffix: ", stylized low-poly 3D model, faceted geometric design, visible polygon faces, flat shading no normal maps, Unity/Unreal Engine game asset, less than 5000 polygons, clean topology reference, white background studio render, Blender low-poly aesthetic, suitable for mobile games",
+  },
+  {
+    id: "3d_render",
+    label: "3D Render",
+    desc: "Photorealistic 3D render",
+    placeholder: "A detailed 3D robot character, mechanical joints, battle-worn paint, dramatic lighting...",
+    suffix: ", professional 3D render, Blender Cycles or Octane render, PBR textures with metallic/roughness/AO maps, HDRI studio lighting, depth of field bokeh, subsurface scattering on skin, ray-traced reflections, 8K render quality, clean white or gradient background, product visualization quality",
   },
 ];
 
@@ -210,6 +311,10 @@ export default function ArtForgeStudio() {
   const [stickerStyle, setStickerStyle] = useState("kawaii");
   const [stickerPackSize, setStickerPackSize] = useState(1);
 
+  // Sub-mode state for 2D and 3D
+  const [subMode2D, setSubMode2D] = useState("sprite");
+  const [subMode3D, setSubMode3D] = useState("vrchat_anime");
+
   const [galleryFilter, setGalleryFilter] = useState("all");
   const [gallerySearch, setGallerySearch] = useState("");
 
@@ -241,15 +346,24 @@ export default function ArtForgeStudio() {
     );
   };
 
+  const getModeSuffix = () => {
+    if (mode === "2d_model") {
+      return SUBMODES_2D.find(s => s.id === subMode2D)?.suffix || "";
+    }
+    if (mode === "3d_model") {
+      return SUBMODES_3D.find(s => s.id === subMode3D)?.suffix || "";
+    }
+    if (mode === "sticker") {
+      return (currentMode?.suffix || "") + (STICKER_STYLES.find(s => s.id === stickerStyle)?.suffix || "");
+    }
+    return currentMode?.suffix || "";
+  };
+
   const buildPrompt = () => {
-    // Use rich style modifiers instead of just tag names
     const styleStr = activeStyleTags.length > 0
       ? `, ${activeStyleTags.map(t => STYLE_TAG_MODIFIERS[t] || t).join(", ")}`
       : "";
-    const stickerSuffix = mode === "sticker"
-      ? (STICKER_STYLES.find(s => s.id === stickerStyle)?.suffix || "")
-      : "";
-    return `${prompt}${styleStr}${currentMode?.suffix || ""}${stickerSuffix}`;
+    return `${prompt}${styleStr}${getModeSuffix()}`;
   };
 
   const buildVideoPrompt = () => {
@@ -257,6 +371,12 @@ export default function ArtForgeStudio() {
       ? `, ${activeStyleTags.map(t => STYLE_TAG_MODIFIERS[t] || t).join(", ")}`
       : "";
     return `${prompt}${styleStr}${currentMode?.suffix || ""}`;
+  };
+
+  const getCurrentSubMode = () => {
+    if (mode === "2d_model") return SUBMODES_2D.find(s => s.id === subMode2D);
+    if (mode === "3d_model") return SUBMODES_3D.find(s => s.id === subMode3D);
+    return null;
   };
 
   // ── Visual generation ────────────────────────────────────────────────────────
@@ -441,7 +561,7 @@ export default function ArtForgeStudio() {
                   return (
                     <button
                       key={m.id}
-                      onClick={() => { setMode(m.id); setResults([]); }}
+                      onClick={() => { setMode(m.id); setResults([]); setActiveStyleTags([]); }}
                       className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold transition-all duration-200 ${
                         isActive
                           ? "bg-gradient-to-r " + m.gradient + " text-white border-transparent shadow-lg"
@@ -504,7 +624,7 @@ export default function ArtForgeStudio() {
                     <textarea
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
-                      placeholder={currentMode?.placeholder}
+                      placeholder={getCurrentSubMode()?.placeholder || currentMode?.placeholder}
                       rows={4}
                       className="w-full bg-[#0a1525]/80 border border-blue-900/40 rounded-xl p-3 text-sm text-[#c8dff5] placeholder-blue-400/20 outline-none focus:border-[#1e78ff]/50 resize-none transition-colors"
                     />
@@ -529,6 +649,52 @@ export default function ArtForgeStudio() {
                       ))}
                     </div>
                   </div>
+
+                  {/* 2D Sub-mode selector */}
+                  {mode === "2d_model" && (
+                    <div>
+                      <p className="text-xs font-semibold text-blue-400/50 uppercase tracking-wider mb-2">2D Type</p>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {SUBMODES_2D.map(s => (
+                          <button
+                            key={s.id}
+                            onClick={() => setSubMode2D(s.id)}
+                            className={`px-2.5 py-2 rounded-lg text-left border transition-all ${
+                              subMode2D === s.id
+                                ? "bg-[#a855f7]/20 border-[#a855f7]/60 text-[#a855f7]"
+                                : "border-blue-900/30 text-blue-400/40 hover:border-blue-700/50 hover:text-blue-300"
+                            }`}
+                          >
+                            <p className="text-[11px] font-bold leading-tight">{s.label}</p>
+                            <p className="text-[9px] opacity-60 leading-tight mt-0.5">{s.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3D Sub-mode selector */}
+                  {mode === "3d_model" && (
+                    <div>
+                      <p className="text-xs font-semibold text-blue-400/50 uppercase tracking-wider mb-2">3D Type</p>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {SUBMODES_3D.map(s => (
+                          <button
+                            key={s.id}
+                            onClick={() => setSubMode3D(s.id)}
+                            className={`px-2.5 py-2 rounded-lg text-left border transition-all ${
+                              subMode3D === s.id
+                                ? "bg-[#f97316]/20 border-[#f97316]/60 text-[#f97316]"
+                                : "border-blue-900/30 text-blue-400/40 hover:border-blue-700/50 hover:text-blue-300"
+                            }`}
+                          >
+                            <p className="text-[11px] font-bold leading-tight">{s.label}</p>
+                            <p className="text-[9px] opacity-60 leading-tight mt-0.5">{s.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Sticker-specific controls */}
                   {mode === "sticker" && (
@@ -593,7 +759,7 @@ export default function ArtForgeStudio() {
                           ))}
                         </div>
                       </div>
-                    ) : mode !== "sticker" ? (
+                    ) : mode !== "sticker" && mode !== "2d_model" && mode !== "3d_model" ? (
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-xs text-blue-400/50 font-medium">How many images?</span>
                         <div className="flex items-center gap-1 bg-[#0a1525] border border-blue-900/30 rounded-lg p-1">
@@ -617,8 +783,12 @@ export default function ArtForgeStudio() {
                         : currentMode?.supportsVideo
                           ? <><Film className="w-4 h-4" /> Generate Video ({videoDuration}s)</>
                           : mode === "sticker"
-                            ? <><Smile className="w-4 h-4" /> Generate {stickerPackSize > 1 ? `${stickerPackSize}-Sticker Pack` : "Sticker"}</>
-                            : <><Sparkles className="w-4 h-4" /> Generate {batchCount > 1 ? `${batchCount} Images` : ""}</>
+                          ? <><Smile className="w-4 h-4" /> Generate {stickerPackSize > 1 ? `${stickerPackSize}-Sticker Pack` : "Sticker"}</>
+                          : mode === "2d_model"
+                          ? <><Layers className="w-4 h-4" /> Generate {getCurrentSubMode()?.label || "2D Art"}</>
+                          : mode === "3d_model"
+                          ? <><Box className="w-4 h-4" /> Generate {getCurrentSubMode()?.label || "3D Render"}</>
+                          : <><Sparkles className="w-4 h-4" /> Generate {batchCount > 1 ? `${batchCount} Images` : ""}</>
                       }
                     </Button>
                   </div>
