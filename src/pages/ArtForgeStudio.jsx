@@ -833,13 +833,19 @@ export default function ArtForgeStudio() {
 
                   {/* 3D note */}
                   {mode === "3d_model" && (
-                    <div className="bg-[#f97316]/10 border border-[#f97316]/30 rounded-lg p-3">
+                    <div className="bg-[#f97316]/10 border border-[#f97316]/30 rounded-lg p-3 space-y-2">
                       <p className="text-xs text-[#f97316] font-semibold">🎯 Real 3D Generation</p>
-                      <p className="text-xs text-[#f97316]/70 mt-1">
+                      <p className="text-xs text-[#f97316]/70">
                         {getCurrentSubMode()?.requiresPayment 
-                          ? `Premium quality - $${getCurrentSubMode()?.price} per generation` 
-                          : "Free 3D model generation"}
+                          ? `💳 Premium quality - $${getCurrentSubMode()?.price} per generation` 
+                          : `✨ Free 3D generation`}
                       </p>
+                      {!getCurrentSubMode()?.requiresPayment && (
+                        <p className="text-[10px] text-[#f97316]/60">
+                          {subMode3D === "tripo3d" && "Tripo3D: Fast, free AI 3D generation"}
+                          {subMode3D === "sloyd" && "Sloyd: Procedural free 3D models"}
+                        </p>
+                      )}
                     </div>
                   )}
 
