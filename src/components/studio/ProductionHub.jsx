@@ -1,13 +1,19 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, ImageIcon, WandSparkles } from "lucide-react";
+import { Upload, Film, Image, Clapperboard, Music, WandSparkles } from "lucide-react";
 import VideoUpload from "@/pages/VideoUpload";
-import VideoEditorAdvanced from "./VideoEditorAdvanced";
+import VideoEditor from "@/pages/VideoEditor";
+import ThumbnailMaker from "@/pages/ThumbnailMaker";
+import IntroOutroMaker from "@/pages/IntroOutroMaker";
+import MusicEditor from "@/pages/MusicEditor";
 import ArtForgeStudio from "@/pages/ArtForgeStudio";
 
 const subtabs = [
   { id: "upload", label: "Upload", icon: Upload, component: VideoUpload },
-  { id: "editor", label: "Editor", icon: ImageIcon, component: VideoEditorAdvanced },
+  { id: "video", label: "Video Editor", icon: Film, component: VideoEditor },
+  { id: "thumbnail", label: "Thumbnail", icon: Image, component: ThumbnailMaker },
+  { id: "intros", label: "Intros & Outros", icon: Clapperboard, component: IntroOutroMaker },
+  { id: "music", label: "Music Editor", icon: Music, component: MusicEditor },
   { id: "artforge", label: "ArtForge AI", icon: WandSparkles, component: ArtForgeStudio },
 ];
 
