@@ -7,7 +7,7 @@ import {
   WandSparkles, Layers, Box, Plus, X, Sparkles, Download,
   RefreshCw, Image, LayoutGrid, Clock, Trash2, FileText,
   Loader2, Copy, Check, Type, Tag, Lightbulb, Heart,
-  Search, Minus, Film, Smile, Package, Zap, Star, Edit
+  Search, Minus, Film, Smile, Package, Zap, Star, Edit, MessageSquare, Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -279,6 +279,7 @@ export default function ArtForgeStudio() {
   const [results, setResults] = useState([]);
   const [genLoading, setGenLoading] = useState(false);
   const [editingFromGallery, setEditingFromGallery] = useState(null);
+  const [editComments, setEditComments] = useState([]);
   const [batchCount, setBatchCount] = useState(1);
   const [activeStyleTags, setActiveStyleTags] = useState([]);
   const [videoDuration, setVideoDuration] = useState(6);
@@ -412,18 +413,23 @@ export default function ArtForgeStudio() {
     setRefImages([item.url]);
     setMode(item.type || "image");
     setResults([]);
+    setEditComments([]);
     setActiveTab("studio");
   };
 
   const handleSaveEdit = async (editedUrl) => {
     if (!editingFromGallery) return;
     try {
+      const commentsText = editComments.length > 0 
+        ? `Feedback: ${editComments.map(c => c.text).join(" | ")}` 
+        : "";
+      
       // Save edited version as new asset
       await base44.entities.MediaAsset.create({
         name: `${editingFromGallery.name} (edited)`,
         url: editedUrl,
         type: editingFromGallery.type,
-        description: `Edited from: ${editingFromGallery.name}. ${prompt}`,
+        description: `Edited from: ${editingFromGallery.name}. ${prompt}${commentsText ? ` — ${commentsText}` : ""}`,
         category: editingFromGallery.category,
         file_url: editedUrl,
         is_favorite: false,
@@ -432,6 +438,7 @@ export default function ArtForgeStudio() {
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
       toast.success("Edit saved as new version ✓");
       setEditingFromGallery(null);
+      setEditComments([]);
       setResults([]);
       setPrompt("");
       setRefImages([]);
@@ -1153,7 +1160,86 @@ export default function ArtForgeStudio() {
                     animate={{ opacity: 1, x: 0 }}
                     className="lg:col-span-1 min-h-[400px]"
                   >
-                    <ArtForgeGenerationComments />
+                    {editingFromGallery ? (
+                      <div className="bg-[#060d18]/60 border border-blue-900/30 rounded-2xl p-4 backdrop-blur-sm flex flex-col h-full">
+                        <div className="flex items-center gap-2 mb-3 pb-3 border-b border-blue-900/20">
+                          <MessageSquare className="w-4 h-4 text-[#facc15]" />
+                          <span className="text-xs font-bold text-blue-400/70 uppercase tracking-wider">Editing Changes</span>
+                        </div>
+                        <p className="text-xs text-blue-400/40 mb-3">Add feedback on what to fix before regenerating</p>
+
+                        {/* Comments List */}
+                        <div className="flex-1 overflow-y-auto space-y-2 mb-3">
+                          <AnimatePresence>
+                            {editComments.length === 0 ? (
+                              <p className="text-xs text-blue-400/40 py-4 text-center">No feedback yet</p>
+                            ) : (
+                              editComments.map((comment, i) => (
+                                <motion.div
+                                  key={comment.id}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: -10 }}
+                                  className="bg-[#0a1525]/80 border border-blue-900/30 rounded-lg p-2.5 group"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs text-[#c8dff5] leading-tight break-words">{comment.text}</p>
+                                      <span className="text-[10px] text-blue-400/40 mt-1 block">{comment.timestamp}</span>
+                                    </div>
+                                    <button
+                                      onClick={() => setEditComments(prev => prev.filter(c => c.id !== comment.id))}
+                                      className="flex-shrink-0 text-blue-400/40 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 mt-0.5"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </motion.div>
+                              ))
+                            )}
+                          </AnimatePresence>
+                        </div>
+
+                        {/* Input */}
+                        <div className="flex gap-2 border-t border-blue-900/20 pt-3">
+                          <input
+                            type="text"
+                            placeholder="e.g., Make it more vibrant..."
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && e.currentTarget.value.trim()) {
+                                const newComment = {
+                                  id: Date.now(),
+                                  text: e.currentTarget.value,
+                                  timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                                };
+                                setEditComments(prev => [...prev, newComment]);
+                                e.currentTarget.value = "";
+                              }
+                            }}
+                            className="flex-1 bg-[#0a1525]/80 border border-blue-900/40 rounded-lg px-2.5 py-1.5 text-xs text-[#c8dff5] placeholder-blue-400/20 outline-none focus:border-[#facc15]/50 transition-colors"
+                          />
+                          <button
+                            onClick={(e) => {
+                              const input = e.currentTarget.previousElementSibling;
+                              if (input.value.trim()) {
+                                const newComment = {
+                                  id: Date.now(),
+                                  text: input.value,
+                                  timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                                };
+                                setEditComments(prev => [...prev, newComment]);
+                                input.value = "";
+                              }
+                            }}
+                            className="w-8 h-8 bg-[#facc15]/20 hover:bg-[#facc15]/40 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
+                          >
+                            <Send className="w-3.5 h-3.5 text-[#facc15]" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <ArtForgeGenerationComments />
+                    )}
                   </motion.div>
                 </div>
               </div>
