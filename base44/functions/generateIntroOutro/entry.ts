@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
     }
 
     const videoData = {
-      type, // 'intro' or 'outro'
+      type,
       text,
       template: template_name || 'cinematic',
       duration: duration || 3,

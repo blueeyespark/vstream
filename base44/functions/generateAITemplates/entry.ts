@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 
     const description = typeDescriptions[projectType] || projectType;
     
-    const prompt = `Generate a professional project template for a "${description}". Return JSON with:
+    const prompt = `Generate a project template for a "${description}". Return JSON with:
     {
       "name": "Template name",
       "description": "Brief description",
@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
         { "id": "s1", "name": "Status 1", "color": "#6366f1", "order": 0 }
       ]
     }
-    Include 3-5 realistic tasks and 2-3 custom statuses. Make it production-ready.`;
+    Include 3-5 realistic tasks and 2-3 custom statuses.`;
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt,
