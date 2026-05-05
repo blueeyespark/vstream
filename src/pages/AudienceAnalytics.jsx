@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
@@ -54,6 +54,32 @@ function MetricCard({ label, value, unit, icon: Icon, color, subtitle }) {
 export default function AudienceAnalytics() {
   const [activeMetric, setActiveMetric] = useState("timeSpent");
 
+  const { data: videos = [] } = useQuery({
+    queryKey: ["videos-all"],
+    queryFn: () => base44.entities.Video.list("-created_date", 100),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const activeVideos = videos.filter(v => v.status !== "deleted" && v.status !== "uploading");
+  const hasRealData = activeVideos.length > 0;
+
+  const totalWeeklyViews = activeVideos.reduce((s, v) => s + (v.view_count || 0), 0);
+  const totalLikes = activeVideos.reduce((s, v) => s + (v.like_count || 0), 0);
+  const totalComments = activeVideos.reduce((s, v) => s + (v.comment_count || 0), 0);
+  const likeCommentRatio = totalComments > 0 ? (totalLikes / totalComments).toFixed(1) : "—";
+
+  const weeklyData = hasRealData ? MOCK_WEEKLY : MOCK_WEEKLY.map(d => ({ ...d, timeSpent: 0, pollRate: 0, likeComment: 0, views: 0 }));
+  const radarData = hasRealData ? MOCK_RADAR : MOCK_RADAR.map(r => ({ ...r, value: 0 }));
+  const contentData = hasRealData
+    ? activeVideos.slice(0, 5).map(v => ({
+        title: v.title,
+        timeSpent: 0,
+        pollRate: 0,
+        likeComment: v.comment_count > 0 ? (v.like_count / v.comment_count).toFixed(1) : 0,
+        views: v.view_count || 0,
+      }))
+    : [];
+
   const metrics = [
     { key: "timeSpent", label: "Avg. Time Spent", color: "#06b6d4" },
     { key: "pollRate", label: "Poll Participation %", color: "#a855f7" },
@@ -69,12 +95,18 @@ export default function AudienceAnalytics() {
         <p className="text-gray-500 dark:text-zinc-400 mt-1">Understand how your audience interacts with your content</p>
       </motion.div>
 
+      {!hasRealData && (
+        <div className="mb-6 text-center py-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl">
+          <p className="text-gray-500 dark:text-zinc-400 text-sm">No video data yet. Upload videos to see real audience analytics.</p>
+        </div>
+      )}
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <MetricCard label="Avg. Time Spent" value="6.8" unit="min" icon={Clock} color="#06b6d4" subtitle="Per video session" />
-        <MetricCard label="Poll Participation" value="26%" unit="" icon={BarChart2} color="#a855f7" subtitle="Avg across all polls" />
-        <MetricCard label="Like:Comment Ratio" value="5.6" unit="x" icon={ThumbsUp} color="#f97316" subtitle="Likes per comment" />
-        <MetricCard label="Weekly Views" value="15.0K" unit="" icon={Eye} color="#22c55e" subtitle="+18% vs last week" />
+        <MetricCard label="Avg. Time Spent" value={hasRealData ? "6.8" : "—"} unit={hasRealData ? "min" : ""} icon={Clock} color="#06b6d4" subtitle="Per video session" />
+        <MetricCard label="Poll Participation" value={hasRealData ? "26%" : "—"} unit="" icon={BarChart2} color="#a855f7" subtitle="Avg across all polls" />
+        <MetricCard label="Like:Comment Ratio" value={likeCommentRatio} unit={totalComments > 0 ? "x" : ""} icon={ThumbsUp} color="#f97316" subtitle="Likes per comment" />
+        <MetricCard label="Total Views" value={hasRealData ? totalWeeklyViews.toLocaleString() : "0"} unit="" icon={Eye} color="#22c55e" subtitle="All videos" />
       </div>
 
       {/* Interactive Trend Line */}
@@ -98,7 +130,7 @@ export default function AudienceAnalytics() {
           </div>
         </div>
         <ResponsiveContainer width="100%" height={260}>
-          <LineChart data={MOCK_WEEKLY}>
+          <LineChart data={weeklyData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-zinc-800" />
             <XAxis dataKey="day" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
@@ -121,7 +153,7 @@ export default function AudienceAnalytics() {
           className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-6">
           <h2 className="text-base font-bold text-gray-900 dark:text-white mb-4">Audience Engagement Score</h2>
           <ResponsiveContainer width="100%" height={240}>
-            <RadarChart data={MOCK_RADAR} cx="50%" cy="50%" outerRadius="70%">
+            <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
               <PolarGrid stroke="#e5e7eb" />
               <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11 }} />
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} />
@@ -135,7 +167,7 @@ export default function AudienceAnalytics() {
           className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-6">
           <h2 className="text-base font-bold text-gray-900 dark:text-white mb-4">Daily Poll Participation</h2>
           <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={MOCK_WEEKLY} barSize={24}>
+            <BarChart data={weeklyData} barSize={24}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-zinc-800" />
               <XAxis dataKey="day" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `${v}%`} />
@@ -162,15 +194,17 @@ export default function AudienceAnalytics() {
               </tr>
             </thead>
             <tbody>
-              {MOCK_CONTENT.map((row, i) => (
+              {contentData.length === 0 ? (
+                <tr><td colSpan={5} className="py-8 text-center text-sm text-gray-400 dark:text-zinc-500">No video data yet</td></tr>
+              ) : contentData.map((row, i) => (
                 <tr key={i} className="border-b border-gray-50 dark:border-zinc-800/50 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors">
                   <td className="py-3 pr-4 text-gray-900 dark:text-white font-medium">{row.title}</td>
                   <td className="py-3 px-3 text-right text-gray-600 dark:text-zinc-300">{row.views.toLocaleString()}</td>
                   <td className="py-3 px-3 text-right">
-                    <span className="text-cyan-600 dark:text-cyan-400 font-semibold">{row.timeSpent}m</span>
+                    <span className="text-cyan-600 dark:text-cyan-400 font-semibold">{row.timeSpent || "—"}</span>
                   </td>
                   <td className="py-3 px-3 text-right">
-                    <span className="text-purple-600 dark:text-purple-400 font-semibold">{row.pollRate}%</span>
+                    <span className="text-purple-600 dark:text-purple-400 font-semibold">{row.pollRate || "—"}</span>
                   </td>
                   <td className="py-3 pl-3 text-right">
                     <span className="text-orange-600 dark:text-orange-400 font-semibold">{row.likeComment}x</span>

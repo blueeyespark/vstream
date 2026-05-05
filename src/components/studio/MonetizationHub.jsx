@@ -13,17 +13,17 @@ const subtabs = [
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-[#060d18] border border-blue-900/40 rounded-2xl p-4">
             <p className="text-xs text-blue-400/40 mb-1">This Month</p>
-            <p className="text-2xl font-black text-[#22c55e]">$2,450</p>
-            <p className="text-xs text-green-400 mt-1">↑ 18% vs last month</p>
+            <p className="text-2xl font-black text-[#22c55e]">$0</p>
+            <p className="text-xs text-blue-400/40 mt-1">No revenue yet</p>
           </div>
           <div className="bg-[#060d18] border border-blue-900/40 rounded-2xl p-4">
             <p className="text-xs text-blue-400/40 mb-1">Total Earned</p>
-            <p className="text-2xl font-black text-[#1e78ff]">$18,920</p>
+            <p className="text-2xl font-black text-[#1e78ff]">$0</p>
             <p className="text-xs text-blue-400/50 mt-1">All time</p>
           </div>
           <div className="bg-[#060d18] border border-blue-900/40 rounded-2xl p-4">
             <p className="text-xs text-blue-400/40 mb-1">Ad Revenue Share</p>
-            <p className="text-2xl font-black text-[#a855f7]">$1,240</p>
+            <p className="text-2xl font-black text-[#a855f7]">$0</p>
             <p className="text-xs text-blue-400/50 mt-1">Platform earnings</p>
           </div>
         </div>

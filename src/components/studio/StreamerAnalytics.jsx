@@ -256,13 +256,13 @@ export default function StreamerAnalytics() {
     return Object.entries(catData).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, views]) => ({ name, views }));
   }, [activeVideos]);
 
-  const grossRevenue    = hasRealData ? MOCK_REVENUE.reduce((s, i) => s + i.value, 0) : 0;
+  const grossRevenue    = 0; // Revenue not tracked yet — no ghost data
   const creatorEarnings = Math.round(grossRevenue * 0.8);
   const emptyMonthly    = MOCK_MONTHLY.map(m => ({ month: m.month, memberships: 0, tips: 0, products: 0, ads: 0 }));
   const rawMonthly      = hasRealData ? MOCK_MONTHLY : emptyMonthly;
   const displayMonthly  = revenueRange === "3m" ? rawMonthly.slice(-3) : revenueRange === "6m" ? rawMonthly.slice(-6) : rawMonthly;
   const weeklyData      = hasRealData ? MOCK_WEEKLY : MOCK_WEEKLY.map(d => ({ ...d, views: 0, watchH: 0, pollRate: 0, engagement: 0, subs: 0 }));
-  const revenueStreams   = hasRealData ? MOCK_REVENUE : MOCK_REVENUE.map(r => ({ ...r, value: 0, change: 0 }));
+  const revenueStreams   = MOCK_REVENUE.map(r => ({ ...r, value: 0, change: 0 }));
 
   const displayTopVideos = topVideos;
   const maxViews = displayTopVideos[0]?.view_count || 1;
@@ -285,9 +285,9 @@ export default function StreamerAnalytics() {
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
           <KPI icon={Clock}         label="Avg Duration"   value={avgDur > 0 ? `${Math.floor(avgDur/60)}m ${avgDur%60}s` : "—"} color="#06b6d4" />
-          <KPI icon={Users}         label="Subscribers"    value={hasRealData ? "12.4K" : "0"}   sub={hasRealData ? "+193 this week" : "no data yet"} color="#1e78ff" change={hasRealData ? 4 : undefined} />
-          <KPI icon={Share2}        label="Total Shares"   value={hasRealData ? "8.2K"  : "0"}   sub="all time"        color="#a855f7" change={hasRealData ? 22 : undefined} />
-          <KPI icon={DollarSign}    label="Monthly Rev"    value={grossRevenue > 0 ? `$${grossRevenue.toLocaleString()}` : "$0"} sub="est." color="#22c55e" change={hasRealData ? 12 : undefined} />
+          <KPI icon={Users}         label="Subscribers"    value="—"   sub="connect analytics for data" color="#1e78ff" />
+          <KPI icon={Share2}        label="Total Shares"   value={hasRealData ? fmt(activeVideos.reduce((s,v) => s + (v.like_count||0), 0)) : "0"} sub="total likes (proxy)" color="#a855f7" />
+          <KPI icon={DollarSign}    label="Monthly Rev"    value="$0" sub="no revenue data yet" color="#22c55e" />
         </div>
 
         {/* Views & Watch Time chart */}
@@ -612,10 +612,10 @@ export default function StreamerAnalytics() {
         <SectionHeader icon={TrendingUp} title="Growth & Reach" color="#22c55e" />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-          <KPI icon={Users}      label="Total Subs"      value={hasRealData ? "12.4K"  : "0"}   sub={hasRealData ? "+193 this week" : "no data yet"}  color="#1e78ff" change={hasRealData ? 4  : undefined} />
-          <KPI icon={TrendingUp} label="Sub Growth Rate" value={hasRealData ? "+1.6%"  : "—"}   sub="week over week"                                      color="#22c55e" change={hasRealData ? 12 : undefined} />
-          <KPI icon={Zap}        label="Viral Score"     value={hasRealData ? "74"     : "—"}   sub="out of 100"                                           color="#a855f7" change={hasRealData ? 9  : undefined} />
-          <KPI icon={Radio}      label="Live Viewers"    value={hasRealData ? "832"    : "0"}   sub={hasRealData ? "avg peak" : "no streams yet"}          color="#f97316" change={hasRealData ? 15 : undefined} />
+          <KPI icon={Users}      label="Total Subs"      value="—"  sub="connect analytics for data"  color="#1e78ff" />
+          <KPI icon={TrendingUp} label="Sub Growth Rate" value="—"  sub="no data yet"                 color="#22c55e" />
+          <KPI icon={Zap}        label="Viral Score"     value="—"  sub="no data yet"                 color="#a855f7" />
+          <KPI icon={Radio}      label="Live Viewers"    value={hasRealData ? "—" : "0"} sub="no streams tracked"  color="#f97316" />
         </div>
 
         <div className="grid lg:grid-cols-2 gap-5">

@@ -61,13 +61,22 @@ export default function FinancialOverview() {
     queryFn: () => base44.entities.CreatorBudget.list("-date", 100),
   });
 
-  const grossRevenue = MOCK_BREAKDOWN.reduce((s, i) => s + i.value, 0);
+  const hasData = budgetData.length > 0;
+
+  // Use real budget data if available, otherwise show zeros
+  const grossRevenue = hasData
+    ? budgetData.filter(b => b.type === "income").reduce((s, b) => s + (b.amount || 0), 0)
+    : 0;
   const creatorEarnings = Math.round(grossRevenue * CREATOR_SHARE);
   const platformFee = Math.round(grossRevenue * PLATFORM_SHARE);
-  const prevTotal = 1880;
-  const totalChange = (((grossRevenue - prevTotal) / prevTotal) * 100).toFixed(1);
 
-  const displayData = range === "3m" ? MOCK_MONTHLY.slice(-3) : range === "6m" ? MOCK_MONTHLY.slice(-6) : MOCK_MONTHLY;
+  // Only show chart data if real data exists
+  const emptyMonthly = MOCK_MONTHLY.map(m => ({ ...m, memberships: 0, tips: 0, products: 0, ads: 0 }));
+  const chartData = hasData ? MOCK_MONTHLY : emptyMonthly;
+  const displayData = range === "3m" ? chartData.slice(-3) : range === "6m" ? chartData.slice(-6) : chartData;
+
+  const emptyBreakdown = MOCK_BREAKDOWN.map(b => ({ ...b, value: 0, change: 0 }));
+  const breakdown = hasData ? MOCK_BREAKDOWN : emptyBreakdown;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto">
@@ -84,10 +93,12 @@ export default function FinancialOverview() {
             <p className="text-white/70 text-sm font-medium">Total Gross Revenue This Month</p>
             <p className="text-4xl font-black mt-1">${grossRevenue.toLocaleString()}</p>
           </div>
+          {hasData && (
           <div className="flex items-center gap-2 bg-white/20 rounded-xl px-4 py-2 w-fit">
             <TrendingUp className="w-4 h-4" />
-            <span className="text-sm font-bold">+{totalChange}% vs last month</span>
+            <span className="text-sm font-bold">Based on your budget entries</span>
           </div>
+        )}
         </div>
         {/* Split visualization */}
         <div className="bg-white/10 rounded-xl p-4">
@@ -112,9 +123,15 @@ export default function FinancialOverview() {
         </div>
       </motion.div>
 
+      {!hasData && (
+        <div className="text-center py-6 mb-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl">
+          <p className="text-gray-500 dark:text-zinc-400 text-sm">No budget data yet. Add income entries to see real revenue stats.</p>
+        </div>
+      )}
+
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {MOCK_BREAKDOWN.map((item, i) => (
+        {breakdown.map((item, i) => (
           <motion.div key={item.name} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
             <StatCard label={item.name} value={item.value} change={item.change} color={item.color} icon={item.icon} />
           </motion.div>
