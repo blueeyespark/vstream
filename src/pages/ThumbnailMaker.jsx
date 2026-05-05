@@ -20,6 +20,20 @@ const COLOR_PRESETS = [
   { name: "Dark", bg: "#2C3E50", text: "#FFFFFF" },
 ];
 
+const TEXT_EFFECTS = [
+  { name: "Shadow", apply: (ctx) => { ctx.shadowColor = "rgba(0,0,0,0.8)"; ctx.shadowBlur = 10; } },
+  { name: "Glow", apply: (ctx) => { ctx.shadowColor = "rgba(255,255,255,0.5)"; ctx.shadowBlur = 20; } },
+  { name: "Outline", apply: (ctx) => { ctx.strokeStyle = "#000"; ctx.lineWidth = 3; } },
+];
+
+const LAYOUTS = [
+  { name: "Center", x: 0.5, y: 0.5 },
+  { name: "Top", x: 0.5, y: 0.2 },
+  { name: "Bottom", x: 0.5, y: 0.8 },
+  { name: "Left", x: 0.2, y: 0.5 },
+  { name: "Right", x: 0.8, y: 0.5 },
+];
+
 export default function ThumbnailMaker() {
   const canvasRef = useRef(null);
   const [preset, setPreset] = useState(PRESETS[0]);
@@ -29,6 +43,13 @@ export default function ThumbnailMaker() {
   const [fontSize, setFontSize] = useState(60);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [history, setHistory] = useState([]);
+  const [textEffect, setTextEffect] = useState("Shadow");
+  const [layout, setLayout] = useState(LAYOUTS[0]);
+  const [subText, setSubText] = useState("");
+  const [enableBorder, setEnableBorder] = useState(false);
+  const [borderColor, setBorderColor] = useState("#FFFFFF");
+  const [borderWidth, setBorderWidth] = useState(10);
+  const [gradient, setGradient] = useState(false);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -50,9 +71,23 @@ export default function ThumbnailMaker() {
 
     const ctx = canvas.getContext("2d");
 
-    // Background
-    ctx.fillStyle = bgColor;
+    // Background with gradient
+    if (gradient) {
+      const grd = ctx.createLinearGradient(0, 0, preset.width, preset.height);
+      grd.addColorStop(0, bgColor);
+      grd.addColorStop(1, textColor);
+      ctx.fillStyle = grd;
+    } else {
+      ctx.fillStyle = bgColor;
+    }
     ctx.fillRect(0, 0, preset.width, preset.height);
+
+    // Border
+    if (enableBorder) {
+      ctx.strokeStyle = borderColor;
+      ctx.lineWidth = borderWidth;
+      ctx.strokeRect(0, 0, preset.width, preset.height);
+    }
 
     // Draw uploaded image if exists
     if (uploadedImage) {
@@ -67,19 +102,31 @@ export default function ThumbnailMaker() {
     }
 
     function drawText() {
+      const textX = preset.width * layout.x;
+      const textY = preset.height * layout.y;
+
+      // Apply text effect
+      const effect = TEXT_EFFECTS.find(e => e.name === textEffect);
+      if (effect) effect.apply(ctx);
+
       // Main text
       ctx.fillStyle = textColor;
       ctx.font = `bold ${fontSize}px Arial`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
-      // Add shadow
       ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
       ctx.shadowBlur = 10;
       ctx.shadowOffsetX = 3;
       ctx.shadowOffsetY = 3;
 
-      ctx.fillText(mainText, preset.width / 2, preset.height / 2);
+      ctx.fillText(mainText, textX, textY);
+
+      // Sub text if exists
+      if (subText) {
+        ctx.font = `${fontSize * 0.5}px Arial`;
+        ctx.fillText(subText, textX, textY + fontSize * 0.6);
+      }
     }
   };
 
@@ -112,7 +159,7 @@ export default function ThumbnailMaker() {
   // Draw on mount and when settings change
   useEffect(() => {
     drawThumbnail();
-  }, [bgColor, textColor, mainText, fontSize, uploadedImage, preset]);
+  }, [bgColor, textColor, mainText, fontSize, uploadedImage, preset, textEffect, layout, subText, enableBorder, borderColor, borderWidth, gradient]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-4">
@@ -219,7 +266,7 @@ export default function ThumbnailMaker() {
             {/* Text */}
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
               <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                <Type className="w-4 h-4" /> Text
+                <Type className="w-4 h-4" /> Text & Layout
               </h3>
               <div className="space-y-3">
                 <div>
@@ -232,9 +279,61 @@ export default function ThumbnailMaker() {
                   />
                 </div>
                 <div>
+                  <label className="text-xs font-medium text-slate-600 block mb-2">Sub Text</label>
+                  <Input
+                    value={subText}
+                    onChange={(e) => setSubText(e.target.value)}
+                    placeholder="Optional subtitle"
+                    className="text-sm"
+                  />
+                </div>
+                <div>
                   <label className="text-xs font-medium text-slate-600 block mb-2">Font Size: {fontSize}px</label>
                   <input type="range" min="20" max="100" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full" />
                 </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-600 block mb-2">Text Effect</label>
+                  <select value={textEffect} onChange={(e) => setTextEffect(e.target.value)} className="w-full border border-slate-300 rounded p-2 text-xs">
+                    {TEXT_EFFECTS.map(t => <option key={t.name}>{t.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-600 block mb-2">Position</label>
+                  <div className="grid grid-cols-3 gap-1">
+                    {LAYOUTS.map(l => (
+                      <button key={l.name} onClick={() => setLayout(l)} className={`p-2 text-xs rounded border-2 transition-all ${layout.name === l.name ? "border-cyan-500 bg-cyan-50" : "border-slate-200"}`}>
+                        {l.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Border & Effects */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+              <h3 className="font-semibold text-slate-900 mb-3 text-sm">🎨 Effects</h3>
+              <div className="space-y-3">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={gradient} onChange={(e) => setGradient(e.target.checked)} className="w-4 h-4" />
+                  <span className="text-xs font-medium text-slate-600">Gradient BG</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={enableBorder} onChange={(e) => setEnableBorder(e.target.checked)} className="w-4 h-4" />
+                  <span className="text-xs font-medium text-slate-600">Border</span>
+                </label>
+                {enableBorder && (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input type="color" value={borderColor} onChange={(e) => setBorderColor(e.target.value)} className="w-12 h-8 rounded cursor-pointer" />
+                      <Input value={borderColor} onChange={(e) => setBorderColor(e.target.value)} className="text-xs flex-1" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-600">Width: {borderWidth}px</label>
+                      <input type="range" min="1" max="30" value={borderWidth} onChange={(e) => setBorderWidth(parseInt(e.target.value))} className="w-full" />
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
 

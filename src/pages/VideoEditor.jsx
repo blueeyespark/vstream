@@ -12,6 +12,23 @@ const PRESETS = [
   { name: "Vivid", brightness: 110, contrast: 140, volume: 1 },
 ];
 
+const FILTERS = [
+  { name: "Normal", filter: "" },
+  { name: "Grayscale", filter: "grayscale(100%)" },
+  { name: "Sepia", filter: "sepia(100%)" },
+  { name: "Saturate", filter: "saturate(200%)" },
+  { name: "Blur", filter: "blur(5px)" },
+  { name: "Invert", filter: "invert(100%)" },
+  { name: "Hue-rotate", filter: "hue-rotate(180deg)" },
+];
+
+const ASPECT_RATIOS = [
+  { name: "16:9", width: 16, height: 9 },
+  { name: "4:3", width: 4, height: 3 },
+  { name: "1:1", width: 1, height: 1 },
+  { name: "9:16", width: 9, height: 16 },
+];
+
 export default function VideoEditor() {
   const [video, setVideo] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -22,6 +39,14 @@ export default function VideoEditor() {
   const [volume, setVolume] = useState(1);
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
+  const [saturation, setSaturation] = useState(100);
+  const [hue, setHue] = useState(0);
+  const [speed, setSpeed] = useState(1);
+  const [filter, setFilter] = useState("Normal");
+  const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
+  const [showTextOverlay, setShowTextOverlay] = useState(false);
+  const [textContent, setTextContent] = useState("");
+  const [textOpacity, setTextOpacity] = useState(1);
   const [history, setHistory] = useState([]);
   const videoRef = useRef(null);
 
@@ -100,6 +125,25 @@ export default function VideoEditor() {
     return `${mins}:${secs}`;
   };
 
+  const getFilterStyle = () => {
+    const f = FILTERS.find(x => x.name === filter);
+    return { filter: f?.filter || "" };
+  };
+
+  const extractFrame = () => {
+    if (videoRef.current) {
+      const canvas = document.createElement("canvas");
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      canvas.getContext("2d").drawImage(videoRef.current, 0, 0);
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = `frame_${currentTime.toFixed(2)}.png`;
+      link.click();
+      toast.success("Frame extracted!");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -114,15 +158,20 @@ export default function VideoEditor() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
               {video ? (
                 <div className="space-y-4">
-                  <div className="bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center" style={{ filter: `brightness(${brightness}%) contrast(${contrast}%)` }}>
+                  <div className="bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center relative" style={{ ...getFilterStyle(), filter: `${getFilterStyle().filter} brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) hue-rotate(${hue}deg)` }}>
                     <video
                       ref={videoRef}
                       src={video.url}
                       onTimeUpdate={handleTimeUpdate}
                       onLoadedMetadata={handleLoadedMetadata}
                       className="w-full h-full object-contain"
-                      style={{ volume: volume }}
+                      style={{ volume: volume, playbackRate: speed }}
                     />
+                    {showTextOverlay && textContent && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <p style={{ opacity: textOpacity, fontSize: "32px", fontWeight: "bold", color: "white", textShadow: "0 2px 4px rgba(0,0,0,0.8)" }}>{textContent}</p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -145,14 +194,19 @@ export default function VideoEditor() {
                   </div>
 
                   <div className="flex gap-2">
+                    <div className="flex gap-2">
                     <Button onClick={handlePlay} className="flex-1 gap-2">
                       {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                       {isPlaying ? "Pause" : "Play"}
+                    </Button>
+                    <Button variant="outline" onClick={extractFrame} className="gap-2">
+                      📸 Frame
                     </Button>
                     <Button variant="outline" onClick={clearVideo} className="gap-2">
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
+                </div>
                 </div>
               ) : (
                 <label className="flex flex-col items-center justify-center aspect-video border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-slate-400 transition-colors">
@@ -270,11 +324,55 @@ export default function VideoEditor() {
                        </button>
                      ))}
                    </div>
-                 </motion.div>
+                   </motion.div>
 
-                 <Button onClick={handleDownloadTrimmed} className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 gap-2">
+                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                   <h3 className="font-semibold text-slate-900 mb-3 text-sm">✨ Advanced</h3>
+                   <div className="space-y-3">
+                     <div>
+                       <label className="text-xs font-medium text-slate-600 block mb-1">Filter</label>
+                       <select value={filter} onChange={(e) => setFilter(e.target.value)} className="w-full border border-slate-300 rounded p-2 text-xs">
+                         {FILTERS.map(f => <option key={f.name}>{f.name}</option>)}
+                       </select>
+                     </div>
+                     <div>
+                       <div className="flex justify-between items-center mb-1">
+                         <label className="text-xs font-medium text-slate-600">Saturation</label>
+                         <span className="text-xs text-slate-500">{saturation}%</span>
+                       </div>
+                       <input type="range" min="0" max="200" value={saturation} onChange={(e) => setSaturation(parseInt(e.target.value))} className="w-full accent-cyan-500" />
+                     </div>
+                     <div>
+                       <div className="flex justify-between items-center mb-1">
+                         <label className="text-xs font-medium text-slate-600">Hue Shift</label>
+                         <span className="text-xs text-slate-500">{hue}°</span>
+                       </div>
+                       <input type="range" min="0" max="360" value={hue} onChange={(e) => setHue(parseInt(e.target.value))} className="w-full accent-cyan-500" />
+                     </div>
+                     <div>
+                       <div className="flex justify-between items-center mb-1">
+                         <label className="text-xs font-medium text-slate-600">Speed</label>
+                         <span className="text-xs text-slate-500">{speed}x</span>
+                       </div>
+                       <input type="range" min="0.25" max="2" step="0.25" value={speed} onChange={(e) => setSpeed(parseFloat(e.target.value))} className="w-full accent-cyan-500" />
+                     </div>
+                     <div className="pt-2 border-t border-slate-200">
+                       <button onClick={() => setShowTextOverlay(!showTextOverlay)} className="text-xs text-cyan-600 hover:text-cyan-700 font-medium">
+                         {showTextOverlay ? "✓" : "+"} Text Overlay
+                       </button>
+                       {showTextOverlay && (
+                         <div className="mt-2 space-y-2">
+                           <input type="text" value={textContent} onChange={(e) => setTextContent(e.target.value)} placeholder="Add text..." className="w-full border border-slate-300 rounded p-2 text-xs" />
+                           <input type="range" min="0" max="1" step="0.1" value={textOpacity} onChange={(e) => setTextOpacity(parseFloat(e.target.value))} className="w-full" title="Text opacity" />
+                         </div>
+                       )}
+                     </div>
+                   </div>
+                   </motion.div>
+
+                   <Button onClick={handleDownloadTrimmed} className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 gap-2">
                    <Download className="w-4 h-4" /> Export Video
-                 </Button>
+                   </Button>
               </>
             )}
           </div>

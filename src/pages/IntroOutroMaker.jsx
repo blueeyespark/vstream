@@ -15,6 +15,13 @@ const TEMPLATES = [
   { id: 7, name: "Dark Wood", bg: "linear-gradient(135deg, #3e2723 0%, #1b0000 100%)", textColor: "#ffd700", animation: "slide" },
 ];
 
+const MUSIC_STYLES = [
+  { name: "Dramatic", color: "#FF6B6B", emoji: "🎭" },
+  { name: "Upbeat", color: "#FFD93D", emoji: "🎵" },
+  { name: "Chill", color: "#6BCB77", emoji: "😌" },
+  { name: "Intense", color: "#FF6348", emoji: "⚡" },
+];
+
 export default function IntroOutroMaker() {
   const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[0]);
   const [introText, setIntroText] = useState("Your Channel");
@@ -22,6 +29,13 @@ export default function IntroOutroMaker() {
   const [duration, setDuration] = useState(3);
   const [fontSize, setFontSize] = useState(48);
   const [history, setHistory] = useState([]);
+  const [subText, setSubText] = useState("");
+  const [selectedMusic, setSelectedMusic] = useState(MUSIC_STYLES[0]);
+  const [showLogo, setShowLogo] = useState(false);
+  const [logoUrl, setLogoUrl] = useState("");
+  const [transitionType, setTransitionType] = useState("fade");
+  const [showCTA, setShowCTA] = useState(false);
+  const [ctaText, setCtaText] = useState("Subscribe");
 
   const handleDownload = (type) => {
     toast.success(`${type === "intro" ? "Intro" : "Outro"} generated! Ready for download.`);
@@ -73,11 +87,19 @@ export default function IntroOutroMaker() {
                   className="aspect-video rounded-xl flex items-center justify-center overflow-hidden relative"
                   style={{ background: selectedTemplate.bg }}
                 >
+                  {showLogo && logoUrl && (
+                    <img src={logoUrl} alt="logo" className="absolute top-4 right-4 h-16 opacity-80" />
+                  )}
                   <div className={`text-center ${getAnimationClass()}`}>
                     <p className="text-sm font-medium text-slate-400 mb-2">INTRO</p>
                     <p style={{ fontSize: `${fontSize}px`, color: selectedTemplate.textColor }} className="font-black">
                       {introText}
                     </p>
+                    {subText && (
+                      <p style={{ fontSize: `${fontSize * 0.5}px`, color: selectedTemplate.textColor }} className="font-medium mt-2 opacity-80">
+                        {subText}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -95,11 +117,19 @@ export default function IntroOutroMaker() {
                   className="aspect-video rounded-xl flex items-center justify-center overflow-hidden relative"
                   style={{ background: selectedTemplate.bg }}
                 >
+                  {showLogo && logoUrl && (
+                    <img src={logoUrl} alt="logo" className="absolute top-4 right-4 h-16 opacity-80" />
+                  )}
                   <div className={`text-center ${getAnimationClass()}`}>
                     <p className="text-sm font-medium text-slate-400 mb-2">OUTRO</p>
                     <p style={{ fontSize: `${fontSize}px`, color: selectedTemplate.textColor }} className="font-black">
                       {outroText}
                     </p>
+                    {showCTA && (
+                      <p style={{ fontSize: `${fontSize * 0.6}px`, color: selectedTemplate.textColor }} className="font-bold mt-4 border-2 border-white px-6 py-2 rounded-full inline-block">
+                        {ctaText}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -167,6 +197,15 @@ export default function IntroOutroMaker() {
                   />
                 </div>
                 <div>
+                  <label className="text-xs font-medium text-slate-600 block mb-1">Sub Text</label>
+                  <Input
+                    value={subText}
+                    onChange={(e) => setSubText(e.target.value)}
+                    placeholder="Optional subtitle"
+                    className="text-sm"
+                  />
+                </div>
+                <div>
                   <label className="text-xs font-medium text-slate-600 block mb-1">Outro Text</label>
                   <Input
                     value={outroText}
@@ -189,6 +228,46 @@ export default function IntroOutroMaker() {
                   </div>
                   <input type="range" min="1" max="10" value={duration} onChange={(e) => setDuration(parseInt(e.target.value))} className="w-full accent-cyan-500" />
                 </div>
+              </div>
+            </motion.div>
+
+            {/* Advanced Options */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+              <h3 className="font-semibold text-slate-900 mb-3 text-sm">✨ Advanced</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-600 block mb-2">Music Style</label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {MUSIC_STYLES.map(m => (
+                      <button key={m.name} onClick={() => setSelectedMusic(m)} className={`p-2 text-xs rounded border-2 transition-all ${selectedMusic.name === m.name ? "border-cyan-500 bg-cyan-50" : "border-slate-200"}`}>
+                        {m.emoji} {m.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-600 block mb-2">Transition</label>
+                  <select value={transitionType} onChange={(e) => setTransitionType(e.target.value)} className="w-full border border-slate-300 rounded p-2 text-xs">
+                    <option>Fade</option>
+                    <option>Slide</option>
+                    <option>Zoom</option>
+                    <option>Bounce</option>
+                  </select>
+                </div>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={showLogo} onChange={(e) => setShowLogo(e.target.checked)} className="w-4 h-4" />
+                  <span className="text-xs font-medium text-slate-600">Add Logo</span>
+                </label>
+                {showLogo && (
+                  <Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="Logo URL" className="text-xs" />
+                )}
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={showCTA} onChange={(e) => setShowCTA(e.target.checked)} className="w-4 h-4" />
+                  <span className="text-xs font-medium text-slate-600">Show CTA Button</span>
+                </label>
+                {showCTA && (
+                  <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="CTA Text" className="text-xs" />
+                )}
               </div>
             </motion.div>
           </div>
