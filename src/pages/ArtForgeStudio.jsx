@@ -39,13 +39,13 @@ const MODES = [
   {
     id: "3d_model",
     label: "3D Model",
-    desc: "VRChat, VRM & 3D model renders",
+    desc: "Generates real 3D GLB models",
     icon: Box,
     gradient: "from-[#f97316] to-[#a855f7]",
-    placeholder: "A fox girl character, pastel outfit, suitable for VRChat, anime toon shader style...",
-    suffix: "", // handled by 3D sub-mode
+    placeholder: "A magical girl with long pink twin tails, white dress, star wand, graceful pose...",
+    suffix: "", // 3D models don't need extra suffix
     supportsVideo: false,
-    hasSubModes: true,
+    supportsTripo: true, // Real 3D generation via Tripo3D
   },
   {
     id: "sticker",
@@ -125,58 +125,8 @@ const SUBMODES_2D = [
   },
 ];
 
-// ─── 3D Sub-modes ─────────────────────────────────────────────────────────────
-const SUBMODES_3D = [
-  {
-    id: "vrchat_anime",
-    label: "VRChat Anime",
-    desc: "Anime avatar for VRChat/VRM",
-    placeholder: "A magical girl with long pink twin tails, white dress, star wand, graceful pose, anime style - suitable for VRChat avatar...",
-    suffix: ", professional VRChat-ready 3D anime avatar render, VRM avatar format reference, toon shader cel shading with clean flat colors, humanoid rig with blendshape-ready facial features, anime character proportions (large expressive eyes, petite frame), inspired by Hololive and popular VRChat anime avatars, T-pose or A-pose standing in clean white/neutral studio background, Blender Eevee or Cycles render quality, full-body or upper-body view, suitable for Live2D and VRChat import",
-  },
-  {
-    id: "vrchat_furry",
-    label: "VRChat Furry",
-    desc: "Furry / anthro avatar for VRChat",
-    placeholder: "A wolf anthro character with blue fur, leather jacket, glowing cyan eyes, expressive face - detailed VRChat avatar...",
-    suffix: ", professional VRChat furry/anthro avatar 3D model render, VRCArena-quality digital character, fully rigged humanoid skeleton (IK-ready for VRChat), digitigrade or plantigrade leg animation options visible, detailed fur texture with card modeling technique, expressive blendshape face ready for eye and ear animations, front-facing A-pose on clean white studio background, Blender Cycles photorealistic fur render, high polygon count for detail, showcase personality and movement appeal",
-  },
-  {
-    id: "vrchat_scifi",
-    label: "VRChat Sci-Fi",
-    desc: "Futuristic / mech avatar",
-    placeholder: "A cybernetic android with glowing blue circuits, chrome armor, holographic visor, futuristic weapon - VRChat sci-fi character...",
-    suffix: ", professional VRChat sci-fi/mech avatar 3D render, hard surface armor modeling with mechanical details, PBR material system showing metallic surfaces, roughness variation (polished chrome, weathered steel, worn edges), emissive glowing neon elements (circuit lines, visor, energy sources), humanoid bone structure for movement animation, Unity game engine optimization visible, Octane or Blender Cycles render with dramatic studio HDRI lighting, front and side profile views, cyberpunk color scheme with blue/purple accents",
-  },
-  {
-    id: "vrchat_fantasy",
-    label: "VRChat Fantasy",
-    desc: "Fantasy creature or knight",
-    placeholder: "A dark elf warlock with curved horns, tattered black robe, glowing purple runes, staff - mystical VRChat character...",
-    suffix: ", professional VRChat fantasy avatar 3D model render, detailed fantasy character concept art quality, humanoid base with fantasy modifications (horns, tail, pointed ears), game-ready topology for rigging and animation, high-quality PBR textures (fabric, leather, magical effects), dynamic cloth simulation capabilities (robes, cape movement), blendshape-ready expressive face, mystical particle effect references, clean white background studio render, Blender Eevee HDRP lighting, suitable for VRChat import with animation-ready skeleton",
-  },
-  {
-    id: "vrm_model",
-    label: "VRM / VSeeFace",
-    desc: "VRM model for VTubing in 3D",
-    placeholder: "A 3D VTuber character boy with spiky blue hair, streamer hoodie, confident pose, holding microphone - VTubing avatar...",
-    suffix: ", professional VRM 3D avatar for virtual content creation and VTubing, optimized for VSeeFace and motion capture software compatibility, clean anime-style toon shader with cel-shaded appearance, full blendshape facial expression set (happy, sad, surprised, angry, neutral, plus eye blinks and mouth positions), A-pose standing with front and 90-degree side profile views, visible humanoid skeleton rig structure for animation setup, suitable for export from VRoid Studio and custom rigging tools, inspired by Hololive and professional VTuber model quality standards",
-  },
-  {
-    id: "lowpoly",
-    label: "Low Poly",
-    desc: "Stylized low-poly game model",
-    placeholder: "A low-poly fox character with geometric faceted fur, warm autumn orange colors, cute proportions - game-ready 3D model...",
-    suffix: ", stylized low-poly 3D character model optimized for game engines, intentionally faceted geometric design with visible polygon faces for aesthetic appeal, flat color palette without complex gradients or textures (flat shading style), optimized polygon count under 5000 triangles for performance, clean hard-surface topology ready for game engine import, white or neutral gradient studio background render, Blender low-poly artistic aesthetic, suitable for indie games, mobile platforms, and retro-style projects, show multiple viewing angles (front, side, 3/4 view)",
-  },
-  {
-    id: "3d_render",
-    label: "3D Render",
-    desc: "Photorealistic 3D render",
-    placeholder: "A detailed 3D robot soldier character, mechanical joints and pistons, weathered battle-worn paint with rust, dramatic cinematic lighting...",
-    suffix: ", high-fidelity professional 3D render with photorealistic materials and lighting, Blender Cycles or Octane Render engine (production-quality), advanced PBR material system with metallic/roughness/ambient occlusion/normal maps, complex HDRI studio lighting with key light, fill light, and rim light for depth, photorealistic subsurface scattering for skin materials, ray-traced reflections and refractions on shiny surfaces, 8K resolution render with film-quality color grading, clean white or gradient studio background, depth of field with subtle bokeh, cinematic composition showing character personality and movement, product visualization studio quality",
-  },
-];
+// ─── 3D Sub-modes (deprecated - now using Tripo3D for real 3D generation) ───────
+const SUBMODES_3D = [];
 
 // ─── Sticker style presets ────────────────────────────────────────────────────
 const STICKER_STYLES = [
@@ -379,7 +329,7 @@ export default function ArtForgeStudio() {
       return SUBMODES_2D.find(s => s.id === subMode2D)?.suffix || "";
     }
     if (mode === "3d_model") {
-      return SUBMODES_3D.find(s => s.id === subMode3D)?.suffix || "";
+      return ""; // 3D models don't use suffix
     }
     if (mode === "sticker") {
       return (currentMode?.suffix || "") + (STICKER_STYLES.find(s => s.id === stickerStyle)?.suffix || "");
@@ -447,8 +397,25 @@ export default function ArtForgeStudio() {
     try {
       const finalPrompt = buildPrompt();
       const isVideo = currentMode?.supportsVideo;
+      const is3D = currentMode?.supportsTripo;
 
-      if (isVideo) {
+      if (is3D) {
+        // Real 3D model generation via Tripo3D
+        const response = await base44.functions.invoke('generate3DModel', {
+          prompt: finalPrompt,
+        });
+        const modelUrl = response?.data?.modelUrl;
+        if (!modelUrl) throw new Error("No model URL returned");
+        
+        setResults([{ url: modelUrl, type: "3d_model", editable: true }]);
+        await base44.entities.MediaAsset.create({
+          name: (prompt || "Generated").slice(0, 60),
+          url: modelUrl,
+          type: "3d_model",
+          description: finalPrompt,
+        });
+        toast.success("3D model saved to gallery!");
+      } else if (isVideo) {
         const videoPrompt = buildVideoPrompt();
         const response = await base44.integrations.Core.GenerateVideo({
           prompt: videoPrompt,
@@ -787,26 +754,11 @@ export default function ArtForgeStudio() {
                     </div>
                   )}
 
-                  {/* 3D Sub-mode selector */}
+                  {/* 3D note */}
                   {mode === "3d_model" && (
-                    <div>
-                      <p className="text-xs font-semibold text-blue-400/50 uppercase tracking-wider mb-2">3D Type</p>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {SUBMODES_3D.map(s => (
-                          <button
-                            key={s.id}
-                            onClick={() => setSubMode3D(s.id)}
-                            className={`px-2.5 py-2 rounded-lg text-left border transition-all ${
-                              subMode3D === s.id
-                                ? "bg-[#f97316]/20 border-[#f97316]/60 text-[#f97316]"
-                                : "border-blue-900/30 text-blue-400/40 hover:border-blue-700/50 hover:text-blue-300"
-                            }`}
-                          >
-                            <p className="text-[11px] font-bold leading-tight">{s.label}</p>
-                            <p className="text-[9px] opacity-60 leading-tight mt-0.5">{s.desc}</p>
-                          </button>
-                        ))}
-                      </div>
+                    <div className="bg-[#f97316]/10 border border-[#f97316]/30 rounded-lg p-3">
+                      <p className="text-xs text-[#f97316] font-semibold">🎯 Real 3D Generation</p>
+                      <p className="text-xs text-[#f97316]/70 mt-1">Generates downloadable GLB files via Tripo3D</p>
                     </div>
                   )}
 
@@ -915,10 +867,10 @@ export default function ArtForgeStudio() {
                           : mode === "sticker"
                           ? <><Smile className="w-4 h-4" /> Generate {stickerPackSize > 1 ? `${stickerPackSize}-Sticker Pack` : "Sticker"}</>
                           : mode === "2d_model"
-                          ? <><Layers className="w-4 h-4" /> Generate {getCurrentSubMode()?.label || "2D Art"}</>
-                          : mode === "3d_model"
-                          ? <><Box className="w-4 h-4" /> Generate {getCurrentSubMode()?.label || "3D Render"}</>
-                          : <><Sparkles className="w-4 h-4" /> Generate {batchCount > 1 ? `${batchCount} Images` : ""}</>
+                           ? <><Layers className="w-4 h-4" /> Generate {getCurrentSubMode()?.label || "2D Art"}</>
+                           : mode === "3d_model"
+                           ? <><Box className="w-4 h-4" /> Generate 3D Model</>
+                           : <><Sparkles className="w-4 h-4" /> Generate {batchCount > 1 ? `${batchCount} Images` : ""}</>
                       }
                     </Button>
                   </div>
@@ -948,6 +900,12 @@ export default function ArtForgeStudio() {
                        </motion.div>
                     ) : results.length > 0 ? (
                       <motion.div key="results" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-4 h-full">
+                        {results[0]?.type === "3d_model" && (
+                          <div className="flex items-center gap-2 mb-1">
+                            <Box className="w-3.5 h-3.5 text-[#f97316]" />
+                            <span className="text-xs font-bold text-[#f97316]">3D GLB Model</span>
+                          </div>
+                        )}
                         {results[0]?.type === "sticker" && results.length > 1 && (
                           <div className="flex items-center gap-2 mb-1">
                             <Package className="w-3.5 h-3.5 text-[#facc15]" />
@@ -958,13 +916,21 @@ export default function ArtForgeStudio() {
                         <div className={`grid gap-3 ${results.length === 1 ? "grid-cols-1" : results.length <= 4 ? "grid-cols-2" : "grid-cols-3"}`}>
                           {results.map((item, i) => (
                             <div key={i} className="relative group rounded-xl overflow-hidden border border-blue-900/30">
-                              {item.type === "video" ? (
+                              {item.type === "3d_model" ? (
+                                <div className="w-full bg-[#050a14] rounded-xl flex items-center justify-center" style={{ height: "300px" }}>
+                                  <div className="text-center">
+                                    <Box className="w-12 h-12 text-[#f97316] mx-auto mb-2" />
+                                    <p className="text-xs text-blue-400/50">3D Model (GLB)</p>
+                                    <p className="text-[10px] text-blue-400/30 mt-1">Download to view in 3D viewer</p>
+                                  </div>
+                                </div>
+                              ) : item.type === "video" ? (
                                 <video src={item.url} controls className="w-full rounded-xl" style={{ maxHeight: "420px" }} />
                               ) : (
                                 <img src={item.url} alt={`Result ${i + 1}`} className="w-full object-contain rounded-xl" style={{ maxHeight: results.length === 1 ? "420px" : results.length > 4 ? "160px" : "240px" }} />
                               )}
                               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1.5">
-                                <a href={item.url} download={`artforge-${i + 1}.${item.type === "video" ? "mp4" : "png"}`} target="_blank" rel="noopener noreferrer">
+                                <a href={item.url} download={`artforge-${i + 1}.${item.type === "3d_model" ? "glb" : item.type === "video" ? "mp4" : "png"}`} target="_blank" rel="noopener noreferrer">
                                   <button className="h-7 w-7 flex items-center justify-center rounded-lg bg-black/70 text-white/80 hover:bg-black/90 transition-colors">
                                     <Download className="w-3.5 h-3.5" />
                                   </button>
@@ -1011,7 +977,7 @@ export default function ArtForgeStudio() {
                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#1e78ff]/10 to-[#a855f7]/10 border border-blue-900/20 flex items-center justify-center mb-4">
                           <WandSparkles className="w-9 h-9 text-[#1e78ff]/30" />
                         </div>
-                        <p className="text-base font-semibold text-blue-400/40">Your creation will appear here</p>
+                        <p className="text-base font-semibold text-blue-400/40">{mode === "3d_model" ? "Your 3D model will appear here" : "Your creation will appear here"}</p>
                         <p className="text-sm text-blue-400/25 mt-1">Enter a prompt and hit generate</p>
                       </motion.div>
                     )}
