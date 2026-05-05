@@ -46,7 +46,9 @@ export default function WatchHistory() {
   });
 
   const channelMap = channels.reduce((acc, c) => { acc[c.id] = c; return acc; }, {});
-  const historyVideos = videos.filter(v => watchHistory.includes(v.id));
+  const videoMap = videos.reduce((acc, v) => { acc[v.id] = v; return acc; }, {});
+  // Preserve localStorage order (most recently watched first)
+  const historyVideos = watchHistory.map(id => videoMap[id]).filter(Boolean);
 
   const handleOpenVideo = (video) => {
     setSelectedVideo(video);

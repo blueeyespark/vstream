@@ -67,7 +67,9 @@ export default function SavedVideos() {
   });
 
   const channelMap = channels.reduce((acc, c) => { acc[c.id] = c; return acc; }, {});
-  const savedVideos = videos.filter(v => watchLater.includes(v.id));
+  const videoMap = videos.reduce((acc, v) => { acc[v.id] = v; return acc; }, {});
+  // Preserve localStorage order
+  const savedVideos = watchLater.map(id => videoMap[id]).filter(Boolean);
 
   const handleOpenVideo = (video) => {
     setSelectedVideo(video);
@@ -107,7 +109,7 @@ export default function SavedVideos() {
           <div className="space-y-4">
             <AnimatePresence>
               {savedVideos.map((v, i) => (
-                <motion.div key={v.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="flex items-center justify-between group">
+                <motion.div key={v.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} className="flex items-center justify-between group relative">
                   <div className="flex-1" onClick={() => handleOpenVideo(v)}>
                     <VideoCard video={v} channel={channelMap[v.channel_id]} onClick={handleOpenVideo} compact />
                   </div>

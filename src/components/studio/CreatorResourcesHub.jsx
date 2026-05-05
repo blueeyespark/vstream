@@ -29,13 +29,18 @@ export default function CreatorResourcesHub() {
 
   const handleGenerateIdeas = async () => {
     setGeneratingIdeas(true);
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: "Generate 5 creative VTuber/streamer content ideas that are trending right now. Be specific and actionable.",
-      response_json_schema: { type: "object", properties: { ideas: { type: "array", items: { type: "string" } } } }
-    });
-    if (result?.ideas) setIdeas(result.ideas);
-    setGeneratingIdeas(false);
-    toast.success("New ideas generated!");
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: "Generate 5 creative VTuber/streamer content ideas that are trending right now. Be specific and actionable.",
+        response_json_schema: { type: "object", properties: { ideas: { type: "array", items: { type: "string" } } } }
+      });
+      if (result?.ideas?.length) setIdeas(result.ideas);
+      toast.success("New ideas generated!");
+    } catch {
+      toast.error("Failed to generate ideas. Try again.");
+    } finally {
+      setGeneratingIdeas(false);
+    }
   };
 
   return (

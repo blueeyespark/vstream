@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Share2, Play, ThumbsUp, Users, Eye, MessageSquare, Edit3, Upload, X, Zap, ImageIcon, ArrowLeft, Check } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import CommunityPosts from "@/components/CommunityPosts";
@@ -326,9 +327,8 @@ export default function ChannelPage() {
                     variant="outline" 
                     size="icon"
                     onClick={() => {
-                      const url = window.location.href;
-                      navigator.clipboard.writeText(url);
-                      alert("Channel link copied!");
+                     navigator.clipboard.writeText(window.location.href);
+                     toast.success("Channel link copied!");
                     }}
                     className="relative"
                     title="Copy channel link"

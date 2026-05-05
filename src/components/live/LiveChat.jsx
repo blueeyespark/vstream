@@ -96,8 +96,8 @@ export default function LiveChat({ streamId, user, compact = false }) {
           </div>
         )}
         {messages.map((msg, i) => {
-          const isOwn = msg.posted_by === user?.email;
-          const displayName = isOwn ? (user?.full_name || "You") : (msg.posted_by?.split("@")[0] || "Viewer");
+          const isOwn = msg.sender_email === user?.email;
+          const displayName = isOwn ? (user?.full_name || "You") : (msg.sender_name || msg.sender_email?.split("@")[0] || "Viewer");
           const isSuper = isSuperChat(msg);
           return (
             <div
@@ -110,7 +110,7 @@ export default function LiveChat({ streamId, user, compact = false }) {
                   <span className="text-yellow-400 font-bold text-xs">Super Chat</span>
                 </div>
               )}
-              <span className={`font-semibold ${isOwn ? "text-cyan-400" : colorForUser(msg.posted_by)}`}>
+              <span className={`font-semibold ${isOwn ? "text-cyan-400" : colorForUser(msg.sender_name || msg.sender_email)}`}>
                 {displayName}:{" "}
               </span>
               <span className="text-zinc-300">{msg.content}</span>
