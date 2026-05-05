@@ -125,8 +125,31 @@ const SUBMODES_2D = [
   },
 ];
 
-// ─── 3D Sub-modes (deprecated - now using Tripo3D for real 3D generation) ───────
-const SUBMODES_3D = [];
+// ─── 3D Provider options ──────────────────────────────────────────────────────
+const SUBMODES_3D = [
+  {
+    id: "tripo3d",
+    label: "Tripo3D",
+    desc: "Free 3D generation",
+    provider: "tripo3d",
+    requiresPayment: false,
+  },
+  {
+    id: "meshy",
+    label: "Meshy",
+    desc: "Premium quality (requires payment)",
+    provider: "meshy",
+    requiresPayment: true,
+    price: 5.99, // USD per generation
+  },
+  {
+    id: "sloyd",
+    label: "Sloyd",
+    desc: "Procedural 3D models",
+    provider: "sloyd",
+    requiresPayment: false,
+  },
+];
 
 // ─── Sticker style presets ────────────────────────────────────────────────────
 const STICKER_STYLES = [
@@ -407,9 +430,23 @@ export default function ArtForgeStudio() {
       const is3D = currentMode?.supportsTripo;
 
       if (is3D) {
-        // Real 3D model generation via Tripo3D
+        // Check if Meshy requires payment
+        const selected3DProvider = SUBMODES_3D.find(s => s.id === subMode3D);
+        if (selected3DProvider?.requiresPayment) {
+          // Charge for Meshy
+          const paymentRes = await base44.functions.invoke('processPayment', {
+            amount: Math.round(selected3DProvider.price * 100), // Convert to cents
+            description: `Meshy 3D Model Generation: ${prompt.slice(0, 50)}`,
+            provider: "meshy",
+          });
+          if (!paymentRes?.data?.success) throw new Error("Payment failed");
+          toast.success("Payment processed! Generating 3D model...");
+        }
+
+        // Generate 3D model with selected provider
         const response = await base44.functions.invoke('generate3DModel', {
           prompt: finalPrompt,
+          provider: selected3DProvider?.provider || "tripo3d",
         });
         const modelUrl = response?.data?.modelUrl;
         if (!modelUrl) throw new Error("No model URL returned");
@@ -420,6 +457,7 @@ export default function ArtForgeStudio() {
           url: modelUrl,
           type: "3d_model",
           description: finalPrompt,
+          category: selected3DProvider?.provider,
         });
         toast.success("3D model saved to gallery!");
       } else if (isVideo) {
@@ -769,11 +807,39 @@ export default function ArtForgeStudio() {
                     </div>
                   )}
 
+                  {/* 3D Provider selector */}
+                  {mode === "3d_model" && (
+                    <div>
+                      <p className="text-xs font-semibold text-blue-400/50 uppercase tracking-wider mb-2">3D Provider</p>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {SUBMODES_3D.map(s => (
+                          <button
+                            key={s.id}
+                            onClick={() => setSubMode3D(s.id)}
+                            className={`px-2.5 py-2 rounded-lg text-left border transition-all ${
+                              subMode3D === s.id
+                                ? "bg-[#f97316]/20 border-[#f97316]/60 text-[#f97316]"
+                                : "border-blue-900/30 text-blue-400/40 hover:border-blue-700/50 hover:text-blue-300"
+                            }`}
+                          >
+                            <p className="text-[11px] font-bold leading-tight">{s.label}</p>
+                            <p className="text-[9px] opacity-60 leading-tight mt-0.5">{s.desc}</p>
+                            {s.requiresPayment && <p className="text-[8px] text-[#f97316] mt-1 font-semibold">${s.price}</p>}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* 3D note */}
                   {mode === "3d_model" && (
                     <div className="bg-[#f97316]/10 border border-[#f97316]/30 rounded-lg p-3">
                       <p className="text-xs text-[#f97316] font-semibold">🎯 Real 3D Generation</p>
-                      <p className="text-xs text-[#f97316]/70 mt-1">Generates downloadable GLB files via Tripo3D</p>
+                      <p className="text-xs text-[#f97316]/70 mt-1">
+                        {getCurrentSubMode()?.requiresPayment 
+                          ? `Premium quality - $${getCurrentSubMode()?.price} per generation` 
+                          : "Free 3D model generation"}
+                      </p>
                     </div>
                   )}
 
