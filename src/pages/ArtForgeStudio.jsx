@@ -747,16 +747,7 @@ export default function ArtForgeStudio() {
                       </div>
                       <div>
                         <p className="text-xs font-semibold text-blue-400/50 uppercase tracking-wider mb-2">Pack Size</p>
-                        <div className="flex gap-2 items-center">
-                          <input
-                            type="number"
-                            value={stickerPackSize}
-                            onChange={(e) => setStickerPackSize(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
-                            className="w-20 bg-[#0a1525] border border-blue-900/30 rounded-lg px-2 py-2 text-sm font-bold text-[#c8dff5] outline-none focus:border-[#facc15]/50 transition-colors"
-                          />
-                          <span className="text-xs text-blue-400/50">stickers (1-100)</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5 mt-2">
+                        <div className="flex flex-wrap gap-1.5">
                           {STICKER_PACK_SIZES.map(n => (
                             <button
                               key={n}
@@ -783,14 +774,23 @@ export default function ArtForgeStudio() {
                            <span className="text-xs text-blue-400/50 font-medium">Duration</span>
                            <span className="text-xs text-blue-400/30">~{Math.ceil((videoDuration / 4) * 40 + 10)}s to generate</span>
                          </div>
-                         <div className="flex gap-2 items-center">
-                           <input
-                             type="number"
-                             value={videoDuration}
-                             onChange={(e) => setVideoDuration(Math.max(1, Math.min(60, parseInt(e.target.value) || 4)))}
-                             className="w-16 bg-[#0a1525] border border-blue-900/30 rounded-lg px-2 py-2 text-sm font-bold text-[#c8dff5] outline-none focus:border-[#ec4899]/50 transition-colors"
-                           />
-                           <span className="text-xs text-blue-400/50">seconds (1-60)</span>
+                         <div className="flex flex-wrap gap-1.5">
+                           {[4, 6, 8, 10, 15, 30, 60, 120, 300, 600, 1800, 3600].map(d => {
+                             const label = d >= 60 ? (d === 3600 ? '1h' : `${Math.floor(d / 60)}m`) : `${d}s`;
+                             return (
+                               <button
+                                 key={d}
+                                 onClick={() => setVideoDuration(d)}
+                                 className={`py-1 px-2.5 rounded-lg text-xs font-bold border transition-all ${
+                                   videoDuration === d
+                                     ? "bg-[#ec4899]/20 border-[#ec4899]/40 text-[#ec4899]"
+                                     : "border-blue-900/30 text-blue-400/40 hover:border-blue-700/50 hover:text-blue-300"
+                                 }`}
+                               >
+                                 {label}
+                               </button>
+                             );
+                           })}
                          </div>
                        </div>
                      ) : mode !== "sticker" && mode !== "2d_model" && mode !== "3d_model" ? (
