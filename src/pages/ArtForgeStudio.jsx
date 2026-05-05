@@ -480,9 +480,15 @@ export default function ArtForgeStudio() {
     }, 1000);
 
     try {
-      const finalPrompt = buildPrompt();
-      const isVideo = currentMode?.supportsVideo;
-      const is3D = currentMode?.supportsTripo;
+       // Include edit instructions if editing from gallery
+       let finalPrompt = buildPrompt();
+       if (editingFromGallery && editComments.length > 0) {
+         const editInstructions = editComments.map(c => c.text).join(". ");
+         finalPrompt = `Apply these edits to the image: ${editInstructions}. Base prompt: ${finalPrompt}`;
+       }
+
+       const isVideo = currentMode?.supportsVideo;
+       const is3D = currentMode?.supportsTripo;
 
       if (is3D) {
         const selected3DProvider = SUBMODES_3D.find(s => s.id === subMode3D);
@@ -1164,9 +1170,9 @@ export default function ArtForgeStudio() {
                       <div className="bg-[#060d18]/60 border border-blue-900/30 rounded-2xl p-4 backdrop-blur-sm flex flex-col h-full">
                         <div className="flex items-center gap-2 mb-3 pb-3 border-b border-blue-900/20">
                           <MessageSquare className="w-4 h-4 text-[#facc15]" />
-                          <span className="text-xs font-bold text-blue-400/70 uppercase tracking-wider">Editing Changes</span>
+                          <span className="text-xs font-bold text-blue-400/70 uppercase tracking-wider">Edit Instructions</span>
                         </div>
-                        
+
                         {/* Original image preview */}
                         {editingFromGallery.url && (
                           <div className="mb-3 rounded-lg overflow-hidden border border-blue-900/30">
@@ -1177,8 +1183,8 @@ export default function ArtForgeStudio() {
                             />
                           </div>
                         )}
-                        
-                        <p className="text-xs text-blue-400/40 mb-3">What should change?</p>
+
+                        <p className="text-xs text-blue-400/40 mb-3">Tell the AI what to change (e.g., "Make it more vibrant", "Add more details")</p>
 
                         {/* Comments List */}
                         <div className="flex-1 overflow-y-auto space-y-2 mb-3">
