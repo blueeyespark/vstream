@@ -22,7 +22,7 @@ const MODES = [
     icon: WandSparkles,
     gradient: "from-[#1e78ff] to-[#a855f7]",
     placeholder: "A fierce dragon soaring over a neon-lit cyberpunk city at midnight, lightning reflected in its scales...",
-    suffix: "",
+    suffix: ", masterpiece, highly detailed, sharp focus, professional lighting, 8k resolution, award-winning digital art",
     supportsVideo: false,
   },
   {
@@ -31,8 +31,8 @@ const MODES = [
     desc: "Flat art & sprite sheets",
     icon: Layers,
     gradient: "from-[#a855f7] to-[#1e78ff]",
-    placeholder: "A pixel art character sprite, 16-bit style, flat shading, transparent background...",
-    suffix: ", sprite art, flat 2D design, transparent background",
+    placeholder: "A pixel art warrior character, 16-bit style, front-facing idle pose, transparent background...",
+    suffix: ", 2D game asset, flat vector illustration, clean hard edges, crisp pixel-perfect lines, transparent background, no shadows, no gradients, isolated character",
     supportsVideo: false,
   },
   {
@@ -42,7 +42,7 @@ const MODES = [
     icon: Box,
     gradient: "from-[#f97316] to-[#a855f7]",
     placeholder: "A low-poly 3D fox character, textured, suitable for a VRM avatar, anime style...",
-    suffix: ", 3D render, textured model, isometric view, studio lighting",
+    suffix: ", professional 3D render, octane render, PBR textures, subsurface scattering, depth of field, soft studio HDRI lighting, clean white background, turntable view",
     supportsVideo: false,
   },
   {
@@ -51,8 +51,8 @@ const MODES = [
     desc: "Die-cut sticker style art",
     icon: Sparkles,
     gradient: "from-[#f97316] to-[#facc15]",
-    placeholder: "A cute kawaii cat sticker, bold outline, white background, chibi style...",
-    suffix: ", sticker art, thick white outline, die-cut sticker, flat color, white background, cartoon style",
+    placeholder: "A cute kawaii cat giving a thumbs up, big expressive eyes, bold black outline...",
+    suffix: ", die-cut sticker, thick bold black outline, pure white background, clean vector art, flat fill colors, no gradients, no background elements, sticker sheet ready",
     supportsVideo: false,
   },
   {
@@ -62,7 +62,7 @@ const MODES = [
     icon: LayoutGrid,
     gradient: "from-[#22c55e] to-[#1e78ff]",
     placeholder: "A superhero landing dramatically on a city rooftop at night, comic book style with bold ink lines...",
-    suffix: ", comic book art, bold ink outlines, halftone shadows, vibrant colors, panel composition",
+    suffix: ", professional comic book illustration, bold ink outlines, cel shading, halftone dot shadows, CMYK vibrant colors, dynamic perspective, action composition, Marvel/DC quality",
     supportsVideo: false,
   },
   {
@@ -71,30 +71,48 @@ const MODES = [
     desc: "AI generated short video",
     icon: Film,
     gradient: "from-[#ec4899] to-[#a855f7]",
-    placeholder: "A majestic eagle soaring above snow-capped mountains, golden hour light, cinematic...",
-    suffix: "",
+    placeholder: "A majestic eagle soaring above snow-capped mountains, golden hour light, cinematic wide shot...",
+    suffix: ", cinematic quality, smooth camera motion, professional color grading, 4K resolution, high frame rate, dramatic lighting",
     supportsVideo: true,
   },
 ];
 
 // ─── Sticker style presets ────────────────────────────────────────────────────
 const STICKER_STYLES = [
-  { id: "kawaii", label: "Kawaii", suffix: ", super cute kawaii chibi style, pastel colors, big eyes, adorable" },
-  { id: "bold", label: "Bold", suffix: ", bold graphic sticker style, strong outlines, flat color, high contrast" },
-  { id: "emoji", label: "Emoji", suffix: ", emoji style, simple expressive face, round shape, flat design" },
-  { id: "retro", label: "Retro", suffix: ", retro 80s sticker style, neon colors, halftone dots, vintage feel" },
-  { id: "minimal", label: "Minimal", suffix: ", minimal line art sticker, clean single color outline, white background" },
-  { id: "3d", label: "3D Pop", suffix: ", 3D inflated sticker style, glossy sheen, drop shadow, puffy appearance" },
+  { id: "kawaii", label: "Kawaii", suffix: ", super cute kawaii chibi style, pastel pink and blue palette, oversized sparkly eyes, rosy cheeks, adorable expression, clean vector lines" },
+  { id: "bold", label: "Bold", suffix: ", bold street-art sticker style, very thick black outlines, high saturation flat colors, strong contrast, graphic design quality" },
+  { id: "emoji", label: "Emoji", suffix: ", emoji-style illustration, simple expressive face, perfectly round shape, flat design, yellow skin tone, Google Noto emoji quality" },
+  { id: "retro", label: "Retro", suffix: ", retro 80s vintage sticker, neon pink and cyan palette, halftone dot shading, worn edges, old-school cartoon style" },
+  { id: "minimal", label: "Minimal", suffix: ", ultra-minimal single-line art sticker, one continuous thin black line, pure white fill, no color, elegant simplicity" },
+  { id: "3d", label: "3D Pop", suffix: ", inflatable 3D puffy sticker, glossy plastic sheen, smooth rounded edges, soft drop shadow, bubbly toy-like appearance, Bearbrick style" },
 ];
 
 const STICKER_PACK_SIZES = [1, 4, 8, 12];
 
-// ─── Style tags ────────────────────────────────────────────────────────────────
+// ─── Style tags (each maps to a rich prompt modifier) ─────────────────────────
 const STYLE_TAGS = [
   "Cinematic", "Anime", "Pixel Art", "Oil Painting", "Watercolor",
   "Neon Noir", "Photorealistic", "Sketch", "Fantasy", "Sci-Fi",
   "Minimalist", "Dark & Moody", "Vibrant", "Retro", "Cyberpunk",
 ];
+
+const STYLE_TAG_MODIFIERS = {
+  "Cinematic": "cinematic color grading, anamorphic lens, dramatic lighting, film grain, golden ratio composition",
+  "Anime": "anime illustration style, cel shading, clean linework, expressive eyes, Japanese animation quality",
+  "Pixel Art": "pixel art, 32x32 grid, limited color palette, retro game aesthetic, dithering",
+  "Oil Painting": "oil painting, thick impasto brushstrokes, rich texture, classical composition, old masters technique",
+  "Watercolor": "loose watercolor painting, soft wet-on-wet edges, translucent washes, paper texture showing through",
+  "Neon Noir": "neon noir, rain-slicked streets, glowing neon signs, deep shadows, high contrast, cyberpunk atmosphere",
+  "Photorealistic": "photorealistic, hyperdetailed, 8K DSLR photograph, natural lighting, sharp focus",
+  "Sketch": "pencil sketch, cross-hatching, graphite on paper, rough gestural lines, artist study",
+  "Fantasy": "epic fantasy illustration, magical atmosphere, mystical lighting, intricate detail, concept art quality",
+  "Sci-Fi": "science fiction concept art, futuristic technology, hard surface design, metallic textures, bioluminescent elements",
+  "Minimalist": "minimalist design, flat colors, negative space, geometric simplicity, clean composition",
+  "Dark & Moody": "dark moody atmosphere, low key lighting, dramatic shadows, desaturated palette, emotional depth",
+  "Vibrant": "ultra vibrant colors, high saturation, pop art energy, bold complementary colors, visually striking",
+  "Retro": "retro vintage aesthetic, muted earthy tones, grain texture, nostalgic 1970s feel, aged look",
+  "Cyberpunk": "cyberpunk aesthetic, neon lights, holographic interfaces, rain and fog, dystopian megacity",
+};
 
 // ─── Content tools ────────────────────────────────────────────────────────────
 const CONTENT_TOOLS = {
@@ -103,28 +121,65 @@ const CONTENT_TOOLS = {
     desc: "SEO-optimized video titles",
     icon: Type,
     color: "from-[#1e78ff] to-[#3b82f6]",
-    prompt: (input) => `Generate 5 catchy, SEO-optimized YouTube video titles for: "${input}". Make them engaging and clickable. Format as a numbered list.`,
+    prompt: (input) => `You are an expert YouTube growth strategist. Generate 7 irresistible, SEO-optimized YouTube video titles for: "${input}".
+
+Rules:
+- Mix curiosity gaps, numbers, and power words
+- Use proven formats: How-to, Listicles, Secrets, Mistakes, Ultimate guides
+- Keep under 60 characters when possible
+- Include emotional triggers (shock, FOMO, inspiration)
+- Front-load the main keyword
+
+Format as a numbered list with a brief note on why each title works.`,
   },
   descriptions: {
     label: "Description Writer",
     desc: "Engaging video descriptions",
     icon: FileText,
     color: "from-[#a855f7] to-[#8b5cf6]",
-    prompt: (input) => `Write a professional, engaging YouTube video description for a video about: "${input}". Include a hook, main content overview, and a CTA. Keep it under 300 words.`,
+    prompt: (input) => `You are an expert YouTube SEO copywriter. Write a high-converting YouTube video description for: "${input}".
+
+Structure:
+1. Hook (first 2 lines visible before "Show more" - make them irresistible)
+2. What viewers will learn / why they should watch
+3. Timestamps placeholder section (add [00:00], [01:30] etc.)
+4. About the creator (brief, 2 sentences)
+5. Call to action (subscribe, like, comment prompt)
+6. 10–15 relevant hashtags at the bottom
+
+Keep it between 250-350 words. Write naturally, not spammy.`,
   },
   tags: {
     label: "Tag Suggester",
     desc: "Relevant tags for discovery",
     icon: Tag,
     color: "from-[#22c55e] to-[#16a34a]",
-    prompt: (input) => `Suggest 20 highly relevant YouTube tags for a video about "${input}". Return them as a comma-separated list, ordered by relevance.`,
+    prompt: (input) => `You are a YouTube SEO expert. Generate 25 high-impact tags for a video about "${input}".
+
+Include:
+- 3 broad/generic tags (high search volume)
+- 10 medium-specificity tags (your main topic variations)
+- 7 long-tail tags (very specific, less competition)
+- 5 trending/related topic tags
+
+Return ONLY the tags as a clean comma-separated list, no numbering or explanation. Order from broadest to most specific.`,
   },
   thumbnails: {
     label: "Thumbnail Ideas",
     desc: "Design concepts & layouts",
     icon: Lightbulb,
     color: "from-[#f97316] to-[#ea580c]",
-    prompt: (input) => `Suggest 3 compelling YouTube thumbnail design concepts for: "${input}". For each, describe: the main visual element, color scheme, text overlay, and emotional impact.`,
+    prompt: (input) => `You are a top YouTube thumbnail designer. Create 3 distinct, click-worthy thumbnail concepts for: "${input}".
+
+For each concept provide:
+🎨 LAYOUT: Describe the composition and element placement
+🖼️ MAIN VISUAL: The hero image/subject (face expression, object, scene)
+🎨 COLOR SCHEME: Specific dominant colors and why they work
+✍️ TEXT OVERLAY: Exact text, font style suggestion (bold? outline?), and placement
+⚡ EMOTIONAL HOOK: What emotion/curiosity this triggers in the viewer
+📊 WHY IT WORKS: 1-line explanation of the psychological trigger
+
+Make each concept radically different in approach.`,
   },
 };
 
@@ -187,11 +242,21 @@ export default function ArtForgeStudio() {
   };
 
   const buildPrompt = () => {
-    const styleStr = activeStyleTags.length > 0 ? `, ${activeStyleTags.join(", ")}` : "";
+    // Use rich style modifiers instead of just tag names
+    const styleStr = activeStyleTags.length > 0
+      ? `, ${activeStyleTags.map(t => STYLE_TAG_MODIFIERS[t] || t).join(", ")}`
+      : "";
     const stickerSuffix = mode === "sticker"
       ? (STICKER_STYLES.find(s => s.id === stickerStyle)?.suffix || "")
       : "";
     return `${prompt}${styleStr}${currentMode?.suffix || ""}${stickerSuffix}`;
+  };
+
+  const buildVideoPrompt = () => {
+    const styleStr = activeStyleTags.length > 0
+      ? `, ${activeStyleTags.map(t => STYLE_TAG_MODIFIERS[t] || t).join(", ")}`
+      : "";
+    return `${prompt}${styleStr}${currentMode?.suffix || ""}`;
   };
 
   // ── Visual generation ────────────────────────────────────────────────────────
@@ -204,8 +269,9 @@ export default function ArtForgeStudio() {
       const isVideo = currentMode?.supportsVideo;
 
       if (isVideo) {
+        const videoPrompt = buildVideoPrompt();
         const { url } = await base44.integrations.Core.GenerateVideo({
-          prompt: finalPrompt,
+          prompt: videoPrompt,
           duration: videoDuration,
           aspect_ratio: "16:9",
         });
@@ -214,18 +280,30 @@ export default function ArtForgeStudio() {
           name: prompt.slice(0, 60),
           url,
           type: "video",
-          description: finalPrompt,
+          description: videoPrompt,
         });
         toast.success("Video saved to gallery!");
       } else {
         const count = mode === "sticker" ? stickerPackSize : Math.min(batchCount, 4);
-        const generateOne = () => base44.integrations.Core.GenerateImage({
-          prompt: finalPrompt,
+
+        // For sticker packs, vary each sticker slightly for diversity
+        const stickerVariations = ["", ", different pose", ", different expression", ", different angle",
+          ", waving", ", laughing", ", surprised", ", sleeping", ", angry", ", heart eyes", ", cool sunglasses", ", dancing"];
+
+        const buildStickerVariantPrompt = (i) => {
+          const variation = stickerPackSize > 1 ? (stickerVariations[i % stickerVariations.length] || "") : "";
+          const stickerSuffix = STICKER_STYLES.find(s => s.id === stickerStyle)?.suffix || "";
+          return `${prompt}${variation}${currentMode?.suffix || ""}${stickerSuffix}`;
+        };
+
+        const generateOne = (i) => base44.integrations.Core.GenerateImage({
+          prompt: mode === "sticker" ? buildStickerVariantPrompt(i) : finalPrompt,
           existing_image_urls: refImages.length > 0 ? refImages : undefined,
         });
-        const responses = await Promise.all(Array.from({ length: count }, generateOne));
+
+        const responses = await Promise.all(Array.from({ length: count }, (_, i) => generateOne(i)));
         const urls = responses.map(r => r.url);
-        setResults(urls.map(url => ({ url, type: mode === "sticker" ? "sticker" : "image" })));
+        setResults(urls.map(url => ({ url, type: mode === "sticker" ? "sticker" : mode })));
         await Promise.all(urls.map(url =>
           base44.entities.MediaAsset.create({
             name: prompt.slice(0, 60),
@@ -260,7 +338,7 @@ export default function ArtForgeStudio() {
     setGifLoading(true);
     toast.loading("Generating GIF version...", { id: "gif" });
     try {
-      const gifPrompt = `Animated GIF loop version of: ${prompt}. Looping animation, vibrant colors, GIF style, short loop`;
+      const gifPrompt = `${prompt}, animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement`;
       const { url } = await base44.integrations.Core.GenerateImage({
         prompt: gifPrompt,
         existing_image_urls: [videoUrl],
@@ -289,6 +367,7 @@ export default function ArtForgeStudio() {
       const res = await base44.integrations.Core.InvokeLLM({
         prompt: CONTENT_TOOLS[selectedTool].prompt(contentInput),
         add_context_from_internet: false,
+        model: "claude_sonnet_4_6",
       });
       setContentOutput(res);
     } catch {
