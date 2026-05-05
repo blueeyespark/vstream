@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Upload, ImageIcon, WandSparkles, Film, Image, Clapperboard, Music } from "lucide-react";
+import { Upload, ImageIcon, WandSparkles, Film, Image, Clapperboard, Music, LayoutGrid } from "lucide-react";
 import VideoUpload from "@/pages/VideoUpload";
 import VideoEditor from "@/pages/VideoEditor";
 import ThumbnailMaker from "@/pages/ThumbnailMaker";
 import IntroOutroMaker from "@/pages/IntroOutroMaker";
 import MusicEditor from "@/pages/MusicEditor";
+import MediaLibrary from "@/pages/MediaLibrary";
 import ArtForgeStudio from "@/pages/ArtForgeStudio";
 
 const subtabs = [
@@ -19,6 +20,7 @@ const editorTabs = [
   { id: "thumbnail", label: "Thumbnail", icon: Image, component: ThumbnailMaker },
   { id: "intros", label: "Intros & Outros", icon: Clapperboard, component: IntroOutroMaker },
   { id: "music", label: "Music", icon: Music, component: MusicEditor },
+  { id: "library", label: "Media Library", icon: LayoutGrid, component: MediaLibrary },
 ];
 
 export default function ProductionHub() {
