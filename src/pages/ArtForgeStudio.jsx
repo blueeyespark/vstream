@@ -449,7 +449,7 @@ export default function ArtForgeStudio() {
           provider: selected3DProvider?.provider || "tripo3d",
         });
         const modelUrl = response?.data?.modelUrl;
-        if (!modelUrl) throw new Error("No model URL returned");
+        if (!modelUrl) throw new Error("No model URL returned from 3D generation");
         
         setResults([{ url: modelUrl, type: "3d_model", editable: true }]);
         await base44.entities.MediaAsset.create({
@@ -494,6 +494,7 @@ export default function ArtForgeStudio() {
         const generateOne = (i) => base44.integrations.Core.GenerateImage({
           prompt: mode === "sticker" ? buildStickerVariantPrompt(i) : finalPrompt,
           existing_image_urls: (Array.isArray(refImages) && refImages.length > 0) ? refImages : undefined,
+          model: "claude_opus_4_7", // Use advanced model for better reference sheet detail adherence
         });
 
         const responses = await Promise.all(Array.from({ length: count }, (_, i) => generateOne(i)));
