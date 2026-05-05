@@ -1,0 +1,109 @@
+{
+  "name": "BlogPost",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Blog post title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Blog post content in markdown"
+    },
+    "excerpt": {
+      "type": "string",
+      "description": "Short summary"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "meta_title": {
+      "type": "string",
+      "description": "SEO meta title"
+    },
+    "meta_description": {
+      "type": "string",
+      "description": "SEO meta description"
+    },
+    "featured_image": {
+      "type": "string"
+    },
+    "tone": {
+      "type": "string",
+      "enum": [
+        "professional",
+        "casual",
+        "friendly",
+        "formal",
+        "persuasive"
+      ],
+      "default": "professional"
+    },
+    "project_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": {
+          "$ne": "guest"
+        }
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.status": "published"
+        },
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
