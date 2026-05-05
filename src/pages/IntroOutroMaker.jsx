@@ -1,61 +1,47 @@
 import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Download, Eye, Type, RotateCcw, Play } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Download, Sparkles, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 const TEMPLATES = [
-  { id: 1, name: "Cinematic", bg: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)", textColor: "#fff", animation: "slide" },
-  { id: 2, name: "Neon", bg: "linear-gradient(135deg, #0f0f1e 0%, #1a0033 100%)", textColor: "#00ffff", animation: "fade" },
-  { id: 3, name: "Sunset", bg: "linear-gradient(135deg, #ff6b00 0%, #ff0066 100%)", textColor: "#fff", animation: "zoom" },
-  { id: 4, name: "Minimal", bg: "#ffffff", textColor: "#000", animation: "slide" },
-  { id: 5, name: "Gaming", bg: "linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)", textColor: "#00ff00", animation: "bounce" },
-  { id: 6, name: "Pastel", bg: "linear-gradient(135deg, #ffeef8 0%, #e0f4ff 100%)", textColor: "#5a4a7a", animation: "fade" },
-  { id: 7, name: "Dark Wood", bg: "linear-gradient(135deg, #3e2723 0%, #1b0000 100%)", textColor: "#ffd700", animation: "slide" },
+  { id: 1, name: "Cinematic", bg: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)", textColor: "#fff", animation: "slideIn", duration: 3 },
+  { id: 2, name: "Neon", bg: "linear-gradient(135deg, #0f0f1e 0%, #1a0033 100%)", textColor: "#00ffff", animation: "fadeIn", duration: 2 },
+  { id: 3, name: "Gaming", bg: "linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)", textColor: "#00ff00", animation: "zoomIn", duration: 3 },
+  { id: 4, name: "Minimal", bg: "#ffffff", textColor: "#000", animation: "slideIn", duration: 2 },
+  { id: 5, name: "Cyberpunk", bg: "linear-gradient(135deg, #0a1525 0%, #1a0f3a 100%)", textColor: "#1e78ff", animation: "fadeIn", duration: 3 },
+  { id: 6, name: "Sunset", bg: "linear-gradient(135deg, #ff6b00 0%, #ff0066 100%)", textColor: "#fff", animation: "slideIn", duration: 3 },
 ];
 
 const MUSIC_STYLES = [
-  { name: "Dramatic", color: "#FF6B6B", emoji: "🎭" },
-  { name: "Upbeat", color: "#FFD93D", emoji: "🎵" },
-  { name: "Chill", color: "#6BCB77", emoji: "😌" },
-  { name: "Intense", color: "#FF6348", emoji: "⚡" },
+  { name: "Dramatic", emoji: "🎭" },
+  { name: "Upbeat", emoji: "🎵" },
+  { name: "Chill", emoji: "😌" },
+  { name: "Intense", emoji: "⚡" },
 ];
 
+const TRANSITIONS = ["Fade", "Slide", "Zoom", "Flip", "Bounce"];
+
 export default function IntroOutroMaker() {
+  const [mode, setMode] = useState("intro");
   const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[0]);
-  const [introText, setIntroText] = useState("Your Channel");
-  const [outroText, setOutroText] = useState("Thanks for Watching!");
+  const [mainText, setMainText] = useState("Your Channel");
+  const [subText, setSubText] = useState("Welcome!");
+  const [fontSize, setFontSize] = useState(64);
   const [duration, setDuration] = useState(3);
-  const [fontSize, setFontSize] = useState(48);
-  const [history, setHistory] = useState([]);
-  const [subText, setSubText] = useState("");
   const [selectedMusic, setSelectedMusic] = useState(MUSIC_STYLES[0]);
+  const [transition, setTransition] = useState("Fade");
   const [showLogo, setShowLogo] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
-  const [transitionType, setTransitionType] = useState("fade");
   const [showCTA, setShowCTA] = useState(false);
   const [ctaText, setCtaText] = useState("Subscribe");
-  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
-
-  const handleDownload = (type) => {
-    toast.success(`${type === "intro" ? "Intro" : "Outro"} generated! Ready for download.`);
-  };
-
-  const getAnimationClass = () => {
-    const animations = {
-      slide: "translate-x-[-100%] animate-[slideIn_0.8s_ease-out_forwards]",
-      fade: "opacity-0 animate-[fadeIn_0.8s_ease-out_forwards]",
-      zoom: "scale-0 animate-[zoomIn_0.8s_ease-out_forwards]",
-      bounce: "translate-y-[50px] animate-[bounceIn_0.8s_ease-out_forwards]",
-    };
-    return animations[selectedTemplate.animation] || "";
-  };
+  const [history, setHistory] = useState([]);
 
   const applyTemplate = (template) => {
     setHistory([...history, { selectedTemplate }]);
     setSelectedTemplate(template);
-    toast.success(`Applied ${template.name} template`);
+    toast.success(`Applied ${template.name}`);
   };
 
   const handleUndo = () => {
@@ -63,232 +49,183 @@ export default function IntroOutroMaker() {
     const prev = history[history.length - 1];
     setSelectedTemplate(prev.selectedTemplate);
     setHistory(history.slice(0, -1));
-    toast.success("Undo applied");
   };
 
-  const previewConfig = useMemo(() => ({
-    template: selectedTemplate.name,
-    music: selectedMusic.name,
-    transition: transitionType,
-    hasLogo: showLogo && logoUrl,
-    hasCTA: showCTA
-  }), [selectedTemplate, selectedMusic, transitionType, showLogo, logoUrl, showCTA]);
+  const animationClass = useMemo(() => {
+    const animations = {
+      slideIn: "animate-[slideIn_0.8s_ease-out_forwards]",
+      fadeIn: "animate-[fadeIn_0.8s_ease-out_forwards]",
+      zoomIn: "animate-[zoomIn_0.8s_ease-out_forwards]",
+    };
+    return animations[selectedTemplate.animation] || "";
+  }, [selectedTemplate.animation]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold text-slate-900">Intro/Outro Maker</h1>
-          <p className="text-slate-500 mt-1">Create stunning intros and outros for your videos</p>
+    <div className="min-h-screen bg-gradient-to-br from-[#03080f] via-[#0a1525] to-[#050a14] p-6">
+      <div className="max-w-7xl mx-auto">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <h1 className="text-4xl font-black bg-gradient-to-r from-[#1e78ff] to-[#a855f7] bg-clip-text text-transparent">
+            Intro/Outro Maker
+          </h1>
+          <p className="text-blue-400/50 mt-2">Create stunning video intros and outros</p>
         </motion.div>
+
+        {/* Mode Selector */}
+        <div className="flex gap-3 mb-8">
+          {["intro", "outro"].map((m) => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                mode === m
+                  ? "bg-gradient-to-r from-[#1e78ff] to-[#a855f7] text-white shadow-lg shadow-blue-900/50"
+                  : "bg-[#060d18] border border-blue-900/40 text-blue-400/60 hover:border-blue-700/60"
+              }`}
+            >
+              {m === "intro" ? "📹 Intro" : "👋 Outro"}
+            </button>
+          ))}
+        </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Preview */}
           <div className="lg:col-span-2">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="space-y-4 p-6">
-                <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-                  <Eye className="w-4 h-4" /> Preview
-                </h3>
-
-                {/* Intro Preview */}
-                <div
-                  className="aspect-video rounded-xl flex items-center justify-center overflow-hidden relative group"
-                  style={{ background: selectedTemplate.bg }}
-                >
-                  {showLogo && logoUrl && (
-                    <img src={logoUrl} alt="logo" className="absolute top-4 right-4 h-16 opacity-80" />
-                  )}
-                  <div className={`text-center ${getAnimationClass()}`}>
-                    <p className="text-sm font-medium text-slate-400 mb-2">INTRO</p>
-                    <p style={{ fontSize: `${fontSize}px`, color: selectedTemplate.textColor }} className="font-black">
-                      {introText}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#060d18] border border-[#1e78ff]/20 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="aspect-video rounded-2xl flex items-center justify-center overflow-hidden relative group" style={{ background: selectedTemplate.bg }}>
+                {showLogo && logoUrl && (
+                  <img src={logoUrl} alt="logo" className="absolute top-6 right-6 h-20 opacity-80" />
+                )}
+                <div className={`text-center ${animationClass}`}>
+                  <p style={{ fontSize: `${fontSize}px`, color: selectedTemplate.textColor }} className="font-black leading-tight">
+                    {mainText}
+                  </p>
+                  {subText && (
+                    <p style={{ fontSize: `${fontSize * 0.4}px`, color: selectedTemplate.textColor }} className="font-medium mt-4 opacity-80">
+                      {subText}
                     </p>
-                    {subText && (
-                      <p style={{ fontSize: `${fontSize * 0.5}px`, color: selectedTemplate.textColor }} className="font-medium mt-2 opacity-80">
-                        {subText}
-                      </p>
-                    )}
-                  </div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-all pointer-events-none group-hover:pointer-events-auto">
-                    <button onClick={() => setIsPreviewPlaying(!isPreviewPlaying)} className="bg-white/80 hover:bg-white p-3 rounded-full transition-colors pointer-events-auto">
-                      <Play className="w-5 h-5 text-slate-900 fill-slate-900" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleDownload("intro")}
-                    className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 gap-2"
-                  >
-                    <Download className="w-4 h-4" /> Download Intro ({duration}s)
-                  </Button>
-                </div>
-
-                {/* Outro Preview */}
-                <div
-                  className="aspect-video rounded-xl flex items-center justify-center overflow-hidden relative group"
-                  style={{ background: selectedTemplate.bg }}
-                >
-                  {showLogo && logoUrl && (
-                    <img src={logoUrl} alt="logo" className="absolute top-4 right-4 h-16 opacity-80" />
                   )}
-                  <div className={`text-center ${getAnimationClass()}`}>
-                    <p className="text-sm font-medium text-slate-400 mb-2">OUTRO</p>
-                    <p style={{ fontSize: `${fontSize}px`, color: selectedTemplate.textColor }} className="font-black">
-                      {outroText}
+                  {showCTA && (
+                    <p style={{ fontSize: `${fontSize * 0.5}px`, color: selectedTemplate.textColor }} className="font-bold mt-6 border-2 border-current px-6 py-2 rounded-full inline-block">
+                      {ctaText}
                     </p>
-                    {showCTA && (
-                      <p style={{ fontSize: `${fontSize * 0.6}px`, color: selectedTemplate.textColor }} className="font-bold mt-4 border-2 border-white px-6 py-2 rounded-full inline-block">
-                        {ctaText}
-                      </p>
-                    )}
-                  </div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-all pointer-events-none group-hover:pointer-events-auto">
-                    <button onClick={() => setIsPreviewPlaying(!isPreviewPlaying)} className="bg-white/80 hover:bg-white p-3 rounded-full transition-colors pointer-events-auto">
-                      <Play className="w-5 h-5 text-slate-900 fill-slate-900" />
-                    </button>
-                  </div>
+                  )}
                 </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleDownload("outro")}
-                    className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 gap-2"
-                  >
-                    <Download className="w-4 h-4" /> Download Outro ({duration}s)
-                  </Button>
+                <div className="absolute bottom-4 left-4 text-xs text-white/50 font-mono">
+                  {duration}s • {selectedMusic.name} • {transition}
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* Settings */}
+          {/* Controls */}
           <div className="space-y-4">
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-slate-900 text-sm">✨ Templates</h3>
-                {history.length > 0 && (
-                  <button
-                    onClick={handleUndo}
-                    className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1"
-                    title="Undo last change"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-              <div className="grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto">
+            {/* Templates */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 20 }} className="bg-[#060d18] border border-[#1e78ff]/20 rounded-2xl p-4">
+              <h3 className="text-sm font-bold text-[#e8f4ff] mb-3">✨ Templates</h3>
+              <div className="grid grid-cols-3 gap-2">
                 {TEMPLATES.map((t) => (
                   <button
                     key={t.id}
                     onClick={() => applyTemplate(t)}
-                    className={`p-2 rounded-lg border-2 transition-all ${
-                      selectedTemplate.id === t.id ? "border-cyan-500 bg-cyan-50" : "border-slate-200 hover:border-slate-300"
-                    }`}
+                    className={`p-2 rounded-lg border-2 transition-all ${selectedTemplate.id === t.id ? "border-[#1e78ff] bg-[#1e78ff]/10" : "border-blue-900/30 hover:border-[#1e78ff]/50"}`}
                   >
-                    <div
-                      className="w-full h-8 rounded mb-1"
-                      style={{
-                        background: t.bg,
-                        border: `1px solid ${t.textColor === "#fff" ? "#ccc" : "#f0f0f0"}`,
-                      }}
-                    />
-                    <p className="text-xs font-medium text-slate-700 truncate">{t.name}</p>
+                    <div className="w-full h-8 rounded mb-1" style={{ background: t.bg }} />
+                    <p className="text-xs font-semibold text-blue-300 truncate">{t.name}</p>
                   </button>
                 ))}
               </div>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-              <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2 text-sm">
-                <Type className="w-4 h-4" /> Text & Timing
-              </h3>
+            {/* Text */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 20 }} transition={{ delay: 0.05 }} className="bg-[#060d18] border border-[#1e78ff]/20 rounded-2xl p-4">
+              <h3 className="text-sm font-bold text-[#e8f4ff] mb-3">📝 Text</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-1">Intro Text</label>
-                  <Input
-                    value={introText}
-                    onChange={(e) => setIntroText(e.target.value)}
-                    placeholder="Your Channel"
-                    className="text-sm"
-                  />
+                  <label className="text-xs text-blue-400/60 block mb-1">Main Text</label>
+                  <Input value={mainText} onChange={(e) => setMainText(e.target.value)} className="bg-[#0a1525] border-blue-900/40 text-[#e8f4ff] focus:border-[#1e78ff]/50" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-1">Sub Text</label>
-                  <Input
-                    value={subText}
-                    onChange={(e) => setSubText(e.target.value)}
-                    placeholder="Optional subtitle"
-                    className="text-sm"
-                  />
+                  <label className="text-xs text-blue-400/60 block mb-1">Sub Text</label>
+                  <Input value={subText} onChange={(e) => setSubText(e.target.value)} className="bg-[#0a1525] border-blue-900/40 text-[#e8f4ff] focus:border-[#1e78ff]/50" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-1">Outro Text</label>
-                  <Input
-                    value={outroText}
-                    onChange={(e) => setOutroText(e.target.value)}
-                    placeholder="Thanks for Watching!"
-                    className="text-sm"
-                  />
-                </div>
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs font-medium text-slate-600">Font Size</label>
-                    <span className="text-xs text-slate-500 font-mono">{fontSize}px</span>
+                  <div className="flex justify-between mb-1">
+                    <label className="text-xs text-blue-400/60">Size</label>
+                    <span className="text-xs text-blue-400/40">{fontSize}px</span>
                   </div>
-                  <input type="range" min="24" max="72" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full accent-cyan-500" />
-                </div>
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs font-medium text-slate-600">Duration</label>
-                    <span className="text-xs text-slate-500 font-mono">{duration}s</span>
-                  </div>
-                  <input type="range" min="1" max="10" value={duration} onChange={(e) => setDuration(parseInt(e.target.value))} className="w-full accent-cyan-500" />
+                  <input type="range" min="32" max="100" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full accent-[#1e78ff]" />
                 </div>
               </div>
             </motion.div>
 
-            {/* Advanced Options */}
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-              <h3 className="font-semibold text-slate-900 mb-3 text-sm">✨ Advanced</h3>
+            {/* Settings */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 20 }} transition={{ delay: 0.1 }} className="bg-[#060d18] border border-[#1e78ff]/20 rounded-2xl p-4">
+              <h3 className="text-sm font-bold text-[#e8f4ff] mb-3">⚙️ Settings</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-2">Music Style</label>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {MUSIC_STYLES.map(m => (
-                      <button key={m.name} onClick={() => setSelectedMusic(m)} className={`p-2 text-xs rounded border-2 transition-all ${selectedMusic.name === m.name ? "border-cyan-500 bg-cyan-50" : "border-slate-200"}`}>
+                  <div className="flex justify-between mb-1">
+                    <label className="text-xs text-blue-400/60">Duration</label>
+                    <span className="text-xs text-blue-400/40">{duration}s</span>
+                  </div>
+                  <input type="range" min="1" max="10" value={duration} onChange={(e) => setDuration(parseInt(e.target.value))} className="w-full accent-[#1e78ff]" />
+                </div>
+                <div>
+                  <label className="text-xs text-blue-400/60 block mb-1">Music</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {MUSIC_STYLES.map((m) => (
+                      <button
+                        key={m.name}
+                        onClick={() => setSelectedMusic(m)}
+                        className={`p-2 rounded-lg text-xs font-semibold transition-all ${selectedMusic.name === m.name ? "bg-[#a855f7]/20 border border-[#a855f7]/60 text-[#a855f7]" : "bg-[#1e78ff]/10 border border-blue-900/40 text-blue-400/60"}`}
+                      >
                         {m.emoji} {m.name}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-600 block mb-2">Transition</label>
-                  <select value={transitionType} onChange={(e) => setTransitionType(e.target.value)} className="w-full border border-slate-300 rounded p-2 text-xs">
-                    <option>Fade</option>
-                    <option>Slide</option>
-                    <option>Zoom</option>
-                    <option>Bounce</option>
+                  <label className="text-xs text-blue-400/60 block mb-1">Transition</label>
+                  <select value={transition} onChange={(e) => setTransition(e.target.value)} className="w-full bg-[#0a1525] border border-blue-900/40 rounded-lg px-3 py-2 text-xs text-[#e8f4ff] focus:border-[#1e78ff]/50 outline-none">
+                    {TRANSITIONS.map((t) => (
+                      <option key={t}>{t}</option>
+                    ))}
                   </select>
                 </div>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={showLogo} onChange={(e) => setShowLogo(e.target.checked)} className="w-4 h-4" />
-                  <span className="text-xs font-medium text-slate-600">Add Logo</span>
+              </div>
+            </motion.div>
+
+            {/* Extra */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 20 }} transition={{ delay: 0.15 }} className="bg-[#060d18] border border-[#1e78ff]/20 rounded-2xl p-4">
+              <h3 className="text-sm font-bold text-[#e8f4ff] mb-3">✨ Extras</h3>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 p-2 rounded-lg hover:bg-[#1e78ff]/10 cursor-pointer transition-colors">
+                  <input type="checkbox" checked={showLogo} onChange={(e) => setShowLogo(e.target.checked)} className="w-4 h-4 accent-[#1e78ff]" />
+                  <span className="text-xs text-blue-300">Add Logo</span>
                 </label>
                 {showLogo && (
-                  <Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="Logo URL" className="text-xs" />
+                  <Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="Logo URL" className="bg-[#0a1525] border-blue-900/40 text-[#e8f4ff] focus:border-[#1e78ff]/50 text-xs" />
                 )}
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={showCTA} onChange={(e) => setShowCTA(e.target.checked)} className="w-4 h-4" />
-                  <span className="text-xs font-medium text-slate-600">Show CTA Button</span>
+                <label className="flex items-center gap-2 p-2 rounded-lg hover:bg-[#1e78ff]/10 cursor-pointer transition-colors">
+                  <input type="checkbox" checked={showCTA} onChange={(e) => setShowCTA(e.target.checked)} className="w-4 h-4 accent-[#1e78ff]" />
+                  <span className="text-xs text-blue-300">Show CTA</span>
                 </label>
                 {showCTA && (
-                  <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="CTA Text" className="text-xs" />
+                  <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="Button text" className="bg-[#0a1525] border-blue-900/40 text-[#e8f4ff] focus:border-[#1e78ff]/50 text-xs" />
                 )}
               </div>
             </motion.div>
+
+            {/* Actions */}
+            <div className="flex flex-col gap-2">
+              <Button className="w-full bg-gradient-to-r from-[#1e78ff] to-[#a855f7] hover:opacity-90 gap-2">
+                <Download className="w-4 h-4" /> Generate {mode === "intro" ? "Intro" : "Outro"}
+              </Button>
+              {history.length > 0 && (
+                <Button onClick={handleUndo} variant="outline" className="w-full gap-2">
+                  <RotateCcw className="w-4 h-4" /> Undo
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
