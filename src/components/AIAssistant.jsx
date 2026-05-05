@@ -151,8 +151,9 @@ export default function AIAssistant({ projects = [], tasks = [], budget = [], us
   };
 
   const buildContext = async () => {
-    const completedTasks = tasks.filter(t => t.status === 'completed').length;
-    const overdueTasks = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'completed').length;
+    const taskArray = Array.isArray(tasks) ? tasks : [];
+    const completedTasks = taskArray.filter(t => t.status === 'completed').length;
+    const overdueTasks = taskArray.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'completed').length;
     const activeProjects = projects.filter(p => p.status !== 'completed').length;
     const totalBudget = budget.reduce((s, b) => b.type === 'income' ? s + b.amount : s - b.amount, 0);
     
@@ -165,21 +166,24 @@ export default function AIAssistant({ projects = [], tasks = [], budget = [], us
 - Subscriptions: ${subscriptions.length} | Live streams now: ${channels.filter(c => c.is_live).length}
 
 Work Context:
-- ${activeProjects} active projects, ${tasks.length} total tasks (${completedTasks} done, ${overdueTasks} overdue)
+- ${activeProjects} active projects, ${taskArray.length} total tasks (${completedTasks} done, ${overdueTasks} overdue)
 - Net budget: $${totalBudget.toLocaleString()}`;
   };
 
   const triggerCheckIn = async () => {
     if (checkInLoading || checkInVisible || userRole === 'viewer') return;
     
+    const taskArray = Array.isArray(tasks) ? tasks : [];
+    if (taskArray.length === 0) return; // Don't show check-in if no tasks
+    
     setCheckInLoading(true);
     setCheckInVisible(true);
     setCheckInMessages([]);
 
-    const overdue = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'completed').length;
-    const completed = tasks.filter(t => t.status === 'completed').length;
-    const completionRate = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
-    const unassigned = tasks.filter(t => !t.assigned_to).length;
+    const overdue = taskArray.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'completed').length;
+    const completed = taskArray.filter(t => t.status === 'completed').length;
+    const completionRate = taskArray.length > 0 ? Math.round((completed / taskArray.length) * 100) : 0;
+    const unassigned = taskArray.filter(t => !t.assigned_to).length;
 
     let priorityMsg = 'OPTIMIZE - Keep workflow smooth';
     if (overdue > 0) priorityMsg = 'URGENT - Address overdue tasks!';
@@ -190,7 +194,7 @@ Work Context:
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `You are VStream AI, a warm, brief assistant. Be genuine and encouraging in 2-3 sentences max.
 
-Context: ${tasks.length} tasks (${completionRate}% done, ${overdue} overdue)
+Context: ${taskArray.length} tasks (${completionRate}% done, ${overdue} overdue)
 Priority: ${priorityMsg}
 
 Generate a contextual check-in message. Be specific.`,
