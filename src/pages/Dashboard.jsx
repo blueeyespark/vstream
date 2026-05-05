@@ -662,6 +662,8 @@ export default function Dashboard() {
                 { label: "View My Channel", to: "/Channel", icon: Tv, color: "text-yellow-400" },
                 { label: "Browse Live", to: "/Live", icon: Radio, color: "text-red-400" },
                 { label: "My Clips", to: "/Shorts", icon: PlaySquare, color: "text-green-400" },
+                { label: "Spot Call World Chat", to: "#", icon: Users, color: "text-cyan-400" },
+                { label: "Deep Scan Discord", to: "#", icon: Hash, color: "text-purple-400" },
               ].map(a => {
                 const Icon = a.icon;
                 return (
