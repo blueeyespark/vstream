@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Radio, Settings, Eye, Users, Heart, MessageCircle, TrendingUp, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,8 @@ export default function TwitchStreamer() {
     "Educational",
   ];
 
+  const intervalRef = React.useRef(null);
+
   const handleGoLive = () => {
     if (!streamTitle.trim()) {
       toast.error("Stream title is required");
@@ -32,17 +34,19 @@ export default function TwitchStreamer() {
     setIsLive(true);
     toast.success("🎬 You're now live on Twitch!");
 
-    // Simulate stream stats
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setStreamDuration((prev) => prev + 1);
       setViewers(Math.floor(Math.random() * 500) + 10);
       setLikes(Math.floor(Math.random() * 100) + 5);
     }, 3000);
-
-    return () => clearInterval(interval);
   };
 
+  React.useEffect(() => {
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, []);
+
   const handleEndStream = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
     setIsLive(false);
     setStreamTitle("");
     setStreamDuration(0);

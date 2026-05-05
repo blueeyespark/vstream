@@ -14,9 +14,17 @@ export default function VideoUpload() {
   const [videoTitle, setVideoTitle] = useState("");
   const [videoDescription, setVideoDescription] = useState("");
   const [uploadedVideoId, setUploadedVideoId] = useState(null);
+  const [channel, setChannel] = useState(null);
 
   useEffect(() => {
-    base44.auth.me().then(setUser);
+    base44.auth.me().then(u => {
+      setUser(u);
+      if (u?.email) {
+        base44.entities.Channel.filter({ creator_email: u.email }).then(channels => {
+          if (channels?.[0]) setChannel(channels[0]);
+        }).catch(() => {});
+      }
+    });
   }, []);
 
   const handleFileSelect = (e) => {
@@ -84,6 +92,17 @@ export default function VideoUpload() {
       const transRes = await base44.functions.invoke("startTranscodingJob", {
         video_id,
         upload_key,
+      });
+
+      // Step 4: Create Video entity record so it appears on the channel
+      await base44.entities.Video.create({
+        channel_id: channel?.id || "",
+        title: videoTitle,
+        description: videoDescription,
+        status: "processing",
+        visibility: "public",
+        raw_upload_url: upload_key,
+        transcoding_progress: 0,
       });
 
       setUploadedVideoId(video_id);

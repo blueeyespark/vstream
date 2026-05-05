@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Lightbulb, TrendingUp, Search, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 
 const trendingIdeas = [
   "AI-powered content creation tools",
@@ -21,6 +23,20 @@ const seoTips = [
 
 export default function CreatorResourcesHub() {
   const [active, setActive] = useState("ideas");
+  const [ideas, setIdeas] = useState(trendingIdeas);
+  const [generatingIdeas, setGeneratingIdeas] = useState(false);
+  const [savedIdeas, setSavedIdeas] = useState([]);
+
+  const handleGenerateIdeas = async () => {
+    setGeneratingIdeas(true);
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: "Generate 5 creative VTuber/streamer content ideas that are trending right now. Be specific and actionable.",
+      response_json_schema: { type: "object", properties: { ideas: { type: "array", items: { type: "string" } } } }
+    });
+    if (result?.ideas) setIdeas(result.ideas);
+    setGeneratingIdeas(false);
+    toast.success("New ideas generated!");
+  };
 
   return (
     <div>
@@ -42,14 +58,14 @@ export default function CreatorResourcesHub() {
         <div className="space-y-3">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-bold text-[#e8f4ff]">AI-Generated Content Ideas</h3>
-            <Button size="sm" className="gap-1">
-              <Zap className="w-3 h-3" /> Generate
+            <Button size="sm" className="gap-1" onClick={handleGenerateIdeas} disabled={generatingIdeas}>
+              <Zap className="w-3 h-3" /> {generatingIdeas ? "Generating..." : "Generate"}
             </Button>
           </div>
-          {trendingIdeas.map((idea, i) => (
+          {ideas.map((idea, i) => (
             <div key={i} className="bg-[#060d18] border border-blue-900/40 rounded-xl p-4 flex items-center justify-between">
               <p className="text-sm text-[#c8dff5]">{idea}</p>
-              <Button size="sm" variant="ghost">Save</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setSavedIdeas(p => [...p, idea]); toast.success("Idea saved!"); }}>Save</Button>
             </div>
           ))}
         </div>
