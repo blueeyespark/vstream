@@ -741,38 +741,48 @@ export default function ArtForgeStudio() {
                   {/* Batch / Duration + Generate */}
                   <div className="pt-1 border-t border-blue-900/20">
                     {currentMode?.supportsVideo ? (
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs text-blue-400/50 font-medium">Duration</span>
-                        <div className="flex gap-1">
-                          {[4, 6, 8].map(d => (
-                            <button
-                              key={d}
-                              onClick={() => setVideoDuration(d)}
-                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                                videoDuration === d
-                                  ? "bg-[#ec4899]/20 text-[#ec4899] border border-[#ec4899]/40"
-                                  : "bg-[#0a1525] border border-blue-900/30 text-blue-400/50 hover:text-blue-300"
-                              }`}
-                            >
-                              {d}s
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ) : mode !== "sticker" && mode !== "2d_model" && mode !== "3d_model" ? (
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs text-blue-400/50 font-medium">How many images?</span>
-                        <div className="flex items-center gap-1 bg-[#0a1525] border border-blue-900/30 rounded-lg p-1">
-                          <button onClick={() => setBatchCount(c => Math.max(1, c - 1))} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors">
-                            <Minus className="w-3.5 h-3.5" />
-                          </button>
-                          <span className="text-sm font-bold text-[#c8dff5] w-8 text-center">{batchCount}</span>
-                          <button onClick={() => setBatchCount(c => Math.min(4, c + 1))} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors">
-                            <Plus className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ) : null}
+                       <div className="space-y-2 mb-3">
+                         <div className="flex items-center justify-between">
+                           <span className="text-xs text-blue-400/50 font-medium">Duration</span>
+                           <span className="text-xs text-blue-400/30">~{videoDuration === 4 ? "30" : videoDuration === 6 ? "45" : videoDuration === 8 ? "60" : "90"}s to generate</span>
+                         </div>
+                         <div className="flex gap-1">
+                           {[4, 6, 8].map(d => (
+                             <button
+                               key={d}
+                               onClick={() => setVideoDuration(d)}
+                               className={`flex-1 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+                                 videoDuration === d
+                                   ? "bg-[#ec4899]/20 text-[#ec4899] border border-[#ec4899]/40"
+                                   : "bg-[#0a1525] border border-blue-900/30 text-blue-400/50 hover:text-blue-300"
+                               }`}
+                             >
+                               {d}s
+                             </button>
+                           ))}
+                         </div>
+                       </div>
+                     ) : mode !== "sticker" && mode !== "2d_model" && mode !== "3d_model" ? (
+                       <div className="space-y-2 mb-3">
+                         <div className="flex items-center justify-between">
+                           <span className="text-xs text-blue-400/50 font-medium">Batch Size</span>
+                           <span className="text-xs text-blue-400/30">~{batchCount * 20}s to generate all</span>
+                         </div>
+                         <div className="flex items-center gap-2 bg-[#0a1525] border border-blue-900/30 rounded-lg p-1.5">
+                           <button onClick={() => setBatchCount(c => Math.max(1, c - 1))} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors">
+                             <Minus className="w-3.5 h-3.5" />
+                           </button>
+                           <div className="flex-1 text-center">
+                             <span className="text-sm font-bold text-[#c8dff5]">{batchCount}</span>
+                             <span className="text-xs text-blue-400/40 ml-1">{batchCount === 1 ? "image" : "images"}</span>
+                           </div>
+                           <button onClick={() => setBatchCount(c => Math.min(8, c + 1))} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors">
+                             <Plus className="w-3.5 h-3.5" />
+                           </button>
+                         </div>
+                         <p className="text-xs text-blue-400/25">Up to 8 images at once</p>
+                       </div>
+                     ) : null}
                     <Button
                       onClick={handleGenerate}
                       disabled={genLoading || !prompt.trim()}
