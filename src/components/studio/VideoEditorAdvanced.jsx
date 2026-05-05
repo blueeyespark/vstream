@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Upload, Play, Pause, Download, Trash2, Volume2, Zap, Type, Palette, Music, Image, Sparkles, X, Search, Layers, WandSparkles, Plus } from "lucide-react";
+import { Upload, Play, Pause, Download, Trash2, Volume2, Zap, Type, Palette, Music, Image, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import ArtForgeStudio from "@/pages/ArtForgeStudio";
 
 const presets = [
   { name: "YouTube", width: 1280, height: 720, ratio: "16:9" },
@@ -175,7 +174,7 @@ export default function VideoEditorAdvanced() {
           <TabsTrigger value="intros" className="gap-2"><Type className="w-4 h-4" /> Intros</TabsTrigger>
           <TabsTrigger value="music" className="gap-2"><Music className="w-4 h-4" /> Music</TabsTrigger>
           <TabsTrigger value="media" className="gap-2"><Image className="w-4 h-4" /> Media Library</TabsTrigger>
-          <TabsTrigger value="ai" className="gap-2"><Sparkles className="w-4 h-4" /> AI Assistant</TabsTrigger>
+
         </TabsList>
 
         {/* Video Editor Tab */}
@@ -439,10 +438,7 @@ export default function VideoEditorAdvanced() {
           </motion.div>
         </TabsContent>
 
-        {/* AI Assistant Tab — powered by ArtForge */}
-        <TabsContent value="ai">
-          <ArtForgeStudio />
-        </TabsContent>
+
       </Tabs>
     </div>
   );
