@@ -1427,39 +1427,41 @@ export default function ArtForgeStudio() {
                           </div>
                         )}
 
-                        {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center pointer-events-none group-hover:pointer-events-auto">
+                        {/* Hover/Active overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 flex flex-col justify-between pointer-events-none group-hover:pointer-events-auto group-active:pointer-events-auto z-20 p-3">
+                          {/* Top: Favorite */}
+                          <div className="flex justify-end">
+                            <button
+                              onClick={() => handleToggleFavorite(item)}
+                              className={`h-8 w-8 flex items-center justify-center rounded-lg bg-black/70 transition-colors ${item.is_favorite ? "text-red-400" : "text-white/60"}`}
+                            >
+                              <Heart className="w-4 h-4" fill={item.is_favorite ? "currentColor" : "none"} />
+                            </button>
+                          </div>
+
+                          {/* Center: Edit Button */}
                           <button
                             onClick={() => handleLoadFromGallery(item)}
-                            className="bg-[#1e78ff] hover:bg-[#3d8fff] text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors mb-auto mt-auto relative z-20"
+                            className="bg-[#1e78ff] hover:bg-[#3d8fff] active:bg-[#1560d0] text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors w-full"
                           >
                             <Edit className="w-3 h-3" /> Edit
                           </button>
-                          <div className="absolute top-2 right-2 flex gap-1.5 z-20">
+
+                          {/* Bottom: Save and Delete */}
+                          <div className="flex gap-2">
+                            {item.url && (
+                              <a href={item.url} download target="_blank" rel="noopener noreferrer" className="flex-1">
+                                <button className="w-full h-7 flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 active:bg-white/40 text-white text-xs font-medium transition-colors">
+                                  <Download className="w-3 h-3" /> Save
+                                </button>
+                              </a>
+                            )}
                             <button
-                              onClick={() => handleToggleFavorite(item)}
-                              className={`h-7 w-7 flex items-center justify-center rounded-lg bg-black/70 transition-colors ${item.is_favorite ? "text-red-400" : "text-white/60 hover:text-red-400"}`}
+                              onClick={() => handleDelete(item.id)}
+                              className="h-7 w-7 flex items-center justify-center rounded-lg bg-red-500/30 hover:bg-red-500/50 active:bg-red-500/70 text-white transition-colors flex-shrink-0"
                             >
-                              <Heart className="w-3.5 h-3.5" fill={item.is_favorite ? "currentColor" : "none"} />
+                              <Trash2 className="w-3 h-3" />
                             </button>
-                          </div>
-                          <div className="absolute bottom-0 left-0 right-0 p-3">
-                            <p className="text-xs text-white/70 line-clamp-2 mb-2">{item.description || item.name}</p>
-                            <div className="flex gap-1.5">
-                              {item.url && (
-                                <a href={item.url} download target="_blank" rel="noopener noreferrer" className="flex-1">
-                                  <button className="w-full h-7 flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-medium transition-colors">
-                                    <Download className="w-3 h-3" /> Save
-                                  </button>
-                                </a>
-                              )}
-                              <button
-                                onClick={() => handleDelete(item.id)}
-                                className="h-7 w-7 flex items-center justify-center rounded-lg bg-red-500/30 hover:bg-red-500/50 text-white transition-colors"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
                           </div>
                         </div>
 
