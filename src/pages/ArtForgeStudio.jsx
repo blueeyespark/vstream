@@ -1330,7 +1330,13 @@ export default function ArtForgeStudio() {
                         )}
 
                         {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center">
+                          <button
+                            onClick={() => handleLoadFromGallery(item)}
+                            className="bg-[#1e78ff] hover:bg-[#3d8fff] text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors mb-auto mt-auto"
+                          >
+                            <Edit className="w-3 h-3" /> Edit
+                          </button>
                           <div className="absolute top-2 right-2 flex gap-1.5">
                             <button
                               onClick={() => handleToggleFavorite(item)}
@@ -1367,16 +1373,6 @@ export default function ArtForgeStudio() {
                             </div>
                           </div>
                         )}
-
-                        {/* Edit button overlay */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-2xl flex items-center justify-center">
-                          <button
-                            onClick={() => handleLoadFromGallery(item)}
-                            className="bg-[#1e78ff] hover:bg-[#3d8fff] text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                          >
-                            <Edit className="w-3 h-3" /> Edit
-                          </button>
-                        </div>
                       </div>
 
                       <div className="p-2.5">
