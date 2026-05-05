@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { DollarSign, TrendingUp, Gift, Zap, Eye } from "lucide-react";
@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 export default function MonetizationRevenue() {
   const [user, setUser] = useState(null);
-  useState(() => { base44.auth.me().then(setUser); }, []);
+  useEffect(() => { base44.auth.me().then(setUser); }, []);
 
   const { data: superChats = [] } = useQuery({
     queryKey: ["super-chats-revenue"],
@@ -21,11 +21,8 @@ export default function MonetizationRevenue() {
   const totalSuperChatRevenue = superChats.reduce((s, sc) => s + (sc.amount || 0), 0);
   const totalIncomeTracked = budget.reduce((s, b) => s + (b.amount || 0), 0);
 
-  const revenueChartData = [
-    { month: "Week 1", super_chat: 0, subs: 0, ads: 0 },
-    { month: "Week 2", super_chat: 0, subs: 0, ads: 0 },
-    { month: "Week 3", super_chat: 0, subs: 0, ads: 0 },
-    { month: "Week 4", super_chat: 0, subs: 0, ads: 0 },
+  const revenueChartData = superChats.length === 0 ? [] : [
+    { month: "This Period", super_chat: totalSuperChatRevenue, subs: 0, ads: 0 },
   ];
 
   const monetizationOptions = [
@@ -55,8 +52,9 @@ export default function MonetizationRevenue() {
       </div>
 
       {/* Revenue Breakdown Chart */}
+      {revenueChartData.length > 0 && (
       <section className="bg-[#060d18] border border-blue-900/40 rounded-xl p-4">
-        <h3 className="text-sm font-bold mb-4 text-[#e8f4ff]">Revenue Breakdown (4 Weeks)</h3>
+        <h3 className="text-sm font-bold mb-4 text-[#e8f4ff]">Revenue Breakdown</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={revenueChartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1a3a60" />
@@ -67,8 +65,9 @@ export default function MonetizationRevenue() {
             <Bar dataKey="subs" fill="#1e78ff" name="Subscriptions" />
             <Bar dataKey="ads" fill="#00c8ff" name="Ads" />
           </BarChart>
-        </ResponsiveContainer>
-      </section>
+          </ResponsiveContainer>
+          </section>
+          )}
 
       {/* Top Super Chat Donors */}
       <section>
@@ -90,6 +89,7 @@ export default function MonetizationRevenue() {
       </section>
 
       {/* Monetization Setup */}
+      {superChats.length > 0 && (
       <section>
         <h2 className="text-xl font-black text-[#e8f4ff] mb-4 flex items-center gap-2">
           <DollarSign className="w-5 h-5 text-green-400" />
@@ -97,10 +97,7 @@ export default function MonetizationRevenue() {
         </h2>
         <div className="space-y-3">
           {[
-            { name: "YouTube Partner Program", status: "active", desc: "Enables ads, Super Chat, memberships" },
-            { name: "Channel Memberships", status: "active", desc: "Monthly recurring revenue" },
-            { name: "Sponsorships", status: "pending", desc: "Brand partnership deals" },
-            { name: "Affiliate Links", status: "inactive", desc: "Product recommendations" },
+            { name: "Super Chat", status: "active", desc: "Fan donations active" },
           ].map((feature, i) => (
             <div key={i} className="p-3 bg-[#060d18] border border-blue-900/40 rounded-lg">
               <div className="flex items-center justify-between">
@@ -118,20 +115,20 @@ export default function MonetizationRevenue() {
               </div>
             </div>
           ))}
-        </div>
-      </section>
+          </div>
+          </section>
+          )}
 
-      {/* Revenue Goals */}
+          {/* Revenue Goals */}
+      {superChats.length > 0 && (
       <section>
         <h2 className="text-xl font-black text-[#e8f4ff] mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-purple-400" />
-          Monthly Goals
+          Monthly Progress
         </h2>
         <div className="space-y-2">
           {[
-            { goal: "$500/month", target: 500 },
-            { goal: "$1000/month", target: 1000 },
-            { goal: "$2000/month", target: 2000 },
+            { goal: "Current", target: totalSuperChatRevenue || 1 },
           ].map((g, i) => {
             const current = totalIncomeTracked;
             const progress = Math.min(100, Math.round((current / g.target) * 100));
@@ -149,7 +146,8 @@ export default function MonetizationRevenue() {
             );
           })}
         </div>
-      </section>
-    </div>
+        </section>
+        )}
+        </div>
   );
 }

@@ -25,7 +25,6 @@ export default function StreamerDashboard() {
   useEffect(() => {
     if (!isLive) return;
     const interval = setInterval(() => {
-      setViewers(v => v + Math.floor(Math.random() * 5) - 1);
       setDuration(d => d + 1);
     }, 1000);
     return () => clearInterval(interval);
@@ -41,7 +40,7 @@ export default function StreamerDashboard() {
 
   const startStream = () => {
     setIsLive(true);
-    setViewers(Math.floor(Math.random() * 50) + 10);
+    setViewers(0);
     toast.success("🔴 You are now LIVE!");
   };
 
@@ -155,7 +154,7 @@ export default function StreamerDashboard() {
             {activeTab === "chat" && <LiveChat streamId="my-stream" user={user} />}
             {activeTab === "goals" && <StreamGoals isStreamer={true} />}
             {activeTab === "predictions" && <Predictions isStreamer={true} />}
-            {activeTab === "raid" && <RaidWidget currentViewers={viewers} channels={[]} />}
+            {activeTab === "raid" && <RaidWidget currentViewers={viewers} channels={channels} />}
           </div>
 
           {/* Right: Widgets */}
