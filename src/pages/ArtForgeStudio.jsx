@@ -652,12 +652,13 @@ export default function ArtForgeStudio() {
                 <span className="hidden sm:inline">{label}</span>
               </button>
             ))}
+            <div className="w-px h-6 bg-blue-900/30" />
             <button
               onClick={() => navigate("/ProVideoStudio")}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all text-blue-400/50 hover:text-blue-300 hover:bg-white/5 border border-blue-900/30"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Media Library</span>
+              <span className="hidden sm:inline">Pro Studio</span>
               <span className="text-[9px] bg-[#1e78ff]/30 text-[#1e78ff] px-1 rounded ml-0.5">{gallery.length}</span>
             </button>
           </div>

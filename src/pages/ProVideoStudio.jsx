@@ -188,6 +188,13 @@ export default function ProVideoStudio() {
       {/* Header */}
       <div className="h-14 bg-[#0f1535] border-b border-blue-900/40 px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => window.location.href = '/ArtForge'}
+            className="text-blue-400 hover:text-blue-200 text-sm font-semibold px-2 py-1 rounded hover:bg-blue-900/20 transition-colors"
+            title="Back to ArtForge"
+          >
+            ← ArtForge
+          </button>
           <div className="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
             <Sparkles className="w-4 h-4" />
           </div>
