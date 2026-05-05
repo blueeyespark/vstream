@@ -500,8 +500,12 @@ export default function ArtForgeStudio() {
          };
 
         const generateOne = (i) => {
-           return base44.functions.invoke('generateImageWithOpenAI', {
+           const hasRefs = Array.isArray(refImages) && refImages.length > 0;
+           // Use GPT-4 which respects user intent better than Claude Opus's aggressive filtering
+           return base44.integrations.Core.GenerateImage({
              prompt: buildImagePrompt(i),
+             existing_image_urls: hasRefs ? refImages : undefined,
+             model: "gpt_5_5", // More respectful of user prompts
            });
          };
 
@@ -574,8 +578,10 @@ export default function ArtForgeStudio() {
     setGifLoading(true);
     try {
       const gifPrompt = `${prompt || "Animation"}, animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement. Make it loop-ready.`;
-      const response = await base44.functions.invoke('generateImageWithOpenAI', {
+      const response = await base44.integrations.Core.GenerateImage({
         prompt: gifPrompt,
+        existing_image_urls: [videoUrl],
+        model: "gpt_5_5",
       });
       const gifUrl = response?.url;
       if (!gifUrl) throw new Error("GIF generation returned no URL");
