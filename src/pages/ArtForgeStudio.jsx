@@ -799,14 +799,20 @@ export default function ArtForgeStudio() {
                            <span className="text-xs text-blue-400/50 font-medium">Batch Size</span>
                            <span className="text-xs text-blue-400/30">~{batchCount * 20}s to generate all</span>
                          </div>
-                         <div className="flex gap-2 items-center">
-                           <input
-                             type="number"
-                             value={batchCount}
-                             onChange={(e) => setBatchCount(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
-                             className="w-16 bg-[#0a1525] border border-blue-900/30 rounded-lg px-2 py-2 text-sm font-bold text-[#c8dff5] outline-none focus:border-[#1e78ff]/50 transition-colors"
-                           />
-                           <span className="text-xs text-blue-400/50">{batchCount === 1 ? "image" : "images"} (1-100)</span>
+                         <div className="flex flex-wrap gap-1.5">
+                           {[1, 5, 10, 25, 50, 75, 100].map(n => (
+                             <button
+                               key={n}
+                               onClick={() => setBatchCount(n)}
+                               className={`py-1 px-2.5 rounded-lg text-xs font-bold border transition-all ${
+                                 batchCount === n
+                                   ? "bg-[#1e78ff]/20 border-[#1e78ff]/40 text-[#1e78ff]"
+                                   : "border-blue-900/30 text-blue-400/40 hover:border-blue-700/50 hover:text-blue-300"
+                               }`}
+                             >
+                               {n}
+                             </button>
+                           ))}
                          </div>
                        </div>
                      ) : null}
