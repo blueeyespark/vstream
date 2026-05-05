@@ -412,6 +412,31 @@ export default function ArtForgeStudio() {
     }, 1000);
 
     try {
+      // Convert blob URLs to data URLs so they can be sent to the API
+      let refImageDataUrls = [];
+      if (Array.isArray(refImages) && refImages.length > 0) {
+        for (const url of refImages) {
+          if (url.startsWith("blob:")) {
+            try {
+              const response = await fetch(url);
+              const blob = await response.blob();
+              const reader = new FileReader();
+              await new Promise((resolve) => {
+                reader.onload = () => {
+                  refImageDataUrls.push(reader.result);
+                  resolve();
+                };
+                reader.readAsDataURL(blob);
+              });
+            } catch (e) {
+              console.warn("Failed to convert reference image:", e);
+            }
+          } else if (url.startsWith("http") || url.startsWith("data:")) {
+            refImageDataUrls.push(url);
+          }
+        }
+      }
+
       const finalPrompt = buildPrompt();
       const isVideo = currentMode?.supportsVideo;
       const is3D = currentMode?.supportsTripo;
@@ -449,8 +474,8 @@ export default function ArtForgeStudio() {
         toast.success("3D model saved to gallery!");
       } else if (isVideo) {
         let videoPrompt = buildVideoPrompt();
-        if (refImages.length > 0) {
-          videoPrompt = `Match reference image style exactly. ${videoPrompt}`;
+        if (refImageDataUrls.length > 0) {
+          videoPrompt = `Match reference image style. ${videoPrompt}`;
         }
         const response = await base44.integrations.Core.GenerateVideo({
           prompt: videoPrompt,
@@ -483,18 +508,18 @@ export default function ArtForgeStudio() {
 
         const buildImagePrompt = (idx) => {
           let basePrompt = mode === "sticker" ? buildStickerVariantPrompt(idx) : finalPrompt;
-          if (refImages.length > 0) {
-            basePrompt = `You MUST match the reference image style, appearance, and details exactly. Reference provides the visual style guide. User request: ${basePrompt}`;
+          if (refImageDataUrls.length > 0) {
+            basePrompt = `ANALYZE REFERENCE: Study the reference image style, colors, composition, and visual elements. Create output matching this EXACT visual style. User request: ${basePrompt}`;
           }
           return basePrompt;
         };
 
         const generateOne = (i) => {
-          const hasRefs = Array.isArray(refImages) && refImages.length > 0;
+          const hasRefs = refImageDataUrls.length > 0;
           return base44.integrations.Core.GenerateImage({
             prompt: buildImagePrompt(i),
-            existing_image_urls: hasRefs ? refImages : undefined,
-            model: hasRefs ? "gpt_5_4" : "claude_opus_4_7", // Use GPT-4 vision for reference matching
+            existing_image_urls: hasRefs ? refImageDataUrls : undefined,
+            model: "gpt_5_4", // Always use GPT-4 vision for better reference matching
           });
         };
 
@@ -568,7 +593,7 @@ export default function ArtForgeStudio() {
       const response = await base44.integrations.Core.GenerateImage({
         prompt: gifPrompt,
         existing_image_urls: [videoUrl],
-        model: "claude_opus_4_7",
+        model: "gpt_5_4",
       });
       const gifUrl = response?.url;
       if (!gifUrl) throw new Error("No GIF generated");
@@ -728,7 +753,11 @@ export default function ArtForgeStudio() {
                       <div className="flex flex-wrap gap-2 mt-2">
                         {refImages.map((url, i) => (
                           <div key={i} className="relative w-14 h-14 rounded-lg overflow-hidden border border-blue-900/40 group">
-                            <img src={url} alt="" className="w-full h-full object-cover" />
+                            {typeof url === "string" && (url.startsWith("http") || url.startsWith("data:")) ? (
+                              <img src={url} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full bg-blue-900/20 flex items-center justify-center text-xs text-blue-400/50">+</div>
+                            )}
                             <button
                               onClick={() => setRefImages(prev => prev.filter((_, j) => j !== i))}
                               className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
