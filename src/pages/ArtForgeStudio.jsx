@@ -7,7 +7,7 @@ import {
   WandSparkles, Layers, Box, Plus, X, Sparkles, Download,
   RefreshCw, Image, LayoutGrid, Clock, Trash2, FileText,
   Loader2, Copy, Check, Type, Tag, Lightbulb, Heart,
-  Search, Minus, Film, Smile, Package, Zap, Star
+  Search, Minus, Film, Smile, Package, Zap, Star, Edit
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -278,6 +278,7 @@ export default function ArtForgeStudio() {
   const [uploadingRefs, setUploadingRefs] = useState(false);
   const [results, setResults] = useState([]);
   const [genLoading, setGenLoading] = useState(false);
+  const [editingFromGallery, setEditingFromGallery] = useState(null);
   const [batchCount, setBatchCount] = useState(1);
   const [activeStyleTags, setActiveStyleTags] = useState([]);
   const [videoDuration, setVideoDuration] = useState(6);
@@ -405,6 +406,41 @@ export default function ArtForgeStudio() {
   }, []);
 
   // ── Visual generation ────────────────────────────────────────────────────────
+  const handleLoadFromGallery = (item) => {
+    setEditingFromGallery(item);
+    setPrompt(item.description || "");
+    setRefImages([item.url]);
+    setMode(item.type || "image");
+    setResults([]);
+    setActiveTab("studio");
+  };
+
+  const handleSaveEdit = async (editedUrl) => {
+    if (!editingFromGallery) return;
+    try {
+      // Save edited version as new asset
+      await base44.entities.MediaAsset.create({
+        name: `${editingFromGallery.name} (edited)`,
+        url: editedUrl,
+        type: editingFromGallery.type,
+        description: `Edited from: ${editingFromGallery.name}. ${prompt}`,
+        category: editingFromGallery.category,
+        file_url: editedUrl,
+        is_favorite: false,
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
+      toast.success("Edit saved as new version ✓");
+      setEditingFromGallery(null);
+      setResults([]);
+      setPrompt("");
+      setRefImages([]);
+    } catch (e) {
+      console.error("Save edit failed:", e);
+      toast.error("Failed to save edit");
+    }
+  };
+
   const handleGenerate = async () => {
     if (!prompt.trim()) { toast.error("Please describe your vision"); return; }
     if (genLoading) return; // Prevent duplicate submissions
@@ -1059,8 +1095,17 @@ export default function ArtForgeStudio() {
                         </div>
                         <div className="flex gap-2 mt-auto flex-wrap">
                            <Button variant="outline" onClick={handleGenerate} disabled={genLoading} className="flex-1 gap-1.5 text-sm">
-                             <RefreshCw className="w-3.5 h-3.5" /> Regenerate
+                             <RefreshCw className="w-3.5 h-3.5" /> {editingFromGallery ? "Update" : "Regenerate"}
                            </Button>
+                           {editingFromGallery && results.length > 0 && (
+                             <Button
+                               variant="outline"
+                               onClick={() => handleSaveEdit(results[0]?.url)}
+                               className="flex-1 gap-1.5 text-sm border-green-600/40 text-green-400 hover:bg-green-500/10"
+                             >
+                               <Check className="w-3.5 h-3.5" /> Save as Copy
+                             </Button>
+                           )}
                            {/* Send to editor button for video results */}
                            {results[0]?.type === "video" && (
                              <Button
@@ -1322,6 +1367,16 @@ export default function ArtForgeStudio() {
                             </div>
                           </div>
                         )}
+
+                        {/* Edit button overlay */}
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-2xl flex items-center justify-center">
+                          <button
+                            onClick={() => handleLoadFromGallery(item)}
+                            className="bg-[#1e78ff] hover:bg-[#3d8fff] text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                          >
+                            <Edit className="w-3 h-3" /> Edit
+                          </button>
+                        </div>
                       </div>
 
                       <div className="p-2.5">
