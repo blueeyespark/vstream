@@ -3,13 +3,6 @@ import { Swords, Users, Zap, Search } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
-const DEMO_CHANNELS = [
-  { id: "1", channel_name: "NightStreamCo", subscriber_count: 12400, is_live: true, category: "Gaming" },
-  { id: "2", channel_name: "PixelWizard", subscriber_count: 8900, is_live: true, category: "Art" },
-  { id: "3", channel_name: "TechTalker", subscriber_count: 22100, is_live: true, category: "Tech" },
-  { id: "4", channel_name: "CozyCook", subscriber_count: 5600, is_live: true, category: "IRL" },
-];
-
 export default function RaidWidget({ currentViewers = 0, channels = [] }) {
   const [target, setTarget] = useState(null);
   const [raiding, setRaiding] = useState(false);
@@ -18,7 +11,7 @@ export default function RaidWidget({ currentViewers = 0, channels = [] }) {
   const [search, setSearch] = useState("");
   const [messages, setMessages] = useState([]);
 
-  const liveChannels = (channels.length > 0 ? channels : DEMO_CHANNELS).filter(c => c.is_live);
+  const liveChannels = channels.filter(c => c.is_live);
   const filtered = liveChannels.filter(c => c.channel_name?.toLowerCase().includes(search.toLowerCase()));
 
   const startRaid = (channel) => {
@@ -92,13 +85,16 @@ export default function RaidWidget({ currentViewers = 0, channels = [] }) {
       <div className="px-4 py-3 border-b border-zinc-800 flex items-center gap-2">
         <Swords className="w-4 h-4 text-purple-400" />
         <span className="text-white text-sm font-semibold">Raid a Channel</span>
-        <span className="text-xs text-zinc-500">{currentViewers || 150} raiders ready</span>
+        <span className="text-xs text-zinc-500">{currentViewers || 0} raiders ready</span>
       </div>
       <div className="p-4">
         <div className="flex items-center gap-2 bg-zinc-800 rounded-lg px-3 py-2 mb-3 border border-zinc-700">
           <Search className="w-3.5 h-3.5 text-zinc-500" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search channels..." className="flex-1 bg-transparent text-white text-xs outline-none placeholder:text-zinc-500" />
         </div>
+        {filtered.length === 0 && (
+          <p className="text-zinc-500 text-xs text-center py-4">No channels currently live</p>
+        )}
         <div className="space-y-2">
           {filtered.slice(0, 4).map(ch => (
             <div key={ch.id} className="flex items-center justify-between bg-zinc-800 rounded-lg px-3 py-2">

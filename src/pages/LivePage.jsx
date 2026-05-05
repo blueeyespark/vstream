@@ -35,7 +35,7 @@ export default function LivePage() {
   });
 
   const liveChannels = channels.filter(c => c.is_live);
-  const streams = liveChannels.map(c => ({ id: c.id, title: c.description || `${c.channel_name} is live!`, channel: c.channel_name, viewers: Math.floor(Math.random() * 5000) + 100, category: c.categories?.[0] || "IRL", thumbnail: c.banner_url, avatar_color: "from-indigo-500 to-purple-600" }));
+  const streams = liveChannels.map(c => ({ id: c.id, title: c.description || `${c.channel_name} is live!`, channel: c.channel_name, viewers: c.view_count || 0, category: c.categories?.[0] || c.category || "IRL", thumbnail: c.banner_url, avatar_color: "from-indigo-500 to-purple-600" }));
 
   const filtered = activeCategory === "All" ? streams : streams.filter(s => s.category === activeCategory);
 

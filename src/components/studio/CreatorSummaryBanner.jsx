@@ -27,9 +27,6 @@ export default function CreatorSummaryBanner() {
   const myChannel = channels[0];
   const subscribers = myChannel?.subscriber_count || 0;
 
-  // New subs this week (simulated from channel data)
-  const newSubsThisWeek = Math.max(0, Math.floor(subscribers * 0.016));
-
   // Trending: top 3 by views in last 30 days
   const trending = [...activeVideos]
     .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
@@ -37,7 +34,7 @@ export default function CreatorSummaryBanner() {
 
   const stats = [
     { icon: Eye, label: "Total Views", value: fmt(totalViews), sub: "all time", color: "#1e78ff" },
-    { icon: Users, label: "Subscribers", value: fmt(subscribers), sub: newSubsThisWeek > 0 ? `+${newSubsThisWeek} this week` : "no data yet", color: "#22c55e" },
+    { icon: Users, label: "Subscribers", value: fmt(subscribers), sub: subscribers > 0 ? "total subscribers" : "no subscribers yet", color: "#22c55e" },
     { icon: Play, label: "Videos", value: activeVideos.length, sub: "published", color: "#a855f7" },
   ];
 

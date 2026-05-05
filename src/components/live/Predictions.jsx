@@ -3,20 +3,18 @@ import { TrendingUp, Clock, Check, X, Trophy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
-const DEMO_PREDICTIONS = [
-  {
-    id: 1,
-    question: "Will I win this match?",
-    outcomes: ["YES, you'll win 🏆", "NO, you're going down 💀"],
-    votes: [340, 210],
-    bets: [25000, 14000],
-    status: "open",
-    timeLeft: 120,
-  }
-];
+const EMPTY_PREDICTION = {
+  id: null,
+  question: "No active prediction",
+  outcomes: ["Option A", "Option B"],
+  votes: [0, 0],
+  bets: [0, 0],
+  status: "idle",
+  timeLeft: 0,
+};
 
 export default function Predictions({ isStreamer = false }) {
-  const [prediction, setPrediction] = useState(DEMO_PREDICTIONS[0]);
+  const [prediction, setPrediction] = useState(EMPTY_PREDICTION);
   const [userBet, setUserBet] = useState(null);
   const [betAmount, setBetAmount] = useState(100);
   const [result, setResult] = useState(null);
@@ -73,6 +71,15 @@ export default function Predictions({ isStreamer = false }) {
   const minutes = Math.floor((prediction.timeLeft || 0) / 60);
   const seconds = (prediction.timeLeft || 0) % 60;
 
+  if (prediction.status === "idle" && !isStreamer) {
+    return (
+      <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 text-center">
+        <TrendingUp className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
+        <p className="text-zinc-500 text-sm">No active predictions</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-zinc-900 border border-zinc-700 rounded-xl overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
@@ -86,6 +93,9 @@ export default function Predictions({ isStreamer = false }) {
           </button>
         )}
       </div>
+      {prediction.status === "idle" && isStreamer && (
+        <div className="px-4 py-3 text-center text-xs text-zinc-500 border-b border-zinc-800">No active prediction — create one below</div>
+      )}
 
       <AnimatePresence>
         {showCreate && (

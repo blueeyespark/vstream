@@ -62,12 +62,10 @@ export default function VideoAnalyticsPage() {
     analyticsMap[a.date].likes += a.likes || 0;
   });
 
-  // If no real analytics data, generate mock from video counts
-  const hasAnalytics = analytics.length > 0;
   const viewsData = days.map(date => ({
     date: date.slice(5),
-    views: analyticsMap[date]?.views ?? (hasAnalytics ? 0 : Math.floor(Math.random() * 500 + 50)),
-    watch_hours: analyticsMap[date]?.watch_time?.toFixed(1) ?? (hasAnalytics ? 0 : (Math.random() * 20 + 2).toFixed(1)),
+    views: analyticsMap[date]?.views ?? 0,
+    watch_hours: analyticsMap[date]?.watch_time?.toFixed(1) ?? 0,
   }));
 
   const totalViews = activeVideos.reduce((s, v) => s + (v.view_count || 0), 0);

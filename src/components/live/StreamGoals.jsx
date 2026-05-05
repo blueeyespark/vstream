@@ -3,13 +3,8 @@ import { Target, Plus, Edit2, Trash2, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-const DEFAULT_GOALS = [
-  { id: 1, label: "New Followers", current: 847, target: 1000, unit: "followers", color: "from-cyan-500 to-blue-500" },
-  { id: 2, label: "Monthly Subs", current: 23, target: 50, unit: "subs", color: "from-purple-500 to-pink-500" },
-];
-
 export default function StreamGoals({ isStreamer = false }) {
-  const [goals, setGoals] = useState(DEFAULT_GOALS);
+  const [goals, setGoals] = useState([]);
   const [adding, setAdding] = useState(false);
   const [newGoal, setNewGoal] = useState({ label: "", current: 0, target: 100, unit: "followers", color: "from-cyan-500 to-blue-500" });
 

@@ -11,7 +11,7 @@ const DEFAULT_REWARDS = [
 ];
 
 export default function ChannelPoints({ channelId }) {
-  const [points, setPoints] = useState(() => parseInt(localStorage.getItem(`points_${channelId}`) || "1250"));
+  const [points, setPoints] = useState(() => parseInt(localStorage.getItem(`points_${channelId}`) || "0"));
   const [redeemed, setRedeemed] = useState({});
   const [expanded, setExpanded] = useState(true);
 

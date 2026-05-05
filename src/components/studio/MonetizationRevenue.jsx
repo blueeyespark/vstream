@@ -22,17 +22,17 @@ export default function MonetizationRevenue() {
   const totalIncomeTracked = budget.reduce((s, b) => s + (b.amount || 0), 0);
 
   const revenueChartData = [
-    { month: "Week 1", super_chat: 240, subs: 400, ads: 240 },
-    { month: "Week 2", super_chat: 221, subs: 350, ads: 280 },
-    { month: "Week 3", super_chat: 229, subs: 450, ads: 300 },
-    { month: "Week 4", super_chat: 200, subs: 500, ads: 220 },
+    { month: "Week 1", super_chat: 0, subs: 0, ads: 0 },
+    { month: "Week 2", super_chat: 0, subs: 0, ads: 0 },
+    { month: "Week 3", super_chat: 0, subs: 0, ads: 0 },
+    { month: "Week 4", super_chat: 0, subs: 0, ads: 0 },
   ];
 
   const monetizationOptions = [
     { name: "Super Chat", revenue: totalSuperChatRevenue, desc: "Fan donations", icon: Gift, status: "active" },
-    { name: "Channel Subscriptions", revenue: 1200, desc: "Recurring subs", icon: Zap, status: "active" },
-    { name: "Ad Revenue", revenue: 845, desc: "YouTube ads", icon: Eye, status: "active" },
-    { name: "Sponsorships", revenue: 500, desc: "Brand deals", icon: DollarSign, status: "inactive" },
+    { name: "Channel Subscriptions", revenue: 0, desc: "Recurring subs", icon: Zap, status: "active" },
+    { name: "Ad Revenue", revenue: 0, desc: "Platform ads", icon: Eye, status: "active" },
+    { name: "Sponsorships", revenue: 0, desc: "Brand deals", icon: DollarSign, status: "inactive" },
   ];
 
   return (
@@ -129,21 +129,25 @@ export default function MonetizationRevenue() {
         </h2>
         <div className="space-y-2">
           {[
-            { goal: "$500/month", progress: 72, desc: "Current: $360" },
-            { goal: "$1000/month", progress: 36, desc: "Current: $360" },
-            { goal: "$2000/month", progress: 18, desc: "Current: $360" },
-          ].map((g, i) => (
-            <div key={i} className="p-3 bg-[#060d18] border border-blue-900/40 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-semibold text-[#e8f4ff]">{g.goal}</p>
-                <p className="text-xs text-blue-400/60">{g.progress}%</p>
+            { goal: "$500/month", target: 500 },
+            { goal: "$1000/month", target: 1000 },
+            { goal: "$2000/month", target: 2000 },
+          ].map((g, i) => {
+            const current = totalIncomeTracked;
+            const progress = Math.min(100, Math.round((current / g.target) * 100));
+            return (
+              <div key={i} className="p-3 bg-[#060d18] border border-blue-900/40 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-semibold text-[#e8f4ff]">{g.goal}</p>
+                  <p className="text-xs text-blue-400/60">{progress}%</p>
+                </div>
+                <div className="h-2 bg-blue-900/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-[#1e78ff] to-[#00c8ff]" style={{ width: `${progress}%` }} />
+                </div>
+                <p className="text-xs text-blue-400/50 mt-1">Current: ${current.toLocaleString()}</p>
               </div>
-              <div className="h-2 bg-blue-900/20 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#1e78ff] to-[#00c8ff]" style={{ width: `${g.progress}%` }} />
-              </div>
-              <p className="text-xs text-blue-400/50 mt-1">{g.desc}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>
