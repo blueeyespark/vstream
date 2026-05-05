@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -317,8 +318,9 @@ export default function ArtForgeStudio() {
   const [subMode2D, setSubMode2D] = useState("sprite");
   const [subMode3D, setSubMode3D] = useState("vrchat_anime");
 
-  const [galleryFilter, setGalleryFilter] = useState("all");
-  const [gallerySearch, setGallerySearch] = useState("");
+  // Gallery state kept for compatibility (display count in header)
+  const [galleryFilter] = useState("all");
+  const [gallerySearch] = useState("");
 
   const [selectedTool, setSelectedTool] = useState("titles");
   const [contentInput, setContentInput] = useState("");
@@ -328,6 +330,7 @@ export default function ArtForgeStudio() {
 
   const [activeTab, setActiveTab] = useState("studio");
 
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const countdownIntervalRef = useRef(null);
 
@@ -635,7 +638,6 @@ export default function ArtForgeStudio() {
             {[
               { id: "studio", label: "Studio", icon: Sparkles },
               { id: "content", label: "Content Tools", icon: FileText },
-              { id: "gallery", label: "Gallery", icon: LayoutGrid },
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -650,6 +652,14 @@ export default function ArtForgeStudio() {
                 <span className="hidden sm:inline">{label}</span>
               </button>
             ))}
+            <button
+              onClick={() => navigate("/ProVideoStudio")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all text-blue-400/50 hover:text-blue-300 hover:bg-white/5 border border-blue-900/30"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Media Library</span>
+              <span className="text-[9px] bg-[#1e78ff]/30 text-[#1e78ff] px-1 rounded ml-0.5">{gallery.length}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -982,9 +992,9 @@ export default function ArtForgeStudio() {
                              <Button
                                variant="outline"
                                className="gap-1.5 text-sm border-purple-600/40 text-purple-400 hover:bg-purple-500/10"
-                               onClick={() => toast.info("Video link copied! Share with your editor for feedback")}
+                               onClick={() => navigate("/ProVideoStudio")}
                              >
-                               <Sparkles className="w-3.5 h-3.5" /> Send to Editor
+                               <Sparkles className="w-3.5 h-3.5" /> Open in Editor
                              </Button>
                            )}
                            {/* GIF button for video results */}
@@ -1001,8 +1011,8 @@ export default function ArtForgeStudio() {
                                }
                              </Button>
                            )}
-                           <Button variant="ghost" onClick={() => setActiveTab("gallery")} className="gap-1.5 text-sm">
-                             <LayoutGrid className="w-3.5 h-3.5" /> View Gallery
+                           <Button variant="ghost" onClick={() => navigate("/ProVideoStudio")} className="gap-1.5 text-sm">
+                             <LayoutGrid className="w-3.5 h-3.5" /> View in Library
                            </Button>
                          </div>
                       </motion.div>
@@ -1104,167 +1114,6 @@ export default function ArtForgeStudio() {
                   )}
                 </div>
               </div>
-            </motion.div>
-          )}
-
-          {/* ── Gallery Tab ── */}
-          {activeTab === "gallery" && (
-            <motion.div key="gallery" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <div>
-                  <h1 className="text-3xl sm:text-4xl font-black text-[#e8f4ff]">My Gallery</h1>
-                  <p className="text-blue-400/50 text-sm mt-1">
-                    {gallery.length} creation{gallery.length !== 1 ? "s" : ""} — private to you
-                  </p>
-                </div>
-                <Button onClick={() => setActiveTab("studio")} className="gap-2 bg-gradient-to-r from-[#1e78ff] to-[#a855f7] border-0 self-start sm:self-auto">
-                  <Sparkles className="w-4 h-4" /> Create New
-                </Button>
-              </div>
-
-              {/* Filters + Search */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <div className="flex gap-1.5 flex-wrap">
-                  {GALLERY_FILTERS.map(f => {
-                    const Icon = f.icon;
-                    return (
-                      <button
-                        key={f.id}
-                        onClick={() => setGalleryFilter(f.id)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                          galleryFilter === f.id
-                            ? "bg-[#1e78ff]/20 border-[#1e78ff]/50 text-[#1e78ff]"
-                            : "border-blue-900/30 text-blue-400/50 hover:border-blue-700/50 hover:text-blue-300"
-                        }`}
-                      >
-                        <Icon className="w-3 h-3" /> {f.label}
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="relative flex-1 max-w-xs">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-blue-400/30" />
-                  <input
-                    type="text"
-                    placeholder="Search gallery..."
-                    value={gallerySearch}
-                    onChange={(e) => setGallerySearch(e.target.value)}
-                    className="w-full bg-[#060d18]/60 border border-blue-900/30 rounded-full pl-9 pr-4 py-1.5 text-sm text-[#c8dff5] placeholder-blue-400/20 outline-none focus:border-[#1e78ff]/40 transition-colors"
-                  />
-                </div>
-              </div>
-
-              {filtered.length === 0 ? (
-                <div className="text-center py-24">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#1e78ff]/10 to-[#a855f7]/10 border border-blue-900/20 flex items-center justify-center mx-auto mb-4">
-                    <Sparkles className="w-9 h-9 text-[#1e78ff]/30" />
-                  </div>
-                  <p className="text-blue-400/40 font-semibold">No creations yet</p>
-                  <p className="text-blue-400/25 text-sm mt-1">Head to the studio to start creating</p>
-                  <Button onClick={() => setActiveTab("studio")} className="mt-4 gap-2 bg-gradient-to-r from-[#1e78ff] to-[#a855f7] border-0">
-                    <WandSparkles className="w-4 h-4" /> Open Studio
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {filtered.map((item, i) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: Math.min(i * 0.03, 0.3) }}
-                      className="group relative rounded-2xl overflow-hidden border border-blue-900/30 bg-[#060d18]/60 hover:border-[#1e78ff]/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/20"
-                    >
-                      <div className="relative aspect-square overflow-hidden bg-[#050a14]">
-                        {item.type === "video" && item.url ? (
-                          <video src={item.url} className="w-full h-full object-cover" muted loop preload="metadata" />
-                        ) : item.url ? (
-                          <img
-                            src={item.url}
-                            alt={item.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Sparkles className="w-10 h-10 text-blue-400/20" />
-                          </div>
-                        )}
-
-                        {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute top-2 right-2 flex gap-1.5">
-                            <button
-                              onClick={() => handleToggleFavorite(item)}
-                              className={`h-7 w-7 flex items-center justify-center rounded-lg bg-black/70 transition-colors ${item.is_favorite ? "text-red-400" : "text-white/60 hover:text-red-400"}`}
-                            >
-                              <Heart className="w-3.5 h-3.5" fill={item.is_favorite ? "currentColor" : "none"} />
-                            </button>
-                          </div>
-                          <div className="absolute bottom-0 left-0 right-0 p-3">
-                            <p className="text-xs text-white/70 line-clamp-2 mb-2">{item.description || item.name}</p>
-                            <div className="flex gap-1.5">
-                              {item.url && (
-                                <a href={item.url} download target="_blank" rel="noopener noreferrer" className="flex-1">
-                                  <button className="w-full h-7 flex items-center justify-center gap-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-medium transition-colors">
-                                    <Download className="w-3 h-3" /> Save
-                                  </button>
-                                </a>
-                              )}
-                              <button
-                                onClick={() => handleDelete(item.id)}
-                                className="h-7 w-7 flex items-center justify-center rounded-lg bg-red-500/30 hover:bg-red-500/50 text-white transition-colors"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Favorite indicator */}
-                        {item.is_favorite && (
-                          <div className="absolute top-2 left-2">
-                            <div className="w-5 h-5 flex items-center justify-center rounded-full bg-red-500/80">
-                              <Heart className="w-3 h-3 text-white" fill="currentColor" />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-2.5">
-                        <div className="flex items-center justify-between">
-                          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                            item.type === "image" ? "bg-[#1e78ff]/20 text-[#1e78ff]"
-                            : item.type === "2d_model" ? "bg-[#a855f7]/20 text-[#a855f7]"
-                            : item.type === "3d_model" ? "bg-orange-500/20 text-orange-400"
-                            : item.type === "video" ? "bg-[#ec4899]/20 text-[#ec4899]"
-                            : item.type === "sticker" ? "bg-yellow-500/20 text-yellow-400"
-                            : item.type === "comic" ? "bg-[#22c55e]/20 text-[#22c55e]"
-                            : "bg-blue-900/30 text-blue-400"
-                          }`}>
-                            {item.type === "image" ? <Image className="w-2.5 h-2.5" />
-                            : item.type === "2d_model" ? <Layers className="w-2.5 h-2.5" />
-                            : item.type === "3d_model" ? <Box className="w-2.5 h-2.5" />
-                            : item.type === "video" ? <Film className="w-2.5 h-2.5" />
-                            : item.type === "sticker" ? <Sparkles className="w-2.5 h-2.5" />
-                            : <LayoutGrid className="w-2.5 h-2.5" />}
-                            {item.type === "image" ? "Image"
-                            : item.type === "2d_model" ? "2D"
-                            : item.type === "3d_model" ? "3D"
-                            : item.type === "video" ? "Video"
-                            : item.type === "sticker" ? "Sticker"
-                            : "Comic"}
-                          </span>
-                          <span className="text-[10px] text-blue-400/30 flex items-center gap-0.5">
-                            <Clock className="w-2.5 h-2.5" />
-                            {item.created_date ? format(new Date(item.created_date), "MMM d") : ""}
-                          </span>
-                        </div>
-                        <p className="text-xs text-blue-400/50 mt-1.5 line-clamp-1">{item.name}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
             </motion.div>
           )}
 

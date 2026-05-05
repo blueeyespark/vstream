@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { base44 } from "@/api/base44Client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   Upload, Play, Pause, Download, Trash2, RotateCcw, Settings, Plus,
   Grid3x3, Music, Type, Image, Sparkles, Eye, Volume2, ZoomIn, ZoomOut,
@@ -7,7 +10,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
 import ProVideoTimeline from "@/components/studio/ProVideoTimeline";
 import ProVideoEffects from "@/components/studio/ProVideoEffects";
 import ProVideoProperties from "@/components/studio/ProVideoProperties";
@@ -36,8 +38,26 @@ export default function ProVideoStudio() {
     resolution: "1920x1080"
   });
 
-  // Media & Assets
-  const [mediaItems, setMediaItems] = useState([]);
+  // Media & Assets (shared with ArtForge gallery)
+  const { data: mediaItems = [] } = useQuery({
+    queryKey: ["media-assets-gallery"],
+    queryFn: async () => {
+      try {
+        const result = await base44.entities.MediaAsset.list("-created_date", 200);
+        return Array.isArray(result) ? result : [];
+      } catch (e) {
+        console.error("Failed to load media:", e);
+        toast.error("Failed to load media library");
+        return [];
+      }
+    },
+    staleTime: 60000,
+    gcTime: 300000,
+    retry: 2,
+    refetchOnWindowFocus: false,
+  });
+
+  const queryClient = useQueryClient();
   const [selectedMedia, setSelectedMedia] = useState(null);
 
   // Timeline State
@@ -50,6 +70,16 @@ export default function ProVideoStudio() {
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef(null);
+
+  // Media filter state
+  const [mediaSearch, setMediaSearch] = useState("");
+  const [mediaFilter, setMediaFilter] = useState("all");
+
+  const filteredMediaItems = mediaItems.filter(item => {
+    const matchesSearch = !mediaSearch || (item.name || "").toLowerCase().includes(mediaSearch.toLowerCase());
+    const matchesFilter = mediaFilter === "all" || item.type === mediaFilter || item.asset_type === mediaFilter;
+    return matchesSearch && matchesFilter;
+  });
 
   // Edit State
   const [selectedClip, setSelectedClip] = useState(null);
@@ -79,27 +109,38 @@ export default function ProVideoStudio() {
     initUser();
   }, []);
 
-  const handleMediaUpload = (e) => {
+  const handleMediaUpload = async (e) => {
     const files = Array.from(e.target.files || []);
-    files.forEach(file => {
-      const url = URL.createObjectURL(file);
-      const newMedia = {
-        id: Date.now() + Math.random(),
-        name: file.name,
-        type: file.type.includes('audio') ? 'audio' : 'video',
-        url,
-        duration: 0,
-        size: file.size
-      };
-      setMediaItems(prev => [...prev, newMedia]);
-    });
-    toast.success(`${files.length} file(s) imported`);
+    try {
+      for (const file of files) {
+        const response = await base44.integrations.Core.UploadFile({ file });
+        if (response?.file_url) {
+          await base44.entities.MediaAsset.create({
+            name: file.name,
+            type: file.type.includes('audio') ? 'audio' : 'video',
+            url: response.file_url,
+            asset_type: file.type.includes('audio') ? 'audio' : 'raw_footage',
+            file_size_mb: (file.size / 1024 / 1024).toFixed(2)
+          });
+        }
+      }
+      queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
+      toast.success(`${files.length} file(s) imported to library`);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      toast.error("Failed to upload files");
+    }
   };
 
   const addClipToTrack = (trackId, clip) => {
+    const trackType = trackId.startsWith('a') ? 'audio' : 'video';
+    if (clip.type && clip.type !== trackType) {
+      toast.error(`Can't add ${clip.type} to ${trackType} track`);
+      return;
+    }
     setTracks(prev => prev.map(t => 
       t.id === trackId 
-        ? { ...t, clips: [...t.clips, { ...clip, startTime: currentTime }] }
+        ? { ...t, clips: [...t.clips, { id: Date.now(), ...clip, startTime: currentTime, duration: clip.duration || 3 }] }
         : t
     ));
     toast.success('Clip added to timeline');
@@ -199,44 +240,110 @@ export default function ProVideoStudio() {
 
       {/* Main Editor Layout */}
       <div className="flex h-[calc(100vh-56px)]">
-        {/* Left Panel: Media Library */}
+        {/* Left Panel: Unified Media Library */}
         <div className="w-64 bg-[#0f1535] border-r border-blue-900/40 flex flex-col overflow-hidden">
-          <div className="p-3 border-b border-blue-900/40">
-            <h3 className="text-xs font-bold text-blue-300 mb-2">MEDIA LIBRARY</h3>
-            <label className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-xs font-medium cursor-pointer transition-colors">
-              <Plus className="w-3.5 h-3.5" /> Import
+          <div className="p-3 border-b border-blue-900/40 space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-blue-300">MEDIA LIBRARY</h3>
+              <span className="text-[10px] text-blue-400/40">{mediaItems.length} assets</span>
+            </div>
+            <label className="flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded text-xs font-medium cursor-pointer transition-colors">
+              <Plus className="w-3.5 h-3.5" /> Import Files
               <input type="file" multiple accept="video/*,audio/*,image/*" onChange={handleMediaUpload} className="hidden" />
             </label>
+            {/* Search */}
+            <input
+              type="text"
+              placeholder="Search assets..."
+              value={mediaSearch}
+              onChange={(e) => setMediaSearch(e.target.value)}
+              className="w-full bg-[#0a0e27] border border-blue-900/30 rounded px-2 py-1 text-xs text-blue-200 placeholder-blue-400/30 outline-none focus:border-blue-600"
+            />
+            {/* Filter tabs */}
+            <div className="flex gap-1">
+              {["all","video","image","audio"].map(f => (
+                <button
+                  key={f}
+                  onClick={() => setMediaFilter(f)}
+                  className={`flex-1 text-[10px] py-0.5 rounded transition-colors ${mediaFilter === f ? "bg-blue-600 text-white" : "text-blue-400/50 hover:text-blue-300"}`}
+                >
+                  {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Media Items */}
-          <div className="flex-1 overflow-y-auto p-2 space-y-2">
-            {mediaItems.map(item => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                onClick={() => setSelectedMedia(item)}
-                className={`p-2 rounded border-2 cursor-pointer transition-all ${
-                  selectedMedia?.id === item.id
-                    ? "border-cyan-500 bg-cyan-500/10"
-                    : "border-blue-900/30 hover:border-blue-700/50"
-                }`}
-              >
-                <p className="text-xs font-medium text-blue-100 truncate">{item.name}</p>
-                <p className="text-[10px] text-blue-400/60">{item.type}</p>
-                {selectedMedia?.id === item.id && (
-                  <Button
-                    size="sm"
-                    onClick={() => addClipToTrack('v1', selectedMedia)}
-                    className="w-full mt-1 text-xs h-6 bg-blue-600 hover:bg-blue-700"
-                  >
-                    Add to Timeline
-                  </Button>
-                )}
-              </motion.div>
-            ))}
+          {/* Media Items grid */}
+          <div className="flex-1 overflow-y-auto p-2">
+            <div className="grid grid-cols-2 gap-1.5">
+              {filteredMediaItems.map(item => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  onClick={() => setSelectedMedia(item)}
+                  className={`rounded border-2 cursor-pointer transition-all overflow-hidden group ${
+                    selectedMedia?.id === item.id
+                      ? "border-cyan-500"
+                      : "border-blue-900/30 hover:border-blue-600/60"
+                  }`}
+                >
+                  {/* Thumbnail */}
+                  <div className="aspect-square bg-[#0a0e27] relative">
+                    {item.url && (item.type === "video" || item.asset_type === "raw_footage") ? (
+                      <video src={item.url} className="w-full h-full object-cover" muted preload="metadata" />
+                    ) : item.url && (item.type === "image" || item.type === "2d_model" || item.type === "3d_model" || item.type === "sticker" || item.type === "comic") ? (
+                      <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-blue-400/30 text-xs">
+                        {item.type === "audio" ? "🎵" : "📁"}
+                      </div>
+                    )}
+                    {/* Type badge */}
+                    <div className="absolute top-0.5 left-0.5">
+                      <span className={`text-[8px] px-1 rounded font-bold ${
+                        item.type === "video" ? "bg-purple-600" :
+                        item.type === "audio" ? "bg-green-600" :
+                        item.type === "image" ? "bg-blue-600" : "bg-orange-600"
+                      } text-white`}>{(item.type || "?").slice(0,3).toUpperCase()}</span>
+                    </div>
+                  </div>
+                  <div className="p-1">
+                    <p className="text-[9px] text-blue-300 truncate font-medium">{item.name}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            {filteredMediaItems.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-xs text-blue-400/30">No assets yet</p>
+                <p className="text-[10px] text-blue-400/20 mt-1">Import files or create in ArtForge</p>
+              </div>
+            )}
           </div>
+
+          {/* Selected Media Actions */}
+          {selectedMedia && (
+            <div className="p-2 border-t border-blue-900/40 space-y-1">
+              <p className="text-[10px] text-blue-400/60 truncate">{selectedMedia.name}</p>
+              <div className="grid grid-cols-2 gap-1">
+                <Button
+                  size="sm"
+                  onClick={() => addClipToTrack('v1', selectedMedia)}
+                  className="text-[10px] h-6 bg-blue-600 hover:bg-blue-700 px-1"
+                >
+                  + Video Track
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => addClipToTrack('a1', selectedMedia)}
+                  className="text-[10px] h-6 bg-green-700 hover:bg-green-600 px-1"
+                >
+                  + Audio Track
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Center: Timeline */}
