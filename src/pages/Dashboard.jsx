@@ -687,7 +687,7 @@ export default function Dashboard() {
               <div className="bg-slate-50 dark:bg-[#0a1525] border border-slate-300 dark:border-blue-900/30 rounded-xl p-3 mb-4">
                 <p className="text-xs text-slate-600 dark:text-blue-400/40 mb-1">Party Link</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-xs text-[#1e78ff] font-mono flex-1 truncate">vstream.app/party/{Math.random().toString(36).slice(2,8)}</p>
+                  <p className="text-xs text-[#1e78ff] font-mono flex-1 truncate">vstream.app/party/coming-soon</p>
                   <button className="text-xs bg-[#1e78ff]/20 text-[#1e78ff] px-2 py-1 rounded-lg hover:bg-[#1e78ff]/30 transition-colors">Copy</button>
                 </div>
               </div>
