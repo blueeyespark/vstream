@@ -352,8 +352,11 @@ export default function ArtForgeStudio() {
         return [];
       }
     },
-    staleTime: 30000,
+    staleTime: 60000,
+    gcTime: 300000,
     retry: 2,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 
   const filtered = (Array.isArray(gallery) ? gallery : [])
@@ -363,9 +366,12 @@ export default function ArtForgeStudio() {
   const currentMode = MODES.find(m => m.id === mode) || MODES[0];
 
   const toggleStyleTag = (tag) => {
-    setActiveStyleTags(prev =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-    );
+    setActiveStyleTags(prev => {
+      if (prev.includes(tag)) {
+        return prev.filter(t => t !== tag);
+      }
+      return [...prev, tag];
+    });
   };
 
   const getModeSuffix = () => {
@@ -381,23 +387,21 @@ export default function ArtForgeStudio() {
     return currentMode?.suffix || "";
   };
 
+  const memoizedStyleStr = activeStyleTags.length > 0
+    ? `, ${activeStyleTags.map(t => STYLE_TAG_MODIFIERS[t] || t).join(", ")}`
+    : "";
+
   const buildPrompt = () => {
-    const styleStr = activeStyleTags.length > 0
-      ? `, ${activeStyleTags.map(t => STYLE_TAG_MODIFIERS[t] || t).join(", ")}`
-      : "";
-    return `${prompt}${styleStr}${getModeSuffix()}`;
+    return `${prompt}${memoizedStyleStr}${getModeSuffix()}`;
   };
 
   const buildVideoPrompt = () => {
-    const styleStr = activeStyleTags.length > 0
-      ? `, ${activeStyleTags.map(t => STYLE_TAG_MODIFIERS[t] || t).join(", ")}`
-      : "";
-    return `${prompt}${styleStr}${currentMode?.suffix || ""}`;
+    return `${prompt}${memoizedStyleStr}${currentMode?.suffix || ""}`;
   };
 
   const getCurrentSubMode = () => {
-    if (mode === "2d_model") return SUBMODES_2D.find(s => s.id === subMode2D);
-    if (mode === "3d_model") return SUBMODES_3D.find(s => s.id === subMode3D);
+    if (mode === "2d_model") return SUBMODES_2D.find(s => s.id === subMode2D) || SUBMODES_2D[0];
+    if (mode === "3d_model") return SUBMODES_3D.find(s => s.id === subMode3D) || SUBMODES_3D[0];
     return null;
   };
 
@@ -859,12 +863,13 @@ export default function ArtForgeStudio() {
                          <div className="flex flex-wrap gap-1.5">
                            {[4, 6, 8, 10, 15, 30, 60, 120, 300, 600, 1800, 3600].map(d => {
                              const label = d >= 60 ? (d === 3600 ? '1h' : `${Math.floor(d / 60)}m`) : `${d}s`;
+                             const isActive = Math.abs(videoDuration - d) < 1;
                              return (
                                <button
                                  key={d}
                                  onClick={() => setVideoDuration(d)}
                                  className={`py-1 px-2.5 rounded-lg text-xs font-bold border transition-all ${
-                                   videoDuration === d
+                                   isActive
                                      ? "bg-[#ec4899]/20 border-[#ec4899]/40 text-[#ec4899]"
                                      : "border-blue-900/30 text-blue-400/40 hover:border-blue-700/50 hover:text-blue-300"
                                  }`}

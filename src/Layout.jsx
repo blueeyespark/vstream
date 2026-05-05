@@ -43,7 +43,9 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.entities.Project.list("-created_date"),
     enabled: !!user?.email,
     staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     refetchInterval: false,
+    refetchOnWindowFocus: false,
   });
 
   const { data: tasks = [] } = useQuery({
@@ -51,7 +53,9 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.entities.Task.list("-created_date"),
     enabled: !!user?.email,
     staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     refetchInterval: false,
+    refetchOnWindowFocus: false,
   });
 
   const { data: budget = [] } = useQuery({
@@ -59,7 +63,9 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.entities.Budget.list("-date"),
     enabled: !!user?.email,
     staleTime: 15 * 60 * 1000,
+    gcTime: 45 * 60 * 1000,
     refetchInterval: false,
+    refetchOnWindowFocus: false,
   });
 
   const { data: notifications = [] } = useQuery({
@@ -67,6 +73,7 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.entities.Notification.filter({ user_email: user?.email }, "-created_date"),
     enabled: !!user?.email,
     refetchInterval: 30000,
+    gcTime: 90000,
   });
 
   const { data: subscriptions = [] } = useQuery({
@@ -74,18 +81,24 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.entities.Subscription.filter({ subscriber_email: user?.email, status: "active" }),
     enabled: !!user?.email,
     staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: allVideos = [] } = useQuery({
     queryKey: ["videos-all"],
     queryFn: () => base44.entities.Video.list("-created_date", 60),
     staleTime: 5 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: allChannels = [] } = useQuery({
     queryKey: ["channels-all"],
     queryFn: () => base44.entities.Channel.list(),
     staleTime: 5 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   // New videos from subscribed channels in the last 7 days
