@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Download, Eye, Type, RotateCcw } from "lucide-react";
+import { Download, Eye, Type, RotateCcw, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -36,6 +36,7 @@ export default function IntroOutroMaker() {
   const [transitionType, setTransitionType] = useState("fade");
   const [showCTA, setShowCTA] = useState(false);
   const [ctaText, setCtaText] = useState("Subscribe");
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
 
   const handleDownload = (type) => {
     toast.success(`${type === "intro" ? "Intro" : "Outro"} generated! Ready for download.`);
@@ -65,6 +66,14 @@ export default function IntroOutroMaker() {
     toast.success("Undo applied");
   };
 
+  const previewConfig = useMemo(() => ({
+    template: selectedTemplate.name,
+    music: selectedMusic.name,
+    transition: transitionType,
+    hasLogo: showLogo && logoUrl,
+    hasCTA: showCTA
+  }), [selectedTemplate, selectedMusic, transitionType, showLogo, logoUrl, showCTA]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -84,7 +93,7 @@ export default function IntroOutroMaker() {
 
                 {/* Intro Preview */}
                 <div
-                  className="aspect-video rounded-xl flex items-center justify-center overflow-hidden relative"
+                  className="aspect-video rounded-xl flex items-center justify-center overflow-hidden relative group"
                   style={{ background: selectedTemplate.bg }}
                 >
                   {showLogo && logoUrl && (
@@ -101,6 +110,11 @@ export default function IntroOutroMaker() {
                       </p>
                     )}
                   </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-all pointer-events-none group-hover:pointer-events-auto">
+                    <button onClick={() => setIsPreviewPlaying(!isPreviewPlaying)} className="bg-white/80 hover:bg-white p-3 rounded-full transition-colors pointer-events-auto">
+                      <Play className="w-5 h-5 text-slate-900 fill-slate-900" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex gap-2">
@@ -108,13 +122,13 @@ export default function IntroOutroMaker() {
                     onClick={() => handleDownload("intro")}
                     className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 gap-2"
                   >
-                    <Download className="w-4 h-4" /> Download Intro
+                    <Download className="w-4 h-4" /> Download Intro ({duration}s)
                   </Button>
                 </div>
 
                 {/* Outro Preview */}
                 <div
-                  className="aspect-video rounded-xl flex items-center justify-center overflow-hidden relative"
+                  className="aspect-video rounded-xl flex items-center justify-center overflow-hidden relative group"
                   style={{ background: selectedTemplate.bg }}
                 >
                   {showLogo && logoUrl && (
@@ -131,6 +145,11 @@ export default function IntroOutroMaker() {
                       </p>
                     )}
                   </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-all pointer-events-none group-hover:pointer-events-auto">
+                    <button onClick={() => setIsPreviewPlaying(!isPreviewPlaying)} className="bg-white/80 hover:bg-white p-3 rounded-full transition-colors pointer-events-auto">
+                      <Play className="w-5 h-5 text-slate-900 fill-slate-900" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex gap-2">
@@ -138,7 +157,7 @@ export default function IntroOutroMaker() {
                     onClick={() => handleDownload("outro")}
                     className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 gap-2"
                   >
-                    <Download className="w-4 h-4" /> Download Outro
+                    <Download className="w-4 h-4" /> Download Outro ({duration}s)
                   </Button>
                 </div>
               </div>

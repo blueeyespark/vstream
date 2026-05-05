@@ -156,10 +156,16 @@ export default function ThumbnailMaker() {
     toast.success("Undo applied");
   };
 
+  // Memoize canvas rendering to prevent unnecessary redraws
+  const canvasKey = useMemo(() => {
+    return `${preset.name}-${bgColor}-${textColor}-${mainText}-${fontSize}-${textEffect}-${layout.name}-${subText}-${enableBorder}-${borderColor}-${borderWidth}-${gradient}`;
+  }, [preset, bgColor, textColor, mainText, fontSize, textEffect, layout, subText, enableBorder, borderColor, borderWidth, gradient]);
+
   // Draw on mount and when settings change
   useEffect(() => {
-    drawThumbnail();
-  }, [bgColor, textColor, mainText, fontSize, uploadedImage, preset, textEffect, layout, subText, enableBorder, borderColor, borderWidth, gradient]);
+    const timer = setTimeout(drawThumbnail, 0);
+    return () => clearTimeout(timer);
+  }, [canvasKey, uploadedImage]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 p-4">
@@ -173,12 +179,15 @@ export default function ThumbnailMaker() {
           {/* Canvas Preview */}
           <div className="lg:col-span-2">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-              <div className="flex justify-center bg-slate-100 rounded-xl p-4 mb-4">
+              <div className="flex justify-center bg-slate-100 rounded-xl p-4 mb-4 relative">
                 <canvas
                   ref={canvasRef}
-                  className="max-w-full border-2 border-slate-300 rounded-lg"
+                  className="max-w-full border-2 border-slate-300 rounded-lg shadow-lg"
                   style={{ maxHeight: "500px" }}
                 />
+                <div className="absolute bottom-2 right-2 bg-cyan-500 text-white text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity">
+                  {preset.name} • {preset.ratio}
+                </div>
               </div>
 
               <Button onClick={handleDownload} className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 gap-2">

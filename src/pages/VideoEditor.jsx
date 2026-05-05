@@ -125,10 +125,12 @@ export default function VideoEditor() {
     return `${mins}:${secs}`;
   };
 
-  const getFilterStyle = () => {
+  const applyedFilter = useMemo(() => {
     const f = FILTERS.find(x => x.name === filter);
-    return { filter: f?.filter || "" };
-  };
+    return f?.filter || "";
+  }, [filter]);
+
+  const combinedFilter = `${applyedFilter} brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) hue-rotate(${hue}deg)`;
 
   const extractFrame = () => {
     if (videoRef.current) {
@@ -158,7 +160,7 @@ export default function VideoEditor() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
               {video ? (
                 <div className="space-y-4">
-                  <div className="bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center relative" style={{ ...getFilterStyle(), filter: `${getFilterStyle().filter} brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) hue-rotate(${hue}deg)` }}>
+                  <div className="bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center relative" style={{ filter: combinedFilter }}>
                     <video
                       ref={videoRef}
                       src={video.url}
@@ -194,7 +196,6 @@ export default function VideoEditor() {
                   </div>
 
                   <div className="flex gap-2">
-                    <div className="flex gap-2">
                     <Button onClick={handlePlay} className="flex-1 gap-2">
                       {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                       {isPlaying ? "Pause" : "Play"}
@@ -205,18 +206,17 @@ export default function VideoEditor() {
                     <Button variant="outline" onClick={clearVideo} className="gap-2">
                       <Trash2 className="w-4 h-4" />
                     </Button>
-                  </div>
                 </div>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center aspect-video border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-slate-400 transition-colors">
-                  <Upload className="w-12 h-12 text-slate-400 mb-2" />
-                  <p className="font-medium text-slate-900">Upload Video</p>
-                  <p className="text-sm text-slate-500">MP4, WebM, or OGG</p>
-                  <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
-                </label>
-              )}
-            </motion.div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center aspect-video border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-slate-400 transition-colors">
+                    <Upload className="w-12 h-12 text-slate-400 mb-2" />
+                    <p className="font-medium text-slate-900">Upload Video</p>
+                    <p className="text-sm text-slate-500">MP4, WebM, or OGG</p>
+                    <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
+                  </label>
+                )}
+              </motion.div>
+            </div>
           </div>
 
           {/* Controls Sidebar */}
