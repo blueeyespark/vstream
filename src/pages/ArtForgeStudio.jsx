@@ -1428,14 +1428,14 @@ export default function ArtForgeStudio() {
                         )}
 
                         {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center pointer-events-none group-hover:pointer-events-auto">
                           <button
                             onClick={() => handleLoadFromGallery(item)}
-                            className="bg-[#1e78ff] hover:bg-[#3d8fff] text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors mb-auto mt-auto"
+                            className="bg-[#1e78ff] hover:bg-[#3d8fff] text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors mb-auto mt-auto relative z-20"
                           >
                             <Edit className="w-3 h-3" /> Edit
                           </button>
-                          <div className="absolute top-2 right-2 flex gap-1.5">
+                          <div className="absolute top-2 right-2 flex gap-1.5 z-20">
                             <button
                               onClick={() => handleToggleFavorite(item)}
                               className={`h-7 w-7 flex items-center justify-center rounded-lg bg-black/70 transition-colors ${item.is_favorite ? "text-red-400" : "text-white/60 hover:text-red-400"}`}
