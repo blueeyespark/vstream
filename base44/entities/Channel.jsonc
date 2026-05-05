@@ -75,6 +75,13 @@
         }
       }
     },
+    "moderators": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Email addresses of users invited to moderate/work on this channel"
+    },
     "created_date": {
       "type": "string",
       "format": "date-time"
@@ -83,5 +90,45 @@
   "required": [
     "creator_email",
     "channel_name"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": {
+          "$ne": "guest"
+        }
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "creator_email": "{{user.email}}"
+        },
+        {
+          "data.moderators": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "creator_email": "{{user.email}}"
+        },
+        {
+          "data.moderators": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        }
+      ]
+    },
+    "delete": {
+      "creator_email": "{{user.email}}"
+    }
+  }
 }
