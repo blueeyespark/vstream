@@ -305,6 +305,8 @@ export default function ArtForgeStudio() {
   const [batchCount, setBatchCount] = useState(1);
   const [activeStyleTags, setActiveStyleTags] = useState([]);
   const [videoDuration, setVideoDuration] = useState(6);
+  const [estimatedTime, setEstimatedTime] = useState(0);
+  const [countdownTime, setCountdownTime] = useState(0);
   const [gifLoading, setGifLoading] = useState(false);
 
   // Sticker-specific state
@@ -384,6 +386,30 @@ export default function ArtForgeStudio() {
     if (!prompt.trim()) { toast.error("Please describe your vision"); return; }
     setGenLoading(true);
     setResults([]);
+    
+    // Calculate estimated time
+    let estTime = 0;
+    if (currentMode?.supportsVideo) {
+      estTime = Math.ceil((videoDuration / 4) * 40 + 10); // ~40s per 4s of video
+    } else if (mode === "sticker") {
+      estTime = stickerPackSize * 20;
+    } else {
+      estTime = batchCount * 20;
+    }
+    setEstimatedTime(estTime);
+    setCountdownTime(estTime);
+    
+    // Start countdown timer
+    const interval = setInterval(() => {
+      setCountdownTime(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
     try {
       const finalPrompt = buildPrompt();
       const isVideo = currentMode?.supportsVideo;
@@ -395,7 +421,7 @@ export default function ArtForgeStudio() {
           duration: videoDuration,
           aspect_ratio: "16:9",
         });
-        setResults([{ url, type: "video" }]);
+        setResults([{ url, type: "video", editable: true }]);
         await base44.entities.MediaAsset.create({
           name: prompt.slice(0, 60),
           url,
@@ -404,7 +430,7 @@ export default function ArtForgeStudio() {
         });
         toast.success("Video saved to gallery!");
       } else {
-        const count = mode === "sticker" ? stickerPackSize : Math.min(batchCount, 4);
+        const count = mode === "sticker" ? stickerPackSize : Math.min(batchCount, 100);
 
         // For sticker packs, vary each sticker slightly for diversity
         const stickerVariations = ["", ", different pose", ", different expression", ", different angle",
@@ -439,6 +465,8 @@ export default function ArtForgeStudio() {
       toast.error("Generation failed: " + e.message);
     } finally {
       setGenLoading(false);
+      setEstimatedTime(0);
+      setCountdownTime(0);
     }
   };
 
@@ -744,14 +772,14 @@ export default function ArtForgeStudio() {
                        <div className="space-y-2 mb-3">
                          <div className="flex items-center justify-between">
                            <span className="text-xs text-blue-400/50 font-medium">Duration</span>
-                           <span className="text-xs text-blue-400/30">~{videoDuration === 4 ? "30" : videoDuration === 6 ? "45" : videoDuration === 8 ? "60" : "90"}s to generate</span>
+                           <span className="text-xs text-blue-400/30">~{Math.ceil((videoDuration / 4) * 40 + 10)}s to generate</span>
                          </div>
-                         <div className="flex gap-1">
-                           {[4, 6, 8].map(d => (
+                         <div className="grid grid-cols-4 gap-1">
+                           {[4, 6, 8, 10].map(d => (
                              <button
                                key={d}
                                onClick={() => setVideoDuration(d)}
-                               className={`flex-1 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+                               className={`px-2 py-2 rounded-lg text-xs font-bold transition-all ${
                                  videoDuration === d
                                    ? "bg-[#ec4899]/20 text-[#ec4899] border border-[#ec4899]/40"
                                    : "bg-[#0a1525] border border-blue-900/30 text-blue-400/50 hover:text-blue-300"
@@ -776,11 +804,11 @@ export default function ArtForgeStudio() {
                              <span className="text-sm font-bold text-[#c8dff5]">{batchCount}</span>
                              <span className="text-xs text-blue-400/40 ml-1">{batchCount === 1 ? "image" : "images"}</span>
                            </div>
-                           <button onClick={() => setBatchCount(c => Math.min(8, c + 1))} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors">
+                           <button onClick={() => setBatchCount(c => Math.min(100, c + 1))} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors">
                              <Plus className="w-3.5 h-3.5" />
                            </button>
                          </div>
-                         <p className="text-xs text-blue-400/25">Up to 8 images at once</p>
+                         <p className="text-xs text-blue-400/25">Up to 100 images at once</p>
                        </div>
                      ) : null}
                     <Button
@@ -812,16 +840,20 @@ export default function ArtForgeStudio() {
                 >
                   <AnimatePresence mode="wait">
                     {genLoading ? (
-                      <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col items-center justify-center gap-4">
-                        <div className="relative w-20 h-20">
-                          <div className="absolute inset-0 rounded-full border-4 border-[#1e78ff]/20 animate-ping" />
-                          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#1e78ff]/20 to-[#a855f7]/20 flex items-center justify-center">
-                            <Sparkles className="w-8 h-8 text-[#1e78ff]/60 animate-pulse" />
-                          </div>
-                        </div>
-                        <p className="text-sm text-blue-400/50 font-medium">Crafting your vision...</p>
-                        <p className="text-xs text-blue-400/30">{batchCount > 1 ? `Generating ${batchCount} images` : "This takes a few seconds"}</p>
-                      </motion.div>
+                       <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col items-center justify-center gap-4">
+                         <div className="relative w-20 h-20">
+                           <div className="absolute inset-0 rounded-full border-4 border-[#1e78ff]/20 animate-ping" />
+                           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#1e78ff]/20 to-[#a855f7]/20 flex items-center justify-center">
+                             <Sparkles className="w-8 h-8 text-[#1e78ff]/60 animate-pulse" />
+                           </div>
+                         </div>
+                         <p className="text-sm text-blue-400/50 font-medium">Crafting your vision...</p>
+                         <div className="text-center">
+                           <p className="text-2xl font-black text-[#1e78ff] font-mono">{String(Math.ceil(countdownTime)).padStart(2, "0")}s</p>
+                           <p className="text-xs text-blue-400/30 mt-1">Est. time remaining</p>
+                         </div>
+                         <p className="text-xs text-blue-400/25 max-w-xs">{currentMode?.supportsVideo ? `Video: ${videoDuration}s` : mode === "sticker" ? `${stickerPackSize}-sticker pack` : `${batchCount} ${batchCount === 1 ? "image" : "images"}`}</p>
+                       </motion.div>
                     ) : results.length > 0 ? (
                       <motion.div key="results" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-4 h-full">
                         {results[0]?.type === "sticker" && results.length > 1 && (
@@ -850,27 +882,37 @@ export default function ArtForgeStudio() {
                           ))}
                         </div>
                         <div className="flex gap-2 mt-auto flex-wrap">
-                          <Button variant="outline" onClick={handleGenerate} disabled={genLoading} className="flex-1 gap-1.5 text-sm">
-                            <RefreshCw className="w-3.5 h-3.5" /> Regenerate
-                          </Button>
-                          {/* GIF button for video results */}
-                          {results[0]?.type === "video" && (
-                            <Button
-                              variant="outline"
-                              onClick={() => handleMakeGif(results[0].url)}
-                              disabled={gifLoading}
-                              className="gap-1.5 text-sm border-[#facc15]/40 text-[#facc15] hover:bg-[#facc15]/10"
-                            >
-                              {gifLoading
-                                ? <><div className="w-3.5 h-3.5 border-2 border-[#facc15]/30 border-t-[#facc15] rounded-full animate-spin" /> Making GIF...</>
-                                : <><Zap className="w-3.5 h-3.5" /> Make GIF</>
-                              }
-                            </Button>
-                          )}
-                          <Button variant="ghost" onClick={() => setActiveTab("gallery")} className="gap-1.5 text-sm">
-                            <LayoutGrid className="w-3.5 h-3.5" /> View Gallery
-                          </Button>
-                        </div>
+                           <Button variant="outline" onClick={handleGenerate} disabled={genLoading} className="flex-1 gap-1.5 text-sm">
+                             <RefreshCw className="w-3.5 h-3.5" /> Regenerate
+                           </Button>
+                           {/* Send to editor button for video results */}
+                           {results[0]?.type === "video" && (
+                             <Button
+                               variant="outline"
+                               className="gap-1.5 text-sm border-purple-600/40 text-purple-400 hover:bg-purple-500/10"
+                               onClick={() => toast.info("Video link copied! Share with your editor for feedback")}
+                             >
+                               <Sparkles className="w-3.5 h-3.5" /> Send to Editor
+                             </Button>
+                           )}
+                           {/* GIF button for video results */}
+                           {results[0]?.type === "video" && (
+                             <Button
+                               variant="outline"
+                               onClick={() => handleMakeGif(results[0].url)}
+                               disabled={gifLoading}
+                               className="gap-1.5 text-sm border-[#facc15]/40 text-[#facc15] hover:bg-[#facc15]/10"
+                             >
+                               {gifLoading
+                                 ? <><div className="w-3.5 h-3.5 border-2 border-[#facc15]/30 border-t-[#facc15] rounded-full animate-spin" /> Making GIF...</>
+                                 : <><Zap className="w-3.5 h-3.5" /> Make GIF</>
+                               }
+                             </Button>
+                           )}
+                           <Button variant="ghost" onClick={() => setActiveTab("gallery")} className="gap-1.5 text-sm">
+                             <LayoutGrid className="w-3.5 h-3.5" /> View Gallery
+                           </Button>
+                         </div>
                       </motion.div>
                     ) : (
                       <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col items-center justify-center text-center px-8">
