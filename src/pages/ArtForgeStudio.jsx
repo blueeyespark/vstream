@@ -359,11 +359,12 @@ export default function ArtForgeStudio() {
     : "";
 
   const buildPrompt = () => {
-    return `${prompt}${memoizedStyleStr}${getModeSuffix()}`;
+    // CRITICAL INSTRUCTIONS FIRST, then user prompt, then modifiers
+    return `${getModeSuffix()}\n\nCORE INSTRUCTION: Create exactly what the user describes below.\n\n${prompt}${memoizedStyleStr}`;
   };
 
   const buildVideoPrompt = () => {
-    return `${prompt}${memoizedStyleStr}${currentMode?.suffix || ""}`;
+    return `${currentMode?.suffix || ""}\n\nCORE INSTRUCTION: Create exactly what the user describes below.\n\n${prompt}${memoizedStyleStr}`;
   };
 
   const getCurrentSubMode = () => {
@@ -447,7 +448,7 @@ export default function ArtForgeStudio() {
       } else if (isVideo) {
         let videoPrompt = buildVideoPrompt();
         if (refImages.length > 0) {
-          videoPrompt = `REFERENCE MATCH REQUIRED: Analyze the reference image's visual style, aesthetic, color palette, and design approach. Create video with the exact same visual style.\n\n${videoPrompt}`;
+          videoPrompt = `REFERENCE STYLE GUIDE: Extract the reference image's visual style only (colors, mood, aesthetic). Then create video: ${videoPrompt}\n\nUser prompt is primary. Reference is for style inspiration only.`;
         }
         const response = await base44.integrations.Core.GenerateVideo({
           prompt: videoPrompt,
@@ -479,12 +480,12 @@ export default function ArtForgeStudio() {
         };
 
         const buildImagePrompt = (idx) => {
-          let basePrompt = mode === "sticker" ? buildStickerVariantPrompt(idx) : finalPrompt;
-          if (refImages.length > 0) {
-            basePrompt = `STRICT INSTRUCTION: You are looking at a reference image. Analyze its style, colors, composition, character design, and visual elements CAREFULLY. Generate an image that EXACTLY matches the reference style while incorporating: ${basePrompt}\n\nMatch the reference image's visual approach completely.`;
-          }
-          return basePrompt;
-        };
+           let basePrompt = mode === "sticker" ? buildStickerVariantPrompt(idx) : finalPrompt;
+           if (refImages.length > 0) {
+             basePrompt = `REFERENCE STYLE: You have a reference image. Extract ONLY its visual style (color palette, art style, composition approach). Then generate: ${basePrompt}\n\nKeep the user's prompt as the MAIN focus. Only borrow the reference's visual approach, not its content.`;
+           }
+           return basePrompt;
+         };
 
         const generateOne = (i) => {
           const hasRefs = Array.isArray(refImages) && refImages.length > 0;
