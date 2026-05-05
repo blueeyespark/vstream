@@ -36,6 +36,7 @@
         "uploading",
         "processing",
         "ready",
+        "live",
         "archived",
         "deleted"
       ],
@@ -53,8 +54,7 @@
     },
     "scheduled_publish_date": {
       "type": "string",
-      "format": "date-time",
-      "description": "When to publish (for scheduled uploads)"
+      "format": "date-time"
     },
     "published_date": {
       "type": "string",
@@ -83,20 +83,17 @@
     },
     "is_live_vod": {
       "type": "boolean",
-      "default": false,
-      "description": "True if converted from live stream"
+      "default": false
     },
     "transcoding_progress": {
       "type": "number",
-      "default": 0,
-      "description": "Transcoding progress percentage"
+      "default": 0
     },
     "available_resolutions": {
       "type": "array",
       "items": {
         "type": "string"
-      },
-      "description": "Available playback resolutions (1080p, 720p, 480p, 360p, 240p)"
+      }
     },
     "monetization_enabled": {
       "type": "boolean",
@@ -106,35 +103,5 @@
   "required": [
     "channel_id",
     "title"
-  ],
-  "rls": {
-    "create": {
-      "user_condition": {
-        "role": {
-          "$ne": "guest"
-        }
-      }
-    },
-    "read": {
-      "$or": [
-        {
-          "data.visibility": "public"
-        },
-        {
-          "created_by": "{{user.email}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
-    "update": {
-      "created_by": "{{user.email}}"
-    },
-    "delete": {
-      "created_by": "{{user.email}}"
-    }
-  }
+  ]
 }

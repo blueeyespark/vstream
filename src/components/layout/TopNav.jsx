@@ -87,20 +87,30 @@ export default function TopNav({
           </Link>
         </div>
 
-        {/* Center: search bar (desktop) */}
-        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-4 items-center">
-          <div className={`flex w-full items-center rounded-xl overflow-hidden focus-within:border-[#1e78ff]/60 transition-all border ${darkMode ? "bg-[#030810] border-[#0d1820]" : "bg-gray-100 border-gray-300"}`}>
-            <input
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search videos, creators..."
-              className={`flex-1 px-4 py-2 text-sm outline-none bg-transparent ${darkMode ? "text-[#c8dff5] placeholder-blue-400/30" : "text-gray-900 placeholder-gray-400"}`}
-            />
-            <button type="submit" className={`px-4 py-2 border-l transition-colors ${darkMode ? "bg-[#050a14] hover:bg-[#1e78ff]/20 border-[#0d1820] text-blue-400" : "bg-gray-50 hover:bg-blue-50 border-gray-300 text-blue-600"}`}>
-              <Search className="w-4 h-4" />
-            </button>
-          </div>
-        </form>
+        {/* Center: VFusions-style pill nav */}
+        <div className="hidden md:flex items-center gap-1 bg-black/30 border border-white/10 rounded-full px-2 py-1.5 backdrop-blur-sm">
+          {[
+            { label: "STAGE", to: "/", icon: "◈" },
+            { label: "TALENT", to: "/TalentNexus", icon: "◈" },
+            { label: "ARCHIVE", to: "/Archive", icon: "◈" },
+            { label: "APPLY", to: "/Apply", icon: "✦" },
+          ].map(item => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
+                (currentPageName === "Dashboard" && item.to === "/") ||
+                (currentPageName === "TalentNexus" && item.to === "/TalentNexus") ||
+                (currentPageName === "Archive" && item.to === "/Archive") ||
+                (currentPageName === "Apply" && item.to === "/Apply")
+                  ? "bg-[#00c8ff]/15 text-[#00c8ff] border border-[#00c8ff]/30"
+                  : "text-white/60 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
 
         {/* Right: icons + avatar */}
         <div className="flex items-center gap-1 flex-shrink-0">
@@ -133,6 +143,12 @@ export default function TopNav({
           )}
 
           {/* Avatar / account dropdown OR Sign In button */}
+          {/* LIVE dot */}
+          <Link to="/Live" className="hidden md:flex items-center gap-1.5 text-xs font-bold text-white/70 hover:text-white transition-colors px-2">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            LIVE
+          </Link>
+
           {user ? (
           <div className="relative ml-1" ref={dropdownRef}>
             <button

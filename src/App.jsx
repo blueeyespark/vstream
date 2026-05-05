@@ -17,6 +17,7 @@ import CreatorStudio from './pages/CreatorStudio';
 import ArtForgeStudio from './pages/ArtForgeStudio';
 import Apply from './pages/Apply';
 import TalentNexus from './pages/TalentNexus';
+import TalentProfile from './pages/TalentProfile';
 import ChronosArchive from './pages/ChronosArchive';
 import Dashboard from './pages/Dashboard';
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -97,6 +98,7 @@ const AuthenticatedApp = () => {
       <Route path="/TalentNexus" element={<LayoutWrapper currentPageName="TalentNexus"><TalentNexus /></LayoutWrapper>} />
       <Route path="/Archive" element={<LayoutWrapper currentPageName="Archive"><ChronosArchive /></LayoutWrapper>} />
       <Route path="/Apply" element={<LayoutWrapper currentPageName="Apply"><Apply /></LayoutWrapper>} />
+      <Route path="/TalentProfile" element={<LayoutWrapper currentPageName="TalentProfile"><TalentProfile /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

@@ -33,7 +33,7 @@ function TalentCard({ channel, index }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.05, 0.4) }}
     >
-      <Link to={`/Channel?id=${channel.id}`} className="block group relative overflow-hidden rounded-2xl aspect-[3/4] bg-[#060d18] border border-blue-900/30 hover:border-[#00c8ff]/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-900/30 hover:-translate-y-1">
+      <Link to={`/TalentProfile?id=${channel.id}`} className="block group relative overflow-hidden rounded-2xl aspect-[3/4] bg-[#060d18] border border-blue-900/30 hover:border-[#00c8ff]/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-900/30 hover:-translate-y-1">
         {/* Full portrait image */}
         {channel.avatar_url ? (
           <img src={channel.avatar_url} alt={channel.channel_name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
