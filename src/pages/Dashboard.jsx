@@ -296,7 +296,7 @@ export default function Dashboard() {
   const clips = useMemo(() => mainVideos.filter(v => v.duration_seconds > 0 && v.duration_seconds < 90), [mainVideos]);
   const regularVideos = useMemo(() => mainVideos.filter(v => !v.duration_seconds || v.duration_seconds >= 60), [mainVideos]);
 
-  const moodKeywords = {
+  const moodKeywords = useMemo(() => ({
     chill: ["chill", "relax", "lofi", "calm", "sleep", "ambient", "study"],
     hype: ["hype", "epic", "insane", "crazy", "highlight", "gaming", "clutch", "wins"],
     gaming: ["gaming", "game", "gameplay", "let's play", "playthrough", "esports", "fortnite", "minecraft"],
@@ -306,7 +306,7 @@ export default function Dashboard() {
     sports: ["sports", "nfl", "nba", "soccer", "football", "basketball", "highlights", "match"],
     art: ["art", "drawing", "design", "animation", "creative", "painting", "digital", "vfx"],
     social: ["vlog", "irl", "reaction", "collab", "podcast", "interview", "stream"],
-  };
+  }), []);
 
   const displayVideos = useMemo(() => {
     if (searchQuery) {

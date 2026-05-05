@@ -38,6 +38,17 @@
       "type": "boolean",
       "default": false
     },
+    "category": {
+      "type": "string",
+      "description": "Primary content category (gaming, music, art, variety, etc.)"
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Content categories"
+    },
     "rtmp_key": {
       "type": "string",
       "description": "RTMP streaming key"
@@ -64,13 +75,6 @@
         }
       }
     },
-    "categories": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "Content categories (gaming, music, education, etc.)"
-    },
     "created_date": {
       "type": "string",
       "format": "date-time"
@@ -79,26 +83,5 @@
   "required": [
     "creator_email",
     "channel_name"
-  ],
-  "rls": {
-    "create": true,
-    "read": {
-      "$or": [
-        {
-          "creator_email": "{{user.email}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
-    "update": {
-      "creator_email": "{{user.email}}"
-    },
-    "delete": {
-      "creator_email": "{{user.email}}"
-    }
-  }
+  ]
 }
