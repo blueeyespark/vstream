@@ -56,13 +56,24 @@ export default function Apply() {
       return;
     }
     setSubmitting(true);
-    const res = await base44.functions.invoke("submitTalentApplication", form);
-    setSubmitting(false);
-    if (res.data?.success) {
-      setSubmitted(true);
-    } else {
-      toast.error("Submission failed. Please try again.");
+    try {
+      const res = await base44.functions.invoke("submitTalentApplication", form);
+      if (res.data?.success) {
+        setSubmitted(true);
+      } else if (res.data?.duplicate) {
+        toast.error("An application with this email already exists.");
+      } else {
+        toast.error("Submission failed. Please try again.");
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.error || "Submission failed. Please try again.";
+      if (msg.includes("already exists")) {
+        toast.error("An application with this email already exists.");
+      } else {
+        toast.error(msg);
+      }
     }
+    setSubmitting(false);
   };
 
   return (

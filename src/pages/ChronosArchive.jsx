@@ -152,13 +152,14 @@ export default function ChronosArchive() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl sm:text-5xl font-black mb-3 bg-gradient-to-r from-[#e8f4ff] via-[#a855f7] to-[#1e78ff] bg-clip-text text-transparent">
-            Chronos Archive
+        {/* Hero — VFusions style */}
+        <div className="mb-10">
+          <p className="text-[#00c8ff] text-xs font-bold uppercase tracking-[0.2em] mb-2">CHRONOS ARCHIVES</p>
+          <h1 className="text-4xl sm:text-5xl font-black text-white mb-3">
+            Stream Archive
           </h1>
-          <p className="text-blue-400/50 text-sm max-w-lg mx-auto">
-            Browse past streams, VODs, clips, and music from all creators on the platform.
+          <p className="text-blue-400/50 text-sm max-w-lg leading-relaxed">
+            Relive every moment. Our cinematic archive preserves every stream, clip, and performance.
           </p>
         </div>
 

@@ -3,7 +3,26 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
 
-  const { full_name, email, channel_name, channel_url, portfolio_link, bio, content_category, avg_viewers, social_links } = await req.json();
+  // Rate-limit: require valid JSON body
+  let body;
+  try {
+    body = await req.json();
+  } catch {
+    return Response.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
+  const { full_name, email, channel_name, channel_url, portfolio_link, bio, content_category, avg_viewers, social_links } = body;
+
+  // Basic email validation
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return Response.json({ error: 'Invalid email address' }, { status: 400 });
+  }
+
+  // Check for duplicate applications
+  const existing = await base44.asServiceRole.entities.TalentApplication.filter({ email }).catch(() => []);
+  if (existing.length > 0) {
+    return Response.json({ error: 'An application with this email already exists', duplicate: true }, { status: 409 });
+  }
 
   if (!full_name || !email || !channel_name || !bio) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 });

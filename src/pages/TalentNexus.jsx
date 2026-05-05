@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft, Users, Radio, Gamepad2, Palette, Layers,
-  Search, Star, Eye, UserPlus, Sparkles
+  Search, Star, Eye, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -24,72 +24,59 @@ function fmt(n) {
   return String(n);
 }
 
+// VFusions-style: full portrait cinematic card — image fills the card, name overlays at bottom
 function TalentCard({ channel, index }) {
+  const bgColor = `hsl(${(index * 67) % 360} 50% 15%)`;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04 }}
-      className="group relative overflow-hidden rounded-2xl border border-blue-900/30 bg-[#060d18]/60 hover:border-[#1e78ff]/40 transition-all duration-300 hover:shadow-xl hover:shadow-blue-900/20"
+      transition={{ delay: Math.min(index * 0.05, 0.4) }}
     >
-      {/* Banner / backdrop */}
-      <div className="relative h-32 overflow-hidden bg-gradient-to-br from-[#1e78ff]/20 to-[#a855f7]/20">
-        {channel.banner_url ? (
-          <img src={channel.banner_url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+      <Link to={`/Channel?id=${channel.id}`} className="block group relative overflow-hidden rounded-2xl aspect-[3/4] bg-[#060d18] border border-blue-900/30 hover:border-[#00c8ff]/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-900/30 hover:-translate-y-1">
+        {/* Full portrait image */}
+        {channel.avatar_url ? (
+          <img src={channel.avatar_url} alt={channel.channel_name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
-          <div className="w-full h-full" style={{ background: `linear-gradient(135deg, hsl(${(index * 47) % 360} 60% 20%), hsl(${(index * 47 + 120) % 360} 60% 15%))` }} />
+          <div className="absolute inset-0 flex items-center justify-center text-5xl font-black text-white/10" style={{ background: `linear-gradient(160deg, ${bgColor}, #030810)` }}>
+            {channel.channel_name?.charAt(0)}
+          </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#060d18] via-transparent to-transparent" />
 
-        {/* Live badge */}
+        {/* Cinematic gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+
+        {/* Live dot */}
         {channel.is_live && (
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-red-500/90 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            LIVE
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-red-500/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> LIVE
           </div>
         )}
 
         {/* Verified */}
         {channel.is_verified && (
-          <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[#1e78ff] flex items-center justify-center shadow-lg">
-            <Star className="w-3 h-3 text-white" fill="white" />
+          <div className="absolute top-3 right-3">
+            <Star className="w-4 h-4 text-[#00c8ff]" fill="currentColor" />
           </div>
         )}
-      </div>
 
-      {/* Avatar */}
-      <div className="flex items-end gap-3 px-4 -mt-8 mb-3 relative z-10">
-        <div className="w-16 h-16 rounded-2xl border-2 border-[#060d18] bg-gradient-to-br from-[#1e78ff] to-[#a855f7] flex items-center justify-center text-white text-xl font-black overflow-hidden flex-shrink-0 shadow-lg">
-          {channel.avatar_url
-            ? <img src={channel.avatar_url} alt="" className="w-full h-full object-cover" />
-            : channel.channel_name?.charAt(0)}
+        {/* Bottom overlay — name + category */}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="w-2 h-2 rounded-full bg-[#00c8ff]" />
+            <h3 className="text-white font-bold text-sm truncate">{channel.channel_name}</h3>
+          </div>
+          {channel.category && (
+            <div className="flex items-center gap-1 text-[#00c8ff]/70 text-xs font-semibold uppercase tracking-wider">
+              <Radio className="w-3 h-3" /> {channel.category}
+            </div>
+          )}
+          <div className="flex items-center gap-3 mt-2 text-xs text-white/40">
+            <span className="flex items-center gap-1"><Users className="w-3 h-3" />{fmt(channel.subscriber_count)}</span>
+            <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{fmt(channel.view_count)}</span>
+          </div>
         </div>
-        <div className="pb-1 min-w-0">
-          <h3 className="text-sm font-bold text-[#e8f4ff] truncate">{channel.channel_name}</h3>
-          <p className="text-xs text-blue-400/50 truncate">{channel.category || "Creator"}</p>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="px-4 pb-4 space-y-3">
-        <div className="flex items-center gap-4 text-xs text-blue-400/50">
-          <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {fmt(channel.subscriber_count)} followers</span>
-          <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {fmt(channel.view_count)} views</span>
-        </div>
-
-        {channel.description && (
-          <p className="text-xs text-blue-400/40 line-clamp-2 leading-relaxed">{channel.description}</p>
-        )}
-
-        <Link to={`/Channel?id=${channel.id}`} className="block">
-          <Button
-            variant="outline"
-            className="w-full h-8 text-xs gap-1.5 group-hover:bg-[#1e78ff]/10 group-hover:border-[#1e78ff]/40 transition-all"
-          >
-            <UserPlus className="w-3 h-3" /> View Channel
-          </Button>
-        </Link>
-      </div>
+      </Link>
     </motion.div>
   );
 }
@@ -104,15 +91,15 @@ export default function TalentNexus() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const filtered = channels.filter((c) => {
+  const liveCount = useMemo(() => channels.filter(c => c.is_live).length, [channels]);
+
+  const filtered = useMemo(() => channels.filter((c) => {
     const matchSearch = !search || c.channel_name?.toLowerCase().includes(search.toLowerCase());
     if (!matchSearch) return false;
     if (activeFilter === "all") return true;
     if (activeFilter === "live") return c.is_live;
     return c.category?.toLowerCase() === activeFilter;
-  });
-
-  const liveCount = channels.filter(c => c.is_live).length;
+  }), [channels, search, activeFilter]);
 
   return (
     <div className="min-h-screen bg-[#030810] text-[#e8f4ff]">
@@ -148,13 +135,14 @@ export default function TalentNexus() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl sm:text-5xl font-black mb-3 bg-gradient-to-r from-[#e8f4ff] via-[#1e78ff] to-[#a855f7] bg-clip-text text-transparent">
-            Talent Nexus
+        {/* Hero — VFusions style */}
+        <div className="mb-10">
+          <p className="text-[#00c8ff] text-xs font-bold uppercase tracking-[0.2em] mb-2">TALENT NEXUS</p>
+          <h1 className="text-4xl sm:text-5xl font-black text-white mb-3">
+            Our Roster
           </h1>
-          <p className="text-blue-400/50 text-sm max-w-lg mx-auto">
-            Discover creators, streamers, and artists on our platform. Find your next favorite channel.
+          <p className="text-blue-400/50 text-sm max-w-lg leading-relaxed">
+            Discover the digital idols redefining virtual entertainment. Each talent brings a unique universe to the stage.
           </p>
         </div>
 
@@ -203,7 +191,7 @@ export default function TalentNexus() {
             <p className="text-blue-400/25 text-sm mt-1">Try a different filter or search term</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {filtered.map((ch, i) => (
               <TalentCard key={ch.id} channel={ch} index={i} />
             ))}

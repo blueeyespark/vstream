@@ -59,9 +59,8 @@ export default function LiveChat({ streamId, user, compact = false }) {
     await base44.entities.ChatMessage.create({
       channel: streamId,
       content,
-      posted_by: user?.email || "anonymous",
-      // Store display name in the message itself
-      ...(superChatAmount ? { channel: streamId } : {}),
+      sender_email: user?.email || "anonymous",
+      sender_name: user?.full_name || user?.email?.split("@")[0] || "Viewer",
     });
 
     setInput("");
