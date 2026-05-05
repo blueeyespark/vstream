@@ -28,10 +28,10 @@ const MODES = [
   {
     id: "2d_model",
     label: "2D Model",
-    desc: "Game sprites, VTuber sheets & art",
+    desc: "Sprite sheets & character assets",
     icon: Layers,
     gradient: "from-[#a855f7] to-[#1e78ff]",
-    placeholder: "A warrior mage character, front-facing idle pose, clean linework, transparent background...",
+    placeholder: "A warrior mage character with multiple poses: idle, walking, attacking, dead...",
     suffix: "", // handled by 2D sub-mode
     supportsVideo: false,
     hasSubModes: true,
@@ -79,49 +79,49 @@ const MODES = [
   },
 ];
 
-// ─── 2D Sub-modes ─────────────────────────────────────────────────────────────
+// ─── 2D Sub-modes (Sprite Sheet Types) ─────────────────────────────────────
 const SUBMODES_2D = [
   {
-    id: "sprite",
-    label: "Game Sprite",
-    desc: "Pixel & vector game characters",
-    placeholder: "A knight character, sword raised, idle pose, pixel art style...",
-    suffix: ", game sprite asset, crisp pixel art, flat vector illustration, clean hard edges, transparent background, no shadows, no background, isolated character on alpha, ready for Unity/Godot",
+    id: "character_sheet",
+    label: "Character Sheet",
+    desc: "Multiple poses & expressions",
+    placeholder: "A knight character showing: idle, walking, attacking, jumping, hurt, and dead poses...",
+    suffix: ", character sprite sheet, 6-8 different poses on a single transparent PNG, arranged in a clean grid, consistent character model across all poses, clean outline, ready for game engines, white background, high-quality pixel art or vector illustration",
   },
   {
-    id: "spritesheet",
-    label: "Sprite Sheet",
-    desc: "Animation frame layout",
-    placeholder: "A slime creature with walk, idle, and attack animation frames, 8 frames each...",
-    suffix: ", sprite sheet layout, multiple animation frames in a grid, 8x8 grid format, pixel art, consistent character across all frames, transparent background, game ready",
+    id: "animation_sheet",
+    label: "Animation Loop",
+    desc: "Frame-by-frame animation",
+    placeholder: "A slime creature bouncing animation, showing 8 frames of the bounce cycle from bottom to top...",
+    suffix: ", animation sprite sheet, 8-12 sequential animation frames arranged horizontally in a single PNG, consistent character scale and position, transparent background, smooth motion between frames, ready for game engine animation systems",
   },
   {
-    id: "vtuber_live2d",
-    label: "VTuber / Live2D",
-    desc: "VTuber model reference sheet",
-    placeholder: "A fox girl VTuber with silver hair, golden eyes, hoodie with ears, cheerful expression...",
-    suffix: ", VTuber character design, Live2D rigging reference sheet, front-facing neutral pose, clean anime linework, separate body parts visible (hair, face, body, hands), flat cel shading, white background, professional VTuber model quality, suitable for Live2D rigging, inspired by Hololive and Nijisanji model quality",
+    id: "expression_sheet",
+    label: "Expression Pack",
+    desc: "Face variants & emotions",
+    placeholder: "A character head with different expressions: happy, sad, angry, surprised, neutral, crying, winking...",
+    suffix: ", expression sprite sheet, 8-12 different facial expressions in a grid layout on a single PNG, consistent head position and size, transparent background, clean linework, perfect for character dialogue systems and emotes",
+  },
+  {
+    id: "vtuber_sheet",
+    label: "VTuber Asset",
+    desc: "Rigging reference sheet",
+    placeholder: "A VTuber girl character with body parts separated: head, torso, left arm, right arm, legs, showing neutral and alternate expressions...",
+    suffix: ", VTuber character asset sheet, separated body parts clearly labeled and arranged in grid format on single PNG, multiple expression variants, anime style, transparent background, optimized for VTube Studio and Live2D rigging, professional streaming quality",
   },
   {
     id: "pngtuber",
-    label: "PNGTuber",
-    desc: "Talking PNG avatar for streaming",
-    placeholder: "A cute chibi cat VTuber avatar, open mouth and closed mouth versions, soft pastel colors...",
-    suffix: ", PNGTuber streaming avatar, chibi proportions, 2 states: mouth open and mouth closed side by side, expressive large eyes, pure white or transparent background, clean vector cartoon style, suitable for VTube Studio / veadotube mini, streamer avatar quality",
+    label: "PNGTuber States",
+    desc: "Multiple talking states",
+    placeholder: "A chibi avatar with 4 states: neutral, talking (mouth open), happy (smile), surprised (open mouth)...",
+    suffix: ", PNGTuber avatar state sheet, 4-6 different mouth/expression states in a grid on single PNG, consistent character pose, chibi proportions, transparent or white background, perfect for veadotube mini and VTube Studio streaming",
   },
   {
-    id: "reference_sheet",
-    label: "Character Sheet",
-    desc: "Full character reference design",
-    placeholder: "A dark elf ranger with a longbow, leather armor, turquoise eyes, showing front/side/back views...",
-    suffix: ", full character reference sheet, front view center + side view right + back view left, clean anime/illustration style, labeled color swatches, white background, professional concept art quality, used by game studios and anime studios",
-  },
-  {
-    id: "ui_asset",
-    label: "UI Asset",
-    desc: "Game UI icons and elements",
-    placeholder: "A set of RPG inventory icons: sword, shield, potion, key, map, all in fantasy style...",
-    suffix: ", game UI asset, icon set, consistent art style across all items, flat or slightly skeuomorphic, 512x512 each, transparent background, clean linework, suitable for Unity/Unreal Engine HUD",
+    id: "ui_icons",
+    label: "UI Icon Set",
+    desc: "Game interface icons",
+    placeholder: "Fantasy RPG icons: sword, shield, potion, helmet, key, door, treasure chest, health item...",
+    suffix: ", game UI icon set, 12-20 different game icons in a neat grid layout on single PNG, 64x64 or 128x128 pixels each, transparent background, consistent art style and stroke weight, suitable for inventory systems and game menus",
   },
 ];
 
@@ -354,6 +354,13 @@ export default function ArtForgeStudio() {
     if (mode === "3d_model") return SUBMODES_3D.find(s => s.id === subMode3D) || SUBMODES_3D[0];
     return null;
   };
+
+  // Initialize subMode2D to first available if not set
+  useEffect(() => {
+    if (SUBMODES_2D.length > 0 && !subMode2D) {
+      setSubMode2D(SUBMODES_2D[0].id);
+    }
+  }, []);
 
   // ── Visual generation ────────────────────────────────────────────────────────
   const handleGenerate = async () => {
@@ -754,6 +761,14 @@ export default function ArtForgeStudio() {
                     </div>
                   )}
 
+                  {/* 2D Sprite Sheet Note */}
+                  {mode === "2d_model" && (
+                    <div className="bg-[#a855f7]/10 border border-[#a855f7]/30 rounded-lg p-3">
+                      <p className="text-xs text-[#a855f7] font-semibold">🎯 Sprite Sheet Grid</p>
+                      <p className="text-xs text-[#a855f7]/70 mt-1">Generates PNG sheets with multiple poses/frames in grid layout</p>
+                    </div>
+                  )}
+
                   {/* 3D note */}
                   {mode === "3d_model" && (
                     <div className="bg-[#f97316]/10 border border-[#f97316]/30 rounded-lg p-3">
@@ -867,8 +882,8 @@ export default function ArtForgeStudio() {
                           : mode === "sticker"
                           ? <><Smile className="w-4 h-4" /> Generate {stickerPackSize > 1 ? `${stickerPackSize}-Sticker Pack` : "Sticker"}</>
                           : mode === "2d_model"
-                           ? <><Layers className="w-4 h-4" /> Generate {getCurrentSubMode()?.label || "2D Art"}</>
-                           : mode === "3d_model"
+                          ? <><Layers className="w-4 h-4" /> Generate {getCurrentSubMode()?.label || "Sprite Sheet"}</>
+                          : mode === "3d_model"
                            ? <><Box className="w-4 h-4" /> Generate 3D Model</>
                            : <><Sparkles className="w-4 h-4" /> Generate {batchCount > 1 ? `${batchCount} Images` : ""}</>
                       }
@@ -900,13 +915,19 @@ export default function ArtForgeStudio() {
                        </motion.div>
                     ) : results.length > 0 ? (
                       <motion.div key="results" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-4 h-full">
-                        {results[0]?.type === "3d_model" && (
-                          <div className="flex items-center gap-2 mb-1">
+                        {results[0]?.type === "2d_model" && (
+                            <div className="flex items-center gap-2 mb-1">
+                              <Layers className="w-3.5 h-3.5 text-[#a855f7]" />
+                              <span className="text-xs font-bold text-[#a855f7]">Sprite Sheet</span>
+                            </div>
+                            )}
+                            {results[0]?.type === "3d_model" && (
+                            <div className="flex items-center gap-2 mb-1">
                             <Box className="w-3.5 h-3.5 text-[#f97316]" />
                             <span className="text-xs font-bold text-[#f97316]">3D GLB Model</span>
-                          </div>
-                        )}
-                        {results[0]?.type === "sticker" && results.length > 1 && (
+                            </div>
+                            )}
+                            {results[0]?.type === "sticker" && results.length > 1 && (
                           <div className="flex items-center gap-2 mb-1">
                             <Package className="w-3.5 h-3.5 text-[#facc15]" />
                             <span className="text-xs font-bold text-[#facc15]">{results.length}-Sticker Pack</span>
@@ -924,6 +945,8 @@ export default function ArtForgeStudio() {
                                     <p className="text-[10px] text-blue-400/30 mt-1">Download to view in 3D viewer</p>
                                   </div>
                                 </div>
+                              ) : item.type === "2d_model" ? (
+                                <img src={item.url} alt={`Sprite Sheet ${i + 1}`} className="w-full object-contain rounded-xl" style={{ maxHeight: "420px", background: "transparent" }} />
                               ) : item.type === "video" ? (
                                 <video src={item.url} controls className="w-full rounded-xl" style={{ maxHeight: "420px" }} />
                               ) : (
@@ -977,7 +1000,7 @@ export default function ArtForgeStudio() {
                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#1e78ff]/10 to-[#a855f7]/10 border border-blue-900/20 flex items-center justify-center mb-4">
                           <WandSparkles className="w-9 h-9 text-[#1e78ff]/30" />
                         </div>
-                        <p className="text-base font-semibold text-blue-400/40">{mode === "3d_model" ? "Your 3D model will appear here" : "Your creation will appear here"}</p>
+                        <p className="text-base font-semibold text-blue-400/40">{mode === "2d_model" ? "Your sprite sheet will appear here" : mode === "3d_model" ? "Your 3D model will appear here" : "Your creation will appear here"}</p>
                         <p className="text-sm text-blue-400/25 mt-1">Enter a prompt and hit generate</p>
                       </motion.div>
                     )}
