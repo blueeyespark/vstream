@@ -272,12 +272,16 @@ export default function Dashboard() {
     queryKey: ["channels-all"],
     queryFn: () => base44.entities.Channel.list(),
     staleTime: 5 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
     queryFn: () => base44.entities.Video.list("-created_date", 80),
     staleTime: 5 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: mySubscriptions = [] } = useQuery({
@@ -285,6 +289,8 @@ export default function Dashboard() {
     queryFn: () => base44.entities.Subscription.filter({ subscriber_email: user.email, status: "active" }),
     enabled: !!user?.email,
     staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const channelMap = useMemo(() => channels.reduce((acc, c) => { acc[c.id] = c; return acc; }, {}), [channels]);
