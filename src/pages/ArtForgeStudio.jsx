@@ -371,11 +371,11 @@ export default function ArtForgeStudio() {
     : "";
 
   const buildPrompt = () => {
-    return `MANDATORY: Generate EXACTLY what the user requests below. Do not deviate, substitute, or ignore any part of their description. Treat this as a strict requirement.\n\nUSER REQUEST:\n${prompt}\n\nADDITIONAL STYLE:\n${memoizedStyleStr}${getModeSuffix()}`;
+    return `${prompt}${memoizedStyleStr}${getModeSuffix()}`;
   };
 
   const buildVideoPrompt = () => {
-    return `MANDATORY: Generate EXACTLY what the user requests below. Do not deviate, substitute, or ignore any part of their description.\n\nUSER REQUEST:\n${prompt}\n\nADDITIONAL STYLE:\n${memoizedStyleStr}${currentMode?.suffix || ""}`;
+    return `${prompt}${memoizedStyleStr}${currentMode?.suffix || ""}`;
   };
 
   const getCurrentSubMode = () => {
@@ -493,7 +493,7 @@ export default function ArtForgeStudio() {
         const buildImagePrompt = (idx) => {
            let basePrompt = mode === "sticker" ? buildStickerVariantPrompt(idx) : finalPrompt;
            if (refImages.length > 0) {
-             basePrompt = `YOU MUST ANALYZE AND EXTRACT EVERYTHING FROM THE REFERENCE IMAGES:\n\n1. CHARACTER/SUBJECT: Identify and describe every detail (appearance, pose, clothing, accessories, expression)\n2. ENVIRONMENT: Describe the setting, background, architecture, and spatial layout\n3. OBJECTS: List all visible items (furniture, tech, props, decorations)\n4. LIGHTING: Analyze color temperature, light sources, glows, shadows, and mood\n5. COMPOSITION: Note camera angle, framing, depth of field, and spatial arrangement\n6. STYLE: Identify art style, rendering technique, aesthetic (anime, realistic, etc.)\n7. COLOR PALETTE: Extract dominant colors and their relationships\n\nNOW CREATE: Use ALL these visual elements combined with the user's request:\n${basePrompt}\n\nMandatory: Incorporate the character, environment, objects, lighting scheme, and composition from the reference images. This is non-negotiable.`;
+             basePrompt = `Reference images provided. Extract visual details: character, environment, objects, lighting, composition, style, colors. Apply these to create: ${basePrompt}`;
            }
            return basePrompt;
          };
