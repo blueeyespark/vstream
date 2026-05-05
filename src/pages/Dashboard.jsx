@@ -553,9 +553,7 @@ export default function Dashboard() {
         <aside className="hidden lg:flex flex-col w-64 xl:w-72 flex-shrink-0 border-l border-slate-200 dark:border-[#0d2040]/80 px-4 pb-8 overflow-y-auto space-y-5 bg-slate-50 dark:bg-card" style={{ marginTop: "5rem" }}>
 
           {/* Live channels */}
-          {liveChannels.length > 0 && (
-            <LiveSidebar liveChannels={liveChannels.map(c => ({ ...c, viewers: Math.floor(Math.random() * 5000) + 100 }))} onSelectStream={ch => handleOpenVideo(ch)} />
-          )}
+          {liveChannels.length > 0 && <LiveSidebar liveChannels={liveChannels} onSelectStream={ch => handleOpenVideo(ch)} />}
 
           {/* AI "What to Watch" */}
           <div className="rounded-2xl bg-white dark:bg-card border border-slate-200 dark:border-[#0d2040] overflow-hidden">
