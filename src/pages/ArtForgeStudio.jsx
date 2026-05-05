@@ -493,7 +493,7 @@ export default function ArtForgeStudio() {
         const buildImagePrompt = (idx) => {
            let basePrompt = mode === "sticker" ? buildStickerVariantPrompt(idx) : finalPrompt;
            if (refImages.length > 0) {
-             basePrompt = `ANALYZE THE REFERENCE IMAGES THOROUGHLY:\n- What mood, style, and aesthetic do they convey?\n- What composition, color palette, and visual elements are present?\n- What would the user want if they uploaded these images?\n\nTHEN APPLY TO USER'S REQUEST:\n${basePrompt}\n\nBlend the reference images' visual information with the user's exact description to create the perfect result.`;
+             basePrompt = `YOU MUST ANALYZE AND EXTRACT EVERYTHING FROM THE REFERENCE IMAGES:\n\n1. CHARACTER/SUBJECT: Identify and describe every detail (appearance, pose, clothing, accessories, expression)\n2. ENVIRONMENT: Describe the setting, background, architecture, and spatial layout\n3. OBJECTS: List all visible items (furniture, tech, props, decorations)\n4. LIGHTING: Analyze color temperature, light sources, glows, shadows, and mood\n5. COMPOSITION: Note camera angle, framing, depth of field, and spatial arrangement\n6. STYLE: Identify art style, rendering technique, aesthetic (anime, realistic, etc.)\n7. COLOR PALETTE: Extract dominant colors and their relationships\n\nNOW CREATE: Use ALL these visual elements combined with the user's request:\n${basePrompt}\n\nMandatory: Incorporate the character, environment, objects, lighting scheme, and composition from the reference images. This is non-negotiable.`;
            }
            return basePrompt;
          };
