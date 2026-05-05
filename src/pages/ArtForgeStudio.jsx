@@ -6,7 +6,7 @@ import {
   WandSparkles, Layers, Box, Plus, X, Sparkles, Download,
   RefreshCw, Image, LayoutGrid, Clock, Trash2, FileText,
   Loader2, Copy, Check, Type, Tag, Lightbulb, Heart,
-  Search, Minus
+  Search, Minus, Film, Video
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -21,8 +21,9 @@ const MODES = [
     desc: "AI artwork from text",
     icon: WandSparkles,
     gradient: "from-[#1e78ff] to-[#a855f7]",
-    placeholder: "A surreal landscape with floating crystals in a violet sky, hyper-detailed digital painting...",
+    placeholder: "A fierce dragon soaring over a neon-lit cyberpunk city at midnight, lightning reflected in its scales...",
     suffix: "",
+    supportsVideo: false,
   },
   {
     id: "2d_model",
@@ -32,6 +33,7 @@ const MODES = [
     gradient: "from-[#a855f7] to-[#1e78ff]",
     placeholder: "A pixel art character sprite, 16-bit style, flat shading, transparent background...",
     suffix: ", sprite art, flat 2D design, transparent background",
+    supportsVideo: false,
   },
   {
     id: "3d_model",
@@ -41,6 +43,37 @@ const MODES = [
     gradient: "from-[#f97316] to-[#a855f7]",
     placeholder: "A low-poly 3D fox character, textured, suitable for a VRM avatar, anime style...",
     suffix: ", 3D render, textured model, isometric view, studio lighting",
+    supportsVideo: false,
+  },
+  {
+    id: "sticker",
+    label: "Sticker",
+    desc: "Die-cut sticker style art",
+    icon: Sparkles,
+    gradient: "from-[#f97316] to-[#facc15]",
+    placeholder: "A cute kawaii cat sticker, bold outline, white background, chibi style...",
+    suffix: ", sticker art, thick white outline, die-cut sticker, flat color, white background, cartoon style",
+    supportsVideo: false,
+  },
+  {
+    id: "comic",
+    label: "Comic",
+    desc: "Comic panel / strip art",
+    icon: LayoutGrid,
+    gradient: "from-[#22c55e] to-[#1e78ff]",
+    placeholder: "A superhero landing dramatically on a city rooftop at night, comic book style with bold ink lines...",
+    suffix: ", comic book art, bold ink outlines, halftone shadows, vibrant colors, panel composition",
+    supportsVideo: false,
+  },
+  {
+    id: "video",
+    label: "Video",
+    desc: "AI generated short video",
+    icon: Film,
+    gradient: "from-[#ec4899] to-[#a855f7]",
+    placeholder: "A majestic eagle soaring above snow-capped mountains, golden hour light, cinematic...",
+    suffix: "",
+    supportsVideo: true,
   },
 ];
 
@@ -87,8 +120,11 @@ const CONTENT_TOOLS = {
 const GALLERY_FILTERS = [
   { id: "all", label: "All", icon: LayoutGrid },
   { id: "image", label: "Images", icon: Image },
+  { id: "sticker", label: "Stickers", icon: Sparkles },
+  { id: "comic", label: "Comics", icon: LayoutGrid },
   { id: "2d_model", label: "2D", icon: Layers },
   { id: "3d_model", label: "3D", icon: Box },
+  { id: "video", label: "Video", icon: Film },
 ];
 
 // ─── Main component ────────────────────────────────────────────────────────────
@@ -100,6 +136,7 @@ export default function ArtForgeStudio() {
   const [genLoading, setGenLoading] = useState(false);
   const [batchCount, setBatchCount] = useState(1);
   const [activeStyleTags, setActiveStyleTags] = useState([]);
+  const [videoDuration, setVideoDuration] = useState(6);
 
   const [galleryFilter, setGalleryFilter] = useState("all");
   const [gallerySearch, setGallerySearch] = useState("");
@@ -144,25 +181,42 @@ export default function ArtForgeStudio() {
     setResults([]);
     try {
       const finalPrompt = buildPrompt();
-      const generateOne = () => base44.integrations.Core.GenerateImage({
-        prompt: finalPrompt,
-        existing_image_urls: refImages.length > 0 ? refImages : undefined,
-      });
+      const isVideo = currentMode?.supportsVideo;
 
-      const responses = await Promise.all(Array.from({ length: batchCount }, generateOne));
-      const urls = responses.map(r => r.url);
-      setResults(urls);
-
-      await Promise.all(urls.map(url =>
-        base44.entities.MediaAsset.create({
+      if (isVideo) {
+        const { url } = await base44.integrations.Core.GenerateVideo({
+          prompt: finalPrompt,
+          duration: videoDuration,
+          aspect_ratio: "16:9",
+        });
+        setResults([{ url, type: "video" }]);
+        await base44.entities.MediaAsset.create({
           name: prompt.slice(0, 60),
           url,
-          type: mode,
+          type: "video",
           description: finalPrompt,
-        })
-      ));
+        });
+        toast.success("Video saved to gallery!");
+      } else {
+        const count = Math.min(batchCount, 4);
+        const generateOne = () => base44.integrations.Core.GenerateImage({
+          prompt: finalPrompt,
+          existing_image_urls: refImages.length > 0 ? refImages : undefined,
+        });
+        const responses = await Promise.all(Array.from({ length: count }, generateOne));
+        const urls = responses.map(r => r.url);
+        setResults(urls.map(url => ({ url, type: "image" })));
+        await Promise.all(urls.map(url =>
+          base44.entities.MediaAsset.create({
+            name: prompt.slice(0, 60),
+            url,
+            type: mode,
+            description: finalPrompt,
+          })
+        ));
+        toast.success(`${urls.length} creation${urls.length > 1 ? "s" : ""} saved to gallery!`);
+      }
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
-      toast.success(`${urls.length} creation${urls.length > 1 ? "s" : ""} saved to gallery!`);
     } catch (e) {
       toast.error("Generation failed: " + e.message);
     } finally {
@@ -351,32 +405,51 @@ export default function ArtForgeStudio() {
                     </div>
                   </div>
 
-                  {/* Batch count + Generate */}
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 bg-[#0a1525] border border-blue-900/40 rounded-xl px-3 py-2">
-                      <span className="text-xs text-blue-400/50 font-medium whitespace-nowrap">How many?</span>
-                      <button
-                        onClick={() => setBatchCount(c => Math.max(1, c - 1))}
-                        className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors"
-                      >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="text-sm font-bold text-[#c8dff5] w-4 text-center">{batchCount}</span>
-                      <button
-                        onClick={() => setBatchCount(c => Math.min(4, c + 1))}
-                        className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                    </div>
+                  {/* Batch / Duration + Generate */}
+                  <div className="pt-1 border-t border-blue-900/20">
+                    {currentMode?.supportsVideo ? (
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs text-blue-400/50 font-medium">Duration</span>
+                        <div className="flex gap-1">
+                          {[4, 6, 8].map(d => (
+                            <button
+                              key={d}
+                              onClick={() => setVideoDuration(d)}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                                videoDuration === d
+                                  ? "bg-[#ec4899]/20 text-[#ec4899] border border-[#ec4899]/40"
+                                  : "bg-[#0a1525] border border-blue-900/30 text-blue-400/50 hover:text-blue-300"
+                              }`}
+                            >
+                              {d}s
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs text-blue-400/50 font-medium">How many images?</span>
+                        <div className="flex items-center gap-1 bg-[#0a1525] border border-blue-900/30 rounded-lg p-1">
+                          <button onClick={() => setBatchCount(c => Math.max(1, c - 1))} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors">
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="text-sm font-bold text-[#c8dff5] w-8 text-center">{batchCount}</span>
+                          <button onClick={() => setBatchCount(c => Math.min(4, c + 1))} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors">
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <Button
                       onClick={handleGenerate}
                       disabled={genLoading || !prompt.trim()}
-                      className="flex-1 h-11 bg-gradient-to-r from-[#1e78ff] to-[#a855f7] hover:opacity-90 gap-2 text-white font-semibold rounded-xl disabled:opacity-30 transition-opacity border-0"
+                      className="w-full h-11 bg-gradient-to-r from-[#1e78ff] to-[#a855f7] hover:opacity-90 gap-2 text-white font-semibold rounded-xl disabled:opacity-30 transition-opacity border-0"
                     >
                       {genLoading
                         ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Generating...</>
-                        : <><Sparkles className="w-4 h-4" /> Generate {batchCount > 1 ? `${batchCount} Images` : ""}</>
+                        : currentMode?.supportsVideo
+                          ? <><Film className="w-4 h-4" /> Generate Video ({videoDuration}s)</>
+                          : <><Sparkles className="w-4 h-4" /> Generate {batchCount > 1 ? `${batchCount} Images` : ""}</>
                       }
                     </Button>
                   </div>
@@ -403,11 +476,15 @@ export default function ArtForgeStudio() {
                     ) : results.length > 0 ? (
                       <motion.div key="results" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-4 h-full">
                         <div className={`grid gap-3 ${results.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-                          {results.map((url, i) => (
+                          {results.map((item, i) => (
                             <div key={i} className="relative group rounded-xl overflow-hidden border border-blue-900/30">
-                              <img src={url} alt={`Result ${i + 1}`} className="w-full object-contain rounded-xl" style={{ maxHeight: results.length === 1 ? "420px" : "240px" }} />
+                              {item.type === "video" ? (
+                                <video src={item.url} controls className="w-full rounded-xl" style={{ maxHeight: "420px" }} />
+                              ) : (
+                                <img src={item.url} alt={`Result ${i + 1}`} className="w-full object-contain rounded-xl" style={{ maxHeight: results.length === 1 ? "420px" : "240px" }} />
+                              )}
                               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1.5">
-                                <a href={url} download={`artforge-${i + 1}.png`} target="_blank" rel="noopener noreferrer">
+                                <a href={item.url} download={`artforge-${i + 1}.${item.type === "video" ? "mp4" : "png"}`} target="_blank" rel="noopener noreferrer">
                                   <button className="h-7 w-7 flex items-center justify-center rounded-lg bg-black/70 text-white/80 hover:bg-black/90 transition-colors">
                                     <Download className="w-3.5 h-3.5" />
                                   </button>
@@ -595,7 +672,9 @@ export default function ArtForgeStudio() {
                       className="group relative rounded-2xl overflow-hidden border border-blue-900/30 bg-[#060d18]/60 hover:border-[#1e78ff]/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/20"
                     >
                       <div className="relative aspect-square overflow-hidden bg-[#050a14]">
-                        {item.url ? (
+                        {item.type === "video" && item.url ? (
+                          <video src={item.url} className="w-full h-full object-cover" muted loop preload="metadata" />
+                        ) : item.url ? (
                           <img
                             src={item.url}
                             alt={item.name}
@@ -652,10 +731,24 @@ export default function ArtForgeStudio() {
                           <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                             item.type === "image" ? "bg-[#1e78ff]/20 text-[#1e78ff]"
                             : item.type === "2d_model" ? "bg-[#a855f7]/20 text-[#a855f7]"
-                            : "bg-orange-500/20 text-orange-400"
+                            : item.type === "3d_model" ? "bg-orange-500/20 text-orange-400"
+                            : item.type === "video" ? "bg-[#ec4899]/20 text-[#ec4899]"
+                            : item.type === "sticker" ? "bg-yellow-500/20 text-yellow-400"
+                            : item.type === "comic" ? "bg-[#22c55e]/20 text-[#22c55e]"
+                            : "bg-blue-900/30 text-blue-400"
                           }`}>
-                            {item.type === "image" ? <Image className="w-2.5 h-2.5" /> : item.type === "2d_model" ? <Layers className="w-2.5 h-2.5" /> : <Box className="w-2.5 h-2.5" />}
-                            {item.type === "image" ? "Image" : item.type === "2d_model" ? "2D" : "3D"}
+                            {item.type === "image" ? <Image className="w-2.5 h-2.5" />
+                            : item.type === "2d_model" ? <Layers className="w-2.5 h-2.5" />
+                            : item.type === "3d_model" ? <Box className="w-2.5 h-2.5" />
+                            : item.type === "video" ? <Film className="w-2.5 h-2.5" />
+                            : item.type === "sticker" ? <Sparkles className="w-2.5 h-2.5" />
+                            : <LayoutGrid className="w-2.5 h-2.5" />}
+                            {item.type === "image" ? "Image"
+                            : item.type === "2d_model" ? "2D"
+                            : item.type === "3d_model" ? "3D"
+                            : item.type === "video" ? "Video"
+                            : item.type === "sticker" ? "Sticker"
+                            : "Comic"}
                           </span>
                           <span className="text-[10px] text-blue-400/30 flex items-center gap-0.5">
                             <Clock className="w-2.5 h-2.5" />

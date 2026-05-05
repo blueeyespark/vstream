@@ -25,7 +25,9 @@
         "2d_model",
         "3d_model",
         "audio",
-        "video"
+        "video",
+        "sticker",
+        "comic"
       ],
       "description": "ArtForge generation type"
     },
