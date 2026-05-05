@@ -1,0 +1,125 @@
+{
+  "name": "SocialPost",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "facebook",
+        "twitter",
+        "instagram",
+        "linkedin",
+        "tiktok",
+        "youtube",
+        "other"
+      ]
+    },
+    "post_link": {
+      "type": "string"
+    },
+    "media_type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "image",
+        "video",
+        "link"
+      ]
+    },
+    "posted_by": {
+      "type": "string"
+    },
+    "posted_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "file_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "channel": {
+      "type": "string"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "public",
+        "private"
+      ],
+      "default": "public",
+      "description": "Whether this post is visible to viewers"
+    }
+  },
+  "required": [
+    "title",
+    "platform"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": {
+          "$ne": "guest"
+        }
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.visibility": "public"
+        },
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "data.posted_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "data.posted_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "data.posted_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

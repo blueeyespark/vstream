@@ -20,6 +20,7 @@ import TalentNexus from './pages/TalentNexus';
 import TalentProfile from './pages/TalentProfile';
 import ChronosArchive from './pages/ChronosArchive';
 import MusicEditor from './pages/MusicEditor';
+import Community from './pages/Community';
 import Dashboard from './pages/Dashboard';
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -101,6 +102,7 @@ const AuthenticatedApp = () => {
       <Route path="/Apply" element={<LayoutWrapper currentPageName="Apply"><Apply /></LayoutWrapper>} />
       <Route path="/TalentProfile" element={<LayoutWrapper currentPageName="TalentProfile"><TalentProfile /></LayoutWrapper>} />
       <Route path="/MusicEditor" element={<LayoutWrapper currentPageName="MusicEditor"><MusicEditor /></LayoutWrapper>} />
+      <Route path="/Community" element={<LayoutWrapper currentPageName="Community"><Community /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
