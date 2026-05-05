@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -270,6 +271,7 @@ const GALLERY_FILTERS = [
 
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function ArtForgeStudio() {
+  const [user, setUser] = useState(null);
   const [mode, setMode] = useState("image");
   const [prompt, setPrompt] = useState("");
   const [refImages, setRefImages] = useState([]);
@@ -316,6 +318,11 @@ export default function ArtForgeStudio() {
   const queryClient = useQueryClient();
   const countdownIntervalRef = useRef(null);
 
+  // Fetch user
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => setUser(null));
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -326,11 +333,13 @@ export default function ArtForgeStudio() {
   }, []);
 
   const { data: gallery = [] } = useQuery({
-    queryKey: ["media-assets-gallery"],
+    queryKey: ["media-assets-gallery", user?.email],
     queryFn: async () => {
-      const result = await base44.entities.MediaAsset.list("-created_date", 200);
+      if (!user?.email) return [];
+      const result = await base44.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 200);
       return Array.isArray(result) ? result : [];
     },
+    enabled: !!user?.email,
     staleTime: 5000,
     gcTime: 300000,
     retry: 2,
