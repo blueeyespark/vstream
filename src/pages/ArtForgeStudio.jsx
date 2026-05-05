@@ -316,14 +316,8 @@ export default function ArtForgeStudio() {
   const { data: gallery = [] } = useQuery({
     queryKey: ["media-assets-gallery"],
     queryFn: async () => {
-      try {
-        const result = await base44.entities.MediaAsset.list("-created_date", 200);
-        return Array.isArray(result) ? result : [];
-      } catch (e) {
-        console.error("Failed to load gallery:", e);
-        toast.error("Failed to load gallery");
-        return [];
-      }
+      const result = await base44.entities.MediaAsset.list("-created_date", 200);
+      return Array.isArray(result) ? result : [];
     },
     staleTime: 60000,
     gcTime: 300000,
@@ -418,39 +412,7 @@ export default function ArtForgeStudio() {
     }, 1000);
 
     try {
-      // Upload reference images if present
-      let uploadedRefUrls = [];
-      if (Array.isArray(refImages) && refImages.length > 0) {
-        try {
-          // Filter out blob URLs and get actual files
-          const refFilesToUpload = [];
-          for (const url of refImages) {
-            if (url.startsWith('blob:')) {
-              // Can't directly upload blob URLs; skip them
-              continue;
-            }
-            refFilesToUpload.push(url);
-          }
-          
-          // Upload actual file URLs if any
-          for (const fileUrl of refFilesToUpload) {
-            try {
-              const uploadRes = await base44.integrations.Core.UploadFile({ file: fileUrl });
-              if (uploadRes?.file_url) uploadedRefUrls.push(uploadRes.file_url);
-            } catch (e) {
-              console.warn("Failed to upload reference image:", e);
-            }
-          }
-        } catch (e) {
-          console.warn("Reference upload error:", e);
-        }
-      }
-
       const finalPrompt = buildPrompt();
-      const refPromptPrefix = uploadedRefUrls.length > 0 
-        ? `CRITICAL: Follow these reference images EXACTLY for the style, design, and appearance. ${prompt}` 
-        : prompt;
-      
       const isVideo = currentMode?.supportsVideo;
       const is3D = currentMode?.supportsTripo;
 
@@ -486,7 +448,10 @@ export default function ArtForgeStudio() {
         });
         toast.success("3D model saved to gallery!");
       } else if (isVideo) {
-        const videoPrompt = buildVideoPrompt();
+        let videoPrompt = buildVideoPrompt();
+        if (refImages.length > 0) {
+          videoPrompt = `CRITICAL: Follow reference images for style and appearance.\n\n${videoPrompt}`;
+        }
         const response = await base44.integrations.Core.GenerateVideo({
           prompt: videoPrompt,
           duration: Math.max(1, Math.min(3600, videoDuration)),
@@ -516,10 +481,18 @@ export default function ArtForgeStudio() {
           return `${prompt}${variation}${currentMode?.suffix || ""}${stickerSuffix}`;
         };
 
+        const buildImagePrompt = (idx) => {
+          let basePrompt = mode === "sticker" ? buildStickerVariantPrompt(idx) : finalPrompt;
+          if (refImages.length > 0) {
+            basePrompt = `CRITICAL INSTRUCTION: Strictly follow the reference images for style, appearance, clothing, poses, and all visual details.\n\n${basePrompt}`;
+          }
+          return basePrompt;
+        };
+
         const generateOne = (i) => base44.integrations.Core.GenerateImage({
-          prompt: mode === "sticker" ? buildStickerVariantPrompt(i) : refPromptPrefix,
-          existing_image_urls: uploadedRefUrls.length > 0 ? uploadedRefUrls : undefined,
-          model: "claude_opus_4_7", // Advanced model with vision+details
+          prompt: buildImagePrompt(i),
+          existing_image_urls: (Array.isArray(refImages) && refImages.length > 0) ? refImages : undefined,
+          model: "claude_opus_4_7",
         });
 
         const responses = await Promise.all(Array.from({ length: count }, (_, i) => generateOne(i)));
@@ -562,10 +535,10 @@ export default function ArtForgeStudio() {
     try {
       await base44.entities.MediaAsset.delete(id);
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
-      toast.success("Deleted");
+      toast.success("Item deleted");
     } catch (e) {
       console.error("Delete failed:", e);
-      toast.error("Failed to delete item");
+      toast.error("Delete failed: " + (e?.message || "Unknown error").slice(0, 60));
     }
   };
 
@@ -576,7 +549,7 @@ export default function ArtForgeStudio() {
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
     } catch (e) {
       console.error("Toggle favorite failed:", e);
-      toast.error("Failed to update favorite");
+      toast.error("Failed to update favorite: " + (e?.message || "Unknown").slice(0, 60));
     }
   };
 
@@ -587,12 +560,12 @@ export default function ArtForgeStudio() {
       return;
     }
     setGifLoading(true);
-    toast.loading("Generating GIF version...", { id: "gif" });
     try {
       const gifPrompt = `${prompt || "Animation"}, animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement`;
       const response = await base44.integrations.Core.GenerateImage({
         prompt: gifPrompt,
         existing_image_urls: [videoUrl],
+        model: "claude_opus_4_7",
       });
       const gifUrl = response?.url;
       if (!gifUrl) throw new Error("No GIF generated");
@@ -605,11 +578,10 @@ export default function ArtForgeStudio() {
         tags: ["gif", "animated"],
       });
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
-      toast.success("GIF saved to gallery!", { id: "gif" });
+      toast.success("GIF saved to gallery!");
     } catch (e) {
-      const errorMsg = (e?.message || "GIF generation failed").slice(0, 100);
       console.error("GIF error:", e);
-      toast.error("GIF failed: " + errorMsg, { id: "gif" });
+      toast.error("GIF failed: " + (e?.message || "Unknown error").slice(0, 80));
     } finally {
       setGifLoading(false);
     }
@@ -618,26 +590,22 @@ export default function ArtForgeStudio() {
   // ── Content tools ────────────────────────────────────────────────────────────
   const handleContentGenerate = async () => {
     if (!contentInput.trim()) return;
-    if (contentLoading) return; // Prevent duplicate submissions
+    if (contentLoading) return;
     
     setContentLoading(true);
     try {
       const tool = CONTENT_TOOLS[selectedTool];
-      if (!tool) {
-        setContentOutput("Error: Tool not found. Please try again.");
-        return;
-      }
+      if (!tool) throw new Error("Tool not found");
       
       const res = await base44.integrations.Core.InvokeLLM({
         prompt: tool.prompt(contentInput),
         add_context_from_internet: false,
-        model: "claude_sonnet_4_6",
+        model: "gpt_5_5",
       });
       setContentOutput(typeof res === "string" ? res : JSON.stringify(res, null, 2));
     } catch (e) {
-      const errorMsg = (e?.message || "Generation failed").slice(0, 100);
       console.error("Content generation error:", e);
-      setContentOutput("Error generating content. " + errorMsg);
+      setContentOutput("Error: " + (e?.message || "Generation failed").slice(0, 80));
     } finally {
       setContentLoading(false);
     }
