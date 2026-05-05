@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -329,18 +329,38 @@ export default function ArtForgeStudio() {
   const [activeTab, setActiveTab] = useState("studio");
 
   const queryClient = useQueryClient();
+  const countdownIntervalRef = useRef(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+      }
+    };
+  }, []);
 
   const { data: gallery = [] } = useQuery({
     queryKey: ["media-assets-gallery"],
-    queryFn: () => base44.entities.MediaAsset.list("-created_date", 200),
+    queryFn: async () => {
+      try {
+        const result = await base44.entities.MediaAsset.list("-created_date", 200);
+        return Array.isArray(result) ? result : [];
+      } catch (e) {
+        console.error("Failed to load gallery:", e);
+        toast.error("Failed to load gallery");
+        return [];
+      }
+    },
     staleTime: 30000,
+    retry: 2,
   });
 
-  const filtered = gallery
-    .filter(g => galleryFilter === "all" || g.type === galleryFilter)
-    .filter(g => !gallerySearch || g.name?.toLowerCase().includes(gallerySearch.toLowerCase()) || g.description?.toLowerCase().includes(gallerySearch.toLowerCase()));
+  const filtered = (Array.isArray(gallery) ? gallery : [])
+    .filter(g => g && (galleryFilter === "all" || g.type === galleryFilter))
+    .filter(g => !gallerySearch || (g.name || "").toLowerCase().includes(gallerySearch.toLowerCase()) || (g.description || "").toLowerCase().includes(gallerySearch.toLowerCase()));
 
-  const currentMode = MODES.find(m => m.id === mode);
+  const currentMode = MODES.find(m => m.id === mode) || MODES[0];
 
   const toggleStyleTag = (tag) => {
     setActiveStyleTags(prev =>
@@ -384,6 +404,8 @@ export default function ArtForgeStudio() {
   // ── Visual generation ────────────────────────────────────────────────────────
   const handleGenerate = async () => {
     if (!prompt.trim()) { toast.error("Please describe your vision"); return; }
+    if (genLoading) return; // Prevent duplicate submissions
+    
     setGenLoading(true);
     setResults([]);
     
@@ -392,18 +414,26 @@ export default function ArtForgeStudio() {
     if (currentMode?.supportsVideo) {
       estTime = Math.ceil((videoDuration / 4) * 40 + 10); // ~40s per 4s of video
     } else if (mode === "sticker") {
-      estTime = stickerPackSize * 20;
+      estTime = Math.max(1, stickerPackSize * 20);
     } else {
-      estTime = batchCount * 20;
+      estTime = Math.max(1, batchCount * 20);
     }
     setEstimatedTime(estTime);
     setCountdownTime(estTime);
     
+    // Clear any existing interval before starting a new one
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+    }
+    
     // Start countdown timer
-    const interval = setInterval(() => {
+    countdownIntervalRef.current = setInterval(() => {
       setCountdownTime(prev => {
         if (prev <= 1) {
-          clearInterval(interval);
+          if (countdownIntervalRef.current) {
+            clearInterval(countdownIntervalRef.current);
+            countdownIntervalRef.current = null;
+          }
           return 0;
         }
         return prev - 1;
@@ -416,21 +446,24 @@ export default function ArtForgeStudio() {
 
       if (isVideo) {
         const videoPrompt = buildVideoPrompt();
-        const { url } = await base44.integrations.Core.GenerateVideo({
+        const response = await base44.integrations.Core.GenerateVideo({
           prompt: videoPrompt,
-          duration: videoDuration,
+          duration: Math.max(1, Math.min(3600, videoDuration)),
           aspect_ratio: "16:9",
         });
-        setResults([{ url, type: "video", editable: true }]);
+        const videoUrl = response?.url;
+        if (!videoUrl) throw new Error("No video URL returned");
+        
+        setResults([{ url: videoUrl, type: "video", editable: true }]);
         await base44.entities.MediaAsset.create({
-          name: prompt.slice(0, 60),
-          url,
+          name: (prompt || "Generated").slice(0, 60),
+          url: videoUrl,
           type: "video",
           description: videoPrompt,
         });
         toast.success("Video saved to gallery!");
       } else {
-        const count = mode === "sticker" ? stickerPackSize : Math.min(batchCount, 100);
+        const count = Math.max(1, Math.min(100, mode === "sticker" ? stickerPackSize : batchCount));
 
         // For sticker packs, vary each sticker slightly for diversity
         const stickerVariations = ["", ", different pose", ", different expression", ", different angle",
@@ -444,56 +477,87 @@ export default function ArtForgeStudio() {
 
         const generateOne = (i) => base44.integrations.Core.GenerateImage({
           prompt: mode === "sticker" ? buildStickerVariantPrompt(i) : finalPrompt,
-          existing_image_urls: refImages.length > 0 ? refImages : undefined,
+          existing_image_urls: (Array.isArray(refImages) && refImages.length > 0) ? refImages : undefined,
         });
 
         const responses = await Promise.all(Array.from({ length: count }, (_, i) => generateOne(i)));
-        const urls = responses.map(r => r.url);
+        const urls = responses
+          .map(r => r?.url)
+          .filter(url => typeof url === "string" && url.trim());
+        
+        if (urls.length === 0) throw new Error("No images generated");
+        
         setResults(urls.map(url => ({ url, type: mode === "sticker" ? "sticker" : mode })));
         await Promise.all(urls.map(url =>
           base44.entities.MediaAsset.create({
-            name: prompt.slice(0, 60),
+            name: (prompt || "Generated").slice(0, 60),
             url,
             type: mode,
             description: finalPrompt,
-          })
+          }).catch(err => console.error("Failed to save asset:", err))
         ));
         toast.success(`${urls.length} ${mode === "sticker" ? "sticker" : "creation"}${urls.length > 1 ? "s" : ""} saved to gallery!`);
       }
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
     } catch (e) {
-      toast.error("Generation failed: " + e.message);
+      const errorMsg = (e?.message || "Generation failed").slice(0, 100);
+      console.error("Generation error:", e);
+      toast.error("Generation failed: " + errorMsg);
+      setResults([]);
     } finally {
       setGenLoading(false);
       setEstimatedTime(0);
       setCountdownTime(0);
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
     }
   };
 
   const handleDelete = async (id) => {
-    await base44.entities.MediaAsset.delete(id);
-    queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
-    toast.success("Deleted");
+    if (!id) return;
+    try {
+      await base44.entities.MediaAsset.delete(id);
+      queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
+      toast.success("Deleted");
+    } catch (e) {
+      console.error("Delete failed:", e);
+      toast.error("Failed to delete item");
+    }
   };
 
   const handleToggleFavorite = async (item) => {
-    await base44.entities.MediaAsset.update(item.id, { is_favorite: !item.is_favorite });
-    queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
+    if (!item?.id) return;
+    try {
+      await base44.entities.MediaAsset.update(item.id, { is_favorite: !item.is_favorite });
+      queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
+    } catch (e) {
+      console.error("Toggle favorite failed:", e);
+      toast.error("Failed to update favorite");
+    }
   };
 
   // ── GIF from video ───────────────────────────────────────────────────────────
   const handleMakeGif = async (videoUrl) => {
+    if (!videoUrl || typeof videoUrl !== "string") {
+      toast.error("Invalid video URL");
+      return;
+    }
     setGifLoading(true);
     toast.loading("Generating GIF version...", { id: "gif" });
     try {
-      const gifPrompt = `${prompt}, animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement`;
-      const { url } = await base44.integrations.Core.GenerateImage({
+      const gifPrompt = `${prompt || "Animation"}, animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement`;
+      const response = await base44.integrations.Core.GenerateImage({
         prompt: gifPrompt,
         existing_image_urls: [videoUrl],
       });
+      const gifUrl = response?.url;
+      if (!gifUrl) throw new Error("No GIF generated");
+      
       await base44.entities.MediaAsset.create({
-        name: `GIF: ${prompt.slice(0, 50)}`,
-        url,
+        name: `GIF: ${(prompt || "Generated").slice(0, 50)}`,
+        url: gifUrl,
         type: "image",
         description: gifPrompt,
         tags: ["gif", "animated"],
@@ -501,7 +565,9 @@ export default function ArtForgeStudio() {
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
       toast.success("GIF saved to gallery!", { id: "gif" });
     } catch (e) {
-      toast.error("GIF failed: " + e.message, { id: "gif" });
+      const errorMsg = (e?.message || "GIF generation failed").slice(0, 100);
+      console.error("GIF error:", e);
+      toast.error("GIF failed: " + errorMsg, { id: "gif" });
     } finally {
       setGifLoading(false);
     }
@@ -510,24 +576,40 @@ export default function ArtForgeStudio() {
   // ── Content tools ────────────────────────────────────────────────────────────
   const handleContentGenerate = async () => {
     if (!contentInput.trim()) return;
+    if (contentLoading) return; // Prevent duplicate submissions
+    
     setContentLoading(true);
     try {
+      const tool = CONTENT_TOOLS[selectedTool];
+      if (!tool) {
+        setContentOutput("Error: Tool not found. Please try again.");
+        return;
+      }
+      
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: CONTENT_TOOLS[selectedTool].prompt(contentInput),
+        prompt: tool.prompt(contentInput),
         add_context_from_internet: false,
         model: "claude_sonnet_4_6",
       });
-      setContentOutput(res);
-    } catch {
-      setContentOutput("Error generating content. Please try again.");
+      setContentOutput(typeof res === "string" ? res : JSON.stringify(res, null, 2));
+    } catch (e) {
+      const errorMsg = (e?.message || "Generation failed").slice(0, 100);
+      console.error("Content generation error:", e);
+      setContentOutput("Error generating content. " + errorMsg);
+    } finally {
+      setContentLoading(false);
     }
-    setContentLoading(false);
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(contentOutput);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (!contentOutput) return;
+    navigator.clipboard.writeText(contentOutput).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(e => {
+      console.error("Copy failed:", e);
+      toast.error("Failed to copy");
+    });
   };
 
   // ── Render ───────────────────────────────────────────────────────────────────
