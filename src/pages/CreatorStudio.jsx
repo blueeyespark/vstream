@@ -3,9 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Upload, BarChart3, Calendar, Users, ArrowLeft, TrendingUp, Edit3, Zap
+  Upload, BarChart3, Calendar, Users, ArrowLeft, TrendingUp, Edit3, Zap, Film, Image, Music, Clapperboard
 } from "lucide-react";
 import ProductionHub from "@/components/studio/ProductionHub";
+import VideoEditor from "@/pages/VideoEditor";
+import ThumbnailMaker from "@/pages/ThumbnailMaker";
+import IntroOutroMaker from "@/pages/IntroOutroMaker";
+import MusicEditor from "@/pages/MusicEditor";
 import PlanningHub from "@/components/studio/PlanningHub";
 import AnalyticsHub from "@/components/studio/AnalyticsHub";
 import ChannelEditor from "@/components/studio/ChannelEditor";
@@ -34,7 +38,14 @@ const tabs = [
     id: "production", 
     label: "Production", 
     icon: Upload, 
-    component: ProductionHub,
+    component: null,
+    subtabs: [
+      { id: "hub", label: "Overview", component: ProductionHub },
+      { id: "video", label: "Video Editor", icon: Film, component: VideoEditor },
+      { id: "thumbnail", label: "Thumbnail", icon: Image, component: ThumbnailMaker },
+      { id: "intros", label: "Intros & Outros", icon: Clapperboard, component: IntroOutroMaker },
+      { id: "music", label: "Music Editor", icon: Music, component: MusicEditor },
+    ]
   },
   { 
     id: "planning", 
@@ -66,7 +77,7 @@ export default function CreatorStudio() {
   const urlParams = new URLSearchParams(window.location.search);
   const tabParam = urlParams.get("tab") || "production";
   const [activeTab, setActiveTab] = useState(tabParam);
-  const [activeSubtab, setActiveSubtab] = useState("edit");
+  const [activeSubtab, setActiveSubtab] = useState("hub");
 
   useEffect(() => {
     base44.auth.me().then(u => { setUser(u); setLoading(false); }).catch(() => setLoading(false));
