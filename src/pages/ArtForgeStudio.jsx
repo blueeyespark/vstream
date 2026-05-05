@@ -188,7 +188,7 @@ const STICKER_STYLES = [
   { id: "3d", label: "3D Pop", suffix: ", inflatable 3D puffy sticker, glossy plastic sheen, smooth rounded edges, soft drop shadow, bubbly toy-like appearance, Bearbrick style" },
 ];
 
-const STICKER_PACK_SIZES = [1, 4, 8, 12];
+const STICKER_PACK_SIZES = [1, 4, 8, 12, 20, 50, 100];
 
 // ─── Style tags (each maps to a rich prompt modifier) ─────────────────────────
 const STYLE_TAGS = [
@@ -747,18 +747,27 @@ export default function ArtForgeStudio() {
                       </div>
                       <div>
                         <p className="text-xs font-semibold text-blue-400/50 uppercase tracking-wider mb-2">Pack Size</p>
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-2 items-center">
+                          <input
+                            type="number"
+                            value={stickerPackSize}
+                            onChange={(e) => setStickerPackSize(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
+                            className="w-20 bg-[#0a1525] border border-blue-900/30 rounded-lg px-2 py-2 text-sm font-bold text-[#c8dff5] outline-none focus:border-[#facc15]/50 transition-colors"
+                          />
+                          <span className="text-xs text-blue-400/50">stickers (1-100)</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
                           {STICKER_PACK_SIZES.map(n => (
                             <button
                               key={n}
                               onClick={() => setStickerPackSize(n)}
-                              className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                              className={`py-1 px-2.5 rounded-lg text-xs font-bold border transition-all ${
                                 stickerPackSize === n
                                   ? "bg-[#facc15]/20 border-[#facc15]/60 text-[#facc15]"
                                   : "border-blue-900/30 text-blue-400/40 hover:border-blue-700/50 hover:text-blue-300"
                               }`}
                             >
-                              {n === 1 ? "Single" : `${n}-Pack`}
+                              {n}
                             </button>
                           ))}
                         </div>
@@ -774,20 +783,14 @@ export default function ArtForgeStudio() {
                            <span className="text-xs text-blue-400/50 font-medium">Duration</span>
                            <span className="text-xs text-blue-400/30">~{Math.ceil((videoDuration / 4) * 40 + 10)}s to generate</span>
                          </div>
-                         <div className="grid grid-cols-4 gap-1">
-                           {[4, 6, 8, 10].map(d => (
-                             <button
-                               key={d}
-                               onClick={() => setVideoDuration(d)}
-                               className={`px-2 py-2 rounded-lg text-xs font-bold transition-all ${
-                                 videoDuration === d
-                                   ? "bg-[#ec4899]/20 text-[#ec4899] border border-[#ec4899]/40"
-                                   : "bg-[#0a1525] border border-blue-900/30 text-blue-400/50 hover:text-blue-300"
-                               }`}
-                             >
-                               {d}s
-                             </button>
-                           ))}
+                         <div className="flex gap-2 items-center">
+                           <input
+                             type="number"
+                             value={videoDuration}
+                             onChange={(e) => setVideoDuration(Math.max(1, Math.min(60, parseInt(e.target.value) || 4)))}
+                             className="w-16 bg-[#0a1525] border border-blue-900/30 rounded-lg px-2 py-2 text-sm font-bold text-[#c8dff5] outline-none focus:border-[#ec4899]/50 transition-colors"
+                           />
+                           <span className="text-xs text-blue-400/50">seconds (1-60)</span>
                          </div>
                        </div>
                      ) : mode !== "sticker" && mode !== "2d_model" && mode !== "3d_model" ? (
@@ -796,19 +799,15 @@ export default function ArtForgeStudio() {
                            <span className="text-xs text-blue-400/50 font-medium">Batch Size</span>
                            <span className="text-xs text-blue-400/30">~{batchCount * 20}s to generate all</span>
                          </div>
-                         <div className="flex items-center gap-2 bg-[#0a1525] border border-blue-900/30 rounded-lg p-1.5">
-                           <button onClick={() => setBatchCount(c => Math.max(1, c - 1))} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors">
-                             <Minus className="w-3.5 h-3.5" />
-                           </button>
-                           <div className="flex-1 text-center">
-                             <span className="text-sm font-bold text-[#c8dff5]">{batchCount}</span>
-                             <span className="text-xs text-blue-400/40 ml-1">{batchCount === 1 ? "image" : "images"}</span>
-                           </div>
-                           <button onClick={() => setBatchCount(c => Math.min(100, c + 1))} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-blue-900/30 text-blue-400/60 hover:text-blue-300 transition-colors">
-                             <Plus className="w-3.5 h-3.5" />
-                           </button>
+                         <div className="flex gap-2 items-center">
+                           <input
+                             type="number"
+                             value={batchCount}
+                             onChange={(e) => setBatchCount(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
+                             className="w-16 bg-[#0a1525] border border-blue-900/30 rounded-lg px-2 py-2 text-sm font-bold text-[#c8dff5] outline-none focus:border-[#1e78ff]/50 transition-colors"
+                           />
+                           <span className="text-xs text-blue-400/50">{batchCount === 1 ? "image" : "images"} (1-100)</span>
                          </div>
-                         <p className="text-xs text-blue-400/25">Up to 100 images at once</p>
                        </div>
                      ) : null}
                     <Button
