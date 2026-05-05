@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, ImageIcon } from "lucide-react";
+import { Upload, ImageIcon, WandSparkles } from "lucide-react";
 import VideoUpload from "@/pages/VideoUpload";
 import VideoEditorAdvanced from "./VideoEditorAdvanced";
+import ArtForgeStudio from "@/pages/ArtForgeStudio";
 
 const subtabs = [
   { id: "upload", label: "Upload", icon: Upload, component: VideoUpload },
   { id: "editor", label: "Editor", icon: ImageIcon, component: VideoEditorAdvanced },
+  { id: "artforge", label: "ArtForge AI", icon: WandSparkles, component: ArtForgeStudio },
 ];
 
 export default function ProductionHub() {

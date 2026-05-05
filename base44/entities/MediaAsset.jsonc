@@ -18,6 +18,21 @@
       ],
       "description": "Type of media asset"
     },
+    "type": {
+      "type": "string",
+      "enum": [
+        "image",
+        "2d_model",
+        "3d_model",
+        "audio",
+        "video"
+      ],
+      "description": "ArtForge generation type"
+    },
+    "url": {
+      "type": "string",
+      "description": "URL of the generated or uploaded asset"
+    },
     "file_url": {
       "type": "string",
       "description": "URL of the uploaded file"
@@ -51,7 +66,7 @@
     },
     "source_video_id": {
       "type": "string",
-      "description": "ID of the source video performance entry (for thumbnails/exports)"
+      "description": "ID of the source video performance entry"
     },
     "used_in_videos": {
       "type": "array",
@@ -73,9 +88,7 @@
     }
   },
   "required": [
-    "name",
-    "asset_type",
-    "file_url"
+    "name"
   ],
   "rls": {
     "create": {

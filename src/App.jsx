@@ -14,6 +14,7 @@ import WatchHistory from './pages/WatchHistory';
 import SavedVideos from './pages/SavedVideos';
 import Playlists from './pages/Playlists';
 import CreatorStudio from './pages/CreatorStudio';
+import ArtForgeStudio from './pages/ArtForgeStudio';
 import Dashboard from './pages/Dashboard';
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -89,6 +90,7 @@ const AuthenticatedApp = () => {
       <Route path="/WatchHistory" element={<LayoutWrapper currentPageName="WatchHistory"><WatchHistory /></LayoutWrapper>} />
       <Route path="/SavedVideos" element={<LayoutWrapper currentPageName="SavedVideos"><SavedVideos /></LayoutWrapper>} />
       <Route path="/Playlists" element={<LayoutWrapper currentPageName="Playlists"><Playlists /></LayoutWrapper>} />
+      <Route path="/ArtForge" element={<LayoutWrapper currentPageName="ArtForge"><ArtForgeStudio /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
