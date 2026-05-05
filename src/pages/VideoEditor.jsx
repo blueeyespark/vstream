@@ -156,7 +156,7 @@ export default function VideoEditor() {
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Editor */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
               {video ? (
                 <div className="space-y-4">
@@ -206,8 +206,8 @@ export default function VideoEditor() {
                     <Button variant="outline" onClick={clearVideo} className="gap-2">
                       <Trash2 className="w-4 h-4" />
                     </Button>
-                </div>
-                ) : (
+                    </div>
+                    ) : (
                   <label className="flex flex-col items-center justify-center aspect-video border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-slate-400 transition-colors">
                     <Upload className="w-12 h-12 text-slate-400 mb-2" />
                     <p className="font-medium text-slate-900">Upload Video</p>
@@ -224,8 +224,8 @@ export default function VideoEditor() {
             {video && (
               <>
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-                   <h3 className="font-semibold text-slate-900 mb-4 text-sm">✂️ Trim</h3>
-                   <div className="space-y-4">
+                  <h3 className="font-semibold text-slate-900 mb-4 text-sm">✂️ Trim</h3>
+                  <div className="space-y-4">
                      <div>
                        <label className="text-xs font-medium text-slate-600 block mb-1">Start: <span className="text-cyan-600 font-mono">{formatTime(startTime)}</span></label>
                        <input
@@ -251,7 +251,7 @@ export default function VideoEditor() {
                    </div>
                  </motion.div>
 
-                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
                    <div className="flex items-center justify-between mb-3">
                      <h3 className="font-semibold text-slate-900 flex items-center gap-2 text-sm">
                        <Zap className="w-4 h-4" /> Effects
