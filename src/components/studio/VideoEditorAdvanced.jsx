@@ -7,7 +7,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import AIContentTools from "./AIContentTools";
 
 const presets = [
   { name: "YouTube", width: 1280, height: 720, ratio: "16:9" },
@@ -783,8 +782,16 @@ export default function VideoEditorAdvanced() {
 
           {/* Content Tools Section */}
           <div className="border-t border-slate-200 dark:border-blue-900/40 pt-6">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-[#e8f4ff] mb-4">SEO & Content Tools</h3>
-            <AIContentTools />
+            <div className="bg-[#060d18]/60 border border-blue-900/40 rounded-2xl p-5 text-center">
+              <p className="text-sm font-semibold text-blue-400/60 mb-1">SEO &amp; Content Tools</p>
+              <p className="text-xs text-blue-400/30 mb-3">Full content tools available in ArtForge AI</p>
+              <button
+                onClick={() => window.location.href = "/ArtForge"}
+                className="text-xs px-3 py-1.5 rounded-lg bg-[#1e78ff]/20 border border-[#1e78ff]/40 text-[#1e78ff] font-semibold hover:bg-[#1e78ff]/30 transition-colors"
+              >
+                Open ArtForge AI →
+              </button>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
