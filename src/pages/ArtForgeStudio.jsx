@@ -884,22 +884,22 @@ export default function ArtForgeStudio() {
                        <div className="space-y-2 mb-3">
                          <div className="flex items-center justify-between">
                            <span className="text-xs text-blue-400/50 font-medium">Batch Size</span>
-                           <span className="text-xs text-blue-400/30">~{batchCount * 20}s to generate all</span>
+                           <span className="text-xs text-blue-400/30">~{Math.max(1, Math.min(100, batchCount)) * 20}s to generate all</span>
                          </div>
-                         <div className="flex flex-wrap gap-1.5">
-                           {[1, 5, 10, 25, 50, 75, 100].map(n => (
-                             <button
-                               key={n}
-                               onClick={() => setBatchCount(n)}
-                               className={`py-1 px-2.5 rounded-lg text-xs font-bold border transition-all ${
-                                 batchCount === n
-                                   ? "bg-[#1e78ff]/20 border-[#1e78ff]/40 text-[#1e78ff]"
-                                   : "border-blue-900/30 text-blue-400/40 hover:border-blue-700/50 hover:text-blue-300"
-                               }`}
-                             >
-                               {n}
-                             </button>
-                           ))}
+                         <div className="flex items-center gap-2">
+                           <input
+                             type="number"
+                             min="1"
+                             max="100"
+                             value={batchCount}
+                             onChange={(e) => {
+                               const val = Math.max(1, Math.min(100, parseInt(e.target.value) || 1));
+                               setBatchCount(val);
+                             }}
+                             className="flex-1 bg-[#0a1525]/80 border border-blue-900/40 rounded-lg px-3 py-2 text-sm text-[#1e78ff] font-semibold outline-none focus:border-[#1e78ff]/50 transition-colors"
+                             placeholder="1-100"
+                           />
+                           <span className="text-xs text-blue-400/50 whitespace-nowrap">images</span>
                          </div>
                        </div>
                      ) : null}
