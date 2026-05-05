@@ -140,7 +140,7 @@ const SUBMODES_3D = [
     desc: "Premium quality (requires payment)",
     provider: "meshy",
     requiresPayment: true,
-    price: 5.99, // USD per generation
+    price: 3.99, // USD per generation (profit margin goes to app)
   },
   {
     id: "sloyd",
