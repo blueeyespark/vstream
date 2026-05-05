@@ -119,10 +119,13 @@ export default function WorldChat() {
     offline: "bg-gray-500"
   };
 
+  const [showServerList, setShowServerList] = useState(true);
+  const [showMembersList, setShowMembersList] = useState(false);
+
   return (
-    <div className="min-h-screen bg-[#36393f] text-white flex">
-      {/* Server List */}
-      <aside className="w-20 bg-[#2c2f33] border-r border-[#202225] flex flex-col items-center py-4 gap-3">
+    <div className="min-h-screen bg-[#36393f] text-white flex flex-col md:flex-row">
+      {/* Server List - Hidden on mobile by default */}
+      <aside className={`${showServerList ? "flex" : "hidden"} md:flex w-full md:w-20 bg-[#2c2f33] border-r border-[#202225] flex-col items-center py-4 gap-3`}>
         {servers.map(server => (
           <button
             key={server.id}
@@ -150,8 +153,8 @@ export default function WorldChat() {
         </button>
       </aside>
 
-      {/* Channel List */}
-      <aside className="w-60 bg-[#2f3136] border-r border-[#202225] flex flex-col">
+      {/* Channel List - Hidden on mobile */}
+      <aside className="hidden md:flex w-60 bg-[#2f3136] border-r border-[#202225] flex-col">
         <div className="h-16 border-b border-[#202225] px-4 flex items-center justify-between bg-[#36393f]">
           <h2 className="font-bold text-white">{activeServer?.name}</h2>
           <button className="text-[#72767d] hover:text-white">
@@ -196,8 +199,12 @@ export default function WorldChat() {
       </aside>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        <div className="h-16 border-b border-[#202225] px-6 flex items-center justify-between bg-[#36393f]">
+      <div className="flex-1 flex flex-col min-h-screen md:min-h-auto">
+        <div className="h-16 border-b border-[#202225] px-3 md:px-6 flex items-center justify-between bg-[#36393f]">
+          {/* Mobile: Toggle server/members */}
+          <button onClick={() => setShowServerList(!showServerList)} className="md:hidden text-[#72767d] hover:text-white">
+            <Users className="w-5 h-5" />
+          </button>
           <div className="flex items-center gap-3">
             <div className={`w-3 h-3 rounded-full ${statusColors[userStatus]}`} />
             <h1 className="text-xl font-bold">
@@ -215,7 +222,7 @@ export default function WorldChat() {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+        <div className="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-2 mb-16 md:mb-0">
           {allMessages.map(msg => (
             <motion.div
               key={msg.id}
@@ -263,7 +270,7 @@ export default function WorldChat() {
         </div>
 
         {/* Message Input */}
-        <form onSubmit={handleSendMessage} className="px-6 py-4 border-t border-[#202225] bg-[#36393f] space-y-2">
+        <form onSubmit={handleSendMessage} className="px-3 md:px-6 py-2 md:py-4 border-t border-[#202225] bg-[#36393f] space-y-2 fixed md:static bottom-16 md:bottom-auto left-0 right-0 md:left-auto md:right-auto">
           {threadingMessageId && (
             <div className="flex items-center gap-2 text-xs text-[#72767d] bg-[#40444b] px-3 py-1.5 rounded">
               <Reply className="w-3 h-3" />
@@ -299,8 +306,8 @@ export default function WorldChat() {
         </form>
       </div>
 
-      {/* Online Users Sidebar */}
-      <aside className="w-64 bg-[#2f3136] border-l border-[#202225] flex flex-col overflow-hidden">
+      {/* Online Users Sidebar - Hidden on mobile */}
+      <aside className={`${showMembersList ? "flex" : "hidden"} md:flex w-full md:w-64 bg-[#2f3136] border-l border-[#202225] flex-col overflow-hidden`}>
         <div className="h-16 border-b border-[#202225] px-4 flex items-center justify-between bg-[#36393f]">
           <h3 className="font-bold text-sm">Online Members</h3>
           <button className="text-[#72767d] hover:text-white">

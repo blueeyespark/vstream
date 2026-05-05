@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
-import { LayoutDashboard, Radio, Users, Archive, Sparkles } from "lucide-react";
+import { LayoutDashboard, Radio, Users, Archive, Sparkles, MessageSquare } from "lucide-react";
 
 
 const items = [
-  { name: "Home",    icon: LayoutDashboard, to: "/" },
-  { name: "Live",    icon: Radio,           to: "/Live" },
-  { name: "Talent",  icon: Users,           to: "/TalentNexus" },
-  { name: "Archive", icon: Archive,         to: "/Archive" },
-  { name: "Apply",   icon: Sparkles,        to: "/Apply" },
+  { name: "Home",       icon: LayoutDashboard, to: "/" },
+  { name: "Live",       icon: Radio,           to: "/Live" },
+  { name: "Chat",       icon: MessageSquare,   to: "/WorldChat" },
+  { name: "Talent",     icon: Users,           to: "/TalentNexus" },
+  { name: "Archive",    icon: Archive,         to: "/Archive" },
 ];
 
 
