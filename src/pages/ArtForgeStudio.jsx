@@ -1166,7 +1166,19 @@ export default function ArtForgeStudio() {
                           <MessageSquare className="w-4 h-4 text-[#facc15]" />
                           <span className="text-xs font-bold text-blue-400/70 uppercase tracking-wider">Editing Changes</span>
                         </div>
-                        <p className="text-xs text-blue-400/40 mb-3">Add feedback on what to fix before regenerating</p>
+                        
+                        {/* Original image preview */}
+                        {editingFromGallery.url && (
+                          <div className="mb-3 rounded-lg overflow-hidden border border-blue-900/30">
+                            <img 
+                              src={editingFromGallery.url} 
+                              alt="Original" 
+                              className="w-full object-cover max-h-48"
+                            />
+                          </div>
+                        )}
+                        
+                        <p className="text-xs text-blue-400/40 mb-3">What should change?</p>
 
                         {/* Comments List */}
                         <div className="flex-1 overflow-y-auto space-y-2 mb-3">
