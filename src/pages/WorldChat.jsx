@@ -24,6 +24,11 @@ export default function WorldChat() {
   const [mutedUsers, setMutedUsers] = useState(new Set());
   const [bannedUsers, setBannedUsers] = useState(new Set());
   const [userRoles, setUserRoles] = useState({});
+  const [typingUsers, setTypingUsers] = useState(new Set());
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editingMessageText, setEditingMessageText] = useState("");
+  const [pinnedMessages, setPinnedMessages] = useState(new Set());
+  const [collapsedCategories, setCollapsedCategories] = useState(new Set());
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -31,24 +36,30 @@ export default function WorldChat() {
 
   const [servers, setServers] = useState([
     { id: 1, name: "Global", icon: "🌍", banner: "🌐", description: "Global community", channels: [
-      { id: 1, name: "general", type: "text" },
-      { id: 2, name: "announcements", type: "text" },
-      { id: 3, name: "lounge", type: "voice" }
+      { id: 1, name: "general", type: "text", description: "Main discussion", category: "Text Channels" },
+      { id: 2, name: "announcements", type: "text", description: "Important updates", category: "Text Channels" },
+      { id: 3, name: "lounge", type: "voice", description: "Casual chat", category: "Voice Channels" }
     ]},
     { id: 2, name: "Gaming", icon: "🎮", banner: "🕹️", description: "Gaming hub", channels: [
-      { id: 4, name: "games", type: "text" },
-      { id: 5, name: "gaming-voice", type: "voice" }
+      { id: 4, name: "games", type: "text", description: "Gaming talk", category: "Text Channels" },
+      { id: 5, name: "gaming-voice", type: "voice", description: "Game sessions", category: "Voice Channels" }
     ]},
     { id: 3, name: "Creative", icon: "🎨", banner: "🖌️", description: "Creative space", channels: [
-      { id: 6, name: "art-showcase", type: "text" },
-      { id: 7, name: "creative-chat", type: "voice" }
+      { id: 6, name: "art-showcase", type: "text", description: "Share artwork", category: "Text Channels" },
+      { id: 7, name: "creative-chat", type: "voice", description: "Creative collab", category: "Voice Channels" }
     ]}
   ]);
 
   const [allMessages, setAllMessages] = useState([
-    { id: 1, author: "Luna", avatar: "🌙", content: "Welcome to World Chat! 🌎", timestamp: new Date(Date.now() - 5*60000), reactions: {}, replies: [] },
-    { id: 2, author: "Nova", avatar: "⭐", content: "/poll What's your favorite feature?", timestamp: new Date(Date.now() - 3*60000), reactions: {}, replies: [] },
+    { id: 1, author: "Luna", avatar: "🌙", content: "Welcome to World Chat! 🌎", timestamp: new Date(Date.now() - 5*60000), reactions: {}, replies: [], edited: false, role: "moderator" },
+    { id: 2, author: "Nova", avatar: "⭐", content: "/poll What's your favorite feature?", timestamp: new Date(Date.now() - 3*60000), reactions: {}, replies: [], edited: false, role: "member" },
   ]);
+
+  const roleColors = {
+    admin: "text-red-400",
+    moderator: "text-purple-400",
+    member: "text-white"
+  };
 
   const [dmConversations, setDmConversations] = useState({
     "Luna": [
@@ -58,29 +69,36 @@ export default function WorldChat() {
   });
 
   const [onlineUsers] = useState([
-    { id: 1, name: "Luna", status: "online", avatar: "🌙", role: "member" },
-    { id: 2, name: "Nova", status: "online", avatar: "⭐", role: "moderator" },
-    { id: 3, name: "Phoenix", status: "idle", avatar: "🔥", role: "member" },
-    { id: 4, name: "Echo", status: "dnd", avatar: "🎤", role: "member" },
+    { id: 1, name: "Luna", status: "online", avatar: "🌙", role: "member", activity: "Chatting" },
+    { id: 2, name: "Nova", status: "online", avatar: "⭐", role: "moderator", activity: "Moderating" },
+    { id: 3, name: "Phoenix", status: "idle", avatar: "🔥", role: "member", activity: "Away" },
+    { id: 4, name: "Echo", status: "dnd", avatar: "🎤", role: "member", activity: "In Voice" },
   ]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!messageInput.trim() || !user) return;
 
-    const newMessage = {
-      id: allMessages.length + 1,
-      author: user.full_name || "You",
-      avatar: user.full_name?.charAt(0).toUpperCase() || "?",
-      content: messageInput,
-      timestamp: new Date(),
-      userId: user.email,
-      reactions: {},
-      replies: [],
-      parentId: threadingMessageId
-    };
-
-    setAllMessages([...allMessages, newMessage]);
+    if (editingMessageId) {
+      setAllMessages(prev => prev.map(m => m.id === editingMessageId ? { ...m, content: editingMessageText, edited: true } : m));
+      setEditingMessageId(null);
+      setEditingMessageText("");
+    } else {
+      const newMessage = {
+        id: allMessages.length + 1,
+        author: user.full_name || "You",
+        avatar: user.full_name?.charAt(0).toUpperCase() || "?",
+        content: messageInput,
+        timestamp: new Date(),
+        userId: user.email,
+        reactions: {},
+        replies: [],
+        parentId: threadingMessageId,
+        edited: false,
+        role: "member"
+      };
+      setAllMessages([...allMessages, newMessage]);
+    }
     setMessageInput("");
     setThreadingMessageId(null);
   };
@@ -163,23 +181,44 @@ export default function WorldChat() {
         </div>
 
         <div className="flex-1 overflow-y-auto py-2 px-2">
-          {activeServer?.channels.map(channel => (
-            <button
-              key={channel.id}
-              onClick={() => setSelectedChannel(channel.id)}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded text-sm transition-all ${
-                selectedChannel === channel.id
-                  ? "bg-[#36393f] text-white"
-                  : "text-[#99aab5] hover:text-white hover:bg-[#2c2f33]"
-              }`}
-            >
-              {channel.type === "voice" ? <Headphones className="w-4 h-4" /> : <Hash className="w-4 h-4" />}
-              <span>{channel.name}</span>
-              {channel.type === "voice" && voiceActive && selectedChannel === channel.id && (
-                <Volume2 className="w-3 h-3 ml-auto text-green-500 animate-pulse" />
-              )}
-            </button>
-          ))}
+          {["Text Channels", "Voice Channels"].map(category => {
+            const categoryChannels = activeServer?.channels.filter(c => c.category === category) || [];
+            if (categoryChannels.length === 0) return null;
+            const isCollapsed = collapsedCategories.has(category);
+            return (
+              <div key={category}>
+                <button
+                  onClick={() => setCollapsedCategories(prev => {
+                    const next = new Set(prev);
+                    isCollapsed ? next.delete(category) : next.add(category);
+                    return next;
+                  })}
+                  className="w-full flex items-center gap-1 px-2 py-1 text-xs font-bold text-[#72767d] hover:text-white transition-colors uppercase"
+                >
+                  <span>{isCollapsed ? "▶" : "▼"}</span>
+                  {category}
+                </button>
+                {!isCollapsed && categoryChannels.map(channel => (
+                  <button
+                    key={channel.id}
+                    onClick={() => setSelectedChannel(channel.id)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded text-sm transition-all ml-2 ${
+                      selectedChannel === channel.id
+                        ? "bg-[#36393f] text-white"
+                        : "text-[#99aab5] hover:text-white hover:bg-[#2c2f33]"
+                    }`}
+                    title={channel.description}
+                  >
+                    {channel.type === "voice" ? <Headphones className="w-4 h-4" /> : <Hash className="w-4 h-4" />}
+                    <span>{channel.name}</span>
+                    {channel.type === "voice" && voiceActive && selectedChannel === channel.id && (
+                      <Volume2 className="w-3 h-3 ml-auto text-green-500 animate-pulse" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            );
+          })}
         </div>
 
         <div className="h-14 border-t border-[#202225] bg-[#292b2f] px-3 flex items-center justify-between">
@@ -228,17 +267,29 @@ export default function WorldChat() {
               key={msg.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`flex gap-4 group hover:bg-[#36393f]/50 px-3 py-1 rounded ${threadingMessageId === msg.id ? "ring-2 ring-[#5865f2]" : ""}`}
+              className={`flex gap-4 group hover:bg-[#36393f]/50 px-3 py-1 rounded ${threadingMessageId === msg.id ? "ring-2 ring-[#5865f2]" : ""} ${pinnedMessages.has(msg.id) ? "border-l-4 border-yellow-500" : ""}`}
             >
               <div className="w-10 h-10 rounded-full bg-[#5865f2] flex items-center justify-center text-sm font-bold flex-shrink-0">
                 {msg.avatar}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2">
-                  <p className="font-semibold text-white">{msg.author}</p>
+                  <p className={`font-semibold ${msg.role ? roleColors[msg.role] : "text-white"}`}>{msg.author}</p>
+                  {msg.role && msg.role !== "member" && <span className="text-xs bg-[#5865f2]/30 px-1.5 rounded">{msg.role}</span>}
                   <p className="text-xs text-[#72767d]">{msg.timestamp.toLocaleTimeString()}</p>
+                  {msg.edited && <p className="text-xs text-[#72767d] italic">(edited)</p>}
                 </div>
-                <p className="text-[#dbdee1] break-words">{msg.content}</p>
+                {editingMessageId === msg.id ? (
+                  <input
+                    type="text"
+                    value={editingMessageText}
+                    onChange={(e) => setEditingMessageText(e.target.value)}
+                    className="w-full bg-[#40444b] text-white px-2 py-1 rounded text-sm mb-1"
+                    autoFocus
+                  />
+                ) : (
+                  <p className="text-[#dbdee1] break-words">{msg.content}</p>
+                )}
                 
                 {/* Reactions */}
                 <div className="flex gap-1 mt-1 flex-wrap">
@@ -250,7 +301,7 @@ export default function WorldChat() {
                 </div>
 
                 {/* Message Actions */}
-                <div className="flex gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity flex-wrap">
                   <button onClick={() => addReaction(msg.id, "👍")} className="text-[#72767d] hover:text-white text-xs">
                     <ThumbsUp className="w-4 h-4" />
                   </button>
@@ -259,6 +310,12 @@ export default function WorldChat() {
                   </button>
                   <button onClick={() => setThreadingMessageId(msg.id)} className="text-[#72767d] hover:text-white text-xs">
                     <Reply className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => { setEditingMessageId(msg.id); setEditingMessageText(msg.content); }} className="text-[#72767d] hover:text-white text-xs">
+                    ✏️
+                  </button>
+                  <button onClick={() => setPinnedMessages(prev => prev.has(msg.id) ? new Set([...prev].filter(id => id !== msg.id)) : new Set([...prev, msg.id]))} className={`text-xs ${pinnedMessages.has(msg.id) ? "text-yellow-500" : "text-[#72767d] hover:text-white"}`}>
+                    📌
                   </button>
                   <button onClick={() => addReaction(msg.id, "😂")} className="text-[#72767d] hover:text-white text-xs">
                     <Laugh className="w-4 h-4" />
@@ -286,9 +343,10 @@ export default function WorldChat() {
             </button>
             <input
               type="text"
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              placeholder={`Message #${activeChannel?.name} (use / for commands)`}
+              value={editingMessageId ? editingMessageText : messageInput}
+              onChange={(e) => editingMessageId ? setEditingMessageText(e.target.value) : setMessageInput(e.target.value)}
+              onFocus={() => typingUsers.size > 0 && setTypingUsers(new Set())}
+              placeholder={editingMessageId ? "Edit message..." : `Message #${activeChannel?.name} (use / for commands)`}
               className="flex-1 bg-transparent text-white placeholder-[#72767d] focus:outline-none text-sm"
             />
             <button type="button" className="text-[#72767d] hover:text-white">
@@ -302,7 +360,13 @@ export default function WorldChat() {
               <Send className="w-5 h-5" />
             </button>
           </div>
-          <p className="text-xs text-[#72767d]">💡 Try: /poll, /remind, /mute @user, /ban @user</p>
+          {editingMessageId && (
+            <div className="flex gap-2 text-xs">
+              <button type="button" onClick={() => { setEditingMessageId(null); setEditingMessageText(""); }} className="text-[#72767d] hover:text-white">Cancel</button>
+              <button type="submit" className="text-green-400 hover:text-green-300">Save</button>
+            </div>
+          )}
+          {!editingMessageId && <p className="text-xs text-[#72767d]">💡 Try: /poll, /remind, /mute @user, /ban @user</p>}
         </form>
       </div>
 
