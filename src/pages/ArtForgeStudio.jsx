@@ -493,7 +493,7 @@ export default function ArtForgeStudio() {
         const buildImagePrompt = (idx) => {
            let basePrompt = mode === "sticker" ? buildStickerVariantPrompt(idx) : finalPrompt;
            if (refImages.length > 0) {
-             basePrompt = `YOU MUST FOLLOW THE USER'S PROMPT EXACTLY.\n\nReference images are provided ONLY for visual style reference (colors, art technique, mood). Extract ONLY the style—NOT the content or subjects.\n\nUSER'S EXACT REQUEST (this is mandatory):\n${basePrompt}\n\nApply the reference's visual style to create what the user requested, nothing else.`;
+             basePrompt = `ANALYZE THE REFERENCE IMAGES THOROUGHLY:\n- What mood, style, and aesthetic do they convey?\n- What composition, color palette, and visual elements are present?\n- What would the user want if they uploaded these images?\n\nTHEN APPLY TO USER'S REQUEST:\n${basePrompt}\n\nBlend the reference images' visual information with the user's exact description to create the perfect result.`;
            }
            return basePrompt;
          };
