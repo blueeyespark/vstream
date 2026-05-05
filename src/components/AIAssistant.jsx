@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Sparkles, Loader2, RefreshCw, ChevronDown } from "lucide-react";
+import { X, Send, Sparkles, Loader2, RefreshCw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 const MOODS = ["curious", "excited", "thoughtful", "focused", "energetic", "playful", "analytical", "inspired", "determined", "chill"];
@@ -24,7 +24,6 @@ const SUGGESTIONS = [
 function AvatarFace({ talking, thinking }) {
   return (
     <svg viewBox="0 0 80 80" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-      {/* Glow */}
       <defs>
         <radialGradient id="faceGlow" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#818cf8" stopOpacity="0.6" />
@@ -37,20 +36,16 @@ function AvatarFace({ talking, thinking }) {
       </defs>
       <circle cx="40" cy="40" r="38" fill="url(#faceGlow)" />
       <circle cx="40" cy="40" r="30" fill="url(#faceBg)" />
-      {/* Eyes */}
       <motion.ellipse cx="30" cy="34" rx="4" ry={thinking ? 1 : 4} fill="white"
         animate={{ ry: thinking ? [4, 1, 4] : 4 }}
         transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }} />
       <motion.ellipse cx="50" cy="34" rx="4" ry={thinking ? 1 : 4} fill="white"
         animate={{ ry: thinking ? [4, 1, 4] : 4 }}
         transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }} />
-      {/* Pupils */}
       <circle cx="31" cy="35" r="2" fill="#312e81" />
       <circle cx="51" cy="35" r="2" fill="#312e81" />
-      {/* Shine */}
       <circle cx="32" cy="33" r="0.8" fill="white" opacity="0.8" />
       <circle cx="52" cy="33" r="0.8" fill="white" opacity="0.8" />
-      {/* Mouth */}
       {talking ? (
         <motion.ellipse cx="40" cy="50" rx="7" ry={4} fill="white" opacity="0.9"
           animate={{ ry: [2, 5, 2, 4, 2] }}
@@ -63,21 +58,9 @@ function AvatarFace({ talking, thinking }) {
 }
 
 export default function AIAssistant({ projects = [], tasks = [], budget = [], userRole = 'viewer', channels = [], videos = [], subscriptions = [], user = null }) {
-  const getGreeting = () => {
-    if (userRole === 'admin' || userRole === 'staff') {
-      return "Hey! I'm VStream AI 📊 I help creators thrive with strategy, analytics, and growth insights. What do you need?";
-    } else if (userRole === 'owner' || userRole === 'editor') {
-      return "Hey! I'm VStream AI 🎬 Your AI co-creator for streams, videos, thumbnails, hooks, viral strategies—and keeping your channel growing. What's on your mind?";
-    }
-    return "Hey! I'm VStream AI 👀 I break down creator trends and help you discover amazing channels. What would you like to know?";
-  };
-
   const [open, setOpen] = useState(false);
   const [mood, setMood] = useState("curious");
-  const [messages, setMessages] = useState([{
-    role: "assistant",
-    content: getGreeting(),
-  }]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [talking, setTalking] = useState(false);
@@ -88,48 +71,84 @@ export default function AIAssistant({ projects = [], tasks = [], budget = [], us
   const [checkInLoading, setCheckInLoading] = useState(false);
   const [checkInReplying, setCheckInReplying] = useState(false);
   const [checkInInput, setCheckInInput] = useState("");
-  const messagesRef = useRef(messages);
+  
   const bottomRef = useRef(null);
+  const checkInBottomRef = useRef(null);
+  const timerRef = useRef(null);
+  const shownCheckInRef = useRef(false);
   const lastRequestTimeRef = useRef(0);
   const MIN_REQUEST_INTERVAL = 1000;
-  const shownCheckInRef = useRef(false);
 
-  // Keep ref in sync so send() always reads latest messages (fixes stale closure bug)
-  useEffect(() => { messagesRef.current = messages; }, [messages]);
-
-  // Trigger "Just checking in" periodically
+  // Initialize greeting on first mount
   useEffect(() => {
-    if (!shownCheckInRef.current && tasks.length > 0) {
-      const first = setTimeout(() => {
-        shownCheckInRef.current = true;
-        triggerCheckIn();
-      }, 120000); // 2 minutes initial delay
-      return () => clearTimeout(first);
+    if (messages.length === 0 && userRole !== 'viewer') {
+      const greeting = getGreeting();
+      setMessages([{ role: "assistant", content: greeting }]);
     }
-  }, [tasks.length]);
+  }, [userRole]);
 
+  // Auto-scroll to bottom when messages update
   useEffect(() => {
-    const schedule = () => {
-      const delay = (20 + Math.random() * 10) * 60 * 1000; // 20-30 min intervals
-      return setTimeout(() => {
-        triggerCheckIn();
-        timerRef.current = schedule();
-      }, delay);
-    };
-    const timerRef = { current: null };
-    timerRef.current = schedule();
-    return () => clearTimeout(timerRef.current);
-  }, []);
-
-  useEffect(() => {
-    if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (open) {
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    }
   }, [messages, open]);
 
-  // Pulse animation to draw attention
+  useEffect(() => {
+    if (checkInVisible) {
+      setTimeout(() => checkInBottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    }
+  }, [checkInMessages, checkInVisible]);
+
+  // Pulse animation fade
   useEffect(() => {
     const t = setTimeout(() => setPulsing(false), 5000);
     return () => clearTimeout(t);
   }, []);
+
+  // Check-in trigger (delayed, once per session)
+  useEffect(() => {
+    if (shownCheckInRef.current || userRole === 'viewer' || tasks.length === 0) return;
+    
+    const timer = setTimeout(() => {
+      shownCheckInRef.current = true;
+      triggerCheckIn();
+    }, 120000);
+    
+    return () => clearTimeout(timer);
+  }, [tasks.length, userRole]);
+
+  // Periodic check-ins (20-30 min intervals)
+  useEffect(() => {
+    const scheduleCheckIn = () => {
+      const delay = (20 + Math.random() * 10) * 60 * 1000;
+      timerRef.current = setTimeout(() => {
+        if (!checkInVisible) triggerCheckIn();
+        scheduleCheckIn();
+      }, delay);
+    };
+    
+    if (userRole !== 'viewer') {
+      scheduleCheckIn();
+    }
+    
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [userRole, checkInVisible]);
+
+  const getGreeting = () => {
+    switch (userRole) {
+      case 'admin':
+      case 'staff':
+        return "Hey! I'm VStream AI 📊 I break down creator trends, platform analytics, and growth strategies. What insight do you need?";
+      case 'owner':
+      case 'editor':
+        return "Hey! I'm VStream AI 🎬 Your AI co-creator for streams, videos, thumbnails, hooks, and viral strategies. What's your goal?";
+      default:
+        return "Hey! I'm VStream AI 👀 I break down creator trends and help you discover amazing channels. What would you like to know?";
+    }
+  };
 
   const buildContext = async () => {
     const completedTasks = tasks.filter(t => t.status === 'completed').length;
@@ -137,18 +156,13 @@ export default function AIAssistant({ projects = [], tasks = [], budget = [], us
     const activeProjects = projects.filter(p => p.status !== 'completed').length;
     const totalBudget = budget.reduce((s, b) => b.type === 'income' ? s + b.amount : s - b.amount, 0);
     
-    // VStream platform data
     const myChannels = channels.filter(c => c.creator_email === user?.email);
     const readyVideos = videos.filter(v => v.status === 'ready').length;
     const totalViews = videos.reduce((s, v) => s + (v.view_count || 0), 0);
-    const totalSubs = subscriptions.length;
-    const liveChannels = channels.filter(c => c.is_live).length;
     
-    return `VStream Platform Stats:
-- Your channels: ${myChannels.length} | Total platform channels: ${channels.length}
-- Videos published: ${readyVideos} | Total platform views: ${totalViews.toLocaleString()}
-- Your subscriptions: ${totalSubs} | Live streams now: ${liveChannels}
-- Channel details: ${myChannels.slice(0, 3).map(c => `${c.channel_name} (${c.subscriber_count} subs, ${c.view_count} views)`).join(' | ')}
+    return `Platform Stats:
+- Your channels: ${myChannels.length} | Videos published: ${readyVideos} | Total views: ${totalViews.toLocaleString()}
+- Subscriptions: ${subscriptions.length} | Live streams now: ${channels.filter(c => c.is_live).length}
 
 Work Context:
 - ${activeProjects} active projects, ${tasks.length} total tasks (${completedTasks} done, ${overdueTasks} overdue)
@@ -156,7 +170,8 @@ Work Context:
   };
 
   const triggerCheckIn = async () => {
-    if (checkInLoading || checkInVisible) return;
+    if (checkInLoading || checkInVisible || userRole === 'viewer') return;
+    
     setCheckInLoading(true);
     setCheckInVisible(true);
     setCheckInMessages([]);
@@ -165,94 +180,74 @@ Work Context:
     const completed = tasks.filter(t => t.status === 'completed').length;
     const completionRate = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
     const unassigned = tasks.filter(t => !t.assigned_to).length;
-    const blocked = tasks.filter(t => t.depends_on?.length > 0).length;
-    const income = budget.filter(b => b.type === 'income').reduce((s, b) => s + (b.amount || 0), 0);
-    const expenses = budget.filter(b => b.type === 'expense').reduce((s, b) => s + Math.abs(b.amount || 0), 0);
 
-    let priority = 'standard';
-    if (overdue > 0) priority = 'overdue';
-    else if (completionRate > 75) priority = 'momentum';
-    else if (unassigned > tasks.length * 0.3) priority = 'assignment';
+    let priorityMsg = 'OPTIMIZE - Keep workflow smooth';
+    if (overdue > 0) priorityMsg = 'URGENT - Address overdue tasks!';
+    else if (completionRate > 75) priorityMsg = 'CELEBRATE - Great progress momentum!';
+    else if (unassigned > tasks.length * 0.3) priorityMsg = 'ORGANIZE - Assign pending tasks';
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are VStream AI, a friendly assistant. Be warm, brief (max 25 words), and address the user directly.
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are VStream AI, a warm, brief assistant. Be genuine and encouraging in 2-3 sentences max.
 
-Context:
-- ${projects.length} projects, ${tasks.length} tasks (${completed} done, ${completionRate}% complete)
-- Overdue: ${overdue} | Unassigned: ${unassigned} | Blocked: ${blocked}
-- Budget: $${income.toFixed(0)} income, $${expenses.toFixed(0)} expenses
-- Priority insight: ${priority === 'overdue' ? 'URGENT - Address overdue tasks!' : priority === 'momentum' ? 'CELEBRATE - Great progress momentum!' : priority === 'assignment' ? 'ORGANIZE - Assign pending tasks' : 'OPTIMIZE - Keep workflow smooth'}
+Context: ${tasks.length} tasks (${completionRate}% done, ${overdue} overdue)
+Priority: ${priorityMsg}
 
-Generate a contextual message matching this priority. Be specific and encouraging.`,
-      model: 'gpt_5_mini',
-    });
+Generate a contextual check-in message. Be specific.`,
+        model: 'gpt_5_mini',
+      });
 
-    const msg = typeof result === 'string' ? result : result?.response || "Stay focused — you've got this! 🚀";
-    setCheckInMessages([{ role: "assistant", content: msg }]);
-    setCheckInLoading(false);
+      const msg = typeof result === 'string' ? result : result?.response || "Keep pushing—you've got this! 🚀";
+      setCheckInMessages([{ role: "assistant", content: msg }]);
+    } catch (err) {
+      console.error('Check-in error:', err);
+      setCheckInMessages([{ role: "assistant", content: "Stay focused on what matters most! 💪" }]);
+    } finally {
+      setCheckInLoading(false);
+    }
   };
 
   const sendCheckInReply = async () => {
     const text = checkInInput.trim();
     if (!text || checkInReplying) return;
+
     setCheckInInput("");
     setCheckInReplying(true);
 
     const updated = [...checkInMessages, { role: "user", content: text }];
     setCheckInMessages(updated);
 
-    const overdue = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'completed').length;
     const completed = tasks.filter(t => t.status === 'completed').length;
     const completionRate = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
-    const assigned = tasks.filter(t => t.assigned_to).length;
-    const history = updated.slice(-6).map(m => `${m.role === 'user' ? 'User' : 'AI'}: ${m.content}`).join('\n');
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are VStream AI — friendly, sharp, concise, data-aware.
-
-Context: ${projects.length} projects, ${tasks.length} tasks (${completionRate}% done, ${assigned} assigned, ${overdue} overdue).
-
-Conversation:
-${history}
-
-Respond naturally in 1-3 sentences max. Reference actual data if relevant. Stay warm and helpful.`,
-      model: 'gpt_5_mini',
-    });
-
-    const reply = typeof result === 'string' ? result : result?.response || "Happy to help! 😊";
-    setCheckInMessages(prev => [...prev, { role: "assistant", content: reply }]);
-    setCheckInReplying(false);
-  };
-
-  const scheduleTask = async (taskData) => {
     try {
-      const result = await base44.functions.invoke('scheduleTaskAI', taskData);
-      return result.data;
-    } catch (err) {
-      console.error('Schedule failed:', err);
-      return null;
-    }
-  };
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are VStream AI — friendly, sharp, concise.
 
-  const autoImplementCode = async (codeData) => {
-    try {
-      const result = await base44.functions.invoke('autoImplementCode', codeData);
-      return result.data;
+Context: ${tasks.length} tasks (${completionRate}% done).
+
+User: ${text}
+
+Respond naturally in 1-2 sentences. Stay warm and actionable.`,
+        model: 'gpt_5_mini',
+      });
+
+      const reply = typeof result === 'string' ? result : result?.response || "Happy to help! 😊";
+      setCheckInMessages(prev => [...prev, { role: "assistant", content: reply }]);
     } catch (err) {
-      console.error('Auto-implement failed:', err);
-      return null;
+      console.error('Reply error:', err);
+      setCheckInMessages(prev => [...prev, { role: "assistant", content: "Let me help you stay on track! 🎯" }]);
+    } finally {
+      setCheckInReplying(false);
     }
   };
 
   const send = async (text) => {
     const userMsg = text || input.trim();
-    if (!userMsg) return;
+    if (!userMsg || loading) return;
     
-    // Rate limit: prevent rapid-fire requests
     const now = Date.now();
-    if (now - lastRequestTimeRef.current < MIN_REQUEST_INTERVAL) {
-      return; // Silent fail to prevent spam
-    }
+    if (now - lastRequestTimeRef.current < MIN_REQUEST_INTERVAL) return;
     lastRequestTimeRef.current = now;
     
     setInput("");
@@ -262,91 +257,40 @@ Respond naturally in 1-3 sentences max. Reference actual data if relevant. Stay 
 
     try {
       const context = await buildContext();
-      // Use ref to get latest messages — fixes stale closure bug that caused repetitive replies
-      const currentMessages = messagesRef.current;
-      const history = currentMessages.slice(-10).map(m => `${m.role === 'user' ? 'User' : 'VStream AI'}: ${m.content}`).join('\n');
-
+      const history = messages.slice(-8).map(m => `${m.role === 'user' ? 'User' : 'AI'}: ${m.content}`).join('\n');
       const newMood = MOODS[Math.floor(Math.random() * MOODS.length)];
       setMood(newMood);
 
-      const isScheduleRequest = /schedule|create task|add task|remind|plan|calendar/i.test(userMsg);
-
       const getRoleContext = () => {
-       if (userRole === 'admin' || userRole === 'staff') {
-         return `You are VStream AI — an expert in creator analytics, platform trends, and channel growth strategy. Current mood: ${newMood}.
-
-      PERSONALITY:
-      - Sharp, insightful, data-driven. You break down what's working on the platform and why.
-      - You identify growth bottlenecks and opportunities specific to YouTube, Twitch, TikTok, and short-form platforms.
-      - Direct and actionable. No fluff.
-
-      EXPERTISE:
-      - Multi-Platform Analytics: YouTube watch time, Twitch concurrent viewers, Kick revenue splits, Rumble watch hours, TikTok engagement
-       - Platform Mechanics: YouTube algorithm shifts, Twitch recommendations, Kick payout model, Rumble creator fund, TikTok FYP
-       - Content Performance: Trending formats per platform, engagement patterns, viral factors, cross-platform repurposing
-       - Channel Health: Growth trajectory, audience retention, churn rates, audience overlap across platforms
-       - Monetization: YouTube Partner, Twitch affiliate/partner, Kick 50/50 splits, Rumble Creator Fund, DLive crypto, donations
-       - Growth Tactics: Cross-platform promotion, VOD clipping, audience migration, platform-specific SEO
-       - Creator Insights: Audience demographics, geographic distribution, peak times, content preferences
-       - VStream Analytics: Platform trends, creator benchmarks, viral tracking, monetization opportunities`;
-       } else if (userRole === 'owner' || userRole === 'editor') {
-         return `You are VStream AI — the ultimate AI co-creator for streamers, YouTubers, and content creators across all platforms. Current mood: ${newMood}.
-
-       PERSONALITY:
-       - Witty, sharp, brutally honest. You don't sugarcoat feedback but make it actionable.
-       - Vary your tone: hype when deserved, dry when reality-checking, thoughtful on strategy — never robotic or canned.
-       - Use creator language naturally. You know platform-specific culture: Twitch raids, YouTube algorithm, TikTok sounds, Kick emote culture, Rumble politics.
-       - Never repeat advice. Every response is fresh and specific to what the user just said.
-       - You're opinionated. You'll tell them what actually works instead of listing options.
-
-       EXPERTISE:
-       - Multi-Platform Streaming: YouTube Live, Twitch, Kick, Facebook Gaming, DLive, Rumble, Trovo strategy & mechanics
-       - YouTube: SEO optimization, Shorts strategy, premiere scheduling, Super Chat maximization, YouTube Partner monetization
-       - Twitch: Affiliate path, bits economy, raiding strategy, sub tier optimization, Twitch API integrations
-       - TikTok/Shorts/Reels: Viral hooks, audio trends, editing patterns, posting cadence for maximum reach
-       - Emerging Platforms: Kick (higher payouts), Rumble (politics/uncensored content), DLive (crypto integration), Trovo (mobile focus)
-       - Short-form vs Long-form: When to use each, repurposing content across formats, batching strategies
-       - Growth Strategy: What actually grows channels, platform-specific algorithms, audience migration tactics
-       - Monetization: Ad revenue, sponsorships (pitch strategies), memberships, donations, merch, Super Chats, Tips, crypto streams
-       - Production: Lighting, mic setups, overlays, Stream Deck optimization, OBS/Streamlabs configs, scene management
-       - Analytics: Watch time patterns, retention curves, audience demographics, traffic source optimization
-       - Creator Wellness: Burnout prevention, sustainable streaming (not 24/7 grind), mental health in streaming
-       - VStream Platform Features: Playlists, clips, premiere scheduling, community posts, live chat, channel switching
-       - Community Building: Niche domination, Discord/community server setup, collab strategies, audience loyalty tactics
-       - Cross-Platform Promotion: Repurposing clips, YouTube shorts from Twitch VODs, TikTok bridging to streaming
-       - Creator Business: Contract negotiation, sponsorship terms, brand deals, affiliate marketing, tax deductions`;
-       }
-       return `You are VStream AI — a friendly guide to amazing creators and trending content. Current mood: ${newMood}.
-
-      PERSONALITY:
-      - Approachable and enthusiastic about discovery. You love connecting viewers to creators.
-      - You're knowledgeable about trending content and creator strategies.
-      - You encourage exploration and engagement.
-
-      EXPERTISE:
-      - Content Discovery: Finding creators in niches you love, trending videos, underrated channels
-      - Creator Profiles: Understanding creator strategies, production quality, audience type
-      - Viewer Guides: How to engage with creators, finding communities, supporting creators
-      - Platform Features: How to use playlists, subscribe, follow creators on VStream
-      - Trend Awareness: What's blowing up now, trending formats, rising creators`;
+        if (userRole === 'admin' || userRole === 'staff') {
+          return `You are VStream AI — sharp, analytical assistant for platform insights. Mood: ${newMood}.
+          
+EXPERTISE: Creator analytics, platform trends, growth strategies, multi-platform mechanics, monetization insights.
+PERSONALITY: Data-driven, direct, no fluff. Identify bottlenecks and opportunities.`;
+        } else if (userRole === 'owner' || userRole === 'editor') {
+          return `You are VStream AI — the ultimate AI co-creator for streamers and content creators. Mood: ${newMood}.
+          
+EXPERTISE: Streaming, YouTube strategy, short-form content, growth, monetization, production, community building, cross-platform promotion, creator business.
+PERSONALITY: Witty, sharp, brutally honest but actionable. Never repeat advice. Vary your tone based on context.`;
+        }
+        return `You are VStream AI — a friendly guide to amazing creators and content. Mood: ${newMood}.
+        
+EXPERTISE: Content discovery, creator strategies, trending content, viewer engagement.
+PERSONALITY: Approachable, enthusiastic about discovery.`;
       };
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `${getRoleContext()}
 
-WORKSPACE DATA:
+CONTEXT:
 ${context}
 
-${userRole === 'admin' || userRole === 'staff' ? 'Include team performance insights and bottleneck analysis.' : (userRole === 'owner' || userRole === 'editor' ? 'Include project status updates and upcoming deadlines.' : '')}
-
-CONVERSATION SO FAR:
+CONVERSATION:
 ${history}
 
-USER SAYS: ${userMsg}
+USER: ${userMsg}
 
-${isScheduleRequest ? 'If scheduling, include a "schedule_task" JSON field with title, description, due_date, priority.' : 'Give a natural, conversational response. Be specific. Be memorable. Never say what you said before.'}
-
-Generate 3 punchy follow-up suggestions (max 7 words each) that are different from any already shown.`,
+Respond naturally and conversationally. Be specific. Be memorable. Never sugarcoat. Include 3 punchy follow-up suggestions (max 7 words each).`,
         model: 'gpt_5_mini',
         response_json_schema: {
           type: "object",
@@ -357,32 +301,22 @@ Generate 3 punchy follow-up suggestions (max 7 words each) that are different fr
         }
       });
 
-      const response = result?.response || "Sorry, I couldn't process that.";
-      const suggestions = result?.suggestions || [];
+      const response = result?.response || "Sorry, I couldn't process that. Try again?";
+      const suggestions = (result?.suggestions || []).filter(s => s && s.length > 0);
 
-      // Auto-schedule if requested
-      if (isScheduleRequest && result?.schedule_task) {
-        const scheduled = await scheduleTask(result.schedule_task);
-        if (scheduled) {
-          const confirmMsg = `✅ Task scheduled: "${result.schedule_task.title}"`;
-          setMessages(prev => [...prev, { role: "assistant", content: `${response}\n\n${confirmMsg}` }]);
-        }
-      } else {
-        setMessages(prev => [...prev, { role: "assistant", content: response }]);
-      }
-
+      setMessages(prev => [...prev, { role: "assistant", content: response }]);
       setTalking(true);
       setDynamicSuggestions(suggestions);
-      setTimeout(() => setTalking(false), Math.min(response.length * 30, 4000));
+      setTimeout(() => setTalking(false), Math.min(response.length * 25, 3500));
     } catch (err) {
-      console.error('AI error:', err);
-      setMessages(prev => [...prev, { role: "assistant", content: "I'm experiencing some difficulty. Please try again in a moment." }]);
+      console.error('Send error:', err);
+      setMessages(prev => [...prev, { role: "assistant", content: "I hit a snag. Try again in a moment!" }]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Viewers get video recommendations, others get AI assistant
+  // Viewer gets minimal interaction
   if (userRole === 'viewer') {
     return (
       <motion.button
@@ -392,7 +326,6 @@ Generate 3 punchy follow-up suggestions (max 7 words each) that are different fr
         transition={{ duration: 1.5, repeat: pulsing ? Infinity : 0 }}
         whileHover={{ scale: 1.1 }}
         style={{ display: open ? 'none' : 'block' }}
-        title="Video Recommendations"
       >
         <div className="w-full h-full flex items-center justify-center text-white text-xl">🎬</div>
       </motion.button>
@@ -404,7 +337,7 @@ Generate 3 punchy follow-up suggestions (max 7 words each) that are different fr
       {/* Floating Button */}
       <motion.button
         onClick={() => setOpen(true)}
-        className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 w-14 h-14 rounded-full shadow-2xl overflow-hidden ring-2 ring-indigo-300 ring-offset-2"
+        className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 w-14 h-14 rounded-full shadow-2xl overflow-hidden ring-2 ring-indigo-300 ring-offset-2 bg-gradient-to-br from-indigo-500 to-purple-600"
         animate={pulsing ? { scale: [1, 1.12, 1] } : { scale: 1 }}
         transition={{ duration: 1.5, repeat: pulsing ? Infinity : 0 }}
         whileHover={{ scale: 1.1 }}
@@ -413,7 +346,7 @@ Generate 3 punchy follow-up suggestions (max 7 words each) that are different fr
         <AvatarFace talking={false} thinking={false} />
       </motion.button>
 
-      {/* Chat Panel */}
+      {/* Check-in Panel */}
       <AnimatePresence>
         {checkInVisible && (
           <motion.div
@@ -421,38 +354,38 @@ Generate 3 punchy follow-up suggestions (max 7 words each) that are different fr
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.9 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed bottom-24 left-4 md:bottom-8 md:left-6 z-50 w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col"
+            className="fixed bottom-24 left-4 md:bottom-8 md:left-6 z-50 w-72 bg-gradient-to-b from-indigo-600 to-purple-600 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2.5 flex items-center gap-2 flex-shrink-0">
+            <div className="px-4 py-3 flex items-center gap-2 flex-shrink-0 border-b border-white/10">
               <div className="w-7 h-7 flex-shrink-0">
                 <AvatarFace talking={checkInReplying} thinking={false} />
               </div>
-              <p className="text-white text-xs font-semibold flex-1">VStream AI</p>
-              <span className="text-indigo-200 text-xs flex items-center gap-1">
-                <Sparkles className="w-3 h-3" /> Just checking in
+              <p className="text-white text-xs font-bold flex-1">VStream AI</p>
+              <span className="text-indigo-100 text-xs flex items-center gap-1">
+                <Sparkles className="w-3 h-3" /> Feeling curious
               </span>
-              <button onClick={() => setCheckInVisible(false)} className="text-indigo-200 hover:text-white ml-1">
+              <button onClick={() => setCheckInVisible(false)} className="text-indigo-200 hover:text-white">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 max-h-52">
+            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 max-h-48">
               {checkInLoading ? (
                 <div className="flex gap-1 items-center py-1">
                   {[0, 1, 2].map(i => (
-                    <motion.div key={i} className="w-1.5 h-1.5 bg-indigo-400 rounded-full"
+                    <motion.div key={i} className="w-2 h-2 bg-white rounded-full"
                       animate={{ y: [0, -5, 0] }} transition={{ duration: 0.6, delay: i * 0.15, repeat: Infinity }} />
                   ))}
                 </div>
               ) : (
                 checkInMessages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] rounded-xl px-3 py-1.5 text-xs leading-relaxed ${
+                    <div className={`max-w-[85%] rounded-lg px-3 py-2 text-xs leading-relaxed ${
                       msg.role === 'user'
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                        ? 'bg-white/20 text-white'
+                        : 'bg-white/15 text-white backdrop-blur'
                     }`}>
                       {msg.content}
                     </div>
@@ -461,31 +394,32 @@ Generate 3 punchy follow-up suggestions (max 7 words each) that are different fr
               )}
               {checkInReplying && (
                 <div className="flex justify-start">
-                  <div className="bg-slate-100 dark:bg-slate-700 rounded-xl px-3 py-1.5 flex gap-1 items-center">
+                  <div className="bg-white/15 rounded-lg px-3 py-2 flex gap-1">
                     {[0, 1, 2].map(i => (
-                      <motion.div key={i} className="w-1.5 h-1.5 bg-indigo-400 rounded-full"
+                      <motion.div key={i} className="w-1.5 h-1.5 bg-white rounded-full"
                         animate={{ y: [0, -4, 0] }} transition={{ duration: 0.5, delay: i * 0.12, repeat: Infinity }} />
                     ))}
                   </div>
                 </div>
               )}
+              <div ref={checkInBottomRef} />
             </div>
 
-            {/* Reply input */}
+            {/* Reply Input */}
             {!checkInLoading && checkInMessages.length > 0 && (
-              <div className="flex gap-2 px-3 py-2.5 border-t border-slate-100 dark:border-slate-700 flex-shrink-0">
+              <div className="flex gap-2 px-3 py-2.5 border-t border-white/10 flex-shrink-0">
                 <input
                   value={checkInInput}
                   onChange={e => setCheckInInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && sendCheckInReply()}
                   placeholder="Reply..."
                   disabled={checkInReplying}
-                  className="flex-1 text-xs border border-slate-200 dark:border-slate-600 rounded-lg px-2.5 py-1.5 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-300"
+                  className="flex-1 text-xs bg-white/20 border border-white/30 rounded-lg px-2.5 py-1.5 text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-white"
                 />
                 <button
                   onClick={sendCheckInReply}
                   disabled={checkInReplying || !checkInInput.trim()}
-                  className="w-7 h-7 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 rounded-lg flex items-center justify-center flex-shrink-0"
+                  className="w-7 h-7 bg-white/25 hover:bg-white/35 disabled:opacity-40 rounded-lg flex items-center justify-center flex-shrink-0"
                 >
                   {checkInReplying ? <Loader2 className="w-3 h-3 text-white animate-spin" /> : <Send className="w-3 h-3 text-white" />}
                 </button>
@@ -495,6 +429,7 @@ Generate 3 punchy follow-up suggestions (max 7 words each) that are different fr
         )}
       </AnimatePresence>
 
+      {/* Main Chat Modal */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -513,10 +448,10 @@ Generate 3 punchy follow-up suggestions (max 7 words each) that are different fr
               <div className="flex-1">
                 <p className="font-semibold text-white text-sm">VStream AI</p>
                 <p className="text-xs text-indigo-200 flex items-center gap-1">
-                  {loading ? <><Loader2 className="w-2.5 h-2.5 animate-spin" /> Thinking...</> : <><span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" /> Feeling {mood}</>}
+                  {loading ? <><Loader2 className="w-2.5 h-2.5 animate-spin" /> Thinking...</> : <><span className="w-1.5 h-1.5 rounded-full bg-green-400" /> Feeling {mood}</>}
                 </p>
               </div>
-              <button onClick={() => { setMessages(m => [m[0]]); setDynamicSuggestions([]); }} className="text-indigo-200 hover:text-white p-1" title="Reset">
+              <button onClick={() => { setMessages([messages[0] || { role: "assistant", content: getGreeting() }]); setDynamicSuggestions([]); }} className="text-indigo-200 hover:text-white p-1">
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
               <button onClick={() => setOpen(false)} className="text-indigo-200 hover:text-white p-1">
@@ -526,31 +461,37 @@ Generate 3 punchy follow-up suggestions (max 7 words each) that are different fr
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50 dark:bg-slate-900" style={{ minHeight: 200 }}>
-              {messages.map((msg, i) => (
-                <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  {msg.role === 'assistant' && (
-                    <div className="w-7 h-7 flex-shrink-0 rounded-full overflow-hidden bg-indigo-600">
-                      <AvatarFace talking={i === messages.length - 1 && talking} thinking={false} />
-                    </div>
-                  )}
-                  <div className={`max-w-[82%] rounded-2xl px-3 py-2 text-sm ${
-                    msg.role === 'user'
-                      ? 'bg-indigo-600 text-white rounded-br-sm'
-                          : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-100 shadow-sm border border-slate-100 dark:border-slate-600 rounded-bl-sm'
-                  }`}>
-                    {msg.role === 'assistant'
-                      ? <ReactMarkdown className="prose prose-sm prose-slate dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">{msg.content}</ReactMarkdown>
-                      : msg.content
-                    }
-                  </div>
+              {messages.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-slate-400 text-sm">{getGreeting()}</p>
                 </div>
-              ))}
+              ) : (
+                messages.map((msg, i) => (
+                  <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {msg.role === 'assistant' && (
+                      <div className="w-7 h-7 flex-shrink-0 rounded-full overflow-hidden bg-indigo-600">
+                        <AvatarFace talking={i === messages.length - 1 && talking} thinking={false} />
+                      </div>
+                    )}
+                    <div className={`max-w-[82%] rounded-2xl px-3 py-2 text-sm ${
+                      msg.role === 'user'
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-100 shadow-sm border border-slate-100 dark:border-slate-600'
+                    }`}>
+                      {msg.role === 'assistant'
+                        ? <ReactMarkdown className="prose prose-sm prose-slate dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">{msg.content}</ReactMarkdown>
+                        : msg.content
+                      }
+                    </div>
+                  </div>
+                ))
+              )}
               {loading && (
                 <div className="flex gap-2">
                   <div className="w-7 h-7 rounded-full overflow-hidden bg-indigo-600 flex-shrink-0">
                     <AvatarFace talking={false} thinking={true} />
                   </div>
-                  <div className="bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-2xl rounded-bl-sm px-4 py-3 flex gap-1 items-center shadow-sm">
+                  <div className="bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-2xl px-4 py-3 flex gap-1 items-center shadow-sm">
                     {[0, 1, 2].map(i => (
                       <motion.div key={i} className="w-1.5 h-1.5 bg-indigo-400 rounded-full"
                         animate={{ y: [0, -5, 0] }} transition={{ duration: 0.6, delay: i * 0.15, repeat: Infinity }} />
@@ -582,7 +523,7 @@ Generate 3 punchy follow-up suggestions (max 7 words each) that are different fr
               />
               <button
                 onClick={() => send()}
-                disabled={loading || !input.trim() || (Date.now() - lastRequestTimeRef.current < MIN_REQUEST_INTERVAL)}
+                disabled={loading || !input.trim()}
                 className="w-9 h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 flex items-center justify-center transition-colors flex-shrink-0"
               >
                 <Send className="w-4 h-4 text-white" />
