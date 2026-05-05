@@ -487,13 +487,14 @@ export default function ArtForgeStudio() {
          };
 
         const generateOne = (i) => {
-          const hasRefs = Array.isArray(refImages) && refImages.length > 0;
-          return base44.integrations.Core.GenerateImage({
-            prompt: buildImagePrompt(i),
-            existing_image_urls: hasRefs ? refImages : undefined,
-            model: "claude_opus_4_7",
-          });
-        };
+           const hasRefs = Array.isArray(refImages) && refImages.length > 0;
+           // Use GPT-4 which respects user intent better than Claude Opus's aggressive filtering
+           return base44.integrations.Core.GenerateImage({
+             prompt: buildImagePrompt(i),
+             existing_image_urls: hasRefs ? refImages : undefined,
+             model: "gpt_5_5", // More respectful of user prompts
+           });
+         };
 
         const responses = await Promise.all(Array.from({ length: count }, (_, i) => generateOne(i)));
         const urls = responses
@@ -564,11 +565,11 @@ export default function ArtForgeStudio() {
     }
     setGifLoading(true);
     try {
-      const gifPrompt = `Create animated GIF: ${prompt || "Animation"}. Style: animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement. Make it loop-ready.`;
+      const gifPrompt = `GENERATE THE USER'S EXACT REQUEST:\n${prompt || "Animation"}\n\nStyle: animated loop frame, motion blur, looping animation still, vibrant dynamic colors, GIF-style illustration, freeze frame from smooth animation, energetic movement. Make it loop-ready.`;
       const response = await base44.integrations.Core.GenerateImage({
         prompt: gifPrompt,
         existing_image_urls: [videoUrl],
-        model: "claude_opus_4_7",
+        model: "gpt_5_5",
       });
       const gifUrl = response?.url;
       if (!gifUrl) throw new Error("GIF generation returned no URL");
