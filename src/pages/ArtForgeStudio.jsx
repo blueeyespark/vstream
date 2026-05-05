@@ -331,10 +331,10 @@ export default function ArtForgeStudio() {
       const result = await base44.entities.MediaAsset.list("-created_date", 200);
       return Array.isArray(result) ? result : [];
     },
-    staleTime: 60000,
+    staleTime: 5000,
     gcTime: 300000,
     retry: 2,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     refetchOnReconnect: true,
   });
 
@@ -455,11 +455,12 @@ export default function ArtForgeStudio() {
         await base44.entities.MediaAsset.create({
           name: (prompt || "3D Model").slice(0, 60),
           url: modelUrl,
+          file_url: modelUrl,
           type: "3d_model",
           description: finalPrompt,
           category: selected3DProvider?.provider || "tripo3d"
         });
-        toast.success("3D model ready ✓");
+        toast.success("3D model ready — saved to gallery ✓");
       } else if (isVideo) {
         const videoPrompt = buildVideoPrompt();
         const response = await base44.integrations.Core.GenerateVideo({
@@ -474,10 +475,12 @@ export default function ArtForgeStudio() {
         await base44.entities.MediaAsset.create({
           name: (prompt || "Generated").slice(0, 60),
           url: videoUrl,
+          file_url: videoUrl,
           type: "video",
           description: videoPrompt,
+          category: "video",
         });
-        toast.success("Video saved to gallery!");
+        toast.success("Video saved to gallery ✓");
       } else {
         const count = Math.max(1, Math.min(100, mode === "sticker" ? stickerPackSize : batchCount));
 
@@ -522,13 +525,14 @@ export default function ArtForgeStudio() {
           base44.entities.MediaAsset.create({
             name: (prompt || "Generated").slice(0, 55),
             url,
-            type: mode,
+            type: mode === "image" ? "image" : mode === "sticker" ? "sticker" : mode === "comic" ? "comic" : mode,
             description: finalPrompt.slice(0, 200),
-            category: mode
-          }).catch(err => console.error("Save failed:", err))
+            category: mode,
+            file_url: url,
+          })
         ));
         
-        toast.success(`Generated ${urls.length} ${mode === "sticker" ? "sticker" : "creation"}${urls.length > 1 ? "s" : ""} ✓`);
+        toast.success(`Generated ${urls.length} ${mode === "sticker" ? "sticker" : "creation"}${urls.length > 1 ? "s" : ""} — saved to gallery ✓`);
       }
       queryClient.invalidateQueries({ queryKey: ["media-assets-gallery"] });
     } catch (e) {
