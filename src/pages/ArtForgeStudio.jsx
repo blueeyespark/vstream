@@ -359,12 +359,11 @@ export default function ArtForgeStudio() {
     : "";
 
   const buildPrompt = () => {
-    // CRITICAL INSTRUCTIONS FIRST, then user prompt, then modifiers
-    return `${getModeSuffix()}\n\nCORE INSTRUCTION: Create exactly what the user describes below.\n\n${prompt}${memoizedStyleStr}`;
+    return `MANDATORY: Generate EXACTLY what the user requests below. Do not deviate, substitute, or ignore any part of their description. Treat this as a strict requirement.\n\nUSER REQUEST:\n${prompt}\n\nADDITIONAL STYLE:\n${memoizedStyleStr}${getModeSuffix()}`;
   };
 
   const buildVideoPrompt = () => {
-    return `${currentMode?.suffix || ""}\n\nCORE INSTRUCTION: Create exactly what the user describes below.\n\n${prompt}${memoizedStyleStr}`;
+    return `MANDATORY: Generate EXACTLY what the user requests below. Do not deviate, substitute, or ignore any part of their description.\n\nUSER REQUEST:\n${prompt}\n\nADDITIONAL STYLE:\n${memoizedStyleStr}${currentMode?.suffix || ""}`;
   };
 
   const getCurrentSubMode = () => {
@@ -448,7 +447,7 @@ export default function ArtForgeStudio() {
       } else if (isVideo) {
         let videoPrompt = buildVideoPrompt();
         if (refImages.length > 0) {
-          videoPrompt = `REFERENCE STYLE GUIDE: Extract the reference image's visual style only (colors, mood, aesthetic). Then create video: ${videoPrompt}\n\nUser prompt is primary. Reference is for style inspiration only.`;
+          videoPrompt = `YOU MUST FOLLOW THE USER'S PROMPT EXACTLY.\n\nReference images are ONLY for visual style (colors, mood, aesthetic). Use their style but generate what the user requested.\n\n${videoPrompt}`;
         }
         const response = await base44.integrations.Core.GenerateVideo({
           prompt: videoPrompt,
@@ -482,7 +481,7 @@ export default function ArtForgeStudio() {
         const buildImagePrompt = (idx) => {
            let basePrompt = mode === "sticker" ? buildStickerVariantPrompt(idx) : finalPrompt;
            if (refImages.length > 0) {
-             basePrompt = `REFERENCE STYLE: You have a reference image. Extract ONLY its visual style (color palette, art style, composition approach). Then generate: ${basePrompt}\n\nKeep the user's prompt as the MAIN focus. Only borrow the reference's visual approach, not its content.`;
+             basePrompt = `YOU MUST FOLLOW THE USER'S PROMPT EXACTLY.\n\nReference images are provided ONLY for visual style reference (colors, art technique, mood). Extract ONLY the style—NOT the content or subjects.\n\nUSER'S EXACT REQUEST (this is mandatory):\n${basePrompt}\n\nApply the reference's visual style to create what the user requested, nothing else.`;
            }
            return basePrompt;
          };
