@@ -337,6 +337,7 @@ export default function Dashboard() {
   const continueWatching = useMemo(() => mainVideos.filter(v => watchHistory.slice(0, 10).includes(v.id)), [mainVideos, watchHistory]);
 
   const handleOpenVideo = useCallback((video) => {
+    if (!video?.id) return;
     setSelectedVideo(video);
     const newHistory = [video.id, ...watchHistory.filter(id => id !== video.id)].slice(0, 50);
     setWatchHistory(newHistory);

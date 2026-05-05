@@ -31,7 +31,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 const { Pages, Layout, mainPage } = pagesConfig;
-const mainPageKey = mainPage ?? Object.keys(Pages)[0];
+const mainPageKey = mainPage ?? "Dashboard";
 const MainPage = Dashboard;
 
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?

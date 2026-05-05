@@ -35,7 +35,7 @@ export default function Layout({ children, currentPageName }) {
   }, [darkMode]);
 
   useEffect(() => {
-    base44.auth.me().then(setUser);
+    base44.auth.me().then(setUser).catch(() => setUser(null));
   }, []);
 
   const { data: projects = [] } = useQuery({
