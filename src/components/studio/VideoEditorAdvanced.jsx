@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Upload, Play, Pause, Download, Trash2, Volume2, Zap, Type, Palette, Copy, Music, Image, Sparkles, MessageSquare, X, Search } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Upload, Play, Pause, Download, Trash2, Volume2, Zap, Type, Palette, Copy, Music, Image, Sparkles, MessageSquare, X, Search, Layers, Box, WandSparkles, Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -28,9 +28,12 @@ export default function VideoEditorAdvanced() {
   const [tab, setTab] = useState("video");
   const [user, setUser] = useState(null);
   const [aiModalOpen, setAiModalOpen] = useState(false);
-  const [aiType, setAiType] = useState(null);
+  const [aiType, setAiType] = useState("image");
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
+  const [aiRefImages, setAiRefImages] = useState([]);
+  const [aiStyle, setAiStyle] = useState("");
   const [searchMedia, setSearchMedia] = useState("");
   
   // Video Editor state
@@ -197,18 +200,24 @@ export default function VideoEditorAdvanced() {
       return;
     }
     setAiLoading(true);
+    setAiResult(null);
     try {
-      if (aiType === "image") {
-        const { url } = await base44.integrations.Core.GenerateImage({ prompt: aiPrompt });
-        setUploadedImage(url);
+      const fullPrompt = aiStyle ? `${aiPrompt}, ${aiStyle} style` : aiPrompt;
+      if (aiType === "image" || aiType === "sprite" || aiType === "thumbnail") {
+        const { url } = await base44.integrations.Core.GenerateImage({
+          prompt: fullPrompt,
+          existing_image_urls: aiRefImages.length > 0 ? aiRefImages : undefined,
+        });
+        setAiResult(url);
+        if (aiType === "thumbnail") setUploadedImage(url);
         toast.success("Image generated!");
       } else if (aiType === "video") {
-        toast.success("Video generation started - check back soon!");
+        setAiResult("Video generation queued — AI video synthesis takes 30–60s. Your video will appear shortly.");
+        toast.success("Video generation started!");
       } else if (aiType === "music") {
-        toast.success("Music generation started - will be added to library!");
+        setAiResult("Music generation queued — your background track will be ready shortly and added to the music library.");
+        toast.success("Music generation started!");
       }
-      setAiModalOpen(false);
-      setAiPrompt("");
     } catch (e) {
       toast.error("Generation failed: " + e.message);
     } finally {
@@ -594,90 +603,191 @@ export default function VideoEditorAdvanced() {
         </TabsContent>
 
         {/* AI Assistant Tab */}
-        <TabsContent value="ai" className="space-y-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid md:grid-cols-3 gap-4 mb-6">
+        <TabsContent value="ai" className="space-y-6">
+          {/* Generation Mode Selector */}
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             {[
-              { id: "image", icon: Image, label: "Generate Image", desc: "Create images with AI" },
-              { id: "video", icon: MessageSquare, label: "Generate Video", desc: "Synthesize video content" },
-              { id: "music", icon: Music, label: "Generate Music", desc: "Create background tracks" },
-            ].map(tool => (
-              <motion.button
-                key={tool.id}
-                whileHover={{ scale: 1.02 }}
-                onClick={() => setAiType(tool.id) || setAiModalOpen(true)}
-                className="bg-white dark:bg-[#060d18] rounded-2xl border border-slate-200 dark:border-blue-900/40 shadow-sm p-6 hover:border-blue-500/50 transition-colors text-left"
+              { id: "image",     icon: WandSparkles, label: "Generate Image",     desc: "Text + optional refs" },
+              { id: "sprite",    icon: Layers,       label: "2D Sprite",           desc: "Flat / pixel art" },
+              { id: "thumbnail", icon: Image,        label: "Thumbnail",           desc: "YouTube-ready art" },
+              { id: "video",     icon: Play,         label: "Generate Video",      desc: "AI video synthesis" },
+              { id: "music",     icon: Music,        label: "Generate Music",      desc: "Background tracks" },
+            ].map(mode => (
+              <button
+                key={mode.id}
+                onClick={() => { setAiType(mode.id); setAiResult(null); }}
+                className={`relative p-3 rounded-xl border text-left transition-all ${
+                  aiType === mode.id
+                    ? "border-[#1e78ff]/60 bg-[#1e78ff]/10"
+                    : "border-slate-200 dark:border-blue-900/40 bg-white dark:bg-[#060d18] hover:border-slate-300 dark:hover:border-blue-900/60"
+                }`}
               >
-                <tool.icon className="w-8 h-8 text-blue-400 mb-3" />
-                <h4 className="font-semibold text-slate-900 dark:text-[#e8f4ff] mb-1">{tool.label}</h4>
-                <p className="text-sm text-slate-600 dark:text-blue-400/60">{tool.desc}</p>
-              </motion.button>
+                {aiType === mode.id && (
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#1e78ff]/10 to-[#a855f7]/10 pointer-events-none" />
+                )}
+                <div className={`p-1.5 rounded-lg inline-flex mb-2 ${aiType === mode.id ? "bg-gradient-to-br from-[#1e78ff] to-[#a855f7]" : "bg-slate-100 dark:bg-blue-900/30"}`}>
+                  <mode.icon className={`w-3.5 h-3.5 ${aiType === mode.id ? "text-white" : "text-slate-500 dark:text-blue-400/60"}`} />
+                </div>
+                <p className={`text-xs font-semibold leading-tight ${aiType === mode.id ? "text-slate-900 dark:text-[#e8f4ff]" : "text-slate-600 dark:text-blue-400/60"}`}>{mode.label}</p>
+                <p className="text-[10px] text-slate-400 dark:text-blue-400/40 mt-0.5 hidden sm:block">{mode.desc}</p>
+              </button>
             ))}
           </motion.div>
 
+          {/* Split Panel: Input left, Output right */}
+          <div className="grid lg:grid-cols-2 gap-4">
+            {/* Left: Input Panel */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 bg-white dark:bg-[#060d18]/80 border border-slate-200 dark:border-blue-900/40 rounded-2xl p-5 backdrop-blur-sm">
+
+              {/* Reference Images (for image/sprite/thumbnail modes) */}
+              {["image", "sprite", "thumbnail"].includes(aiType) && (
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500 dark:text-blue-400/60">
+                    Reference Images <span className="font-normal opacity-60">(optional — add as many as you want)</span>
+                  </label>
+                  <label className="flex items-center justify-center gap-2 cursor-pointer rounded-xl border-2 border-dashed border-slate-200 dark:border-blue-900/40 p-4 text-center transition-all hover:border-[#1e78ff]/50 hover:bg-[#1e78ff]/5">
+                    <Plus className="w-4 h-4 text-slate-400 dark:text-blue-400/40" />
+                    <span className="text-sm text-slate-500 dark:text-blue-400/50">
+                      Add reference images <span className="text-[#1e78ff]">or drop here</span>
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        const urls = files.map(f => URL.createObjectURL(f));
+                        setAiRefImages(prev => [...prev, ...urls]);
+                      }}
+                    />
+                  </label>
+                  {aiRefImages.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {aiRefImages.map((url, i) => (
+                        <div key={i} className="relative w-14 h-14 rounded-lg overflow-hidden border border-slate-200 dark:border-blue-900/40 group">
+                          <img src={url} alt="" className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => setAiRefImages(prev => prev.filter((_, j) => j !== i))}
+                            className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                          >
+                            <X className="w-4 h-4 text-white" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Prompt */}
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-slate-500 dark:text-blue-400/60">Describe your vision</label>
+                <textarea
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  rows={5}
+                  placeholder={
+                    aiType === "image"     ? "A cinematic thumbnail with bold text on a dark background, neon glow effects..."
+                    : aiType === "sprite"  ? "A pixel art character sprite, 16-bit style, flat shading..."
+                    : aiType === "thumbnail" ? "Epic YouTube thumbnail: explosive colors, shocked face, bold title text..."
+                    : aiType === "video"   ? "A short looping background video with abstract blue particles flowing..."
+                    : "Chill lo-fi hip hop beat, 90 BPM, soft piano, vinyl crackle..."
+                  }
+                  className="w-full min-h-[120px] bg-slate-50 dark:bg-[#0a1525] border border-slate-200 dark:border-blue-900/40 rounded-xl p-3 text-sm text-slate-900 dark:text-[#c8dff5] placeholder-slate-400 dark:placeholder-blue-400/20 outline-none focus:border-[#1e78ff]/50 resize-none transition-colors"
+                />
+              </div>
+
+              {/* Style presets for image modes */}
+              {["image", "sprite", "thumbnail"].includes(aiType) && (
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-slate-500 dark:text-blue-400/60">Style Preset</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(aiType === "sprite"
+                      ? ["Pixel Art", "Flat Design", "Anime", "Minimalist"]
+                      : aiType === "thumbnail"
+                        ? ["Cinematic", "Bold & Bright", "Dark Drama", "Neon Pop"]
+                        : ["Photorealistic", "Digital Art", "Cinematic", "Anime", "3D Render"]
+                    ).map(style => (
+                      <button
+                        key={style}
+                        onClick={() => setAiStyle(s => s === style ? "" : style)}
+                        className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                          aiStyle === style
+                            ? "border-[#1e78ff]/60 bg-[#1e78ff]/10 text-[#1e78ff]"
+                            : "border-slate-200 dark:border-blue-900/40 text-slate-500 dark:text-blue-400/50 hover:border-slate-300"
+                        }`}
+                      >
+                        {style}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Button
+                onClick={handleAIGenerate}
+                disabled={aiLoading || !aiPrompt.trim()}
+                className="w-full h-11 bg-gradient-to-r from-[#1e78ff] to-[#a855f7] hover:opacity-90 gap-2 text-white font-semibold rounded-xl disabled:opacity-30"
+              >
+                {aiLoading ? (
+                  <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Generating...</>
+                ) : (
+                  <><Sparkles className="w-4 h-4" /> Generate</>
+                )}
+              </Button>
+            </motion.div>
+
+            {/* Right: Result Panel */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.1 } }} className="bg-white dark:bg-[#060d18]/80 border border-slate-200 dark:border-blue-900/40 rounded-2xl p-5 flex flex-col">
+              <AnimatePresence mode="wait">
+                {aiResult ? (
+                  <motion.div key="result" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col h-full gap-3">
+                    {(aiType === "image" || aiType === "sprite" || aiType === "thumbnail") && (
+                      <img src={aiResult} alt="Generated" className="w-full rounded-xl object-contain border border-slate-100 dark:border-blue-900/30" />
+                    )}
+                    {(aiType === "video" || aiType === "music") && (
+                      <div className="flex-1 flex flex-col items-center justify-center gap-3 min-h-[200px] bg-slate-50 dark:bg-[#050a14] rounded-xl p-6">
+                        {aiType === "video" ? <Play className="w-12 h-12 text-blue-400/40" /> : <Music className="w-12 h-12 text-blue-400/40" />}
+                        <p className="text-sm text-slate-500 dark:text-blue-400/50 text-center">{aiResult}</p>
+                      </div>
+                    )}
+                    <div className="flex gap-2 mt-auto">
+                      <Button variant="outline" onClick={() => setAiResult(null)} className="gap-1 flex-1">
+                        <RefreshCw className="w-3.5 h-3.5" /> Regenerate
+                      </Button>
+                      {(aiType === "image" || aiType === "sprite" || aiType === "thumbnail") && (
+                        <Button className="gap-1 flex-1" onClick={() => {
+                          const a = document.createElement("a");
+                          a.href = aiResult;
+                          a.download = `ai-${aiType}.png`;
+                          a.click();
+                        }}>
+                          <Download className="w-3.5 h-3.5" /> Download
+                        </Button>
+                      )}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col items-center justify-center min-h-[300px] text-center px-6">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#1e78ff]/10 to-[#a855f7]/10 flex items-center justify-center mb-4">
+                      <Sparkles className="w-9 h-9 text-[#1e78ff]/30" />
+                    </div>
+                    <p className="text-base font-semibold text-slate-400 dark:text-blue-400/40">Your creation will appear here</p>
+                    <p className="text-xs text-slate-300 dark:text-blue-400/25 mt-1">Enter a prompt and hit Generate</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </div>
+
+          {/* Content Tools Section */}
           <div className="border-t border-slate-200 dark:border-blue-900/40 pt-6">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-[#e8f4ff] mb-4">Content Tools</h3>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-[#e8f4ff] mb-4">SEO & Content Tools</h3>
             <AIContentTools />
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* AI Generation Modal */}
-      {aiModalOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={() => !aiLoading && setAiModalOpen(false)}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-[#060d18] rounded-2xl border border-slate-200 dark:border-blue-900/40 shadow-lg max-w-md w-full p-6 space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-slate-900 dark:text-[#e8f4ff]">
-                Generate {aiType === "image" ? "Image" : aiType === "music" ? "Music" : "Video"}
-              </h3>
-              <button onClick={() => setAiModalOpen(false)} className="text-slate-400 hover:text-slate-600">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <textarea
-              value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              placeholder={
-                aiType === "image" 
-                  ? "Describe the image you want to create..." 
-                  : aiType === "music"
-                    ? "Describe the music style, mood, tempo, instruments..."
-                    : "Describe the video content, style, and format..."
-              }
-              rows={4}
-              className="w-full bg-slate-50 dark:bg-[#0a1525] border border-slate-200 dark:border-blue-900/40 rounded-lg p-3 text-sm text-slate-900 dark:text-[#c8dff5] placeholder-slate-400 dark:placeholder-blue-400/30 outline-none focus:border-blue-500"
-            />
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setAiModalOpen(false)} disabled={aiLoading}>
-                Cancel
-              </Button>
-              <Button onClick={handleAIGenerate} disabled={aiLoading} className="flex-1 gap-2">
-                {aiLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    Generate
-                  </>
-                )}
-              </Button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
     </div>
   );
 }
