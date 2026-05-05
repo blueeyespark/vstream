@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/toaster";
 import UserViewer from './pages/UserViewer';
 import ChannelPage from './pages/ChannelPage';
 import VideoAnalyticsPage from './pages/VideoAnalyticsPage';
