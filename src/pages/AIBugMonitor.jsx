@@ -1,0 +1,689 @@
+import { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Bug, Brain, AlertTriangle, CheckCircle2, Loader2,
+  Send, Zap, ChevronDown, ChevronRight, Plus,
+  ShieldAlert, Wrench, Wand2
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ReactMarkdown from "react-markdown";
+import { format } from "date-fns";
+import { toast } from "sonner";
+import CodePreviewModal from "@/components/scanner/CodePreviewModal";
+
+const SEVERITY_STYLES = {
+  low: "bg-blue-100 text-blue-700",
+  medium: "bg-amber-100 text-amber-700",
+  high: "bg-orange-100 text-orange-700",
+  critical: "bg-red-100 text-red-700",
+};
+
+const STATUS_STYLES = {
+  open: "bg-slate-100 text-slate-700",
+  analyzing: "bg-purple-100 text-purple-700",
+  in_progress: "bg-blue-100 text-blue-700",
+  resolved: "bg-green-100 text-green-700",
+  wont_fix: "bg-slate-100 text-slate-500",
+};
+
+const STATUS_ICONS = {
+  open: Bug,
+  analyzing: Brain,
+  in_progress: Wrench,
+  resolved: CheckCircle2,
+  wont_fix: ShieldAlert,
+};
+
+function BugCard({ bug, onAnalyze, onUpdateStatus, onAutoFix, isAdmin, generatingFix }) {
+  const [expanded, setExpanded] = useState(false);
+  const StatusIcon = STATUS_ICONS[bug.status] || Bug;
+
+  const impactColors = {
+    low: "bg-blue-100 text-blue-700",
+    medium: "bg-amber-100 text-amber-700",
+    high: "bg-orange-100 text-orange-700",
+  };
+
+  const categoryEmojis = {
+    ui_issue: "🎨",
+    performance: "⚡",
+    crash: "💥",
+    data_loss: "⚠️",
+    integration: "🔗",
+    other: "📋",
+  };
+
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left"
+      >
+        <StatusIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-slate-400" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            {bug.ai_escalated && <AlertTriangle className="w-3 h-3 text-red-500" />}
+            <span className="font-medium text-slate-900 dark:text-slate-100 text-sm">{bug.title}</span>
+            <Badge className={`text-xs ${SEVERITY_STYLES[bug.severity]}`}>{bug.severity}</Badge>
+            <Badge className={`text-xs ${STATUS_STYLES[bug.status]}`}>{bug.status?.replace('_', ' ')}</Badge>
+            {bug.ai_user_impact && <Badge className={`text-xs ${impactColors[bug.ai_user_impact]}`}>{bug.ai_user_impact} impact</Badge>}
+            {bug.ai_category && <span className="text-xs">{categoryEmojis[bug.ai_category] || "📋"} {bug.ai_category}</span>}
+            {bug.duplicate_of && <Badge variant="outline" className="text-xs">Duplicate</Badge>}
+            {bug.page && <span className="text-xs text-slate-400">/{bug.page}</span>}
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{bug.description}</p>
+        </div>
+        {expanded ? <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />}
+      </button>
+
+      <AnimatePresence>
+        {expanded && (
+          <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }}
+            className="overflow-hidden border-t border-slate-100 dark:border-slate-700">
+            <div className="p-4 space-y-3">
+              <div>
+                <p className="text-xs font-medium text-slate-500 mb-1">Description</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300">{bug.description}</p>
+              </div>
+              {bug.steps_to_reproduce && (
+                <div>
+                  <p className="text-xs font-medium text-slate-500 mb-1">Steps to Reproduce</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{bug.steps_to_reproduce}</p>
+                </div>
+              )}
+              {bug.ai_analysis && (
+                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800">
+                  <p className="text-xs font-semibold text-purple-700 dark:text-purple-400 mb-2 flex items-center gap-1">
+                    <Brain className="w-3 h-3" /> AI Analysis
+                  </p>
+                  <div className="text-sm text-slate-700 dark:text-slate-300 prose prose-sm max-w-none">
+                    <ReactMarkdown>{bug.ai_analysis}</ReactMarkdown>
+                  </div>
+                </div>
+              )}
+              {bug.ai_fix_suggestion && (
+                <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800">
+                  <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-2 flex items-center gap-1">
+                    <Wrench className="w-3 h-3" /> Fix Suggestion
+                  </p>
+                  <div className="text-sm text-slate-700 dark:text-slate-300 prose prose-sm max-w-none">
+                    <ReactMarkdown>{bug.ai_fix_suggestion}</ReactMarkdown>
+                  </div>
+                </div>
+              )}
+              {bug.ai_component && (
+                <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                  <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-400 mb-1">AI Categorization</p>
+                  <div className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                    <span>Component: {bug.ai_component}</span>
+                    {bug.ai_user_impact && <span>• Impact: {bug.ai_user_impact}</span>}
+                  </div>
+                </div>
+              )}
+              {bug.duplicate_of && (
+                <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-100 dark:border-yellow-800">
+                  <p className="text-xs font-semibold text-yellow-700 dark:text-yellow-400 mb-1">Duplicate Detected</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">This bug is linked to bug #{bug.duplicate_of}</p>
+                </div>
+              )}
+              {bug.resolution_notes && (
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">Resolution Notes</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{bug.resolution_notes}</p>
+                </div>
+              )}
+              {isAdmin && (
+                <div className="flex items-center gap-2 pt-2 flex-wrap">
+                  {(!bug.ai_analysis || bug.status === 'open') && (
+                    <Button size="sm" variant="outline" onClick={() => onAnalyze(bug)}>
+                      <Brain className="w-3 h-3 mr-1.5" /> AI Analyze
+                    </Button>
+                  )}
+                  {bug.ai_fix_suggestion && bug.status !== 'resolved' && (
+                    <Button size="sm" variant="outline"
+                      className="text-green-600 border-green-200 hover:bg-green-50"
+                      onClick={() => onAutoFix(bug)}
+                      disabled={generatingFix === bug.id}
+                    >
+                      {generatingFix === bug.id
+                        ? <Loader2 className="w-3 h-3 mr-1.5 animate-spin" />
+                        : <Wand2 className="w-3 h-3 mr-1.5" />}
+                      {generatingFix === bug.id ? 'Generating...' : 'Generate Fix Code'}
+                    </Button>
+                  )}
+                  <Select value={bug.status} onValueChange={(v) => onUpdateStatus(bug.id, v)}>
+                    <SelectTrigger className="h-8 text-xs w-36"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="open">Open</SelectItem>
+                      <SelectItem value="analyzing">Analyzing</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="resolved">Resolved</SelectItem>
+                      <SelectItem value="wont_fix">Won't Fix</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-slate-400 ml-auto">
+                    {format(new Date(bug.created_date), "MMM d")}
+                  </p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export default function AIBugMonitor() {
+  const { user: authUser } = useAuth();
+  const [user, setUser] = useState(null);
+  const [showReport, setShowReport] = useState(false);
+  const isAdmin = user?.role === 'admin';
+  const [analyzingAll, setAnalyzingAll] = useState(false);
+  const [selfFixing, setSelfFixing] = useState(false);
+  const [selfFixLog, setSelfFixLog] = useState([]);
+  const [codeModal, setCodeModal] = useState(null);
+  const [generatingFix, setGeneratingFix] = useState(null);
+  const [form, setForm] = useState({
+    title: "", description: "", steps_to_reproduce: "",
+    expected_behavior: "", actual_behavior: "", severity: "medium", page: ""
+  });
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setUser(authUser);
+  }, [authUser]);
+
+  const { data: bugs = [], isLoading } = useQuery({
+    queryKey: ['bug-reports'],
+    queryFn: () => base44.entities.BugReport.list('-created_date'),
+  });
+
+  // Auto-categorize incoming bug reports
+  const categorizeBug = async (bugData) => {
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze this bug report and categorize it:
+
+Title: ${bugData.title}
+Description: ${bugData.description}
+Page: ${bugData.page}
+
+Provide:
+1. Bug category (ui_issue, performance, crash, data_loss, integration, other)
+2. Affected component/feature
+3. Estimated user impact (low, medium, high)
+4. Should this be escalated? (true/false)`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            category: { type: "string" },
+            component: { type: "string" },
+            user_impact: { type: "string" },
+            escalate: { type: "boolean" }
+          }
+        }
+      });
+      return result;
+    } catch (e) {
+      return { category: 'other', component: bugData.page || 'Unknown', user_impact: 'medium', escalate: false };
+    }
+  };
+
+  // Detect duplicate bugs using AI similarity matching
+  const detectDuplicates = async (newBug) => {
+    if (bugs.length === 0) return [];
+    try {
+      const bugSummaries = bugs.map(b => `- [${b.id}] ${b.title}: ${b.description}`).join('\n');
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a bug deduplication expert. Find any bugs similar to this new report:
+
+NEW BUG:
+Title: ${newBug.title}
+Description: ${newBug.description}
+Page: ${newBug.page}
+
+EXISTING BUGS:
+${bugSummaries}
+
+Return a list of bug IDs that are duplicates or very similar. Return empty array if none match.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            duplicate_ids: { type: "array", items: { type: "string" } },
+            confidence: { type: "number", description: "0-1 confidence score" }
+          }
+        }
+      });
+      return result.duplicate_ids || [];
+    } catch (e) {
+      return [];
+    }
+  };
+
+  const submitMutation = useMutation({
+    mutationFn: async (data) => {
+      // Auto-categorize
+      const categorization = await categorizeBug(data);
+      
+      // Detect duplicates
+      const duplicates = await detectDuplicates(data);
+      
+      // Create the bug with categorization
+      const bugData = {
+        ...data,
+        reporter_email: user?.email,
+        ai_category: categorization.category,
+        ai_component: categorization.component,
+        ai_user_impact: categorization.user_impact,
+        ai_escalated: categorization.escalate,
+        duplicate_of: duplicates.length > 0 ? duplicates[0] : null,
+      };
+      
+      // If duplicates found, show warning
+      if (duplicates.length > 0) {
+        toast.warning(`⚠️ This bug may be a duplicate of bug #${duplicates[0]}. Linking...`);
+      }
+      
+      return base44.entities.BugReport.create(bugData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bug-reports'] });
+      setShowReport(false);
+      setForm({ title: "", description: "", steps_to_reproduce: "", expected_behavior: "", actual_behavior: "", severity: "medium", page: "" });
+      toast.success("Bug report submitted and auto-categorized");
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.BugReport.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bug-reports'] }),
+  });
+
+  const analyzeBug = async (bug) => {
+    updateMutation.mutate({ id: bug.id, data: { status: 'analyzing' } });
+     try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are an expert frontend developer analyzing a bug report for "Planify" — a React/Tailwind project management app.
+
+Bug Title: ${bug.title}
+Description: ${bug.description}
+${bug.steps_to_reproduce ? `Steps to Reproduce:\n${bug.steps_to_reproduce}` : ''}
+${bug.expected_behavior ? `Expected: ${bug.expected_behavior}` : ''}
+${bug.actual_behavior ? `Actual: ${bug.actual_behavior}` : ''}
+Page: ${bug.page || 'Unknown'}
+Severity: ${bug.severity}
+
+Provide:
+1. Root cause analysis
+2. How to reproduce/confirm the issue
+3. A concrete fix suggestion with code example if applicable
+4. Estimated effort to fix (low/medium/high)`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          root_cause: { type: "string" },
+          how_to_confirm: { type: "string" },
+          fix_suggestion: { type: "string" },
+          code_example: { type: "string" },
+          effort: { type: "string" },
+          is_valid_bug: { type: "boolean" }
+        }
+      }
+    });
+
+      const analysis = `**Root Cause:** ${result.root_cause}\n\n**How to Confirm:** ${result.how_to_confirm}`;
+      const fixSuggestion = result.fix_suggestion + (result.code_example ? `\n\n\`\`\`jsx\n${result.code_example}\n\`\`\`` : '') + `\n\n*Estimated effort: ${result.effort}*`;
+
+      updateMutation.mutate({
+        id: bug.id,
+        data: {
+          status: result.is_valid_bug ? 'in_progress' : 'wont_fix',
+          ai_analysis: analysis,
+          ai_fix_suggestion: fixSuggestion,
+          ai_analyzed_at: new Date().toISOString(),
+        }
+      });
+    } catch (err) {
+      console.error('Analysis failed:', err);
+      updateMutation.mutate({ id: bug.id, data: { status: 'open' } });
+    }
+  };
+
+  const autoFixBug = async (bug) => {
+    setGeneratingFix(bug.id);
+     try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are an expert React/Tailwind developer. Generate a complete, production-ready code fix for this bug in "Planify" — a React/Tailwind/base44 project management app.
+
+Bug: ${bug.title}
+Description: ${bug.description}
+Page: ${bug.page || 'Unknown'}
+AI Analysis: ${bug.ai_analysis || ''}
+Fix Suggestion: ${bug.ai_fix_suggestion || ''}
+
+Generate:
+1. The exact code fix (complete component or relevant snippet)
+2. The file path to edit (e.g., pages/Dashboard.jsx)
+3. A brief explanation of what was fixed
+
+Make the code complete and copy-paste ready.`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          code: { type: "string" },
+          file_path: { type: "string" },
+          explanation: { type: "string" }
+        }
+      }
+    });
+      setGeneratingFix(null);
+      updateMutation.mutate({
+        id: bug.id,
+        data: {
+          status: 'resolved',
+          resolution_notes: `AI fix generated at ${new Date().toLocaleString()}. File: ${result.file_path}. ${result.explanation}`,
+        }
+      });
+      setCodeModal({
+        title: `Fix: ${bug.title}`,
+        code: result.code || '// No code generated',
+        description: result.explanation,
+        filePath: result.file_path,
+      });
+      toast.success(`Fix code generated for "${bug.title}" — copy and apply it`);
+    } catch (err) {
+      console.error('Fix generation failed:', err);
+      setGeneratingFix(null);
+      toast.error('Failed to generate fix code');
+    }
+  };
+
+  const analyzeAll = async () => {
+    const unanalyzed = bugs.filter(b => b.status === 'open' && !b.ai_analysis);
+    if (unanalyzed.length === 0) return;
+    setAnalyzingAll(true);
+    for (const bug of unanalyzed) {
+      await analyzeBug(bug);
+      await new Promise(r => setTimeout(r, 2000)); // 2s delay between requests
+    }
+    setAnalyzingAll(false);
+  };
+
+  // Full pipeline: analyze all open bugs → generate fix code → log to AIAppliedChange
+  const selfScanAndFix = async () => {
+    const openUnfixed = bugs.filter(b => !['resolved', 'wont_fix'].includes(b.status));
+    if (openUnfixed.length === 0) { toast.info('No open bugs to fix!'); return; }
+    setSelfFixing(true);
+    setSelfFixLog([]);
+    toast.loading(`Starting self-fix pipeline for ${openUnfixed.length} bugs...`, { id: 'selfix' });
+
+    for (const bug of openUnfixed) {
+      // Step 1: analyze if not yet done
+      let currentBug = bug;
+      if (!currentBug.ai_analysis) {
+        setSelfFixLog(l => [...l, { id: bug.id, title: bug.title, stage: 'Analyzing...' }]);
+        await analyzeBug(currentBug);
+        // Refetch updated bug
+        const fresh = await base44.entities.BugReport.filter({ id: currentBug.id });
+        currentBug = fresh[0] || currentBug;
+      }
+
+      // Step 2: generate fix code and auto-log it
+      setSelfFixLog(l => l.map(x => x.id === bug.id ? { ...x, stage: 'Generating fix...' } : x).concat(
+        l.find(x => x.id === bug.id) ? [] : [{ id: bug.id, title: bug.title, stage: 'Generating fix...' }]
+      ));
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are an expert React/Tailwind developer. Generate a production-ready code fix for this bug in "Planify".
+
+Bug: ${currentBug.title}
+Description: ${currentBug.description}
+Page: ${currentBug.page || 'Unknown'}
+AI Analysis: ${currentBug.ai_analysis || ''}
+Fix Suggestion: ${currentBug.ai_fix_suggestion || ''}
+
+Provide: complete copy-paste-ready code, the file path to edit, and a brief explanation.`,
+        model: 'gpt_5_mini',
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            code: { type: 'string' },
+            file_path: { type: 'string' },
+            explanation: { type: 'string' }
+          }
+        }
+      });
+
+      // Log to AIAppliedChange
+      await base44.entities.AIAppliedChange.create({
+        title: `Bug Fix: ${currentBug.title}`,
+        source: 'self_scan',
+        change_type: 'bug_fix',
+        file_path: result.file_path || '',
+        code_snippet: result.code || '',
+        explanation: result.explanation || '',
+        applied_by: user?.email || 'ai-bug-monitor',
+      });
+
+      // Mark bug resolved
+      await base44.entities.BugReport.update(currentBug.id, {
+        status: 'resolved',
+        resolution_notes: `Auto-fixed by AI at ${new Date().toLocaleString()}. File: ${result.file_path}. ${result.explanation}`,
+      });
+
+      setSelfFixLog(l => l.map(x => x.id === bug.id ? { ...x, stage: '✅ Fixed & logged' } : x));
+    }
+
+    queryClient.invalidateQueries({ queryKey: ['bug-reports'] });
+    toast.success(`Self-fix complete! ${openUnfixed.length} bugs processed.`, { id: 'selfix' });
+    setSelfFixing(false);
+  };
+
+  // Prioritize bugs by impact + severity
+  const prioritizeBugs = (bugList) => {
+    const impactOrder = { high: 0, medium: 1, low: 2 };
+    const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+    return [...bugList].sort((a, b) => {
+      const impactDiff = (impactOrder[a.ai_user_impact] || 3) - (impactOrder[b.ai_user_impact] || 3);
+      if (impactDiff !== 0) return impactDiff;
+      const escalateDiff = (b.ai_escalated ? 0 : 1) - (a.ai_escalated ? 0 : 1);
+      if (escalateDiff !== 0) return escalateDiff;
+      return (severityOrder[a.severity] || 4) - (severityOrder[b.severity] || 4);
+    });
+  };
+
+  const openBugs = prioritizeBugs(bugs.filter(b => !['resolved', 'wont_fix'].includes(b.status)));
+  const resolvedBugs = bugs.filter(b => ['resolved', 'wont_fix'].includes(b.status));
+  const unanalyzedCount = openBugs.filter(b => !b.ai_analysis).length;
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-slate-500 dark:text-slate-400">Admin access required.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="max-w-3xl mx-auto px-4 py-8">
+
+        {codeModal && (
+          <CodePreviewModal
+            open={!!codeModal}
+            onOpenChange={() => setCodeModal(null)}
+            title={codeModal.title}
+            code={codeModal.code}
+            description={codeModal.description}
+            filePath={codeModal.filePath}
+          />
+        )}
+
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Bug className="w-6 h-6 text-red-500" /> Bug Monitor
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">AI-powered bug tracking, analysis, and auto-fix code generation</p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {isAdmin && unanalyzedCount > 0 && (
+              <Button variant="outline" size="sm" onClick={analyzeAll} disabled={analyzingAll}>
+                {analyzingAll ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Brain className="w-4 h-4 mr-1.5" />}
+                Analyze All ({unanalyzedCount})
+              </Button>
+            )}
+            {isAdmin && openBugs.length > 0 && (
+              <Button size="sm" onClick={selfScanAndFix} disabled={selfFixing}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                {selfFixing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Zap className="w-4 h-4 mr-1.5" />}
+                {selfFixing ? 'Self-Fixing...' : `Auto-Fix All (${openBugs.length})`}
+              </Button>
+            )}
+            <Button size="sm" onClick={() => setShowReport(true)} className="bg-red-500 hover:bg-red-600">
+              <Plus className="w-4 h-4 mr-1.5" /> Report Bug
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-4 gap-3 mb-6">
+          {[
+            { label: "Total", value: bugs.length, color: "text-slate-700 dark:text-slate-300", bg: "bg-white dark:bg-slate-800" },
+            { label: "Open", value: openBugs.length, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-900/20" },
+            { label: "Resolved", value: resolvedBugs.length, color: "text-green-600", bg: "bg-green-50 dark:bg-green-900/20" },
+            { label: "Duplicates", value: bugs.filter(b => b.duplicate_of).length, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20" },
+          ].map(s => (
+            <div key={s.label} className={`${s.bg} rounded-xl p-3 text-center border border-slate-100 dark:border-slate-700`}>
+              <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Self-fix progress log */}
+        {selfFixLog.length > 0 && (
+          <div className="mb-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl space-y-1.5">
+            <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-400 flex items-center gap-1 mb-2">
+              <Zap className="w-3 h-3" /> Self-Fix Pipeline
+            </p>
+            {selfFixLog.map((entry) => (
+              <div key={entry.id} className="flex items-center gap-2 text-xs">
+                <span className="text-slate-500 dark:text-slate-400 truncate flex-1">{entry.title}</span>
+                <span className={`font-medium ${entry.stage.startsWith('✅') ? 'text-green-600' : 'text-indigo-600 dark:text-indigo-400'}`}>{entry.stage}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <Tabs defaultValue="open">
+          <TabsList className="mb-4">
+            <TabsTrigger value="open">Open ({openBugs.length})</TabsTrigger>
+            <TabsTrigger value="resolved">Resolved ({resolvedBugs.length})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="open">
+            {isLoading ? (
+              <div className="text-center py-8 text-slate-400"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>
+            ) : openBugs.length === 0 ? (
+              <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <CheckCircle2 className="w-12 h-12 text-green-400 mx-auto mb-3" />
+                <p className="font-medium text-slate-700 dark:text-slate-300">No open bugs!</p>
+                <p className="text-sm text-slate-400">The app is running smoothly.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {openBugs.map(bug => (
+                  <BugCard key={bug.id} bug={bug} onAnalyze={analyzeBug} isAdmin={isAdmin}
+                    onAutoFix={autoFixBug} generatingFix={generatingFix}
+                    onUpdateStatus={(id, status) => updateMutation.mutate({ id, data: { status } })} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="resolved">
+            <div className="space-y-3">
+              {resolvedBugs.map(bug => (
+                <BugCard key={bug.id} bug={bug} onAnalyze={analyzeBug} isAdmin={isAdmin}
+                  generatingFix={generatingFix} onAutoFix={autoFixBug}
+                  onUpdateStatus={(id, status) => updateMutation.mutate({ id, data: { status } })} />
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Report Bug Dialog */}
+      <Dialog open={showReport} onOpenChange={setShowReport}>
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Bug className="w-4 h-4 text-red-500" /> Report a Bug</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
+            <div>
+              <Label>Bug Title *</Label>
+              <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Short description of the issue" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Severity</Label>
+                <Select value={form.severity} onValueChange={v => setForm({ ...form, severity: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Page/Section</Label>
+                <Input value={form.page} onChange={e => setForm({ ...form, page: e.target.value })} placeholder="Dashboard, Kanban..." />
+              </div>
+            </div>
+            <div>
+              <Label>Description *</Label>
+              <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} placeholder="What went wrong?" />
+            </div>
+            <div>
+              <Label>Steps to Reproduce</Label>
+              <Textarea value={form.steps_to_reproduce} onChange={e => setForm({ ...form, steps_to_reproduce: e.target.value })} rows={2} placeholder="1. Go to... 2. Click... 3. See error" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Expected</Label>
+                <Textarea value={form.expected_behavior} onChange={e => setForm({ ...form, expected_behavior: e.target.value })} rows={2} placeholder="What should happen?" />
+              </div>
+              <div>
+                <Label>Actual</Label>
+                <Textarea value={form.actual_behavior} onChange={e => setForm({ ...form, actual_behavior: e.target.value })} rows={2} placeholder="What actually happens?" />
+              </div>
+            </div>
+            <Button
+              className="w-full bg-red-500 hover:bg-red-600"
+              disabled={!form.title || !form.description || submitMutation.isPending}
+              onClick={() => submitMutation.mutate(form)}
+            >
+              <Send className="w-4 h-4 mr-2" />
+              {submitMutation.isPending ? "Submitting..." : "Submit Bug Report"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

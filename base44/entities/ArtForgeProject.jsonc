@@ -1,0 +1,23 @@
+{
+  "name": "ArtForgeProject",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "active_mode": { "type": "string" },
+    "provider": { "type": "string" },
+    "workflow_json": { "type": "string" },
+    "memory_json": { "type": "string" },
+    "version": { "type": "number", "default": 1 },
+    "thumbnail_url": { "type": "string" },
+    "last_render_url": { "type": "string" },
+    "tags": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": ["name"],
+  "rls": {
+    "create": { "user_condition": { "role": { "$ne": "guest" } } },
+    "read": { "created_by": "{{user.email}}" },
+    "update": { "created_by": "{{user.email}}" },
+    "delete": { "created_by": "{{user.email}}" }
+  }
+}

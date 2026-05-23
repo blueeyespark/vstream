@@ -1,0 +1,26 @@
+{
+  "name": "ArtForgeJob",
+  "type": "object",
+  "properties": {
+    "title": { "type": "string" },
+    "mode": { "type": "string", "enum": ["image", "2d_model", "3d_model", "sticker", "comic", "video", "tracer", "hand_helper"] },
+    "provider": { "type": "string" },
+    "status": { "type": "string", "enum": ["queued", "running", "complete", "failed", "cancelled"], "default": "queued" },
+    "progress": { "type": "number", "default": 0 },
+    "prompt": { "type": "string" },
+    "negative_prompt": { "type": "string" },
+    "result_url": { "type": "string" },
+    "asset_id": { "type": "string" },
+    "error_message": { "type": "string" },
+    "workflow_json": { "type": "string" },
+    "started_at": { "type": "string" },
+    "completed_at": { "type": "string" }
+  },
+  "required": ["title", "mode", "provider", "status"],
+  "rls": {
+    "create": { "user_condition": { "role": { "$ne": "guest" } } },
+    "read": { "created_by": "{{user.email}}" },
+    "update": { "created_by": "{{user.email}}" },
+    "delete": { "created_by": "{{user.email}}" }
+  }
+}

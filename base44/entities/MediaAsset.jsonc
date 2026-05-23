@@ -1,0 +1,136 @@
+{
+  "name": "MediaAsset",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the media asset"
+    },
+    "asset_type": {
+      "type": "string",
+      "enum": [
+        "raw_footage",
+        "thumbnail",
+        "export",
+        "audio",
+        "template",
+        "graphic"
+      ],
+      "description": "Type of media asset"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "image",
+        "2d_model",
+        "3d_model",
+        "audio",
+        "video",
+        "sticker",
+        "comic",
+        "tracer",
+        "hand_helper",
+        "project",
+        "workflow",
+        "render_job"
+      ],
+      "description": "ArtForge generation type"
+    },
+    "url": {
+      "type": "string",
+      "description": "URL of the generated or uploaded asset"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of the uploaded file"
+    },
+    "file_size_mb": {
+      "type": "number",
+      "description": "Size of the file in MB"
+    },
+    "duration_seconds": {
+      "type": "number",
+      "description": "Duration in seconds (for video/audio)"
+    },
+    "resolution": {
+      "type": "string",
+      "description": "Video resolution (e.g., 1080p, 4K)"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Custom tags for organization"
+    },
+    "category": {
+      "type": "string",
+      "description": "Category for grouping"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Associated project ID"
+    },
+    "source_video_id": {
+      "type": "string",
+      "description": "ID of the source video performance entry"
+    },
+    "used_in_videos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of videos using this asset"
+    },
+    "description": {
+      "type": "string"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "description": "Thumbnail preview of the asset"
+    },
+
+    "provider": {
+      "type": "string",
+      "description": "AI provider used for generation"
+    },
+    "job_status": {
+      "type": "string",
+      "enum": ["queued", "running", "complete", "failed", "cancelled"],
+      "description": "Render or AI generation job status"
+    },
+    "workflow_json": {
+      "type": "string",
+      "description": "Serialized ArtForge workflow, nodes, timeline, and canvas state"
+    },
+    "version": {
+      "type": "number",
+      "description": "Saved project version number"
+    },
+    "is_favorite": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": {
+          "$ne": "guest"
+        }
+      }
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}
