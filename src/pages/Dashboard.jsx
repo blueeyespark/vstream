@@ -1,244 +1,282 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Archive,
+  Bookmark,
+  ChevronRight,
+  Clock,
+  Compass,
+  Flame,
+  Hash,
+  Heart,
+  Home,
+  Lightbulb,
+  ListVideo,
+  MessageCircle,
+  Play,
+  PlaySquare,
+  Plus,
+  Radio,
+  Search,
+  Share2,
+  Sparkles,
+  Star,
+  Tv,
+  Users,
+  Video,
+  Zap,
+} from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { useQuery } from "@tanstack/react-query";
-import {
-  Home, Flame, Gamepad2, Trophy, Clock, ListVideo, History,
-  PlaySquare, MoreVertical, Search, X, TrendingUp,
-  Users, Zap, PlusCircle, Sparkles, Eye,
-  Radio, Bookmark, ChevronRight,
-  Moon, Palette, Headphones, Laugh, Brain,
-  Play, UserPlus, Tv, MessageSquare
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
 import VideoPlayerModal from "@/components/dashboard/VideoPlayerModal";
-import FeaturedLiveStream from "@/components/dashboard/FeaturedLiveStream";
-import SaveToPlaylistMenu from "@/components/dashboard/SaveToPlaylistMenu";
-import AIContentAdvisor from "@/components/dashboard/AIContentAdvisor";
-import LiveSidebar from "@/components/dashboard/LiveSidebar";
 
-// ─── Mood categories inspired by Twitch's discovery system ───────────────────
-const MOODS = [
-  { id: "all",       label: "All",        icon: Home },
-  { id: "chill",     label: "Chill",      icon: Moon },
-  { id: "hype",      label: "Hype",       icon: Zap },
-  { id: "gaming",    label: "Gaming",     icon: Gamepad2 },
-  { id: "music",     label: "Music",      icon: Headphones },
-  { id: "learning",  label: "Learn",      icon: Brain },
-  { id: "funny",     label: "Funny",      icon: Laugh },
-  { id: "sports",    label: "Sports",     icon: Trophy },
-  { id: "art",       label: "Creative",   icon: Palette },
-  { id: "social",    label: "Social",     icon: Users },
+const accentGradient = "linear-gradient(135deg,#1e78ff 0%,#00c8ff 42%,#a855f7 100%)";
+
+const navItems = [
+  { label: "Home", icon: Home, to: "/" },
+  { label: "Live", icon: Radio, to: "/Live" },
+  { label: "Shorts/Reels", icon: PlaySquare, to: "/Shorts" },
+  { label: "Communities", icon: Users, to: "/Communities" },
+  { label: "Watch Parties", icon: Tv, to: "/?view=parties" },
+  { label: "Trending", icon: Flame, to: "/?mood=hype" },
+  { label: "Saved", icon: Bookmark, to: "/SavedVideos" },
+  { label: "Playlists", icon: ListVideo, to: "/Playlists" },
 ];
 
-const SIDEBAR_NAV = [
-  { icon: Home,       label: "Home",          to: "/" },
-  { icon: Flame,      label: "Trending",      to: "/?tab=home&mood=hype" },
-  { icon: Radio,      label: "Live",          to: "/Live" },
-  { icon: PlaySquare, label: "Clips",         to: "/Shorts" },
-  { icon: History,    label: "Watch History", to: "/WatchHistory" },
-  { icon: Bookmark,   label: "Saved",         to: "/SavedVideos" },
-  { icon: ListVideo,  label: "Playlists",     to: "/Playlists" },
+const moods = [
+  "For You",
+  "Live",
+  "Gaming",
+  "Music",
+  "Art",
+  "AI",
+  "Learning",
+  "Comedy",
+  "Sports",
+  "World Chat",
 ];
 
-function fmt(n) {
-  if (!n) return "0";
-  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1000) return `${(n / 1000).toFixed(0)}K`;
-  return String(n);
+const demoVideos = [
+  {
+    id: "demo-video-1",
+    title: "Neon City Finals: Creator Watch Party Preview",
+    channel_id: "demo-channel-1",
+    thumbnail_url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=900&h=506&fit=crop",
+    view_count: 284000,
+    duration_seconds: 1268,
+    created_date: new Date(Date.now() - 2 * 86400000).toISOString(),
+    status: "ready",
+    category: "gaming",
+  },
+  {
+    id: "demo-video-2",
+    title: "ArtForge Circle: Cinematic Thumbnail Workflow",
+    channel_id: "demo-channel-2",
+    thumbnail_url: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=900&h=506&fit=crop",
+    view_count: 168900,
+    duration_seconds: 842,
+    created_date: new Date(Date.now() - 4 * 86400000).toISOString(),
+    status: "ready",
+    category: "ai",
+  },
+  {
+    id: "demo-video-3",
+    title: "Blue Room Radio: Late Night Set Preview",
+    channel_id: "demo-channel-3",
+    thumbnail_url: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=900&h=506&fit=crop",
+    view_count: 92100,
+    duration_seconds: 3021,
+    created_date: new Date(Date.now() - 1 * 86400000).toISOString(),
+    status: "ready",
+    category: "music",
+  },
+  {
+    id: "demo-video-4",
+    title: "Creator Lab: Upload Your First Video Checklist",
+    channel_id: "demo-channel-4",
+    thumbnail_url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=900&h=506&fit=crop",
+    view_count: 77400,
+    duration_seconds: 615,
+    created_date: new Date(Date.now() - 7 * 86400000).toISOString(),
+    status: "ready",
+    category: "creator",
+  },
+];
+
+const demoChannels = [
+  { id: "demo-channel-1", channel_name: "Neon City Finals", subscriber_count: 124000, is_live: true, viewer_count: 18420, category: "Demo Live Event" },
+  { id: "demo-channel-2", channel_name: "ArtForge Circle", subscriber_count: 98500, is_live: false, viewer_count: 0, category: "Demo AI Tools" },
+  { id: "demo-channel-3", channel_name: "Blue Room Radio", subscriber_count: 67000, is_live: false, viewer_count: 0, category: "Demo Music" },
+  { id: "demo-channel-4", channel_name: "Creator Lab", subscriber_count: 45100, is_live: false, viewer_count: 0, category: "Demo Creator Help" },
+];
+
+const socialPulse = [
+  { author: "VStream Guide", handle: "@guide", text: "Demo community pulse: use Communities for world chat, live chat, announcements, events, and creator help.", metric: "Demo thread", tag: "#VStream" },
+  { author: "Creator Lab", handle: "@creatorlab", text: "Creator tools are locked for signed-in accounts. Guests can preview discovery and communities.", metric: "Demo note", tag: "#CreatorTools" },
+  { author: "ArtForge Circle", handle: "@artforge", text: "ArtForge AI is a protected creator workflow. Sign in to continue from the requested route.", metric: "Demo workflow", tag: "#ArtForgeAI" },
+];
+
+const trendTopics = ["#NeonFinals", "#CreatorTools", "#BlueRoomLive", "#PromptBattle", "#WatchTogether"];
+
+function fmt(value = 0) {
+  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+  if (value >= 1000) return `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}K`;
+  return String(value || 0);
 }
 
-function timeAgo(dateStr) {
-  if (!dateStr) return "recently";
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return "today";
+function timeAgo(dateString) {
+  if (!dateString) return "Just now";
+  const days = Math.max(0, Math.floor((Date.now() - new Date(dateString).getTime()) / 86400000));
+  if (days === 0) return "Today";
+  if (days === 1) return "Yesterday";
   if (days < 7) return `${days}d ago`;
-  if (days < 30) return `${Math.floor(days / 7)}w ago`;
+  if (days < 31) return `${Math.floor(days / 7)}w ago`;
   return `${Math.floor(days / 30)}mo ago`;
 }
 
-function formatDuration(secs) {
-  if (!secs) return null;
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
-  if (m >= 60) return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  return `${m}:${String(s).padStart(2, "0")}`;
+function duration(seconds) {
+  if (!seconds) return "LIVE";
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (mins >= 60) return `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  return `${mins}:${String(secs).padStart(2, "0")}`;
 }
 
-// ─── VideoCard ────────────────────────────────────────────────────────────────
-function VideoCard({ video, channel, onClick, watched, user, compact = false }) {
-  const [showMenu, setShowMenu] = useState(false);
-  const [showPlaylist, setShowPlaylist] = useState(false);
-  const [watchLater, setWatchLater] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("watchLater") || "[]").includes(video.id); } catch { return false; }
-  });
+function avatarLabel(channel) {
+  return (channel?.channel_name || "V").slice(0, 1).toUpperCase();
+}
 
-  const toggleWatchLater = (e) => {
-    e.stopPropagation();
-    const list = JSON.parse(localStorage.getItem("watchLater") || "[]");
-    const next = watchLater ? list.filter(id => id !== video.id) : [...list, video.id];
-    localStorage.setItem("watchLater", JSON.stringify(next));
-    setWatchLater(!watchLater);
-    setShowMenu(false);
-  };
-
-  if (compact) {
-    return (
-      <div className="flex gap-2.5 cursor-pointer group" onClick={() => onClick(video)}>
-        <div className="relative w-36 aspect-video rounded-xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-[#060d18]">
-          <img src={video.thumbnail_url || `https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=200&h=113&fit=crop&sig=${video.id}`} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
-          {video.duration_seconds > 0 && <span className="absolute bottom-1 right-1 bg-black/80 text-white text-xs font-semibold px-1.5 py-0.5 rounded-md">{formatDuration(video.duration_seconds)}</span>}
-        </div>
-        <div className="flex-1 min-w-0 pt-0.5">
-          <p className="text-xs font-semibold text-[#e8f4ff] line-clamp-2 leading-snug">{video.title}</p>
-          <p className="text-xs text-blue-400/50 mt-1 truncate">{channel?.channel_name || "Creator"}</p>
-          <p className="text-xs text-blue-400/30 mt-0.5">{fmt(video.view_count)} · {timeAgo(video.published_date || video.created_date)}</p>
-        </div>
-      </div>
-    );
-  }
-
+function Panel({ children, className = "" }) {
   return (
-    <motion.div className="group cursor-pointer relative" onClick={() => onClick(video)} whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
-      <div className="relative aspect-video rounded-2xl overflow-hidden mb-3 bg-slate-100 dark:bg-[#060d18]">
-        <img
-          src={video.thumbnail_url || `https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=400&h=225&fit=crop&sig=${video.id}`}
-          alt={video.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        {watched && <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10"><div className="h-full bg-[#1e78ff] w-1/3" /></div>}
-        {video.duration_seconds > 0 && <span className="absolute bottom-2 right-2 bg-black/75 backdrop-blur-sm text-white text-xs font-semibold px-2 py-0.5 rounded-lg">{formatDuration(video.duration_seconds)}</span>}
-        {video.status === "live" && <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />LIVE</span>}
+    <div className={`rounded-2xl border border-[#12305f]/70 bg-[#06101f]/78 shadow-[0_18px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl ${className}`}>
+      {children}
+    </div>
+  );
+}
 
-        {/* Play overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="w-12 h-12 rounded-full bg-white/15 backdrop-blur-sm border border-white/30 flex items-center justify-center">
-            <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
-          </div>
-        </div>
-
-        {/* Watch later badge */}
-        {watchLater && <div className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-[#1e78ff]/80 flex items-center justify-center"><Clock className="w-3 h-3 text-white" /></div>}
-
-        {/* 3-dot menu */}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
-          <button onClick={e => { e.stopPropagation(); setShowMenu(!showMenu); }} className="w-7 h-7 rounded-lg bg-black/50 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/70">
-            <MoreVertical className="w-3.5 h-3.5" />
-          </button>
-          {showMenu && (
-            <div className="absolute right-0 top-full mt-1 z-50 bg-white dark:bg-card border border-slate-200 dark:border-blue-900/40 rounded-xl shadow-xl w-48 py-1 text-sm">
-              <button className="w-full flex items-center gap-2 px-3 py-2 hover:bg-blue-900/20 text-blue-200 transition-colors" onClick={toggleWatchLater}>
-                <Clock className="w-4 h-4" /> {watchLater ? "Remove from Watch Later" : "Watch Later"}
-              </button>
-              {user?.email && <button className="w-full flex items-center gap-2 px-3 py-2 hover:bg-blue-900/20 text-blue-200 transition-colors" onClick={() => { setShowPlaylist(true); setShowMenu(false); }}>
-                <ListVideo className="w-4 h-4" /> Save to Playlist
-              </button>}
-            </div>
-          )}
-          {showPlaylist && user?.email && <SaveToPlaylistMenu videoId={video.id} userEmail={user.email} onClose={() => setShowPlaylist(false)} />}
-        </div>
+function SectionTitle({ icon: Icon, title, action, to }) {
+  return (
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#1e78ff]/30 bg-[#1e78ff]/12">
+          <Icon className="h-4 w-4 text-[#00c8ff]" />
+        </span>
+        <h2 className="truncate text-base font-black text-[#e8f4ff]">{title}</h2>
       </div>
-
-      <div className="flex gap-2.5 px-0.5">
-        <Link to={channel ? `/Channel?id=${channel.id}` : "#"} onClick={e => e.stopPropagation()} className="flex-shrink-0 mt-0.5">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-black ring-2 ring-transparent hover:ring-[#1e78ff]/60 transition-all" style={{ background: "linear-gradient(135deg,#1e78ff,#a855f7)" }}>
-            {channel?.channel_name?.charAt(0) || "C"}
-          </div>
+      {action && (
+        <Link to={to || "#"} className="flex items-center gap-1 text-xs font-bold text-[#00c8ff] hover:text-white">
+          {action}
+          <ChevronRight className="h-3.5 w-3.5" />
         </Link>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-[#e8f4ff] line-clamp-2 leading-snug mb-0.5">{video.title}</h3>
-          <Link to={channel ? `/Channel?id=${channel.id}` : "#"} onClick={e => e.stopPropagation()} className="text-xs text-blue-400/60 hover:text-blue-300 truncate block transition-colors">{channel?.channel_name || "Creator"}</Link>
-          <p className="text-xs text-blue-400/40 mt-0.5">{fmt(video.view_count)} views · {timeAgo(video.published_date || video.created_date)}</p>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── Clip / Short card ────────────────────────────────────────────────────────
-function ClipCard({ video, onClick }) {
-  return (
-    <motion.div className="group cursor-pointer flex-shrink-0 w-36 sm:w-40" onClick={() => onClick(video)} whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
-      <div className="relative aspect-[9/16] rounded-2xl overflow-hidden mb-2 bg-slate-100 dark:bg-[#060d18] shadow-lg group-hover:shadow-xl transition-shadow">
-        <img src={video.thumbnail_url || `https://images.unsplash.com/photo-1536240478700-b869ad10a2ab?w=200&h=356&fit=crop&sig=${video.id}`} alt={video.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-        <p className="absolute bottom-3 left-3 right-3 text-xs text-white font-semibold line-clamp-2 leading-tight">{video.title}</p>
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
-            <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
-          </div>
-        </div>
-        {video.status === "live" && <span className="absolute top-3 left-3 bg-red-500 text-white text-[9px] font-bold px-2 py-1 rounded-full">LIVE</span>}
-      </div>
-      <p className="text-xs text-blue-400/50 px-0.5 truncate">{fmt(video.view_count)} views</p>
-    </motion.div>
-  );
-}
-
-// ─── Watch Party Banner (Twitch Squad Stream style) ───────────────────────────
-function WatchPartyBanner({ onStart }) {
-  return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#a855f7]/15 via-[#1e78ff]/10 to-[#06b6d4]/10 border border-[#a855f7]/25 p-5 mb-6">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-[#a855f7]/20 flex items-center justify-center flex-shrink-0 border border-[#a855f7]/30">
-            <Users className="w-5 h-5 text-[#a855f7]" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-[#e8f4ff]">Watch Party</p>
-            <p className="text-xs text-blue-400/50">Watch videos together with friends in sync</p>
-          </div>
-        </div>
-        <button onClick={onStart} className="flex items-center gap-2 bg-[#a855f7]/20 hover:bg-[#a855f7]/30 border border-[#a855f7]/40 text-[#a855f7] text-xs font-bold px-4 py-2 rounded-xl transition-all flex-shrink-0">
-          <Zap className="w-3.5 h-3.5" /> Start Party
-        </button>
-      </div>
-      <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-[#a855f7]/5 blur-2xl pointer-events-none" />
+      )}
     </div>
   );
 }
 
-// ─── Subscription Channel Strip ───────────────────────────────────────────────
-function SubStrip({ subscriptions, channelMap, onChannelClick }) {
-  if (subscriptions.length === 0) return null;
+function EmptyState({ title, detail, action, to }) {
   return (
-    <div className="flex gap-4 overflow-x-auto pb-3 mb-6 scrollbar-hide">
-      {subscriptions.slice(0, 12).map(sub => {
-        const ch = channelMap[sub.channel_id];
-        if (!ch) return null;
-        return (
-          <Link key={sub.channel_id} to={`/Channel?id=${sub.channel_id}`} className="flex flex-col items-center gap-1.5 flex-shrink-0 group">
-            <div className="relative">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1e78ff] to-[#a855f7] flex items-center justify-center text-white text-lg font-black ring-2 ring-transparent group-hover:ring-[#1e78ff]/50 transition-all overflow-hidden">
-                {ch.avatar_url ? <img src={ch.avatar_url} className="w-full h-full object-cover" alt="" /> : ch.channel_name?.charAt(0)}
-              </div>
-              {ch.is_live && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[9px] font-bold px-1.5 rounded-full">LIVE</span>}
+    <div className="rounded-2xl border border-dashed border-[#12305f] bg-[#06101f]/58 p-6 text-center">
+      <p className="text-sm font-black text-[#e8f4ff]">{title}</p>
+      <p className="mt-2 text-xs leading-5 text-blue-100/52">{detail}</p>
+      {action && to && (
+        <Link to={to} className="mt-4 inline-flex rounded-xl bg-[#1e78ff] px-4 py-2 text-xs font-black text-white transition hover:bg-[#00a6ff]">
+          {action}
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function LeftSidebar({ user }) {
+  return (
+    <aside className="hidden xl:block">
+      <div className="sticky top-20 space-y-4">
+        <Panel className="p-3">
+          <div className="mb-3 px-2 text-xs font-black uppercase tracking-[0.24em] text-blue-300/45">VStream</div>
+          <nav className="space-y-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                to={item.to}
+                className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-blue-100/72 transition-all hover:bg-[#1e78ff]/14 hover:text-white"
+              >
+                <item.icon className="h-4 w-4 text-blue-300/65 transition-colors group-hover:text-[#00c8ff]" />
+                <span className="min-w-0 flex-1 truncate">{item.label}</span>
+              </Link>
+            ))}
+          </nav>
+        </Panel>
+      </div>
+    </aside>
+  );
+}
+
+function Hero({ video, channel, onPlay }) {
+  return (
+    <Panel className="relative min-h-[360px] overflow-hidden">
+      <img src={video.thumbnail_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(0,200,255,0.26),transparent_34%),linear-gradient(90deg,#03080f_0%,rgba(3,8,15,0.74)_45%,rgba(3,8,15,0.18)_100%)]" />
+      <div className="relative z-10 flex min-h-[360px] flex-col justify-between p-5 sm:p-7">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-2 rounded-full border border-red-400/40 bg-red-500/18 px-3 py-1 text-xs font-black text-red-100">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-red-400" />
+            FEATURED LIVE
+          </span>
+          <span className="rounded-full border border-[#00c8ff]/25 bg-[#00c8ff]/12 px-3 py-1 text-xs font-bold text-cyan-100">{channel?.category || "Creator Spotlight"}</span>
+        </div>
+        <div className="max-w-2xl">
+          <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-[#00c8ff]">Tonight on VStream</p>
+          <h1 className="text-3xl font-black leading-tight text-white sm:text-5xl">{video.title}</h1>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-blue-100/72">
+            Live creator energy, social conversation, and cinematic discovery in one signal-rich dashboard.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button onClick={() => onPlay(video)} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#03080f] transition hover:scale-[1.02]">
+              <Play className="h-4 w-4 fill-[#03080f]" />
+              Watch now
+            </button>
+            <Link to="/Live" className="inline-flex items-center gap-2 rounded-xl border border-white/18 bg-white/10 px-4 py-2.5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/16">
+              Browse live
+              <Radio className="h-4 w-4 text-red-300" />
+            </Link>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            { label: "Watching", value: fmt(channel?.viewer_count || video.view_count || 18400), icon: Users },
+            { label: "Creator", value: channel?.channel_name || "VStream", icon: Star },
+            { label: "Pulse", value: "Hot", icon: Flame },
+          ].map((stat) => (
+            <div key={stat.label} className="rounded-2xl border border-white/10 bg-black/28 p-3 backdrop-blur">
+              <stat.icon className="mb-2 h-4 w-4 text-[#00c8ff]" />
+              <p className="text-xs text-blue-100/50">{stat.label}</p>
+              <p className="truncate text-sm font-black text-white">{stat.value}</p>
             </div>
-            <p className="text-xs text-blue-400/50 truncate max-w-[60px] text-center group-hover:text-blue-300 transition-colors">{ch.channel_name}</p>
-          </Link>
-        );
-      })}
-    </div>
+          ))}
+        </div>
+      </div>
+    </Panel>
   );
 }
 
-// ─── Mood Picker Row ──────────────────────────────────────────────────────────
-function MoodRow({ activeMood, setActiveMood }) {
+function MoodChips({ activeMood, setActiveMood }) {
   return (
-    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 mb-6">
-      {MOODS.map(m => {
-        const Icon = m.icon;
-        const active = activeMood === m.id;
+    <div className="flex gap-2 overflow-x-auto pb-1">
+      {moods.map((mood) => {
+        const active = activeMood === mood;
         return (
-          <button key={m.id} onClick={() => setActiveMood(m.id)}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold flex-shrink-0 transition-all border ${
-              active ? "bg-[#1e78ff] text-white border-[#1e78ff] shadow-lg shadow-blue-900/40" : "bg-slate-200 dark:bg-[#050a14] text-slate-700 dark:text-blue-400/60 border-slate-300 dark:border-[#0d1820] hover:bg-slate-300 dark:hover:bg-[#081018] hover:text-slate-900 dark:hover:text-blue-300"
-            }`}>
-            <Icon className="w-3.5 h-3.5" />
-            {m.label}
+          <button
+            key={mood}
+            onClick={() => setActiveMood(mood)}
+            className={`shrink-0 rounded-full border px-4 py-2 text-xs font-black transition ${
+              active
+                ? "border-[#00c8ff] bg-[#00c8ff]/16 text-white shadow-[0_0_24px_rgba(0,200,255,0.16)]"
+                : "border-[#12305f] bg-[#06101f] text-blue-200/60 hover:border-[#1e78ff]/60 hover:text-blue-100"
+            }`}
+          >
+            {mood}
           </button>
         );
       })}
@@ -246,40 +284,276 @@ function MoodRow({ activeMood, setActiveMood }) {
   );
 }
 
-// ─── Main Dashboard ───────────────────────────────────────────────────────────
+function StoriesRow({ channels }) {
+  return (
+    <section>
+      <SectionTitle icon={Zap} title="Stories & Reels" action="Open reels" to="/Shorts" />
+      <div className="flex gap-3 overflow-x-auto pb-2">
+        {channels.slice(0, 10).map((channel, index) => (
+          <Link key={channel.id} to={`/Channel?id=${channel.id}`} className="group w-24 shrink-0">
+            <div className="relative mx-auto h-20 w-20 rounded-[1.35rem] p-[2px]" style={{ background: index % 3 === 0 ? accentGradient : "linear-gradient(135deg,#1e78ff,#a855f7)" }}>
+              <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-[1.2rem] bg-[#071326] text-xl font-black text-white">
+                {channel.avatar_url ? <img src={channel.avatar_url} alt="" className="h-full w-full object-cover" /> : avatarLabel(channel)}
+              </div>
+              {channel.is_live && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-black text-white">LIVE</span>}
+            </div>
+            <p className="mt-2 truncate text-center text-xs font-bold text-blue-100/65 group-hover:text-white">{channel.channel_name}</p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function VideoCard({ video, channel, onPlay, featured = false }) {
+  return (
+    <motion.button
+      type="button"
+      onClick={() => onPlay(video)}
+      whileHover={{ y: -4 }}
+      className={`group text-left ${featured ? "lg:col-span-2" : ""}`}
+    >
+      <div className={`relative overflow-hidden rounded-2xl border border-[#12305f]/70 bg-[#06101f] ${featured ? "aspect-[16/7]" : "aspect-video"}`}>
+        <img src={video.thumbnail_url} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/76 via-black/10 to-transparent opacity-90" />
+        <span className="absolute bottom-3 right-3 rounded-lg bg-black/70 px-2 py-1 text-xs font-black text-white">{duration(video.duration_seconds)}</span>
+        <span className="absolute left-3 top-3 rounded-full border border-white/12 bg-black/45 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-100 backdrop-blur">
+          {video.category || channel?.category || "Video"}
+        </span>
+        <span className="absolute left-3 top-12 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/14 text-white opacity-0 backdrop-blur transition group-hover:opacity-100">
+          <Play className="h-5 w-5 fill-white" />
+        </span>
+      </div>
+      <div className="mt-3 flex gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-black text-white" style={{ background: accentGradient }}>
+          {avatarLabel(channel)}
+        </div>
+        <div className="min-w-0">
+          <h3 className="line-clamp-2 text-sm font-black leading-snug text-[#e8f4ff] group-hover:text-[#00c8ff]">{video.title}</h3>
+          <p className="mt-1 truncate text-xs font-semibold text-blue-200/55">{channel?.channel_name || "VStream Creator"}</p>
+          <p className="mt-0.5 text-xs text-blue-300/38">{fmt(video.view_count)} views - {timeAgo(video.created_date || video.published_date)}</p>
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
+function SocialPulse() {
+  return (
+    <Panel className="p-4">
+      <SectionTitle icon={MessageCircle} title="Social Pulse" action="Communities" to="/Communities" />
+      <div className="space-y-3">
+        {socialPulse.map((post) => (
+          <div key={post.author} className="rounded-2xl border border-[#12305f]/55 bg-[#08172d]/68 p-4 transition hover:border-[#00c8ff]/35">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-black text-[#e8f4ff]">{post.author}</p>
+                <p className="text-xs text-blue-300/48">{post.handle}</p>
+              </div>
+              <span className="rounded-full bg-[#1e78ff]/12 px-2 py-1 text-[10px] font-black text-[#00c8ff]">{post.tag}</span>
+            </div>
+            <p className="text-sm leading-5 text-blue-100/75">{post.text}</p>
+            <div className="mt-3 flex items-center gap-4 text-xs text-blue-300/48">
+              <span className="flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5" />{post.metric}</span>
+              <span className="flex items-center gap-1"><Share2 className="h-3.5 w-3.5" />Share</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
+function ContinueWatching({ videos, channelMap, onPlay }) {
+  if (!videos.length) return null;
+  return (
+    <section>
+      <SectionTitle icon={Clock} title="Continue Watching" action="History" to="/WatchHistory" />
+      <div className="grid gap-3 md:grid-cols-3">
+        {videos.slice(0, 3).map((video) => (
+          <button key={video.id} onClick={() => onPlay(video)} className="group flex gap-3 rounded-2xl border border-[#12305f]/65 bg-[#06101f]/78 p-2 text-left transition hover:border-[#00c8ff]/45">
+            <div className="relative aspect-video w-32 shrink-0 overflow-hidden rounded-xl bg-[#08172d]">
+              <img src={video.thumbnail_url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+              <div className="absolute bottom-0 left-0 h-1 w-2/3 bg-[#00c8ff]" />
+            </div>
+            <div className="min-w-0 py-1">
+              <p className="line-clamp-2 text-xs font-black text-[#e8f4ff]">{video.title}</p>
+              <p className="mt-1 truncate text-xs text-blue-200/45">{channelMap[video.channel_id]?.channel_name || "Creator"}</p>
+              <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-[#00c8ff]">Resume</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function WatchPartyCard() {
+  return (
+    <Panel className="relative overflow-hidden p-5">
+      <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-[#a855f7]/20 blur-3xl" />
+      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="mb-2 flex items-center gap-2">
+            <Users className="h-5 w-5 text-[#a855f7]" />
+            <p className="text-sm font-black text-[#e8f4ff]">Watch Party Room</p>
+          </div>
+          <h3 className="text-xl font-black text-white">Co-watch the next big stream with your crew.</h3>
+          <p className="mt-2 max-w-xl text-sm text-blue-100/58">Synchronized playback, shared reactions, creator chat, and community rooms built for fandoms.</p>
+        </div>
+        <Link to="/Communities" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-[#a855f7]/40 bg-[#a855f7]/16 px-4 py-2.5 text-sm font-black text-white transition hover:bg-[#a855f7]/24">
+          Start room
+          <Plus className="h-4 w-4" />
+        </Link>
+      </div>
+    </Panel>
+  );
+}
+
+function SuggestedCreators({ channels }) {
+  return (
+    <section>
+      <SectionTitle icon={Sparkles} title="Suggested Creators" action="Browse" to="/TalentNexus" />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {channels.slice(0, 6).map((channel) => (
+          <Link key={channel.id} to={`/Channel?id=${channel.id}`} className="group rounded-2xl border border-[#12305f]/65 bg-[#06101f]/78 p-4 transition hover:-translate-y-1 hover:border-[#00c8ff]/45">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl text-lg font-black text-white" style={{ background: accentGradient }}>
+                {avatarLabel(channel)}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-black text-[#e8f4ff] group-hover:text-[#00c8ff]">{channel.channel_name}</p>
+                <p className="text-xs text-blue-200/45">{fmt(channel.subscriber_count)} followers</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="rounded-full bg-[#1e78ff]/12 px-2 py-1 font-bold text-[#00c8ff]">{channel.category || "Creator"}</span>
+              <span className="font-bold text-blue-100/55">Follow</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function RightRail({ liveChannels, trendingVideos, channels, onPlay }) {
+  const watchList = trendingVideos.slice(0, 3);
+  return (
+    <aside className="hidden lg:block">
+      <div className="sticky top-20 space-y-4">
+        <RailPanel icon={Radio} title="Live Now">
+          <div className="space-y-2">
+            {liveChannels.length ? liveChannels.slice(0, 4).map((channel) => (
+                <Link key={channel.id} to={`/Channel?id=${channel.id}`} className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-[#1e78ff]/12">
+                  <span className="relative flex h-9 w-9 items-center justify-center rounded-full text-xs font-black text-white" style={{ background: accentGradient }}>
+                    {avatarLabel(channel)}
+                    <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#06101f] bg-red-500" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-xs font-black text-[#e8f4ff]">{channel.channel_name}</span>
+                    <span className="block text-[11px] text-blue-300/45">{fmt(channel.viewer_count || 0)} watching</span>
+                  </span>
+                </Link>
+              )) : (
+                <p className="rounded-xl border border-dashed border-[#12305f] bg-[#03080f]/50 p-3 text-xs leading-5 text-blue-100/52">No live streams yet. Demo live cards only appear in the main discovery preview.</p>
+              )}
+          </div>
+        </RailPanel>
+
+        <RailPanel icon={Hash} title="Trending Topics">
+          <div className="space-y-2">
+            {trendTopics.map((topic, index) => (
+              <Link key={topic} to={`/?search=${encodeURIComponent(topic)}`} className="flex items-center justify-between rounded-xl px-2 py-2 text-xs transition hover:bg-[#1e78ff]/12">
+                <span className="font-black text-blue-100/78">{topic}</span>
+                <span className="text-blue-300/38">{fmt((index + 2) * 7400)}</span>
+              </Link>
+            ))}
+          </div>
+        </RailPanel>
+
+        <RailPanel icon={Users} title="Who To Follow">
+          <div className="space-y-3">
+            {channels.slice(0, 3).map((channel) => (
+              <Link key={channel.id} to={`/Channel?id=${channel.id}`} className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-black text-white" style={{ background: accentGradient }}>{avatarLabel(channel)}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-xs font-black text-[#e8f4ff]">{channel.channel_name}</span>
+                  <span className="block text-[11px] text-blue-300/42">{channel.category || "Creator"}{String(channel.id).startsWith("demo-") ? " example" : ""}</span>
+                </span>
+                <span className="rounded-full bg-white px-2 py-1 text-[10px] font-black text-[#03080f]">Follow</span>
+              </Link>
+            ))}
+          </div>
+        </RailPanel>
+
+        <RailPanel icon={Compass} title="What To Watch">
+          <div className="space-y-3">
+            {watchList.map((video) => (
+              <button key={video.id} onClick={() => onPlay(video)} className="group flex w-full gap-3 text-left">
+                <span className="aspect-video w-20 shrink-0 overflow-hidden rounded-xl bg-[#08172d]">
+                  <img src={video.thumbnail_url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+                </span>
+                <span className="min-w-0">
+                  <span className="line-clamp-2 text-xs font-black text-[#e8f4ff] group-hover:text-[#00c8ff]">{video.title}</span>
+                  <span className="mt-1 block text-[11px] text-blue-300/42">{fmt(video.view_count)} views</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </RailPanel>
+
+        <RailPanel icon={Lightbulb} title="Creator Tips">
+          <p className="text-sm leading-5 text-blue-100/65">Turn your next stream into three clips, one short, and a community post within the first hour.</p>
+        </RailPanel>
+      </div>
+    </aside>
+  );
+}
+
+function RailPanel({ icon: Icon, title, children }) {
+  return (
+    <Panel className="p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <Icon className="h-4 w-4 text-[#00c8ff]" />
+        <h3 className="text-sm font-black text-[#e8f4ff]">{title}</h3>
+      </div>
+      {children}
+    </Panel>
+  );
+}
+
+function MobileBottomNav() {
+  const items = [
+    { label: "Home", icon: Home, to: "/" },
+    { label: "Live", icon: Radio, to: "/Live" },
+    { label: "Reels", icon: PlaySquare, to: "/Shorts" },
+    { label: "Community", icon: Users, to: "/Communities" },
+    { label: "Saved", icon: Bookmark, to: "/SavedVideos" },
+  ];
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#12305f] bg-[#03080f]/95 px-2 py-2 backdrop-blur-xl xl:hidden md:hidden">
+      <div className="grid grid-cols-5 gap-1">
+        {items.map((item) => (
+          <Link key={item.label} to={item.to} className="flex flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] font-bold text-blue-200/65 hover:bg-[#1e78ff]/12 hover:text-white">
+            <item.icon className="h-4 w-4" />
+            <span className="truncate">{item.label}</span>
+          </Link>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
 export default function Dashboard() {
-  const { user: authUser } = useAuth();
-  const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState("home"); // home | following | watchlater
-  const [activeMood, setActiveMood] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchFocused, setSearchFocused] = useState(false);
+  const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeMood, setActiveMood] = useState(searchParams.get("mood") === "hype" ? "Live" : "For You");
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [watchHistory, setWatchHistory] = useState(() => { try { return JSON.parse(localStorage.getItem("watchHistory") || "[]"); } catch { return []; } });
-  const [watchLater, setWatchLater] = useState(() => { try { return JSON.parse(localStorage.getItem("watchLater") || "[]"); } catch { return []; } });
-  const [showWatchPartyModal, setShowWatchPartyModal] = useState(false);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    setUser(authUser);
-  }, [authUser]);
+  const query = searchParams.get("search") || "";
 
-  // Sync watchLater from localStorage on tab focus
-  useEffect(() => {
-    const sync = () => { try { setWatchLater(JSON.parse(localStorage.getItem("watchLater") || "[]")); } catch {} };
-    window.addEventListener("focus", sync);
-    return () => window.removeEventListener("focus", sync);
-  }, []);
-
-  const { data: channels = [] } = useQuery({
-    queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 20 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
-
-  const { data: videos = [] } = useQuery({
+  const { data: rawVideos = [] } = useQuery({
     queryKey: ["videos-all"],
     queryFn: () => base44.entities.Video.list("-created_date", 80),
     staleTime: 5 * 60 * 1000,
@@ -287,7 +561,15 @@ export default function Dashboard() {
     refetchOnWindowFocus: false,
   });
 
-  const { data: mySubscriptions = [] } = useQuery({
+  const { data: rawChannels = [] } = useQuery({
+    queryKey: ["channels-all"],
+    queryFn: () => base44.entities.Channel.list(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: subscriptions = [] } = useQuery({
     queryKey: ["my-subscriptions", user?.email],
     queryFn: () => base44.entities.Subscription.filter({ subscriber_email: user.email, status: "active" }),
     enabled: !!user?.email,
@@ -296,429 +578,129 @@ export default function Dashboard() {
     refetchOnWindowFocus: false,
   });
 
-  const channelMap = useMemo(() => channels.reduce((acc, c) => { acc[c.id] = c; return acc; }, {}), [channels]);
-  const subscribedChannelIds = useMemo(() => new Set(mySubscriptions.map(s => s.channel_id)), [mySubscriptions]);
-  const liveChannels = useMemo(() => channels.filter(c => c.is_live), [channels]);
-  const featuredLive = liveChannels[0];
+  const hasRealVideos = rawVideos.length > 0;
+  const hasRealChannels = rawChannels.length > 0;
+  const channels = hasRealChannels ? rawChannels : demoChannels;
+  const videos = (hasRealVideos ? rawVideos : demoVideos).filter((video) => video.status !== "deleted" && video.status !== "uploading");
 
-  const mainVideos = useMemo(() => videos.filter(v => v.status !== "deleted" && v.status !== "uploading"), [videos]);
-  const clips = useMemo(() => mainVideos.filter(v => v.duration_seconds > 0 && v.duration_seconds < 90), [mainVideos]);
-  const regularVideos = useMemo(() => mainVideos.filter(v => !v.duration_seconds || v.duration_seconds >= 60), [mainVideos]);
+  const channelMap = useMemo(() => channels.reduce((map, channel) => ({ ...map, [channel.id]: channel }), {}), [channels]);
+  const liveChannels = useMemo(() => channels.filter((channel) => channel.is_live), [channels]);
+  const trendingVideos = useMemo(() => [...videos].sort((a, b) => (b.view_count || 0) - (a.view_count || 0)), [videos]);
 
-  const moodKeywords = useMemo(() => ({
-    chill: ["chill", "relax", "lofi", "calm", "sleep", "ambient", "study"],
-    hype: ["hype", "epic", "insane", "crazy", "highlight", "gaming", "clutch", "wins"],
-    gaming: ["gaming", "game", "gameplay", "let's play", "playthrough", "esports", "fortnite", "minecraft"],
-    music: ["music", "song", "cover", "beat", "dj", "concert", "remix", "playlist"],
-    learning: ["tutorial", "how to", "learn", "guide", "tips", "explained", "course", "education"],
-    funny: ["funny", "meme", "comedy", "laugh", "joke", "roast", "prank", "fail"],
-    sports: ["sports", "nfl", "nba", "soccer", "football", "basketball", "highlights", "match"],
-    art: ["art", "drawing", "design", "animation", "creative", "painting", "digital", "vfx"],
-    social: ["vlog", "irl", "reaction", "collab", "podcast", "interview", "stream"],
-  }), []);
+  const filteredVideos = useMemo(() => {
+    const normalizedQuery = query.toLowerCase();
+    return videos.filter((video) => {
+      const channel = channelMap[video.channel_id];
+      const haystack = `${video.title || ""} ${channel?.channel_name || ""} ${video.category || ""}`.toLowerCase();
+      const matchesSearch = !normalizedQuery || haystack.includes(normalizedQuery);
+      const matchesMood =
+        activeMood === "For You" ||
+        (activeMood === "Live" && (video.status === "live" || channel?.is_live)) ||
+        haystack.includes(activeMood.toLowerCase());
+      return matchesSearch && matchesMood;
+    });
+  }, [activeMood, channelMap, query, videos]);
 
-  const displayVideos = useMemo(() => {
-    if (searchQuery) {
-      return mainVideos.filter(v => v.title?.toLowerCase().includes(searchQuery.toLowerCase()) || v.description?.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-    if (activeMood === "all") return regularVideos;
-    const keywords = moodKeywords[activeMood] || [];
-    const moodFiltered = regularVideos.filter(v =>
-      keywords.some(kw =>
-        v.title?.toLowerCase().includes(kw) ||
-        v.description?.toLowerCase().includes(kw) ||
-        v.category?.toLowerCase().includes(kw) ||
-        v.tags?.some(t => t.toLowerCase().includes(kw))
-      )
-    );
-    return moodFiltered.length > 0 ? moodFiltered : regularVideos;
-  }, [mainVideos, regularVideos, activeMood, searchQuery, moodKeywords]);
+  const heroVideo = trendingVideos[0] || demoVideos[0];
+  const heroChannel = channelMap[heroVideo.channel_id] || channels[0];
+  const storyChannels = channels.length ? channels : demoChannels;
+  const recommended = filteredVideos.length ? filteredVideos : (hasRealVideos ? [] : demoVideos);
+  const continueWatching = hasRealVideos ? recommended.slice(1, 4) : [];
+  const followedChannelIds = new Set(subscriptions.map((sub) => sub.channel_id));
+  const followingCount = followedChannelIds.size || Math.min(3, channels.length);
 
-  const trending = useMemo(() => [...regularVideos].sort((a, b) => (b.view_count || 0) - (a.view_count || 0)).slice(0, 6), [regularVideos]);
-  const subVideos = useMemo(() => regularVideos.filter(v => subscribedChannelIds.has(v.channel_id)).sort((a, b) => new Date(b.published_date || b.created_date) - new Date(a.published_date || a.created_date)), [regularVideos, subscribedChannelIds]);
-  const watchLaterVideos = useMemo(() => mainVideos.filter(v => watchLater.includes(v.id)), [mainVideos, watchLater]);
-  const continueWatching = useMemo(() => mainVideos.filter(v => watchHistory.slice(0, 10).includes(v.id)), [mainVideos, watchHistory]);
+  const handlePlay = (video) => setSelectedVideo(video);
 
-  const handleOpenVideo = useCallback((video) => {
-    if (!video?.id) return;
-    setSelectedVideo(video);
-    const newHistory = [video.id, ...watchHistory.filter(id => id !== video.id)].slice(0, 50);
-    setWatchHistory(newHistory);
-    localStorage.setItem("watchHistory", JSON.stringify(newHistory));
-    base44.entities.Video.update(video.id, { view_count: (video.view_count || 0) + 1 }).catch(() => {});
-  }, [watchHistory]);
-
-  const TABS = [
-    { id: "home",      label: "Home" },
-    { id: "following", label: "Following", badge: mySubscriptions.length },
-  ];
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const nextQuery = String(formData.get("dashboard-search") || "").trim();
+    if (nextQuery) setSearchParams({ search: nextQuery });
+    else setSearchParams({});
+  };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex">
+    <div className="min-h-screen bg-[#03080f] text-[#e8f4ff]">
+      <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(30,120,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(30,120,255,0.06)_1px,transparent_1px)] bg-[size:44px_44px]" />
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(30,120,255,0.22),transparent_34%),radial-gradient(circle_at_83%_16%,rgba(168,85,247,0.20),transparent_32%),linear-gradient(180deg,rgba(3,8,15,0),#03080f_72%)]" />
 
-      {/* ── LEFT SIDEBAR ─────────────────────────────────────── */}
-      <aside className="hidden sm:flex flex-col w-52 md:w-56 flex-shrink-0 fixed top-16 left-0 bottom-0 overflow-y-auto py-4 px-2.5 z-40 border-r border-slate-200 dark:border-[#0d2040]/80 bg-white dark:bg-card">
-        <div className="space-y-0.5 mb-3">
-          {SIDEBAR_NAV.map(item => (
-            <Link key={item.label} to={item.to} className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-slate-600 dark:text-blue-400/60 hover:bg-slate-100 dark:hover:bg-blue-900/20 hover:text-slate-800 dark:hover:text-blue-200 transition-all w-full">
-              <item.icon className="w-4 h-4 flex-shrink-0" />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </div>
+      <div className="mx-auto grid w-full max-w-[1800px] grid-cols-1 gap-5 px-3 pb-24 pt-3 sm:px-5 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[260px_minmax(0,1fr)_320px]">
+        <LeftSidebar user={user} />
 
-        <div className="h-px bg-[#0d2040]/80 my-3" />
-
-        <Link to="/Channel" className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-[#1e78ff]/15 to-[#a855f7]/10 border border-[#1e78ff]/25 text-[#1e78ff] hover:from-[#1e78ff]/25 transition-all mb-3">
-          <PlusCircle className="w-4 h-4 flex-shrink-0" />
-          <span className="text-xs font-bold">My Channel</span>
-        </Link>
-
-        <div className="h-px bg-[#0d2040]/80 my-3" />
-
-        {/* Following list */}
-        <p className="text-xs font-bold text-slate-400 dark:text-blue-400/30 uppercase tracking-widest px-3 mb-2">Following</p>
-        {[...subscribedChannelIds].length === 0 ? (
-          <p className="text-xs text-slate-400 dark:text-blue-400/20 px-3 py-1">Not following anyone</p>
-        ) : (
-          <div className="space-y-0.5">
-            {[...subscribedChannelIds].slice(0, 8).map(cid => {
-              const ch = channelMap[cid];
-              if (!ch) return null;
-              return (
-                <Link key={cid} to={`/Channel?id=${cid}`} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 dark:text-blue-400/60 hover:bg-slate-100 dark:hover:bg-blue-900/20 hover:text-slate-800 dark:hover:text-blue-200 transition-all">
-                  <div className="relative flex-shrink-0">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#1e78ff] to-[#a855f7] flex items-center justify-center text-white text-xs font-black">
-                      {ch.channel_name?.charAt(0)}
-                    </div>
-                    {ch.is_live && <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 border border-[#03080f]" />}
-                  </div>
-                  <span className="text-xs truncate text-slate-700 dark:text-slate-300">{ch.channel_name}</span>
-                  {ch.is_live && <span className="ml-auto text-xs text-red-400 font-bold">LIVE</span>}
-                </Link>
-              );
-            })}
+        <main className="min-w-0 space-y-6">
+          <div className="flex flex-col gap-3 md:hidden">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-[#00c8ff]">VStream</p>
+              <h1 className="text-2xl font-black text-white">Creator signal, live and social.</h1>
+            </div>
+            <form onSubmit={handleSearch} className="flex items-center gap-2 rounded-2xl border border-[#12305f] bg-[#06101f]/78 px-3 py-2">
+              <Search className="h-4 w-4 text-blue-300/52" />
+              <input name="dashboard-search" defaultValue={query} placeholder="Search VStream" className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-blue-300/35" />
+            </form>
           </div>
-        )}
-      </aside>
 
-      {/* ── MAIN CONTENT ─────────────────────────────────────── */}
-      <main className="flex-1 min-w-0 sm:ml-52 md:ml-56 flex">
-        <div className="flex-1 min-w-0">
+          <Hero video={heroVideo} channel={heroChannel} onPlay={handlePlay} />
 
-          {/* Sticky top bar */}
-          <div className="sticky top-16 z-30 border-b border-slate-200 dark:border-[#0d2040]/80 px-4 pt-3 pb-1 space-y-2 bg-white dark:bg-background" style={{ backdropFilter: "blur(20px)" }}>
+          <div className="flex items-center justify-between gap-4">
+            <MoodChips activeMood={activeMood} setActiveMood={setActiveMood} />
+          </div>
 
-            {/* Tabs + Search */}
-            <div className="flex items-center gap-1 flex-wrap">
-              {TABS.map(tab => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                  className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 flex-shrink-0 ${
-                    activeTab === tab.id
-                      ? "bg-[#1e78ff]/15 text-[#1e78ff] border border-[#1e78ff]/25"
-                      : "text-slate-600 dark:text-blue-400/50 hover:text-slate-800 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-blue-900/10"
-                  }`}>
-                  {tab.label}
-                  {tab.badge > 0 && <span className="text-xs bg-[#1e78ff]/20 text-[#1e78ff] px-1.5 py-0.5 rounded-full">{tab.badge}</span>}
-                </button>
+          <StoriesRow channels={storyChannels} />
+
+          <section>
+            <SectionTitle icon={Video} title={query ? `Search results for "${query}"` : "Recommended Videos"} action="Explore" to="/?view=explore" />
+            <div className="grid gap-x-5 gap-y-7 sm:grid-cols-2 2xl:grid-cols-3">
+              {recommended.slice(0, 9).map((video, index) => (
+                <VideoCard key={video.id} video={video} channel={channelMap[video.channel_id]} onPlay={handlePlay} featured={index === 0 && !query} />
               ))}
-
-              <div className={`ml-auto flex items-center gap-2 bg-white dark:bg-[#030810] border ${searchFocused ? "border-[#1e78ff]/50 ring-2 ring-[#1e78ff]/20" : "border-slate-300 dark:border-[#0d1820]"} rounded-xl px-3 py-1.5 w-48 sm:w-64 transition-all`}>
-                <Search className="w-4 h-4 text-slate-500 dark:text-blue-400/40 flex-shrink-0" />
-                <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} onFocus={() => setSearchFocused(true)} onBlur={() => setSearchFocused(false)} placeholder="Search..." className="flex-1 text-sm text-slate-800 dark:text-blue-100 placeholder-slate-400 dark:placeholder-blue-400/40 focus:outline-none bg-transparent min-w-0" />
-                {searchQuery && <button onClick={() => setSearchQuery("")} className="text-blue-400/40 hover:text-blue-300"><X className="w-3.5 h-3.5" /></button>}
-              </div>
             </div>
+          </section>
 
-            {/* Mood row — only on Home */}
-            {activeTab === "home" && !searchQuery && <MoodRow activeMood={activeMood} setActiveMood={setActiveMood} />}
+          <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_390px]">
+            <div className="space-y-6">
+              {continueWatching.length > 0 ? (
+                <ContinueWatching videos={continueWatching} channelMap={channelMap} onPlay={handlePlay} />
+              ) : (
+                <EmptyState title="No followed creators yet" detail="Follow creators and watch videos to build a real continue-watching queue." action="Browse Communities" to="/Communities" />
+              )}
+              <WatchPartyCard />
+              <SuggestedCreators channels={channels} />
+            </div>
+            <SocialPulse />
           </div>
 
-          {/* ── HOME TAB ───────────────────────────────────────── */}
-          <div className="px-4 pb-24 md:pb-8 mt-5 space-y-8">
-            {activeTab === "home" && (
-              <AnimatePresence mode="wait">
-              <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-
-              {!searchQuery && activeMood === "all" && (
-                <>
-
-                      {/* Featured Live */}
-                      {featuredLive && (
-                        <FeaturedLiveStream stream={featuredLive} channel={channelMap[featuredLive.id]} onSelect={() => handleOpenVideo(featuredLive)} />
-                      )}
-
-                      {/* Watch Party CTA */}
-                      <WatchPartyBanner onStart={() => setShowWatchPartyModal(true)} />
-
-                      {/* Subscriptions strip */}
-                      {mySubscriptions.length > 0 && <SubStrip subscriptions={mySubscriptions} channelMap={channelMap} />}
-
-                      {/* Continue Watching */}
-                      {continueWatching.length > 0 && (
-                        <section>
-                          <div className="flex items-center gap-2 mb-3">
-                            <History className="w-4 h-4 text-blue-400/60" />
-                            <h2 className="text-sm font-bold text-[#e8f4ff]">Continue Watching</h2>
-                          </div>
-                          <div className="space-y-3">
-                            {continueWatching.slice(0, 3).map(v => <VideoCard key={v.id} video={v} channel={channelMap[v.channel_id]} onClick={handleOpenVideo} watched compact user={user} />)}
-                          </div>
-                        </section>
-                      )}
-                    </>
-                  )}
-
-                  {/* Search header */}
-                  {searchQuery && (
-                    <p className="text-slate-600 dark:text-blue-300/80 text-sm mb-4">Results for <span className="text-foreground dark:text-[#e8f4ff] font-semibold">"{searchQuery}"</span> — {displayVideos.length} video{displayVideos.length !== 1 ? "s" : ""}</p>
-                  )}
-
-                  {/* Clips row */}
-                  {!searchQuery && clips.length > 0 && (
-                    <section className="mb-8">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-[#a855f7]" />
-                          <h2 className="text-sm font-bold text-[#e8f4ff]">Shorts & Clips</h2>
-                          <span className="text-xs text-slate-500 dark:text-blue-400/40">{clips.length}</span>
-                        </div>
-                        <Link to="/Shorts" className="text-xs text-[#1e78ff] hover:text-[#00c8ff] font-semibold transition-colors">View all →</Link>
-                      </div>
-                      <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
-                        {clips.slice(0, 12).map((v) => (
-                          <ClipCard key={v.id} video={v} onClick={handleOpenVideo} />
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  {/* Main video grid */}
-                  {displayVideos.length > 0 ? (
-                    <section>
-                      <div className="flex items-center gap-2 mb-4">
-                        {activeMood !== "all" && !searchQuery && (
-                          <span className="text-xs font-bold uppercase tracking-widest text-[#1e78ff] bg-[#1e78ff]/10 border border-[#1e78ff]/20 px-2 py-0.5 rounded-lg">
-                            {MOODS.find(m => m.id === activeMood)?.label}
-                          </span>
-                        )}
-                        <h2 className="text-sm font-bold text-[#e8f4ff]">
-                          {searchQuery ? "Search Results" : activeMood !== "all" ? "Matching Videos" : "Recommended for You"}
-                                </h2>
-                                <span className="text-xs text-slate-500 dark:text-blue-400/30">{displayVideos.length}</span>
-                      </div>
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                         {displayVideos.map((video) => (
-                           <VideoCard key={video.id} video={video} channel={channelMap[video.channel_id]} onClick={handleOpenVideo} watched={watchHistory.includes(video.id)} user={user} />
-                         ))}
-                      </div>
-                    </section>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-24 text-center">
-                      <div className="w-16 h-16 rounded-2xl bg-slate-200 dark:bg-[#050a14] border border-slate-300 dark:border-[#0d1820] flex items-center justify-center mb-4">
-                        <PlaySquare className="w-7 h-7 text-slate-400 dark:text-blue-400/40" />
-                      </div>
-                      <h3 className="text-foreground dark:text-[#e8f4ff] font-bold text-lg mb-1">{searchQuery ? "No results found" : "No videos in this mood"}</h3>
-                       <p className="text-slate-600 dark:text-blue-400/40 text-sm mb-5">{searchQuery ? "Try different keywords" : "Try another mood or explore all"}</p>
-                      {activeMood !== "all" && <button onClick={() => setActiveMood("all")} className="text-sm text-[#1e78ff] hover:text-[#00c8ff] font-semibold">Browse all videos</button>}
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            )}
-
-            {/* ── FOLLOWING TAB ─────────────────────────────────── */}
-            {activeTab === "following" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                {mySubscriptions.length > 0 ? (
-                  <>
-                    <SubStrip subscriptions={mySubscriptions} channelMap={channelMap} />
-                    {subVideos.length > 0 ? (
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                        {subVideos.map((video) => (
-                          <VideoCard key={video.id} video={video} channel={channelMap[video.channel_id]} onClick={handleOpenVideo} watched={watchHistory.includes(video.id)} user={user} />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-16"><p className="text-blue-400/40 text-sm">No new uploads from channels you follow</p></div>
-                    )}
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-24 text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-slate-200 dark:bg-card border border-slate-300 dark:border-[#0d2040] flex items-center justify-center mb-4">
-                       <UserPlus className="w-7 h-7 text-slate-400 dark:text-blue-400/30" />
-                    </div>
-                    <h3 className="text-foreground dark:text-[#e8f4ff] font-bold text-lg mb-1">No channels followed</h3>
-                     <p className="text-slate-600 dark:text-blue-400/40 text-sm">Explore content and follow creators you love</p>
-                  </div>
-                )}
-              </motion.div>
-            )}
-
-
-          </div>
-        </div>
-
-        {/* ── RIGHT SIDEBAR ─────────────────────────────────────── */}
-        <aside className="hidden lg:flex flex-col w-64 xl:w-72 flex-shrink-0 border-l border-slate-200 dark:border-[#0d2040]/80 px-4 pb-8 overflow-y-auto space-y-5 bg-slate-50 dark:bg-card" style={{ marginTop: "5rem" }}>
-
-          {/* Live channels */}
-          {liveChannels.length > 0 && <LiveSidebar liveChannels={liveChannels} onSelectStream={ch => handleOpenVideo(ch)} />}
-
-          {/* AI "What to Watch" */}
-          <div className="rounded-2xl bg-white dark:bg-card border border-slate-200 dark:border-[#0d2040] overflow-hidden">
-            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-200 dark:border-[#0d2040]">
-              <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-[#a855f7] to-[#1e78ff] flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-3.5 h-3.5 text-white" />
+          <Panel className="grid gap-4 p-4 sm:grid-cols-3">
+            {[
+              { label: "Following", value: fmt(followingCount), icon: Heart, color: "text-pink-300" },
+              { label: "Live rooms", value: fmt(liveChannels.length || 3), icon: Radio, color: "text-red-300" },
+              { label: "Saved ideas", value: "12", icon: Archive, color: "text-[#00c8ff]" },
+            ].map((stat) => (
+              <div key={stat.label} className="rounded-2xl border border-[#12305f]/55 bg-[#08172d]/62 p-4">
+                <stat.icon className={`mb-3 h-5 w-5 ${stat.color}`} />
+                <p className="text-2xl font-black text-white">{stat.value}</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-blue-300/45">{stat.label}</p>
               </div>
-              <div>
-                <p className="text-xs font-bold text-foreground dark:text-[#e8f4ff]">What to Watch</p>
-                <p className="text-xs text-slate-600 dark:text-blue-400/40">AI-powered picks</p>
-              </div>
-            </div>
-            <div className="p-4">
-              <AIContentAdvisor videos={displayVideos} channels={channels} user={user} />
-            </div>
-          </div>
+            ))}
+          </Panel>
+        </main>
 
-          {/* Trending now quick list */}
-          {trending.length > 0 && (
-            <div className="rounded-2xl bg-white dark:bg-card border border-slate-200 dark:border-[#0d2040] overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 dark:border-[#0d2040]">
-                <TrendingUp className="w-4 h-4 text-orange-400" />
-                <p className="text-xs font-bold text-[#e8f4ff]">Trending Now</p>
-              </div>
-              <div className="p-3 space-y-2">
-                {trending.slice(0, 5).map((v, i) => (
-                  <button key={v.id} onClick={() => handleOpenVideo(v)} className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-blue-900/15 transition-colors text-left group">
-                    <span className="text-xs font-black text-[#1e78ff] w-5 flex-shrink-0">#{i + 1}</span>
-                    <div className="w-10 aspect-video rounded-lg overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-[#0a1525]">
-                      <img src={v.thumbnail_url || `https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=80&h=45&fit=crop&sig=${v.id}`} alt="" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-slate-800 dark:text-[#c8dff5] truncate group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{v.title}</p>
-                      <p className="text-xs text-blue-400/40 flex items-center gap-1 mt-0.5"><Eye className="w-3 h-3" /> {fmt(v.view_count)}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+        <RightRail liveChannels={liveChannels} trendingVideos={trendingVideos} channels={channels} onPlay={handlePlay} />
+      </div>
 
-          {/* Watch Later sidebar */}
-          {watchLaterVideos.length > 0 && (
-            <div className="rounded-2xl bg-white dark:bg-card border border-slate-200 dark:border-[#0d2040] overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-[#0d2040]">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#1e78ff]" />
-                  <p className="text-xs font-bold text-[#e8f4ff]">Watch Later</p>
-                  <span className="text-xs bg-[#1e78ff]/20 text-[#1e78ff] px-1.5 py-0.5 rounded text-xs">{watchLaterVideos.length}</span>
-                </div>
-                <button onClick={() => { localStorage.removeItem("watchLater"); setWatchLater([]); }} className="text-xs text-red-400/60 hover:text-red-400 transition-colors">Clear</button>
-              </div>
-              <div className="p-3 space-y-2 max-h-56 overflow-y-auto">
-                {watchLaterVideos.slice(0, 5).map(v => (
-                  <button key={v.id} onClick={() => handleOpenVideo(v)} className="w-full flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-blue-900/15 transition-colors text-left group">
-                    <div className="w-12 aspect-video rounded overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-[#0a1525]">
-                      <img src={v.thumbnail_url || `https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=80&h=45&fit=crop&sig=${v.id}`} alt="" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-slate-800 dark:text-[#c8dff5] line-clamp-2">{v.title}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+      <MobileBottomNav />
 
-          {/* Watch History sidebar */}
-          {continueWatching.length > 0 && (
-            <div className="rounded-2xl bg-white dark:bg-card border border-slate-200 dark:border-[#0d2040] overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 dark:border-[#0d2040]">
-                <History className="w-4 h-4 text-blue-400/60" />
-                <p className="text-xs font-bold text-[#e8f4ff]">Watch History</p>
-                <span className="text-xs bg-blue-400/10 text-blue-400/60 px-1.5 py-0.5 rounded text-xs">{continueWatching.length}</span>
-              </div>
-              <div className="p-3 space-y-2 max-h-56 overflow-y-auto">
-                {continueWatching.slice(0, 5).map(v => (
-                  <button key={v.id} onClick={() => handleOpenVideo(v)} className="w-full flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-blue-900/15 transition-colors text-left group">
-                    <div className="w-12 aspect-video rounded overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-[#0a1525]">
-                      <img src={v.thumbnail_url || `https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=80&h=45&fit=crop&sig=${v.id}`} alt="" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-slate-800 dark:text-[#c8dff5] line-clamp-2">{v.title}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Quick links */}
-          <div className="rounded-2xl bg-white dark:bg-card border border-slate-200 dark:border-[#0d2040] overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 dark:border-[#0d2040]">
-              <PlaySquare className="w-4 h-4 text-[#1e78ff]" />
-              <p className="text-xs font-bold text-foreground dark:text-[#e8f4ff]">Clips</p>
-            </div>
-            <div className="p-3 space-y-1">
-              {[
-                { label: "View My Channel", to: "/Channel", icon: Tv, color: "text-yellow-400" },
-                { label: "Browse Live", to: "/Live", icon: Radio, color: "text-red-400" },
-                { label: "My Clips", to: "/Shorts", icon: PlaySquare, color: "text-green-400" },
-                { label: "World Chat", to: "/WorldChat", icon: MessageSquare, color: "text-cyan-400" },
-                { label: "Spot Call", to: "#", icon: Users, color: "text-blue-400" },
-              ].map(a => {
-                const Icon = a.icon;
-                return (
-                <Link key={a.label} to={a.to} className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-blue-900/15 transition-colors group">
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${a.color}`} />
-                  <span className="text-xs text-slate-600 dark:text-blue-300/60 group-hover:text-slate-800 dark:group-hover:text-blue-200 transition-colors">{a.label}</span>
-                  <ChevronRight className="w-3 h-3 text-blue-400/20 ml-auto" />
-                </Link>
-                );
-              })}
-            </div>
-          </div>
-        </aside>
-      </main>
-
-      {/* Watch Party Modal */}
       <AnimatePresence>
-        {showWatchPartyModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
-            onClick={e => e.target === e.currentTarget && setShowWatchPartyModal(false)}>
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }}
-              className="bg-white dark:bg-card border border-slate-200 dark:border-blue-900/40 rounded-2xl p-6 w-full max-w-sm relative">
-              <button onClick={() => setShowWatchPartyModal(false)} className="absolute top-3 right-3 text-slate-500 dark:text-blue-400/40 hover:text-slate-700 dark:hover:text-blue-300"><X className="w-4 h-4" /></button>
-              <div className="w-12 h-12 rounded-2xl bg-[#a855f7]/20 flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-[#a855f7]" />
-              </div>
-              <h3 className="text-center text-lg font-black text-foreground dark:text-[#e8f4ff] mb-1">Watch Party</h3>
-              <p className="text-center text-sm text-slate-600 dark:text-blue-400/50 mb-5">Invite friends to watch videos together in real-time sync.</p>
-              <div className="bg-slate-50 dark:bg-[#0a1525] border border-slate-300 dark:border-blue-900/30 rounded-xl p-3 mb-4">
-                <p className="text-xs text-slate-600 dark:text-blue-400/40 mb-1">Party Link</p>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-[#1e78ff] font-mono flex-1 truncate">vstream.app/party/coming-soon</p>
-                  <button className="text-xs bg-[#1e78ff]/20 text-[#1e78ff] px-2 py-1 rounded-lg hover:bg-[#1e78ff]/30 transition-colors">Copy</button>
-                </div>
-              </div>
-              <p className="text-center text-xs text-slate-500 dark:text-blue-400/30">Coming soon — share the link with friends!</p>
-            </motion.div>
-          </motion.div>
+        {selectedVideo && (
+          <VideoPlayerModal
+            video={selectedVideo}
+            channel={channelMap[selectedVideo.channel_id]}
+            relatedVideos={videos}
+            channelMap={channelMap}
+            onClose={() => setSelectedVideo(null)}
+            onSelectVideo={handlePlay}
+          />
         )}
       </AnimatePresence>
-
-      {selectedVideo && (
-        <VideoPlayerModal
-          video={selectedVideo}
-          channel={channelMap[selectedVideo.channel_id]}
-          relatedVideos={mainVideos}
-          channelMap={channelMap}
-          onClose={() => setSelectedVideo(null)}
-          onSelectVideo={v => { setSelectedVideo(v); handleOpenVideo(v); }}
-        />
-      )}
     </div>
   );
 }

@@ -31,6 +31,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider } from '@/lib/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import VStreamAIAssistant from '@/components/ai/VStreamAIAssistant';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? "Dashboard";
@@ -44,12 +45,23 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+
+      <Route path="/" element={
+        <LayoutWrapper currentPageName={mainPageKey}>
+          <MainPage />
+        </LayoutWrapper>
+      } />
+      <Route path="/Shorts" element={<LayoutWrapper currentPageName="Shorts"><ShortsPage /></LayoutWrapper>} />
+      <Route path="/Live" element={<LayoutWrapper currentPageName="Live"><LivePage /></LayoutWrapper>} />
+      <Route path="/Communities" element={<LayoutWrapper currentPageName="Communities"><WorldChat /></LayoutWrapper>} />
+      <Route path="/WorldChat" element={<LayoutWrapper currentPageName="WorldChat"><WorldChat /></LayoutWrapper>} />
+      <Route path="/TalentNexus" element={<LayoutWrapper currentPageName="TalentNexus"><TalentNexus /></LayoutWrapper>} />
+      <Route path="/TalentProfile" element={<LayoutWrapper currentPageName="TalentProfile"><TalentProfile /></LayoutWrapper>} />
+      <Route path="/Archive" element={<LayoutWrapper currentPageName="Archive"><ChronosArchive /></LayoutWrapper>} />
+      <Route path="/Apply" element={<LayoutWrapper currentPageName="Apply"><Apply /></LayoutWrapper>} />
+      <Route path="/Channel" element={<LayoutWrapper currentPageName="Channel"><ChannelPage /></LayoutWrapper>} />
+
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={
-          <LayoutWrapper currentPageName={mainPageKey}>
-            <MainPage />
-          </LayoutWrapper>
-        } />
         {Object.entries(Pages).map(([path, Page]) => (
           <Route
             key={path}
@@ -66,25 +78,18 @@ const AppRoutes = () => {
         <Route path="/UserViewer" element={<LayoutWrapper currentPageName="UserViewer"><UserViewer /></LayoutWrapper>} />
         <Route path="/CreatorStudio" element={<LayoutWrapper currentPageName="CreatorStudio"><CreatorStudio /></LayoutWrapper>} />
         <Route path="/DeepScanResults" element={<LayoutWrapper currentPageName="DeepScanResults"><DeepScanResults /></LayoutWrapper>} />
-        <Route path="/Shorts" element={<LayoutWrapper currentPageName="Shorts"><ShortsPage /></LayoutWrapper>} />
-        <Route path="/Live" element={<LayoutWrapper currentPageName="Live"><LivePage /></LayoutWrapper>} />
         <Route path="/StreamerDashboard" element={<LayoutWrapper currentPageName="StreamerDashboard"><StreamerDashboard /></LayoutWrapper>} />
         <Route path="/FinancialOverview" element={<LayoutWrapper currentPageName="FinancialOverview"><FinancialOverview /></LayoutWrapper>} />
         <Route path="/AudienceAnalytics" element={<LayoutWrapper currentPageName="AudienceAnalytics"><AudienceAnalytics /></LayoutWrapper>} />
-        <Route path="/Channel" element={<LayoutWrapper currentPageName="Channel"><ChannelPage /></LayoutWrapper>} />
         <Route path="/VideoAnalytics" element={<LayoutWrapper currentPageName="VideoAnalytics"><VideoAnalyticsPage /></LayoutWrapper>} />
         <Route path="/WatchHistory" element={<LayoutWrapper currentPageName="WatchHistory"><WatchHistory /></LayoutWrapper>} />
         <Route path="/SavedVideos" element={<LayoutWrapper currentPageName="SavedVideos"><SavedVideos /></LayoutWrapper>} />
         <Route path="/Playlists" element={<LayoutWrapper currentPageName="Playlists"><Playlists /></LayoutWrapper>} />
         <Route path="/ArtForge" element={<LayoutWrapper currentPageName="ArtForge"><ArtForgeStudio /></LayoutWrapper>} />
-        <Route path="/TalentNexus" element={<LayoutWrapper currentPageName="TalentNexus"><TalentNexus /></LayoutWrapper>} />
-        <Route path="/Archive" element={<LayoutWrapper currentPageName="Archive"><ChronosArchive /></LayoutWrapper>} />
-        <Route path="/Apply" element={<LayoutWrapper currentPageName="Apply"><Apply /></LayoutWrapper>} />
-        <Route path="/TalentProfile" element={<LayoutWrapper currentPageName="TalentProfile"><TalentProfile /></LayoutWrapper>} />
         <Route path="/MusicEditor" element={<LayoutWrapper currentPageName="MusicEditor"><MusicEditor /></LayoutWrapper>} />
-        <Route path="/WorldChat" element={<LayoutWrapper currentPageName="WorldChat"><WorldChat /></LayoutWrapper>} />
-        <Route path="*" element={<PageNotFound />} />
       </Route>
+
+      <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };
@@ -98,6 +103,7 @@ function App() {
         <AuthProvider>
           <NavigationTracker />
           <AppRoutes />
+          <VStreamAIAssistant surface="floating" />
         </AuthProvider>
       </Router>
       <Toaster />

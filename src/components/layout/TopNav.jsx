@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Moon, Sun, Settings, LogOut, Search,
   Tv, Users, Scan, LayoutDashboard,
-  Radio, PlaySquare, ChevronRight
+  Radio, PlaySquare, ChevronRight, MessageSquare, Bookmark, ListVideo, Wand2, Mic2, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -25,6 +25,7 @@ export default function TopNav({
   newVideos = [],
 }) {
   const [accountOpen, setAccountOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeChannelId, setActiveChannelId] = useState(() => {
@@ -38,6 +39,7 @@ export default function TopNav({
     window.dispatchEvent(new CustomEvent("activeChannelChanged", { detail: { channelId } }));
   };
   const dropdownRef = useRef(null);
+  const createRef = useRef(null);
   const navigate = useNavigate();
   const { logout, navigateToLogin } = useAuth();
   const isAdmin = user?.role === "admin";
@@ -47,6 +49,9 @@ export default function TopNav({
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setAccountOpen(false);
+      }
+      if (createRef.current && !createRef.current.contains(e.target)) {
+        setCreateOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -62,12 +67,22 @@ export default function TopNav({
     }
   };
 
+  const openCreatorTool = (to) => {
+    setCreateOpen(false);
+    setAccountOpen(false);
+    if (!user?.email) {
+      navigateToLogin(to);
+      return;
+    }
+    navigate(to);
+  };
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl ${darkMode ? "bg-[#03080f]/97 border-b border-[#0d1820]" : "bg-white border-b border-gray-200"}`}
       role="navigation"
     >
-      <div className="flex items-center justify-between h-14 px-3 sm:px-5 gap-2">
+      <div className="flex items-center justify-between h-14 px-3 sm:px-5 gap-3">
 
         {/* Left: logo */}
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -85,30 +100,16 @@ export default function TopNav({
           </Link>
         </div>
 
-        {/* Center: VFusions-style pill nav */}
-        <div className="hidden md:flex items-center gap-1 bg-black/30 border border-white/10 rounded-full px-2 py-1.5 backdrop-blur-sm">
-          {[
-            { label: "STAGE", to: "/", icon: "◈" },
-            { label: "TALENT", to: "/TalentNexus", icon: "◈" },
-            { label: "ARCHIVE", to: "/Archive", icon: "◈" },
-            { label: "APPLY", to: "/Apply", icon: "✦" },
-          ].map(item => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
-                (currentPageName === "Dashboard" && item.to === "/") ||
-                (currentPageName === "TalentNexus" && item.to === "/TalentNexus") ||
-                (currentPageName === "Archive" && item.to === "/Archive") ||
-                (currentPageName === "Apply" && item.to === "/Apply")
-                  ? "bg-[#00c8ff]/15 text-[#00c8ff] border border-[#00c8ff]/30"
-                  : "text-white/60 hover:text-white hover:bg-white/10"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
+        {/* Center: search */}
+        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl items-center gap-2 rounded-full border border-[#12305f] bg-[#030810]/78 px-3 py-2">
+          <Search className="h-4 w-4 text-blue-300/45" />
+          <input
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search videos, live creators, communities..."
+            className="min-w-0 flex-1 bg-transparent text-sm text-[#e8f4ff] outline-none placeholder:text-blue-300/35"
+          />
+        </form>
 
         {/* Right: icons + avatar */}
         <div className="flex items-center gap-1 flex-shrink-0">
@@ -146,6 +147,41 @@ export default function TopNav({
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             LIVE
           </Link>
+
+          <div className="relative block" ref={createRef}>
+            <button
+              type="button"
+              onClick={() => user?.email ? setCreateOpen((open) => !open) : openCreatorTool("/CreatorStudio")}
+              className="flex items-center gap-1.5 rounded-xl bg-[#1e78ff] px-3 py-2 text-xs font-black text-white transition hover:bg-[#00a6ff]"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Create</span>
+            </button>
+            <AnimatePresence>
+              {createOpen && user?.email && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                  transition={{ duration: 0.12 }}
+                  className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-2xl border border-[#0d1820] bg-[#030810] shadow-2xl shadow-black/60"
+                >
+                  <button onClick={() => openCreatorTool("/CreatorStudio")} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-blue-200/75 transition hover:bg-blue-900/20 hover:text-white">
+                    <Mic2 className="h-4 w-4 text-[#00c8ff]" />
+                    Creator Studio
+                  </button>
+                  <button onClick={() => openCreatorTool("/ArtForge")} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-blue-200/75 transition hover:bg-blue-900/20 hover:text-white">
+                    <Wand2 className="h-4 w-4 text-[#a855f7]" />
+                    ArtForge AI
+                  </button>
+                  <button onClick={() => openCreatorTool("/StreamerDashboard")} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-blue-200/75 transition hover:bg-blue-900/20 hover:text-white">
+                    <Radio className="h-4 w-4 text-red-300" />
+                    Go Live
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {user ? (
           <div className="relative ml-1" ref={dropdownRef}>
@@ -194,6 +230,8 @@ export default function TopNav({
                   {user?.email && (
                     <div className="border-t border-[#0d1820] py-1">
                       <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Creator</p>
+                      <MenuButton icon={Mic2} label="Creator Studio" onClick={() => openCreatorTool("/CreatorStudio")} />
+                      <MenuButton icon={Wand2} label="ArtForge AI" onClick={() => openCreatorTool("/ArtForge")} />
                       <MenuItem icon={Radio} label="Go Live Now" to="/StreamerDashboard" onClick={() => setAccountOpen(false)} />
                     </div>
                   )}
@@ -274,12 +312,17 @@ export default function TopNav({
               {[
                 { label: "Home", icon: LayoutDashboard, to: "/" },
                 { label: "Live", icon: Radio, to: "/Live" },
-                { label: "Clips", icon: PlaySquare, to: "/Shorts" },
-                { label: "My Channel", icon: Tv, to: "/Channel" },
-                { label: "Go Live", icon: Radio, to: "/StreamerDashboard" },
-                { label: "AI Tools", icon: Scan, to: "/AITools" },
+                { label: "Shorts/Reels", icon: PlaySquare, to: "/Shorts" },
+                { label: "Communities", icon: MessageSquare, to: "/Communities" },
+                { label: "Saved", icon: Bookmark, to: "/SavedVideos" },
+                { label: "Playlists", icon: ListVideo, to: "/Playlists" },
+                ...(user ? [
+                  { label: "Go Live", icon: Radio, to: "/StreamerDashboard" },
+                  { label: "My Channel", icon: Tv, to: "/Channel" },
+                ] : []),
                 ...(isAdmin ? [
                   { label: "Users", icon: Users, to: "/UserViewer" },
+                  { label: "Staff Tools", icon: Scan, to: "/AITools" },
                 ] : []),
                 { label: "Settings", icon: Settings, to: "/Settings" },
               ].map(item => (
@@ -293,7 +336,7 @@ export default function TopNav({
                   {item.label}
                 </Link>
               ))}
-              <div className="pt-2 mt-2 border-t border-[#0d1820]">
+              {user && <div className="pt-2 mt-2 border-t border-[#0d1820]">
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
@@ -303,7 +346,7 @@ export default function TopNav({
                 >
                   <LogOut className="w-4 h-4" /> Sign out
                 </button>
-              </div>
+              </div>}
             </div>
           </motion.div>
         )}
@@ -323,5 +366,19 @@ function MenuItem({ icon: Icon, label, to, onClick }) {
       <span className="flex-1">{label}</span>
       <ChevronRight className="w-3.5 h-3.5 text-blue-400/20" />
     </Link>
+  );
+}
+
+function MenuButton({ icon: Icon, label, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-blue-300/70 transition-colors hover:bg-blue-900/20 hover:text-blue-200"
+    >
+      <Icon className="w-4 h-4 flex-shrink-0" />
+      <span className="flex-1">{label}</span>
+      <ChevronRight className="w-3.5 h-3.5 text-blue-400/20" />
+    </button>
   );
 }

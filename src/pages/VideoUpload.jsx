@@ -6,6 +6,7 @@ import { Upload, File, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import VStreamAIAssistant from "@/components/ai/VStreamAIAssistant";
 
 export default function VideoUpload() {
   const { user: authUser } = useAuth();
@@ -39,6 +40,14 @@ export default function VideoUpload() {
       setFile(selectedFile);
       setVideoTitle(selectedFile.name.split(".")[0]);
     }
+  };
+
+  const applyMetadataSuggestion = (text) => {
+    const titleMatch = text.match(/title:\s*(.+)/i);
+    const descriptionMatch = text.match(/description:\s*([\s\S]*?)(?:\nTags:|$)/i);
+    if (titleMatch?.[1]) setVideoTitle(titleMatch[1].replace(/\|/g, "-").trim());
+    if (descriptionMatch?.[1]) setVideoDescription(descriptionMatch[1].trim());
+    toast.success("AI metadata suggestion applied");
   };
 
   const handleUpload = async () => {
@@ -118,11 +127,11 @@ export default function VideoUpload() {
 
   if (uploadedVideoId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 flex items-center justify-center p-4">
+      <div className="min-h-[420px] bg-[#03080f] flex items-center justify-center p-4">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Upload Successful!</h2>
-          <p className="text-slate-600 mb-6">Your video is now transcoding. Check back soon!</p>
+          <h2 className="text-2xl font-bold text-[#e8f4ff] mb-2">Upload Successful!</h2>
+          <p className="text-blue-200/55 mb-6">Your video is now transcoding. Check back soon!</p>
           <Button onClick={() => setUploadedVideoId(null)}>Upload Another</Button>
         </motion.div>
       </div>
@@ -130,14 +139,15 @@ export default function VideoUpload() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 p-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-[520px] bg-[#03080f] p-4">
+      <div className="mx-auto grid max-w-6xl gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div>
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Upload Video</h1>
-          <p className="text-slate-600 mb-6">Upload and process your next video</p>
+          <h1 className="text-3xl font-bold text-[#e8f4ff] mb-2">Upload Video</h1>
+          <p className="text-blue-200/55 mb-6">Upload and process your next video</p>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-2xl border-2 border-dashed border-indigo-300 shadow-sm p-8 text-center">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#06101f] rounded-2xl border-2 border-dashed border-[#1e78ff]/40 shadow-2xl shadow-black/20 p-8 text-center">
           <input
             type="file"
             id="video-input"
@@ -150,22 +160,22 @@ export default function VideoUpload() {
           {!file ? (
             <label htmlFor="video-input" className="cursor-pointer">
               <Upload className="w-12 h-12 text-indigo-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Drop your video here</h3>
-              <p className="text-slate-600 mb-4">or click to browse (max 5GB)</p>
+              <h3 className="text-lg font-semibold text-[#e8f4ff] mb-2">Drop your video here</h3>
+              <p className="text-blue-200/55 mb-4">or click to browse (max 5GB)</p>
               <Button variant="outline">Select Video</Button>
             </label>
           ) : (
             <div className="space-y-4">
-              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg">
+              <div className="flex items-center gap-3 p-4 bg-[#03080f] border border-[#12305f] rounded-lg">
                 <File className="w-6 h-6 text-indigo-500" />
                 <div className="text-left flex-1">
-                  <p className="font-medium text-slate-900">{file.name}</p>
-                  <p className="text-sm text-slate-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p className="font-medium text-[#e8f4ff]">{file.name}</p>
+                  <p className="text-sm text-blue-200/45">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                 </div>
                 <button
                   onClick={() => setFile(null)}
                   disabled={uploading}
-                  className="text-slate-400 hover:text-slate-600"
+                  className="text-blue-200/40 hover:text-blue-100"
                 >
                   ✕
                 </button>
@@ -173,7 +183,7 @@ export default function VideoUpload() {
 
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-2">Video Title</label>
+                  <label className="text-sm font-medium text-blue-100/70 block mb-2">Video Title</label>
                   <Input
                     value={videoTitle}
                     onChange={(e) => setVideoTitle(e.target.value)}
@@ -183,27 +193,27 @@ export default function VideoUpload() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-2">Description</label>
+                  <label className="text-sm font-medium text-blue-100/70 block mb-2">Description</label>
                   <textarea
                     value={videoDescription}
                     onChange={(e) => setVideoDescription(e.target.value)}
                     placeholder="Tell viewers what your video is about..."
                     rows={4}
                     disabled={uploading}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    className="w-full px-3 py-2 border border-[#12305f] bg-[#06101f] text-[#e8f4ff] rounded-lg text-sm"
                   />
                 </div>
               </div>
 
               {uploading && (
                 <div className="space-y-2">
-                  <div className="w-full bg-slate-200 rounded-full h-2">
+                  <div className="w-full bg-[#12305f] rounded-full h-2">
                     <div
                       className="bg-gradient-to-r from-indigo-500 to-purple-600 h-2 rounded-full transition-all"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
-                  <p className="text-sm text-slate-600">{Math.round(uploadProgress)}% uploaded</p>
+                  <p className="text-sm text-blue-200/55">{Math.round(uploadProgress)}% uploaded</p>
                 </div>
               )}
 
@@ -225,6 +235,20 @@ export default function VideoUpload() {
             </div>
           )}
         </motion.div>
+        </div>
+        <aside className="xl:sticky xl:top-20 xl:self-start">
+          <VStreamAIAssistant
+            surface="compact"
+            contextType="upload"
+            context={{
+              title: videoTitle || file?.name || "New upload",
+              description: videoDescription,
+              fileName: file?.name,
+              actions: ["Generate metadata", "Improve title", "Write description", "Suggest tags"],
+            }}
+            onApply={applyMetadataSuggestion}
+          />
+        </aside>
       </div>
     </div>
   );

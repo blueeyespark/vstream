@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import VStreamAIAssistant from "@/components/ai/VStreamAIAssistant";
 import {
   WandSparkles,
   Layers,
@@ -198,7 +199,7 @@ function JobPill({ status }) {
   return <span className={cls("rounded-full border px-2 py-0.5 text-[11px] font-bold", map[status] || map.queued)}>{status}</span>;
 }
 
-export default function ArtForgeStudio() {
+export default function ArtForgeStudio({ embedded = false }) {
   const { user: authUser } = useAuth();
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
@@ -488,8 +489,8 @@ export default function ArtForgeStudio() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020712] text-blue-50">
-      <div className="sticky top-0 z-30 border-b border-blue-900/35 bg-[#020712]/90 backdrop-blur-xl">
+    <div className={embedded ? "bg-[#020712] text-blue-50" : "min-h-screen bg-[#020712] text-blue-50"}>
+      {!embedded && <div className="sticky top-0 z-30 border-b border-blue-900/35 bg-[#020712]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1800px] flex-col gap-4 px-4 py-4 lg:px-6 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex items-center gap-3">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[#1e78ff] to-[#a855f7] shadow-lg shadow-blue-950/60">
@@ -532,9 +533,9 @@ export default function ArtForgeStudio() {
             })}
           </div>
         </div>
-      </div>
+      </div>}
 
-      <main className="mx-auto grid max-w-[1800px] gap-5 px-4 py-5 lg:px-6 xl:grid-cols-[340px_1fr_360px]">
+      <main className={embedded ? "grid gap-4 p-3 xl:grid-cols-[280px_minmax(0,1fr)] 2xl:grid-cols-[280px_minmax(0,1fr)_300px]" : "mx-auto grid max-w-[1800px] gap-5 px-4 py-5 lg:px-6 xl:grid-cols-[340px_1fr_360px]"}>
         <aside className="space-y-5">
           <Panel title="Creation Modes" icon={Sparkles}>
             <div className="grid grid-cols-2 gap-3">
@@ -621,6 +622,25 @@ export default function ArtForgeStudio() {
                       <FieldLabel>Negative Prompt / Safety Corrections</FieldLabel>
                       <input value={negativePrompt} onChange={(e) => setNegativePrompt(e.target.value)} className="w-full rounded-xl border border-blue-900/40 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-blue-400" />
                     </div>
+
+                    <VStreamAIAssistant
+                      surface="compact"
+                      contextType="artforge"
+                      context={{
+                        title: prompt || `${currentMode.label} prompt`,
+                        mode: currentMode.label,
+                        aspect,
+                        quality,
+                        negativePrompt,
+                        actions: ["Improve prompt", "Negative prompt", "Thumbnail prompt", "Variant ideas"],
+                      }}
+                      onApply={(text) => {
+                        const negativeMatch = text.match(/negative prompt:\s*([\s\S]*)/i);
+                        setPrompt(text.replace(/Demo prompt upgrade:\s*/i, "").replace(/Negative prompt:\s*[\s\S]*/i, "").trim());
+                        if (negativeMatch?.[1]) setNegativePrompt(negativeMatch[1].trim());
+                        toast.success("AI prompt suggestion applied");
+                      }}
+                    />
 
                     <div className="rounded-2xl border border-dashed border-blue-800/50 bg-blue-950/10 p-4">
                       <div className="mb-3 flex items-center justify-between">
