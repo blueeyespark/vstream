@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCreatorOS } from "@/lib/CreatorOSContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Plus, Tv, Zap } from "lucide-react";
 
@@ -47,23 +48,16 @@ function MiniCreateForm({ userEmail, onCreated, onCancel }) {
 }
 
 // ── Channel Switcher Dropdown ─────────────────────────────────────────────────
-export default function ChannelSwitcher({ user, activeChannelId, onSwitch }) {
+export default function ChannelSwitcher({ user }) {
   const [open, setOpen] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const queryClient = useQueryClient();
+  const { channels = [], myChannels = [], activeChannelId, setActiveChannelId } = useCreatorOS();
 
-  const { data: channels = [] } = useQuery({
-    queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
-    staleTime: 2 * 60 * 1000,
-    enabled: !!user?.email,
-  });
-
-  const myChannels = channels.filter(c => c.creator_email === user?.email);
-  const activeChannel = myChannels.find(c => c.id === activeChannelId) || myChannels[0];
+  const activeChannel = myChannels.find((c) => c.id === activeChannelId) || myChannels[0];
 
   const handleSwitch = (channelId) => {
-    onSwitch(channelId);
+    setActiveChannelId(channelId);
     setOpen(false);
     setShowCreate(false);
   };
@@ -72,7 +66,7 @@ export default function ChannelSwitcher({ user, activeChannelId, onSwitch }) {
     queryClient.invalidateQueries({ queryKey: ["channels-all"] });
     setShowCreate(false);
     if (newChannelId) {
-      onSwitch(newChannelId);
+      setActiveChannelId(newChannelId);
     }
     setOpen(false);
   };

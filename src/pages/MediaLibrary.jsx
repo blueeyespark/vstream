@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCreatorOS } from "@/lib/CreatorOSContext";
 import { motion } from "framer-motion";
 import { Search, Upload, Trash2, Star, Folder, FileVideo, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,11 +46,7 @@ export default function MediaLibrary() {
     setUser(authUser);
   }, [authUser]);
 
-  const { data: assets = [] } = useQuery({
-    queryKey: ["media_assets", user?.email],
-    queryFn: () => base44.entities.MediaAsset.list("-created_date"),
-    enabled: !!user?.email,
-  });
+  const { assets = [] } = useCreatorOS();
 
   const uploadMutation = useMutation({
     mutationFn: async (data) => {
@@ -62,7 +59,7 @@ export default function MediaLibrary() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["media_assets"] });
+      queryClient.invalidateQueries({ queryKey: ["creator-os-assets", user?.email] });
       toast.success("Asset uploaded successfully");
       setShowUpload(false);
       setUploadName("");
@@ -75,7 +72,7 @@ export default function MediaLibrary() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.MediaAsset.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["media_assets"] });
+      queryClient.invalidateQueries({ queryKey: ["creator-os-assets", user?.email] });
       toast.success("Asset deleted");
     },
   });
@@ -86,7 +83,7 @@ export default function MediaLibrary() {
       return base44.entities.MediaAsset.update(id, { is_favorite: !asset.is_favorite });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["media_assets"] });
+      queryClient.invalidateQueries({ queryKey: ["creator-os-assets", user?.email] });
     },
   });
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useCreatorOS } from "@/lib/CreatorOSContext";
 import {
   BadgeCheck,
   Box,
@@ -99,14 +99,7 @@ export default function ProductionHub() {
     scheduled: "",
   });
 
-  const { data: mediaAssets = [] } = useQuery({
-    queryKey: ["production-assets", user?.email],
-    enabled: !!user?.email,
-    queryFn: () => base44.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 120),
-    staleTime: 30_000,
-    gcTime: 300_000,
-  });
-
+  const { assets: mediaAssets = [] } = useCreatorOS();
   const displayAssets = mediaAssets.length ? mediaAssets : demoAssets;
   const selectedAsset = displayAssets.find((asset) => asset.id === selectedAssetId) || null;
 

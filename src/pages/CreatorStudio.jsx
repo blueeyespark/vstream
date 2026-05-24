@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { CreatorOSProvider, useCreatorOS } from "@/lib/CreatorOSContext";
+import { useAuth } from "@/lib/AuthContext";
 import {
   Activity,
   AlertTriangle,
@@ -37,8 +38,6 @@ import {
   Wand2,
   Zap,
 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
 import ProductionHub from "@/components/studio/ProductionHub";
 import PlanningHub from "@/components/studio/PlanningHub";
 import AnalyticsHub from "@/components/studio/AnalyticsHub";
@@ -103,7 +102,7 @@ function SectionHeader({ section, channelName }) {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link to="/CreatorStudio?section=production" className="inline-flex items-center gap-2 rounded-xl bg-[#1e78ff] px-4 py-2.5 text-sm font-black text-white transition hover:bg-[#00a6ff]">
+              <Link to="/CreatorOS?section=production" className="inline-flex items-center gap-2 rounded-xl bg-[#1e78ff] px-4 py-2.5 text-sm font-black text-white transition hover:bg-[#00a6ff]">
               <Plus className="h-4 w-4" /> New Project
             </Link>
             <Link to="/StreamerDashboard" className="inline-flex items-center gap-2 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-2.5 text-sm font-black text-red-100 transition hover:bg-red-500/16">
@@ -116,88 +115,54 @@ function SectionHeader({ section, channelName }) {
   );
 }
 
-export default function CreatorStudio() {
+function CreatorStudioContent() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const legacyTab = searchParams.get("tab");
-  const activeSection = searchParams.get("section") || (legacyTab === "production" ? "production" : legacyTab === "analytics" ? "analytics" : "dashboard");
+  const requestedTool = searchParams.get("tool");
+  const sectionParam = searchParams.get("section");
+  const activeSection =
+    sectionParam ||
+    (legacyTab === "production" ? "production" : legacyTab === "analytics" ? "analytics" : null) ||
+    (requestedTool ? "production" : "dashboard");
   const [libraryFilter, setLibraryFilter] = useState("all");
   const [libraryQuery, setLibraryQuery] = useState("");
   const [streamForm, setStreamForm] = useState({ title: "Untitled VStream Live", category: "Just Chatting", slowMode: true, alerts: true });
 
-  const { data: channels = [] } = useQuery({
-    queryKey: ["creator-os-channels"],
-    queryFn: () => base44.entities.Channel.list(),
-    enabled: !!user?.email,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const { data: videos = [] } = useQuery({
-    queryKey: ["creator-os-videos", user?.email],
-    queryFn: () => base44.entities.Video.list("-created_date", 120),
-    enabled: !!user?.email,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const { data: assets = [] } = useQuery({
-    queryKey: ["creator-os-assets", user?.email],
-    queryFn: () => base44.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 120),
-    enabled: !!user?.email,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const { data: analytics = [] } = useQuery({
-    queryKey: ["creator-os-analytics"],
-    queryFn: () => base44.entities.VideoAnalytics.list("-date", 120),
-    enabled: !!user?.email,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const myChannels = useMemo(() => channels.filter((channel) => channel.creator_email === user?.email), [channels, user?.email]);
-  const channel = myChannels[0];
+  const { channel, videos, assets, analytics, stats } = useCreatorOS();
   const section = sections.find((item) => item.id === activeSection) || sections[0];
-  const channelVideos = videos.filter((video) => !channel?.id || video.channel_id === channel.id);
-  const readyVideos = channelVideos.filter((video) => video.status === "ready");
-  const drafts = channelVideos.filter((video) => ["draft", "processing", "scheduled"].includes(video.status));
-  const totalViews = channelVideos.reduce((sum, video) => sum + (video.view_count || 0), 0);
-  const revenueEstimate = Math.round(totalViews * 0.0032);
-
   const setSection = (id) => {
     setSearchParams({ section: id });
-  };
-
-  const stats = {
-    videos: readyVideos.length,
-    drafts: drafts.length,
-    views: totalViews,
-    assets: assets.length,
-    analytics: analytics.length,
-    revenue: revenueEstimate,
   };
 
   return (
     <div className="min-h-screen bg-[#03080f] text-[#e8f4ff]">
       <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(30,120,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(30,120,255,0.06)_1px,transparent_1px)] bg-[size:44px_44px]" />
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(30,120,255,0.20),transparent_34%),radial-gradient(circle_at_83%_16%,rgba(168,85,247,0.18),transparent_32%),linear-gradient(180deg,rgba(3,8,15,0),#03080f_72%)]" />
-
       <div className="mx-auto grid max-w-[1880px] gap-5 px-3 py-5 sm:px-5 xl:grid-cols-[300px_minmax(0,1fr)]">
         <CreatorSidebar activeSection={activeSection} setSection={setSection} channel={channel} stats={stats} />
-
-        <main className="min-w-0 space-y-5">
+        <main className="space-y-5">
           <SectionHeader section={section} channelName={channel?.channel_name} />
-          {!channel && <ChannelSetupNotice />}
-          {activeSection === "dashboard" && <CreatorDashboard stats={stats} videos={channelVideos} assets={assets} setSection={setSection} />}
-          {activeSection === "production" && <ProductionHub />}
-          {activeSection === "live" && <LiveControlRoom streamForm={streamForm} setStreamForm={setStreamForm} />}
-          {activeSection === "library" && <ContentLibrary videos={channelVideos} assets={assets} filter={libraryFilter} setFilter={setLibraryFilter} query={libraryQuery} setQuery={setLibraryQuery} />}
-          {activeSection === "analytics" && <AnalyticsOperatingRoom stats={stats} />}
-          {activeSection === "community" && <CommunityOperatingRoom />}
-          {activeSection === "monetization" && <MonetizationOperatingRoom stats={stats} />}
-          {activeSection === "team" && <TeamOperatingRoom />}
-          {activeSection === "settings" && <SettingsOperatingRoom />}
+          {section.id === "dashboard" && <CreatorDashboard stats={stats} videos={videos} assets={assets} setSection={setSection} />}
+          {section.id === "production" && <ProductionHub />}
+          {section.id === "live" && <LiveControlRoom streamForm={streamForm} setStreamForm={setStreamForm} />}
+          {section.id === "library" && <ContentLibrary videos={videos} assets={assets} filter={libraryFilter} setFilter={setLibraryFilter} query={libraryQuery} setQuery={setLibraryQuery} />}
+          {section.id === "analytics" && <AnalyticsOperatingRoom stats={stats} />}
+          {section.id === "community" && <CommunityOperatingRoom />}
+          {section.id === "monetization" && <MonetizationOperatingRoom stats={stats} />}
+          {section.id === "team" && <TeamOperatingRoom />}
+          {section.id === "settings" && <SettingsOperatingRoom />}
         </main>
       </div>
     </div>
+  );
+}
+
+export default function CreatorStudio() {
+  return (
+    <CreatorOSProvider>
+      <CreatorStudioContent />
+    </CreatorOSProvider>
   );
 }
 

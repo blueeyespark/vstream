@@ -8,9 +8,15 @@ import {
   Radio, PlaySquare, ChevronRight, MessageSquare, Bookmark, ListVideo, Wand2, Mic2, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+/** @type {any} */
+const AnyButton = Button;
 import NotificationBell from "@/components/notifications/NotificationBell";
 import ChannelSwitcher from "@/components/layout/ChannelSwitcher";
 
+/**
+ * Top navigation bar.
+ * @param {{user:any, darkMode:boolean, setDarkMode:Function, currentPageName:string, mobileMenuOpen:boolean, setMobileMenuOpen:Function, notifications: any[], onMarkAsRead:Function, onMarkAllRead:Function, onDeleteNotification:Function, newVideos:any[]}} props
+ */
 export default function TopNav({
   user,
   darkMode,
@@ -28,29 +34,28 @@ export default function TopNav({
   const [createOpen, setCreateOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeChannelId, setActiveChannelId] = useState(() => {
-    try { return localStorage.getItem("activeChannelId") || null; } catch { return null; }
-  });
 
-  const handleChannelSwitch = (channelId) => {
-    setActiveChannelId(channelId);
-    localStorage.setItem("activeChannelId", channelId);
-    // Dispatch event so other components can react
-    window.dispatchEvent(new CustomEvent("activeChannelChanged", { detail: { channelId } }));
-  };
+  // Channel switching is handled by the CreatorOS context
+  /** @type {import('react').MutableRefObject<HTMLDivElement | null>} */
   const dropdownRef = useRef(null);
+  /** @type {import('react').MutableRefObject<HTMLDivElement | null>} */
   const createRef = useRef(null);
   const navigate = useNavigate();
   const { logout, navigateToLogin } = useAuth();
   const isAdmin = user?.role === "admin";
 
+  /** @type {any[]} */
+  const _newVideos = newVideos;
+
   // Close dropdown on outside click
   useEffect(() => {
+    /** @param {MouseEvent} e */
     const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      const t = /** @type {Node | null} */ (e.target);
+      if (dropdownRef.current && !dropdownRef.current.contains?.(t)) {
         setAccountOpen(false);
       }
-      if (createRef.current && !createRef.current.contains(e.target)) {
+      if (createRef.current && !createRef.current.contains?.(t)) {
         setCreateOpen(false);
       }
     };
@@ -58,6 +63,7 @@ export default function TopNav({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  /** @param {import('react').FormEvent<HTMLFormElement>} e */
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -67,6 +73,7 @@ export default function TopNav({
     }
   };
 
+  /** @param {string} to */
   const openCreatorTool = (to) => {
     setCreateOpen(false);
     setAccountOpen(false);
@@ -121,7 +128,7 @@ export default function TopNav({
             <Search className="w-4 h-4" />
           </button>
 
-          <Button 
+          <AnyButton 
             variant="ghost" 
             size="icon" 
             onClick={() => setDarkMode(!darkMode)} 
@@ -129,7 +136,7 @@ export default function TopNav({
             title={darkMode ? "Light Mode" : "Dark Mode"}
           >
             {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </Button>
+          </AnyButton>
 
           {user && (
             <NotificationBell
@@ -137,7 +144,7 @@ export default function TopNav({
               onMarkAsRead={onMarkAsRead}
               onMarkAllRead={onMarkAllRead}
               onDelete={onDeleteNotification}
-              newVideos={newVideos}
+              newVideos={_newVideos}
             />
           )}
 
@@ -151,11 +158,11 @@ export default function TopNav({
           <div className="relative block" ref={createRef}>
             <button
               type="button"
-              onClick={() => user?.email ? setCreateOpen((open) => !open) : openCreatorTool("/CreatorStudio")}
+              onClick={() => user?.email ? setCreateOpen((open) => !open) : openCreatorTool("/CreatorOS")}
               className="flex items-center gap-1.5 rounded-xl bg-[#1e78ff] px-3 py-2 text-xs font-black text-white transition hover:bg-[#00a6ff]"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Create</span>
+              <span className="hidden sm:inline">Creator OS</span>
             </button>
             <AnimatePresence>
               {createOpen && user?.email && (
@@ -166,11 +173,11 @@ export default function TopNav({
                   transition={{ duration: 0.12 }}
                   className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-2xl border border-[#0d1820] bg-[#030810] shadow-2xl shadow-black/60"
                 >
-                  <button onClick={() => openCreatorTool("/CreatorStudio")} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-blue-200/75 transition hover:bg-blue-900/20 hover:text-white">
+                  <button onClick={() => openCreatorTool("/CreatorOS")} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-blue-200/75 transition hover:bg-blue-900/20 hover:text-white">
                     <Mic2 className="h-4 w-4 text-[#00c8ff]" />
-                    Creator Studio
+                    Creator OS
                   </button>
-                  <button onClick={() => openCreatorTool("/ArtForge")} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-blue-200/75 transition hover:bg-blue-900/20 hover:text-white">
+                  <button onClick={() => openCreatorTool("/CreatorOS?section=production&tool=artforge")} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-blue-200/75 transition hover:bg-blue-900/20 hover:text-white">
                     <Wand2 className="h-4 w-4 text-[#a855f7]" />
                     ArtForge AI
                   </button>
@@ -217,7 +224,7 @@ export default function TopNav({
                   {/* Channel switcher */}
                   <div className="border-b border-[#0d1820] py-1">
                     <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Switch Channel</p>
-                    <ChannelSwitcher user={user} activeChannelId={activeChannelId} onSwitch={handleChannelSwitch} />
+                    <ChannelSwitcher user={user} />
                   </div>
 
                   {/* Menu items */}
@@ -230,8 +237,8 @@ export default function TopNav({
                   {user?.email && (
                     <div className="border-t border-[#0d1820] py-1">
                       <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Creator</p>
-                      <MenuButton icon={Mic2} label="Creator Studio" onClick={() => openCreatorTool("/CreatorStudio")} />
-                      <MenuButton icon={Wand2} label="ArtForge AI" onClick={() => openCreatorTool("/ArtForge")} />
+                      <MenuButton icon={Mic2} label="Creator OS" onClick={() => openCreatorTool("/CreatorOS")} />
+                      <MenuButton icon={Wand2} label="ArtForge AI" onClick={() => openCreatorTool("/CreatorOS?section=production&tool=artforge")} />
                       <MenuItem icon={Radio} label="Go Live Now" to="/StreamerDashboard" onClick={() => setAccountOpen(false)} />
                     </div>
                   )}
@@ -262,9 +269,9 @@ export default function TopNav({
             </AnimatePresence>
           </div>
           ) : (
-            <Button onClick={() => navigateToLogin(window.location.href)}>
+            <AnyButton onClick={() => navigateToLogin(window.location.href)}>
               <Users className="w-4 h-4" /> Sign In
-            </Button>
+            </AnyButton>
           )}
         </div>
       </div>
@@ -355,7 +362,10 @@ export default function TopNav({
   );
 }
 
-function MenuItem({ icon: Icon, label, to, onClick }) {
+/**
+ * @param {{icon: any, label: string, to?: string, onClick?: (e?: any)=>void}} props
+ */
+function MenuItem({ icon: Icon, label, to = "/", onClick = undefined }) {
   return (
     <Link
       to={to}
@@ -369,7 +379,8 @@ function MenuItem({ icon: Icon, label, to, onClick }) {
   );
 }
 
-function MenuButton({ icon: Icon, label, onClick }) {
+/** @param {{icon:any,label:string,onClick?: (e?: any)=>void}} props */
+function MenuButton({ icon: Icon, label, onClick = undefined }) {
   return (
     <button
       type="button"

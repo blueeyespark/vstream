@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCreatorOS } from "@/lib/CreatorOSContext";
 import { motion } from "framer-motion";
 import { Bell, Share2, Play, Users, Eye, MessageSquare, Edit3, Upload, X, Zap, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -160,9 +161,6 @@ export default function ChannelPage() {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [authPrompt, setAuthPrompt] = useState(null);
-  const [activeChannelId, setActiveChannelId] = useState(() => {
-    try { return localStorage.getItem("activeChannelId") || null; } catch { return null; }
-  });
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -173,48 +171,12 @@ export default function ChannelPage() {
     setUser(authUser);
   }, [authUser]);
 
-  // Listen for channel switches from TopNav
-  useEffect(() => {
-    const handler = (e) => setActiveChannelId(e.detail.channelId);
-    window.addEventListener("activeChannelChanged", handler);
-    return () => window.removeEventListener("activeChannelChanged", handler);
-  }, []);
+  const { channels = [], myChannels = [], channel: ctxChannel = null, channelVideos = [], activeChannelId, setActiveChannelId } = useCreatorOS();
 
-  const { data: channels = [], refetch: refetchChannels } = useQuery({
-    queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
-    staleTime: 10 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
-    retry: 1,
-  });
-
-  const { data: allVideos = [] } = useQuery({
-    queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 30),
-    staleTime: 10 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
-    retry: 1,
-  });
-
-  const myChannels = channels.filter(c => c.creator_email === user?.email);
-
-  // Resolve which channel to show:
-  // 1) URL param ?id=... (viewing someone else's or a specific channel)
-  // 2) activeChannelId from localStorage (own channel switcher)
-  // 3) First own channel fallback
-  const channel = channelId
-    ? channels.find(c => c.id === channelId)
-    : (myChannels.find(c => c.id === activeChannelId) || myChannels[0]);
+  const channel = channelId ? channels.find((c) => c.id === channelId) : (myChannels.find((c) => c.id === activeChannelId) || myChannels[0]);
 
   const isOwnChannel = channel && user && channel.creator_email === user.email;
-  const channelVideos = useMemo(() => 
-    allVideos.filter(v => v.channel_id === channel?.id && v.status !== "deleted"),
-    [allVideos, channel?.id]
-  );
-  const channelMap = useMemo(() => 
-    channels.reduce((acc, c) => { acc[c.id] = c; return acc; }, {}),
-    [channels]
-  );
+  const channelMap = useMemo(() => channels.reduce((acc, c) => { acc[c.id] = c; return acc; }, {}), [channels]);
 
   // Loading state
   if (!user && !channelId) {
@@ -299,12 +261,12 @@ export default function ChannelPage() {
             <div className="flex items-center gap-2 flex-wrap flex-shrink-0">
               {isOwnChannel ? (
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Link to="/CreatorStudio">
+                  <Link to="/CreatorOS">
                     <Button className="gap-2">
-                      <Zap className="w-4 h-4" /> Creator Studio
+                      <Zap className="w-4 h-4" /> Creator OS
                     </Button>
                   </Link>
-                  <Link to="/CreatorStudio?tab=editchannel">
+                  <Link to="/CreatorOS?tab=editchannel">
                     <Button variant="outline" className="gap-2">
                       <Edit3 className="w-4 h-4" /> Edit Channel
                     </Button>
@@ -385,7 +347,7 @@ export default function ChannelPage() {
                  <Play className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-blue-400/20" />
                  <p className="text-gray-500 dark:text-blue-400/40">No videos yet</p>
                 {isOwnChannel && (
-                  <Link to="/CreatorStudio"><Button className="mt-4">Upload your first video</Button></Link>
+                  <Link to="/CreatorOS"><Button className="mt-4">Upload your first video</Button></Link>
                 )}
               </div>
             ) : (

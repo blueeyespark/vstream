@@ -221,7 +221,7 @@ function ServerSidebar({ activeCommunity, onSelectCommunity }) {
         );
       })}
       <div className="hidden h-px w-10 bg-[#12305f] lg:block" />
-      <Link to="/CreatorStudio" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#12305f] bg-[#06101f] text-blue-200/70 transition hover:border-[#00c8ff]/60 hover:text-white" title="Create community">
+      <Link to="/CreatorOS" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#12305f] bg-[#06101f] text-blue-200/70 transition hover:border-[#00c8ff]/60 hover:text-white" title="Create community">
         <Sparkles className="h-5 w-5" />
       </Link>
     </aside>
@@ -268,7 +268,7 @@ function ChannelList({ activeChannel, setActiveChannel, community }) {
         ))}
       </div>
       <div className="border-t border-[#12305f] p-3">
-        <Link to="/CreatorStudio" className="flex items-center gap-3 rounded-2xl border border-[#00c8ff]/25 bg-[#00c8ff]/10 p-3 transition hover:bg-[#00c8ff]/15">
+        <Link to="/CreatorOS" className="flex items-center gap-3 rounded-2xl border border-[#00c8ff]/25 bg-[#00c8ff]/10 p-3 transition hover:bg-[#00c8ff]/15">
           <Shield className="h-5 w-5 text-[#00c8ff]" />
           <div className="min-w-0">
             <p className="text-sm font-black text-white">Creator spaces</p>
@@ -458,7 +458,7 @@ export default function WorldChat() {
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-[#00c8ff]">Communities</p>
                 <p className="text-lg font-black text-white">{community.name}</p>
               </div>
-              <Link to="/CreatorStudio" className="rounded-xl border border-[#00c8ff]/30 bg-[#00c8ff]/10 p-2 text-[#00c8ff]"><Sparkles className="h-4 w-4" /></Link>
+              <Link to="/CreatorOS" className="rounded-xl border border-[#00c8ff]/30 bg-[#00c8ff]/10 p-2 text-[#00c8ff]"><Sparkles className="h-4 w-4" /></Link>
             </div>
             <div className="flex gap-2 overflow-x-auto">
               {flatChannels.map((item) => (

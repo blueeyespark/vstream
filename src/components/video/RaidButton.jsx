@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Zap, Search, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useCreatorOS } from "@/lib/CreatorOSContext";
 
 export default function RaidButton({ channel, user }) {
   const [showModal, setShowModal] = useState(false);
@@ -12,10 +12,7 @@ export default function RaidButton({ channel, user }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { data: channels = [] } = useQuery({
-    queryKey: ["channels-for-raid"],
-    queryFn: () => base44.entities.Channel.list(),
-  });
+  const { channels = [] } = useCreatorOS();
 
   const filteredChannels = channels.filter(
     c =>

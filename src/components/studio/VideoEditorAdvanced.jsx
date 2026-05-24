@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
+import { useCreatorOS } from "@/lib/CreatorOSContext";
 
 const presets = [
   { name: "YouTube", width: 1280, height: 720, ratio: "16:9" },
@@ -66,15 +67,9 @@ export default function VideoEditorAdvanced() {
   const [music, setMusic] = useState(null);
   const [musicVolume, setMusicVolume] = useState(0.5);
 
-  // Media Library
-  const { data: mediaAssets = [] } = useQuery({
-    queryKey: ["media-assets", user?.email],
-    queryFn: () => user?.email ? base44.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 100) : Promise.resolve([]),
-    enabled: !!user?.email,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const filteredMedia = mediaAssets.filter(m =>
+  // Media Library (shared via CreatorOSContext)
+  const { assets: mediaAssets = [] } = useCreatorOS();
+  const filteredMedia = mediaAssets.filter((m) =>
     m.name?.toLowerCase().includes(searchMedia.toLowerCase()) ||
     m.type?.toLowerCase().includes(searchMedia.toLowerCase())
   );

@@ -52,7 +52,7 @@ function cx(...classes) {
 }
 
 function detectContext(pathname) {
-  if (pathname.includes("CreatorStudio")) return "creator";
+  if (pathname.includes("CreatorStudio") || pathname.includes("CreatorOS")) return "creator";
   if (pathname.includes("ArtForge")) return "artforge";
   if (pathname.includes("Communities") || pathname.includes("WorldChat")) return "communities";
   if (pathname.includes("Analytics")) return "analytics";

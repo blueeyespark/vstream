@@ -22,6 +22,9 @@ export default function NavigationTracker() {
             // Remove leading slash and get the first segment
             const pathSegment = pathname.replace(/^\//, '').split('/')[0];
 
+        if (pathSegment.toLowerCase() === 'creatoros' || pathSegment.toLowerCase() === 'creatorstudio') {
+            pageName = 'CreatorStudio';
+        } else {
             // Try case-insensitive lookup in Pages config
             const pageKeys = Object.keys(Pages);
             const matchedKey = pageKeys.find(
@@ -29,6 +32,7 @@ export default function NavigationTracker() {
             );
 
             pageName = matchedKey || null;
+        }
         }
 
         if (isAuthenticated && pageName) {

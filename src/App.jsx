@@ -77,6 +77,7 @@ const AppRoutes = () => {
         <Route path="/AITools" element={<LayoutWrapper currentPageName="AITools"><AITools /></LayoutWrapper>} />
         <Route path="/UserViewer" element={<LayoutWrapper currentPageName="UserViewer"><UserViewer /></LayoutWrapper>} />
         <Route path="/CreatorStudio" element={<LayoutWrapper currentPageName="CreatorStudio"><CreatorStudio /></LayoutWrapper>} />
+        <Route path="/CreatorOS" element={<LayoutWrapper currentPageName="CreatorOS"><CreatorStudio /></LayoutWrapper>} />
         <Route path="/DeepScanResults" element={<LayoutWrapper currentPageName="DeepScanResults"><DeepScanResults /></LayoutWrapper>} />
         <Route path="/StreamerDashboard" element={<LayoutWrapper currentPageName="StreamerDashboard"><StreamerDashboard /></LayoutWrapper>} />
         <Route path="/FinancialOverview" element={<LayoutWrapper currentPageName="FinancialOverview"><FinancialOverview /></LayoutWrapper>} />
