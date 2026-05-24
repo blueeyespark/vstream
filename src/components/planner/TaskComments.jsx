@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import useTaskComments from "@/hooks/useTaskComments";
 import { format } from "date-fns";
 import { Send, Trash2, AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,64 +19,7 @@ export default function TaskComments({ open, onOpenChange, task, user, canCommen
   const [showMentions, setShowMentions] = useState(false);
   const queryClient = useQueryClient();
 
-  // Real-time subscription to task comments
-  useEffect(() => {
-    if (!task?.id) return;
-    const unsubscribe = base44.entities.TaskComment.subscribe((event) => {
-      if (event.data?.task_id === task.id) {
-        queryClient.invalidateQueries({ queryKey: ['task-comments', task.id] });
-      }
-    });
-    return unsubscribe;
-  }, [task?.id, queryClient]);
-
-  const { data: comments = [] } = useQuery({
-    queryKey: ['task-comments', task?.id],
-    queryFn: () => base44.entities.TaskComment.filter({ task_id: task?.id }, 'created_date'),
-    enabled: !!task?.id,
-  });
-
-  const addCommentMutation = useMutation({
-    mutationFn: async (data) => {
-      const created = await base44.entities.TaskComment.create({
-        task_id: task.id,
-        content: data.content,
-        author_email: user?.email,
-        author_name: user?.full_name,
-        mentions: data.mentions
-      });
-      
-      // Create notifications for mentioned users
-      if (data.mentions.length > 0) {
-        for (const mentionedEmail of data.mentions) {
-          await base44.entities.Notification.create({
-            user_email: mentionedEmail,
-            type: 'task_assigned',
-            title: `You were mentioned by ${user?.full_name || user?.email}`,
-            message: `In task: ${task.title} - "${data.content.substring(0, 50)}..."`,
-            task_id: task.id,
-            project_id: task.project_id,
-            is_read: false
-          });
-        }
-      }
-      
-      return created;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['task-comments', task?.id] });
-      setComment("");
-      setMentions([]);
-      setShowMentions(false);
-    },
-  });
-
-  const deleteCommentMutation = useMutation({
-    mutationFn: (id) => base44.entities.TaskComment.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['task-comments', task?.id] });
-    },
-  });
+  const { comments = [], isLoading, addCommentMutation, deleteCommentMutation } = useTaskComments({ taskId: task?.id });
 
   const handleCommentChange = (e) => {
     const text = e.target.value;
@@ -111,7 +53,7 @@ export default function TaskComments({ open, onOpenChange, task, user, canCommen
 
   const handleSubmit = () => {
     if (!comment.trim()) return;
-    addCommentMutation.mutate({ content: comment, mentions });
+    addCommentMutation.mutate({ task_id: task.id, content: comment, author_email: user?.email, author_name: user?.full_name, mentions });
   };
 
   const priorityColors = {

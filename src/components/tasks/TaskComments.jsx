@@ -1,78 +1,27 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import useTaskComments from "@/hooks/useTaskComments";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function TaskComments({ taskId, teamMembers = [] }) {
   const [input, setInput] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
-  const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     setUser(authUser);
   }, [authUser]);
 
-  const { data: comments = [], isLoading } = useQuery({
-    queryKey: ["task_comments", taskId],
-    queryFn: () => base44.entities.TaskComment.filter({ task_id: taskId }, "-created_date"),
-    enabled: !!taskId,
-  });
-
-  const createCommentMutation = useMutation({
-    mutationFn: async (data) => {
-      const comment = await base44.entities.TaskComment.create(data);
-      
-      // Parse @mentions and send notifications
-      const mentions = data.content.match(/@(\w+)/g) || [];
-      const mentionedMembers = mentions.map(m => m.slice(1)); // Remove @
-      
-      for (const member of mentionedMembers) {
-        const memberEmail = teamMembers.find(tm => tm.split("@")[0].toLowerCase() === member.toLowerCase());
-        if (memberEmail) {
-          await base44.entities.Notification.create({
-            user_email: memberEmail,
-            type: "task_assigned",
-            title: "You were mentioned in a comment",
-            message: `${user?.full_name} mentioned you: "${data.content.substring(0, 50)}..."`,
-            task_id: taskId,
-          });
-        }
-      }
-      
-      return comment;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["task_comments", taskId] });
-      setInput("");
-      setReplyingTo(null);
-      toast.success("Comment added");
-    },
-  });
-
-  const deleteCommentMutation = useMutation({
-    mutationFn: (id) => base44.entities.TaskComment.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["task_comments", taskId] });
-      toast.success("Comment deleted");
-    },
-  });
+  const { comments = [], isLoading, addCommentMutation, deleteCommentMutation } = useTaskComments({ taskId });
 
   const handleSubmit = () => {
     if (!input.trim()) return;
     
-    createCommentMutation.mutate({
-      task_id: taskId,
-      content: input,
-      author_email: user?.email,
-      author_name: user?.full_name,
-      mentions: input.match(/@\w+/g) || [],
-    });
+    addCommentMutation.mutate({ task_id: taskId, content: input, author_email: user?.email, author_name: user?.full_name, mentions: input.match(/@\w+/g) || [] });
   };
 
   const handleMentionInsert = (email) => {

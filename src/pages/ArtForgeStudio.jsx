@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCreatorOS } from "@/lib/CreatorOSContext";
 import VStreamAIAssistant from "@/components/ai/VStreamAIAssistant";
 import {
   WandSparkles,
@@ -255,16 +256,24 @@ export default function ArtForgeStudio({ embedded = false }) {
   useEffect(() => localStorage.setItem("artforge_jobs", JSON.stringify(jobs.slice(0, 50))), [jobs]);
   useEffect(() => localStorage.setItem("artforge_memory", JSON.stringify(memory)), [memory]);
 
-  const { data: assets = [] } = useQuery({
-    queryKey: ["artforge-assets", user?.email],
-    enabled: !!user?.email,
-    queryFn: async () => {
-      const result = await base44.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 150);
-      return Array.isArray(result) ? result : [];
-    },
-    staleTime: 15_000,
-    gcTime: 300_000,
-  });
+  // If embedded inside CreatorOS, reuse CreatorOSContext assets to avoid duplicate queries.
+  let assets = [];
+  if (embedded) {
+    const ctx = useCreatorOS();
+    assets = ctx.assets || [];
+  } else {
+    const { data: _assets = [] } = useQuery({
+      queryKey: ["artforge-assets", user?.email],
+      enabled: !!user?.email,
+      queryFn: async () => {
+        const result = await base44.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 150);
+        return Array.isArray(result) ? result : [];
+      },
+      staleTime: 15_000,
+      gcTime: 300_000,
+    });
+    assets = _assets;
+  }
 
   const filteredAssets = useMemo(() => {
     const q = assetSearch.toLowerCase().trim();

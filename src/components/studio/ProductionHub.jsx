@@ -382,10 +382,12 @@ function AssetLibraryPanel({ assets, assetFilter, setAssetFilter, bucketCounts, 
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {assets.map((asset) => {
+          const isDemo = asset.category === 'demo' || asset.id?.toString().startsWith('demo');
           const selected = selectedAssetId === asset.id;
-          return (
-            <button key={asset.id} onClick={() => setSelectedAssetId(asset.id)} className={cx("rounded-2xl border p-3 text-left transition", selected ? "border-[#00c8ff] bg-[#00c8ff]/12" : "border-[#12305f] bg-[#06101f]/70 hover:border-[#1e78ff]/60")}>
+            return (
+              <button key={asset.id} onClick={() => setSelectedAssetId(asset.id)} className={cx("relative rounded-2xl border p-3 text-left transition", selected ? "border-[#00c8ff] bg-[#00c8ff]/12" : "border-[#12305f] bg-[#06101f]/70 hover:border-[#1e78ff]/60")}>
               <div className="mb-3 grid h-28 place-items-center rounded-xl bg-gradient-to-br from-[#0a1b35] to-[#170a2e] text-[#00c8ff]"><ImageIcon className="h-7 w-7" /></div>
+                  {isDemo && <div className="absolute right-3 top-3 text-xs bg-yellow-50 text-yellow-700 px-2 py-1 rounded">Demo</div>}
               <p className="truncate text-sm font-black text-white">{asset.name || asset.title || "Untitled asset"}</p>
               <p className="mt-1 text-xs text-blue-100/45">{asset.type || asset.asset_type || asset.category || "asset"}</p>
               {selected && <p className="mt-2 text-xs font-black text-[#00c8ff]">Selected for publish</p>}

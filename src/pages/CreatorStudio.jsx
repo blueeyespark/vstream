@@ -50,6 +50,9 @@ import IntegrationsHub from "@/components/studio/IntegrationsHub";
 import VStreamAIAssistant from "@/components/ai/VStreamAIAssistant";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CreatorDashboard from "@/components/studio/CreatorDashboard";
+import LiveControlRoom from "@/components/studio/LiveControlRoom";
+import { MetricCard, HeaderLine, InputBlock, StatusTile } from "@/components/studio/StudioHelpers";
 
 const sections = [
   { id: "dashboard", label: "Dashboard", icon: Gauge, tagline: "Creator command center" },
@@ -237,178 +240,13 @@ function ChannelSetupNotice() {
   );
 }
 
-function CreatorDashboard({ stats, videos, assets, setSection }) {
-  const recent = videos.slice(0, 4);
-  const projects = recent.length ? recent.map((video) => ({ id: video.id, title: video.title, type: video.status || "Video", stage: video.status === "ready" ? "Published" : "Edit", updated: video.created_date ? new Date(video.created_date).toLocaleDateString() : "Recent" })) : fallbackProjects;
-  return (
-    <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_360px]">
-      <div className="space-y-5">
-        <div className="grid gap-3 md:grid-cols-4">
-          <MetricCard icon={Eye} label="Total views" value={fmt(stats.views)} detail={stats.videos ? "From real uploads" : "No uploads yet"} />
-          <MetricCard icon={FileVideo} label="Published" value={fmt(stats.videos)} detail="Ready videos" />
-          <MetricCard icon={Library} label="Assets" value={fmt(stats.assets)} detail="Media and AI generations" />
-          <MetricCard icon={CircleDollarSign} label="Revenue" value={`$${fmt(stats.revenue)}`} detail="Estimated snapshot" />
-        </div>
 
-        <Panel className="p-4">
-          <HeaderLine icon={Clapperboard} title="Continue Editing" action="Open Production" onAction={() => setSection("production")} />
-          <div className="grid gap-3 md:grid-cols-3">
-            {projects.map((project) => (
-              <button key={project.id} onClick={() => setSection("production")} className="rounded-2xl border border-[#12305f] bg-[#03080f]/58 p-4 text-left transition hover:-translate-y-0.5 hover:border-[#00c8ff]/45">
-                <p className="line-clamp-2 text-sm font-black text-white">{project.title}</p>
-                <div className="mt-4 flex items-center justify-between text-xs">
-                  <span className="rounded-full bg-[#1e78ff]/12 px-2 py-1 font-black text-[#00c8ff]">{project.stage}</span>
-                  <span className="text-blue-100/38">{project.updated}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </Panel>
 
-        <Panel className="p-4">
-          <HeaderLine icon={Calendar} title="Production Plan" action="Open Calendar" onAction={() => setSection("production")} />
-          <div className="grid gap-2 md:grid-cols-5">
-            {productionStages.map((stage, index) => (
-              <div key={stage} className="rounded-2xl border border-[#12305f] bg-[#03080f]/58 p-3">
-                <span className="mb-3 grid h-8 w-8 place-items-center rounded-full bg-[#00c8ff]/12 text-xs font-black text-[#00c8ff]">{index + 1}</span>
-                <p className="font-black text-white">{stage}</p>
-                <p className="mt-1 text-xs text-blue-100/42">{index === 0 ? "Capture concepts" : index === 4 ? "Schedule or go live" : "Keep assets moving"}</p>
-              </div>
-            ))}
-          </div>
-        </Panel>
-      </div>
 
-      <aside className="space-y-5">
-        <VStreamAIAssistant surface="compact" contextType="creator" context={{ title: "Creator OS dashboard", stats, actions: ["Next production step", "Content calendar", "Growth insight", "Publish checklist"] }} />
-        <Panel className="p-4">
-          <HeaderLine icon={Bell} title="Notifications" />
-          <div className="space-y-2">
-            {["No urgent upload issues", assets.length ? `${assets.length} assets available for packaging` : "Upload or generate your first reusable asset", "Community moderation queue is clear"].map((item) => (
-              <div key={item} className="flex items-center gap-2 rounded-xl border border-[#12305f] bg-[#03080f]/55 p-3 text-sm text-blue-100/65">
-                <CheckCircle2 className="h-4 w-4 text-emerald-300" /> {item}
-              </div>
-            ))}
-          </div>
-        </Panel>
-      </aside>
-    </div>
-  );
-}
 
-function MetricCard({ icon: Icon, label, value, detail }) {
-  return (
-    <Panel className="p-4">
-      <Icon className="mb-4 h-5 w-5 text-[#00c8ff]" />
-      <p className="text-2xl font-black text-white">{value}</p>
-      <p className="mt-1 text-xs font-black uppercase tracking-widest text-blue-100/42">{label}</p>
-      <p className="mt-2 text-xs text-blue-100/45">{detail}</p>
-    </Panel>
-  );
-}
 
-function HeaderLine({ icon: Icon, title, action, onAction }) {
-  return (
-    <div className="mb-4 flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2">
-        <Icon className="h-4 w-4 text-[#00c8ff]" />
-        <h2 className="font-black text-white">{title}</h2>
-      </div>
-      {action && <button onClick={onAction} className="text-xs font-black text-[#00c8ff] hover:text-white">{action}</button>}
-    </div>
-  );
-}
 
-function LiveControlRoom({ streamForm, setStreamForm }) {
-  const [activeScene, setActiveScene] = useState("Starting Soon");
-  const [markers, setMarkers] = useState([]);
-  const [chatInput, setChatInput] = useState("");
-  const [chat, setChat] = useState(["Welcome viewers as they arrive.", "Pin the stream rules before going live."]);
-  const scenes = ["Starting Soon", "Main Camera", "Screen Share", "Guest Split", "BRB", "Outro"];
 
-  const addMarker = () => setMarkers((current) => [`Marker ${current.length + 1} at ${new Date().toLocaleTimeString()}`, ...current]);
-  const sendChat = () => {
-    if (!chatInput.trim()) return;
-    setChat((current) => [chatInput.trim(), ...current]);
-    setChatInput("");
-  };
-
-  return (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-      <div className="space-y-5">
-        <Panel className="p-4">
-          <HeaderLine icon={MonitorUp} title="Stream Setup" />
-          <div className="grid gap-4 md:grid-cols-2">
-            <InputBlock label="Stream title" value={streamForm.title} onChange={(title) => setStreamForm((current) => ({ ...current, title }))} />
-            <InputBlock label="Category" value={streamForm.category} onChange={(category) => setStreamForm((current) => ({ ...current, category }))} />
-          </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-4">
-            <StatusTile label="Health" value="Excellent" color="text-emerald-300" />
-            <StatusTile label="Bitrate" value="6.2 Mbps" color="text-[#00c8ff]" />
-            <StatusTile label="Latency" value="Low" color="text-purple-200" />
-            <StatusTile label="Dropped frames" value="0.1%" color="text-emerald-300" />
-          </div>
-        </Panel>
-
-        <Panel className="p-4">
-          <HeaderLine icon={Layers} title="Scenes and Sources" />
-          <div className="grid gap-3 md:grid-cols-[220px_minmax(0,1fr)]">
-            <div className="space-y-2">
-              {scenes.map((scene) => (
-                <button key={scene} onClick={() => setActiveScene(scene)} className={cx("w-full rounded-xl border px-3 py-2 text-left text-sm font-black", activeScene === scene ? "border-[#00c8ff] bg-[#00c8ff]/12 text-white" : "border-[#12305f] bg-[#03080f]/55 text-blue-100/55 hover:text-white")}>{scene}</button>
-              ))}
-            </div>
-            <div className="grid min-h-[360px] place-items-center rounded-2xl border border-[#12305f] bg-[radial-gradient(circle_at_center,rgba(30,120,255,0.18),transparent_38%),#020712]">
-              <div className="text-center">
-                <Play className="mx-auto mb-4 h-10 w-10 text-[#00c8ff]" />
-                <h3 className="text-2xl font-black text-white">{activeScene}</h3>
-                <p className="mt-2 text-sm text-blue-100/48">Scene preview and source controls are staged here.</p>
-              </div>
-            </div>
-          </div>
-        </Panel>
-      </div>
-
-      <aside className="space-y-5">
-        <VStreamAIAssistant surface="compact" contextType="creator" context={{ title: streamForm.title, category: streamForm.category, actions: ["Livestream plan", "Quick social post", "Moderation actions", "Clip ideas"] }} />
-        <Panel className="p-4">
-          <HeaderLine icon={MessageSquare} title="Chat Dock" />
-          <div className="mb-3 space-y-2">
-            {chat.slice(0, 4).map((item) => <div key={item} className="rounded-xl border border-[#12305f] bg-[#03080f]/55 p-3 text-sm text-blue-100/65">{item}</div>)}
-          </div>
-          <div className="flex gap-2">
-            <input value={chatInput} onChange={(event) => setChatInput(event.target.value)} className="min-w-0 flex-1 rounded-xl border border-[#12305f] bg-[#03080f] px-3 py-2 text-sm text-white outline-none" placeholder="Post to chat..." />
-            <button onClick={sendChat} className="rounded-xl bg-[#1e78ff] px-3 py-2 text-sm font-black text-white">Send</button>
-          </div>
-        </Panel>
-        <Panel className="p-4">
-          <HeaderLine icon={Zap} title="Markers and Clips" action="Add Marker" onAction={addMarker} />
-          <div className="space-y-2">
-            {markers.length ? markers.map((marker) => <p key={marker} className="rounded-xl border border-[#12305f] bg-[#03080f]/55 p-3 text-sm text-blue-100/65">{marker}</p>) : <p className="rounded-xl border border-dashed border-[#12305f] p-4 text-sm text-blue-100/42">No stream markers yet.</p>}
-          </div>
-        </Panel>
-      </aside>
-    </div>
-  );
-}
-
-function InputBlock({ label, value, onChange }) {
-  return (
-    <label>
-      <span className="mb-2 block text-xs font-black uppercase tracking-widest text-blue-100/42">{label}</span>
-      <input value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-[#12305f] bg-[#03080f] px-3 py-2 text-sm text-white outline-none focus:border-[#00c8ff]" />
-    </label>
-  );
-}
-
-function StatusTile({ label, value, color }) {
-  return (
-    <div className="rounded-2xl border border-[#12305f] bg-[#03080f]/55 p-3">
-      <p className={cx("text-xl font-black", color)}>{value}</p>
-      <p className="text-xs font-black uppercase tracking-widest text-blue-100/38">{label}</p>
-    </div>
-  );
-}
 
 function ContentLibrary({ videos, assets, filter, setFilter, query, setQuery }) {
   const items = [
