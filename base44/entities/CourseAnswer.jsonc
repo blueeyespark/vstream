@@ -1,0 +1,56 @@
+{
+  "name": "CourseAnswer",
+  "type": "object",
+  "properties": {
+    "question_id": {
+      "type": "string",
+      "description": "Parent question ID"
+    },
+    "course_id": {
+      "type": "number",
+      "description": "Course ID"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Who answered"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Author's name"
+    },
+    "author_role": {
+      "type": "string",
+      "enum": [
+        "student",
+        "instructor",
+        "admin"
+      ],
+      "description": "Role of answerer"
+    },
+    "content": {
+      "type": "string",
+      "description": "Answer text with code/examples"
+    },
+    "upvotes": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of upvotes"
+    },
+    "is_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether instructor verified this as best answer"
+    },
+    "helpful_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Times marked as helpful"
+    }
+  },
+  "required": [
+    "question_id",
+    "course_id",
+    "author_email",
+    "content"
+  ]
+}

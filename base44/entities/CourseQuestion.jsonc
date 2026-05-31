@@ -1,0 +1,73 @@
+{
+  "name": "CourseQuestion",
+  "type": "object",
+  "properties": {
+    "course_id": {
+      "type": "number",
+      "description": "Course ID"
+    },
+    "module_index": {
+      "type": "number",
+      "description": "Module this question belongs to"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Who asked the question"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Author's name"
+    },
+    "title": {
+      "type": "string",
+      "description": "Question title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full question text"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Topic tags"
+    },
+    "upvotes": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of upvotes"
+    },
+    "answer_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of answers"
+    },
+    "best_answer_id": {
+      "type": "string",
+      "description": "ID of instructor-verified best answer"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "answered",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Question status"
+    },
+    "is_pinned": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether question is pinned by instructor"
+    }
+  },
+  "required": [
+    "course_id",
+    "module_index",
+    "author_email",
+    "title",
+    "content"
+  ]
+}

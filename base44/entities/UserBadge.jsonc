@@ -1,0 +1,52 @@
+{
+  "name": "UserBadge",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User who earned badge"
+    },
+    "badge_type": {
+      "type": "string",
+      "enum": [
+        "first_course",
+        "course_complete",
+        "7day_streak",
+        "14day_streak",
+        "perfect_quiz",
+        "helpful_answer",
+        "expert_contributor"
+      ],
+      "description": "Type of badge earned"
+    },
+    "badge_name": {
+      "type": "string",
+      "description": "Display name for badge"
+    },
+    "badge_icon": {
+      "type": "string",
+      "description": "Emoji or icon for badge"
+    },
+    "description": {
+      "type": "string",
+      "description": "Badge description"
+    },
+    "xp_reward": {
+      "type": "number",
+      "description": "XP points awarded"
+    },
+    "earned_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When badge was earned"
+    },
+    "course_id": {
+      "type": "number",
+      "description": "Associated course ID if applicable"
+    }
+  },
+  "required": [
+    "user_email",
+    "badge_type"
+  ]
+}

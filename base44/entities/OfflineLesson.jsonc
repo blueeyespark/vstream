@@ -1,0 +1,73 @@
+{
+  "name": "OfflineLesson",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User who downloaded the lesson"
+    },
+    "enrollment_id": {
+      "type": "string",
+      "description": "Associated enrollment ID"
+    },
+    "course_id": {
+      "type": "number",
+      "description": "Course ID"
+    },
+    "module_index": {
+      "type": "number",
+      "description": "Module/lesson index"
+    },
+    "module_title": {
+      "type": "string",
+      "description": "Lesson title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Cached lesson content (markdown or HTML)"
+    },
+    "video_url": {
+      "type": "string",
+      "description": "Video URL if available"
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Associated resources"
+    },
+    "downloaded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When lesson was downloaded"
+    },
+    "offline_progress": {
+      "type": "number",
+      "default": 0,
+      "description": "Progress made while offline (0-100)"
+    },
+    "is_synced": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether offline progress has been synced"
+    }
+  },
+  "required": [
+    "user_email",
+    "enrollment_id",
+    "course_id",
+    "module_index"
+  ]
+}

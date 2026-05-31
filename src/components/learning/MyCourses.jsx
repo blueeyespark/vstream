@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, CheckCircle2, Clock, Trophy, Play, Download, AlertCircle, Zap } from "lucide-react";
+import { BookOpen, CheckCircle2, Clock, Trophy, Play, Download, AlertCircle, Zap, Flame } from "lucide-react";
 import TimeTracker from "./TimeTracker";
 import LearningTimeAnalytics from "./LearningTimeAnalytics";
+import BadgeDisplay from "./BadgeDisplay";
+import OfflineDownload from "./OfflineDownload";
+import CourseQnA from "./CourseQnA";
 
 export default function MyCourses() {
   const { data: enrollments = [], isLoading } = useQuery({
@@ -26,11 +29,19 @@ export default function MyCourses() {
   const inProgress = enrollments.filter(e => e.status === "in_progress").length;
   const totalHours = enrollments.reduce((sum, e) => sum + (e.actual_hours_spent || 0), 0);
   const [selectedEnrollment, setSelectedEnrollment] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview");
+  const user = useQuery({
+    queryKey: ["current-user"],
+    queryFn: () => base44.auth.me(),
+  });
 
   if (isLoading) return <div className="text-white">Loading...</div>;
 
   return (
     <div className="space-y-6">
+      {/* Badges & XP */}
+      {user.data?.email && <BadgeDisplay userEmail={user.data.email} />}
+
       {/* Learning Time Analytics */}
       <LearningTimeAnalytics enrollments={enrollments} />
 
@@ -76,37 +87,42 @@ export default function MyCourses() {
               const actualHours = e.actual_hours_spent || 0;
               const remainingHours = Math.max(0, estimatedHours - actualHours);
               const efficiency = estimatedHours > 0 ? (actualHours / estimatedHours * 100).toFixed(0) : 0;
+              const streak = e.current_streak || 0;
               
               return (
-                <div key={e.id} className="rounded-lg border border-[#1a3a60] bg-[#03080f] p-3">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <p className="font-black text-white text-sm">{e.course_title}</p>
-                      <div className="flex items-center gap-2 text-xs text-blue-100/60 mt-1">
-                        <Clock className="h-3 w-3" />
-                        <span>{actualHours.toFixed(1)}h / {estimatedHours}h</span>
-                        {remainingHours > 0 && <span className="text-amber-400">({remainingHours.toFixed(1)}h remaining)</span>}
+                <div key={e.id} className="space-y-2">
+                  <div className="rounded-lg border border-[#1a3a60] bg-[#03080f] p-3">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <p className="font-black text-white text-sm">{e.course_title}</p>
+                        <div className="flex items-center gap-2 text-xs text-blue-100/60 mt-1">
+                          <Clock className="h-3 w-3" />
+                          <span>{actualHours.toFixed(1)}h / {estimatedHours}h</span>
+                          {remainingHours > 0 && <span className="text-amber-400">({remainingHours.toFixed(1)}h remaining)</span>}
+                          {streak > 0 && <span className="ml-auto flex items-center gap-1 text-red-400"><Flame className="h-3 w-3" /> {streak} days</span>}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs font-black text-[#00c8ff]">{efficiency}%</p>
+                        <p className="text-[10px] text-blue-100/40">of time</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs font-black text-[#00c8ff]">{efficiency}%</p>
-                      <p className="text-[10px] text-blue-100/40">of time</p>
+                    <div className="h-2 bg-[#12305f] rounded-full overflow-hidden mb-2">
+                      <div className="h-full bg-gradient-to-r from-[#1e78ff] to-[#00c8ff]" style={{ width: `${e.completion_percentage}%` }} />
+                    </div>
+                    <p className="text-xs text-blue-100/40 mb-2">{e.completion_percentage}% modules complete • {e.total_xp || 0} XP</p>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setSelectedEnrollment(e)}
+                        className="flex-1 rounded-lg bg-[#1e78ff]/20 border border-[#1e78ff]/50 py-1.5 text-[#00c8ff] hover:bg-[#1e78ff]/30 transition text-xs font-black flex items-center justify-center gap-1">
+                        <Clock className="h-3 w-3" /> Track Time
+                      </button>
+                      <button className="flex-1 rounded-lg bg-purple-500/20 border border-purple-500/50 py-1.5 text-purple-300 hover:bg-purple-500/30 transition text-xs font-black flex items-center justify-center gap-1">
+                        <Play className="h-3 w-3" /> Continue
+                      </button>
                     </div>
                   </div>
-                  <div className="h-2 bg-[#12305f] rounded-full overflow-hidden mb-2">
-                    <div className="h-full bg-gradient-to-r from-[#1e78ff] to-[#00c8ff]" style={{ width: `${e.completion_percentage}%` }} />
-                  </div>
-                  <p className="text-xs text-blue-100/40 mb-2">{e.completion_percentage}% modules complete</p>
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => setSelectedEnrollment(e)}
-                      className="flex-1 rounded-lg bg-[#1e78ff]/20 border border-[#1e78ff]/50 py-1.5 text-[#00c8ff] hover:bg-[#1e78ff]/30 transition text-xs font-black flex items-center justify-center gap-1">
-                      <Clock className="h-3 w-3" /> Track Time
-                    </button>
-                    <button className="flex-1 rounded-lg bg-purple-500/20 border border-purple-500/50 py-1.5 text-purple-300 hover:bg-purple-500/30 transition text-xs font-black flex items-center justify-center gap-1">
-                      <Play className="h-3 w-3" /> Continue
-                    </button>
-                  </div>
+                  <OfflineDownload enrollment={e} moduleIndex={e.current_module || 0} moduleTitle="Lesson" content="Cached content" />
                 </div>
               );
             })}

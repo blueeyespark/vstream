@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Loader2, CheckCircle2, X } from "lucide-react";
+import { Loader2, CheckCircle2, X, AlertCircle } from "lucide-react";
+import { checkAndAwardPerfectQuiz, recordFailedTopic } from "@/hooks/useGamification";
 
 export default function QuizModule({ courseTitle, lessonNumber, lessonTopic, courseId, difficulty = "intermediate" }) {
   const [questions, setQuestions] = useState([]);
@@ -38,8 +39,20 @@ export default function QuizModule({ courseTitle, lessonNumber, lessonTopic, cou
     }, 0);
 
     const percentage = Math.round((correct / questions.length) * 100);
+    
+    // Track failed topics for remedial questions
+    if (percentage < 70) {
+      const failedQs = questions
+        .map((q, idx) => userAnswers[idx] !== q.correct_answer ? q.topic : null)
+        .filter(Boolean);
+      await recordFailedTopic(courseId, failedQs);
+    }
+
     setScore(percentage);
     setShowResults(true);
+    
+    // Award perfect quiz badge
+    await checkAndAwardPerfectQuiz(courseId, percentage);
 
     // Save quiz score
     try {
@@ -67,6 +80,8 @@ export default function QuizModule({ courseTitle, lessonNumber, lessonTopic, cou
   };
 
   if (showResults) {
+    const failedQuestions = questions.filter((q, idx) => userAnswers[idx] !== q.correct_answer);
+    
     return (
       <div className="rounded-lg border border-[#12305f] bg-[#06101f] p-6">
         <div className="text-center mb-6">
@@ -80,7 +95,27 @@ export default function QuizModule({ courseTitle, lessonNumber, lessonTopic, cou
           <h3 className="text-2xl font-black text-white">Quiz Complete</h3>
           <p className={`text-4xl font-black mt-2 ${score >= 70 ? 'text-emerald-400' : 'text-amber-400'}`}>{score}%</p>
           <p className="text-blue-100/50 mt-2">{score >= 70 ? 'Great job! You passed.' : 'Keep practicing to reach 70%+'}</p>
+          {score === 100 && <p className="text-amber-400 mt-2 font-black">🎉 Perfect Score! Badge Earned!</p>}
         </div>
+
+        {failedQuestions.length > 0 && score < 70 && (
+          <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/8 p-4">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-amber-400 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-black text-white mb-2">💡 Practice These Topics</p>
+                <p className="text-sm text-blue-100/70 mb-2">You missed {failedQuestions.length} question{failedQuestions.length !== 1 ? 's' : ''}. Review these topics:</p>
+                <div className="flex flex-wrap gap-1">
+                  {[...new Set(failedQuestions.map(q => q.topic || 'General'))].map(topic => (
+                    <span key={topic} className="rounded-full bg-amber-500/20 px-2 py-1 text-xs font-black text-amber-300">
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="space-y-3 mb-6">
           {questions.map((q, idx) => (

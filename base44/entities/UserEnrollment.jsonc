@@ -114,6 +114,33 @@
     "learning_pace": {
       "type": "number",
       "description": "Hours per week learning pace"
+    },
+    "total_xp": {
+      "type": "number",
+      "default": 0,
+      "description": "Total experience points earned"
+    },
+    "current_streak": {
+      "type": "number",
+      "default": 0,
+      "description": "Current learning streak in days"
+    },
+    "last_learned_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last day user logged learning time"
+    },
+    "perfect_quizzes": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of perfect quiz scores"
+    },
+    "failed_topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Topics user failed on quiz"
     }
   },
   "required": [
