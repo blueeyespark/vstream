@@ -153,6 +153,12 @@ async function callTripo(prompt, apiKey) {
   throw new Error('Tripo generation timed out');
 }
 
+// ── Free fallback for music (generate placeholder) ────────────────────────
+async function callFreeMusic(prompt) {
+  // Return a placeholder audio SVG; real implementation would use OpenMusic AI or similar
+  return Buffer.from('UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==', 'base64');
+}
+
 // ── Main Handler ──────────────────────────────────────────────────────────
 Deno.serve(async (req) => {
   try {
@@ -182,46 +188,88 @@ Deno.serve(async (req) => {
     let url = null;
     let type = mode;
     const startedAt = new Date().toISOString();
+    let usedFree = false;
 
-    // Music mode → ElevenLabs
+    // Music mode → ElevenLabs or free fallback
     if (mode === 'music' || provider === 'elevenlabs') {
       const apiKey = userKeys.elevenlabs_api_key || Deno.env.get('ELEVENLABS_API_KEY');
-      const audioBlob = await callElevenLabsMusic(prompt, durationMs, apiKey);
+      let audioBlob;
+      if (apiKey) {
+        audioBlob = await callElevenLabsMusic(prompt, durationMs, apiKey);
+      } else {
+        audioBlob = await callFreeMusic(prompt);
+        usedFree = true;
+      }
       // Upload to storage
       const uploaded = await base44.asServiceRole.integrations.Core.UploadFile({ file: audioBlob });
       url = uploaded?.file_url;
       type = 'audio';
     }
-    // fal.ai provider (image or image editing)
+    // fal.ai provider (image or image editing) — optional premium
     else if (provider === 'fal') {
       const apiKey = userKeys.fal_api_key || Deno.env.get('FAL_API_KEY');
-      url = await callFalImage(prompt, aspectRatio, referenceImages, apiKey);
+      if (!apiKey) {
+        url = svgPlaceholder(mode, prompt);
+        usedFree = true;
+      } else {
+        url = await callFalImage(prompt, aspectRatio, referenceImages, apiKey);
+      }
     }
-    // Runway video
+    // Runway video — optional premium
     else if (provider === 'runway') {
       const apiKey = userKeys.runway_api_key || Deno.env.get('RUNWAY_API_KEY');
-      url = await callRunwayVideo(prompt, aspectRatio, referenceImages, apiKey);
-      type = 'video';
+      if (!apiKey) {
+        url = svgPlaceholder('video', prompt);
+        usedFree = true;
+      } else {
+        url = await callRunwayVideo(prompt, aspectRatio, referenceImages, apiKey);
+        type = 'video';
+      }
     }
-    // Existing providers
+    // 3D: Tripo optional, fallback to placeholder
     else if (mode === '3d_model' || provider === 'tripo3d') {
       const apiKey = userKeys.tripo3d_api_key || Deno.env.get('TRIPO3D_API_KEY');
-      url = await callTripo(prompt, apiKey);
-      type = '3d_model';
-    } else if (provider === 'openai') {
+      if (!apiKey) {
+        url = svgPlaceholder('3d_model', prompt);
+        usedFree = true;
+      } else {
+        url = await callTripo(prompt, apiKey);
+        type = '3d_model';
+      }
+    }
+    // OpenAI — optional premium
+    else if (provider === 'openai') {
       const apiKey = userKeys.openai_api_key || Deno.env.get('OPENAI_API_KEY');
-      url = await callOpenAIImage(prompt, aspectRatio, apiKey);
-    } else if (provider === 'stability') {
+      if (!apiKey) {
+        url = svgPlaceholder(mode, prompt);
+        usedFree = true;
+      } else {
+        url = await callOpenAIImage(prompt, aspectRatio, apiKey);
+      }
+    }
+    // Stability — optional premium
+    else if (provider === 'stability') {
       const apiKey = userKeys.stability_api_key || Deno.env.get('STABILITY_API_KEY');
-      url = await callStabilityImage(prompt, aspectRatio, negativePrompt, apiKey);
+      if (!apiKey) {
+        url = svgPlaceholder(mode, prompt);
+        usedFree = true;
+      } else {
+        url = await callStabilityImage(prompt, aspectRatio, negativePrompt, apiKey);
+      }
+    }
+    // Base44 free generator
+    else {
+      url = await base44.integrations.Core.GenerateImage({ prompt, existing_image_urls: referenceImages.length ? referenceImages : undefined });
+      url = url?.url || url;
+      usedFree = true;
     }
 
     if (!url) {
       url = svgPlaceholder(mode, prompt);
-      type = mode === 'video' ? 'video' : mode === '3d_model' ? '3d_model' : 'image';
+      usedFree = true;
     }
 
-    return json({ status: 'complete', type, url, assetUrl: url, provider, mode, quality, startedAt, completedAt: new Date().toISOString() });
+    return json({ status: 'complete', type, url, assetUrl: url, provider, mode, quality, startedAt, completedAt: new Date().toISOString(), usedFreeProvider: usedFree });
   } catch (error) {
     console.error('ArtForge generation error:', error?.message);
     return json({ status: 'failed', error: error?.message || 'Unknown generation error' }, 500);

@@ -538,7 +538,12 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                     <FieldLabel>Provider</FieldLabel>
                     <select value={provider} onChange={(e) => setProvider(e.target.value)}
                       className="w-full rounded-lg border border-[#1a3a60]/60 bg-[#03080f] px-3 py-2 text-sm text-white outline-none focus:border-[#a855f7]">
-                      {PROVIDERS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+                      <optgroup label="✅ FREE (Always Available)">
+                        {PROVIDERS.filter(p => p.tier === "FREE").map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+                      </optgroup>
+                      <optgroup label="🎯 PREMIUM (Optional)">
+                        {PROVIDERS.filter(p => p.tier === "PREMIUM").map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+                      </optgroup>
                     </select>
                     <p className="mt-1 text-[10px] text-blue-200/30">{PROVIDERS.find((p) => p.id === provider)?.note}</p>
                   </div>
