@@ -18,6 +18,7 @@ import { Navigate } from "react-router-dom";
 import TracerMode from "@/components/artforge/TracerMode";
 import HandHelperMode from "@/components/artforge/HandHelperMode";
 import Model3DMode from "@/components/artforge/Model3DMode";
+import Model2DMode from "@/components/artforge/Model2DMode";
 
 function RedirectToProduction() {
   return <Navigate to="/CreatorStudio?section=production" replace />;
@@ -582,8 +583,18 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                   }}
                 />
               )}
+              {mode === "2d_model" && (
+                <Model2DMode
+                  isGenerating={isGenerating}
+                  selectedAsset={selectedAsset}
+                  onGenerate={({ prompt: p, referenceImages: refs, quality: q, aspect: a }) => {
+                    setPrompt(p); setReferenceImages(refs || []); setQuality(q || "ultra"); setAspect(a || "1:1");
+                    setTimeout(() => handleGenerate(), 50);
+                  }}
+                />
+              )}
               {/* Generic prompt box for all other modes */}
-              {!["tracer", "hand_helper", "3d_model"].includes(mode) && <Panel noPad>
+              {!["tracer", "hand_helper", "3d_model", "2d_model"].includes(mode) && <Panel noPad>
                 <div className="p-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -713,7 +724,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
               } {/* end !specialty modes */}
 
               {/* Preview / Output — shown for all non-specialty modes */}
-              {!["tracer", "hand_helper", "3d_model"].includes(mode) && <Panel title="Latest Output" icon={Eye}
+              {!["tracer", "hand_helper", "3d_model", "2d_model"].includes(mode) && <Panel title="Latest Output" icon={Eye}
                 action={selectedAsset?.url && (
                   <div className="flex gap-2">
                     <button onClick={() => { setPrompt(selectedAsset.description || prompt); toast.success("Loaded for variation"); }}
