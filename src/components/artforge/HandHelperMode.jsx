@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Hand, Loader2, Download, Zap, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import CharacterInputPanel from "@/components/artforge/CharacterInputPanel";
 
 const HAND_POSES = [
   { id: "open_palm", label: "Open Palm", emoji: "🖐️", desc: "Flat open hand facing forward" },
@@ -52,6 +53,8 @@ export default function HandHelperMode({ onGenerate, isGenerating, selectedAsset
   const [view, setView] = useState("palm_front");
   const [style, setStyle] = useState("anime");
   const [customPose, setCustomPose] = useState("");
+  const [sourceImage, setSourceImage] = useState(null);
+  const [sourcePreview, setSourcePreview] = useState(null);
   const [showBothHands, setShowBothHands] = useState(false);
   const [mirrored, setMirrored] = useState(false);
 
@@ -111,6 +114,7 @@ export default function HandHelperMode({ onGenerate, isGenerating, selectedAsset
       `Style: ${styleMap[style]}.`,
       showBothHands ? "Show both left and right hands mirrored side by side." : (mirrored ? "Left hand (mirrored)." : "Right hand."),
       fingerMods.length > 0 ? `Hand proportions: ${fingerMods.join(", ")}.` : "",
+      sourceImage ? "Match the pose from the reference image." : "",
       `White background. Clean artist reference. Anatomically correct with 5 fingers.`,
       `Negative: extra fingers, fused fingers, broken anatomy, floating fingers.`,
     ];
@@ -122,6 +126,7 @@ export default function HandHelperMode({ onGenerate, isGenerating, selectedAsset
     onGenerate({
       prompt: buildPrompt(),
       mode: "hand_helper",
+      referenceImages: sourceImage ? [sourceImage] : [],
       quality: "high",
       aspect: "1:1",
     });
@@ -155,9 +160,19 @@ export default function HandHelperMode({ onGenerate, isGenerating, selectedAsset
           ))}
         </div>
         {pose === "custom" && (
-          <textarea value={customPose} onChange={(e) => setCustomPose(e.target.value)} rows={2}
-            placeholder="Describe the hand pose in detail…"
-            className="mt-3 w-full resize-none rounded-xl border border-[#1a3a60]/60 bg-[#030e1f] p-3 text-sm text-white outline-none focus:border-rose-500/60" />
+          <div className="mt-3">
+            <CharacterInputPanel
+              textPrompt={customPose}
+              setTextPrompt={setCustomPose}
+              sourceImage={sourceImage}
+              setSourceImage={setSourceImage}
+              sourcePreview={sourcePreview}
+              setSourcePreview={setSourcePreview}
+              accentColor="violet"
+              placeholder="Describe the hand pose in detail… e.g. hand gripping a sword hilt"
+              quickExamples={["gripping sword", "casting spell", "playing piano", "holding brush"]}
+            />
+          </div>
         )}
       </div>
 

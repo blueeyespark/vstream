@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
-import { Upload, ImagePlus, Loader2, Download, X, Zap, Sliders, PenTool, CheckCircle2 } from "lucide-react";
+import { Loader2, Download, Zap, PenTool } from "lucide-react";
 import { toast } from "sonner";
+import CharacterInputPanel from "@/components/artforge/CharacterInputPanel";
 
 const TRACE_STYLES = [
   { id: "anime_lineart", label: "Anime Line Art", desc: "Clean manga-style lines", emoji: "⛩️" },
@@ -17,31 +17,11 @@ const LINE_WEIGHTS = ["Thin", "Medium", "Bold", "Variable"];
 export default function TracerMode({ onGenerate, isGenerating, selectedAsset }) {
   const [sourceImage, setSourceImage] = useState(null);
   const [sourcePreview, setSourcePreview] = useState(null);
+  const [textPrompt, setTextPrompt] = useState("");
   const [traceStyle, setTraceStyle] = useState("anime_lineart");
   const [lineWeight, setLineWeight] = useState("Medium");
   const [opacity, setOpacity] = useState(80);
   const [simplify, setSimplify] = useState(50);
-  const [isUploading, setIsUploading] = useState(false);
-
-  const handleImageUpload = async (files) => {
-    const file = files?.[0];
-    if (!file) return;
-    // Show local preview immediately
-    const reader = new FileReader();
-    reader.onload = (e) => setSourcePreview(e.target.result);
-    reader.readAsDataURL(file);
-    setIsUploading(true);
-    try {
-      const res = await base44.integrations.Core.UploadFile({ file });
-      if (res?.file_url) setSourceImage(res.file_url);
-    } catch { toast.error("Upload failed"); }
-    finally { setIsUploading(false); }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    handleImageUpload(e.dataTransfer.files);
-  };
 
   const buildPrompt = () => {
     const styleMap = {
@@ -52,12 +32,13 @@ export default function TracerMode({ onGenerate, isGenerating, selectedAsset }) 
       gesture: "Convert to flowing gesture drawing lines, energetic rhythmic strokes, loose artist sketch style",
       crosshatch: "Convert to cross-hatching line art reference with parallel and crossing strokes indicating shadow and form",
     };
-    return `${styleMap[traceStyle] || styleMap.anime_lineart}. Line weight: ${lineWeight}. Simplification level ${simplify}%. Traceable reference for artists. Clean white background. ${simplify > 70 ? "Highly simplified for easy tracing." : "Detailed line work."}`;
+    const subject = textPrompt.trim() ? `Subject: ${textPrompt.trim()}.` : "";
+    return `${styleMap[traceStyle] || styleMap.anime_lineart}. ${subject} Line weight: ${lineWeight}. Simplification level ${simplify}%. Traceable reference for artists. Clean white background. ${simplify > 70 ? "Highly simplified for easy tracing." : "Detailed line work."}`;
   };
 
   const handleTrace = () => {
-    if (!sourcePreview && !sourceImage) {
-      toast.error("Upload an image to trace first");
+    if (!sourceImage && !textPrompt.trim()) {
+      toast.error("Upload an image or describe what to trace");
       return;
     }
     onGenerate({
@@ -83,45 +64,17 @@ export default function TracerMode({ onGenerate, isGenerating, selectedAsset }) 
           </div>
         </div>
 
-        {/* Upload zone */}
-        <div
-          onDrop={handleDrop}
-          onDragOver={(e) => e.preventDefault()}
-          className="relative rounded-xl border-2 border-dashed border-cyan-500/30 bg-cyan-500/5 transition hover:border-cyan-500/50 hover:bg-cyan-500/8"
-        >
-          {sourcePreview ? (
-            <div className="relative">
-              <img src={sourcePreview} alt="source" className="w-full max-h-64 object-contain rounded-xl" />
-              <button
-                onClick={() => { setSourceImage(null); setSourcePreview(null); }}
-                className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 text-white hover:bg-red-600 transition"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              {isUploading && (
-                <div className="absolute inset-0 grid place-items-center rounded-xl bg-black/50">
-                  <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
-                </div>
-              )}
-              {sourceImage && !isUploading && (
-                <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-emerald-500/80 px-2 py-1 text-[10px] font-black text-white">
-                  <CheckCircle2 className="h-3 w-3" /> Ready
-                </div>
-              )}
-            </div>
-          ) : (
-            <label className="flex cursor-pointer flex-col items-center gap-3 p-10">
-              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-500/15 text-cyan-400">
-                <ImagePlus className="h-7 w-7" />
-              </div>
-              <div className="text-center">
-                <p className="font-black text-white">Drop image here or click to upload</p>
-                <p className="mt-1 text-xs text-blue-200/40">Any photo, drawing, or reference — JPG, PNG, WEBP</p>
-              </div>
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e.target.files)} />
-            </label>
-          )}
-        </div>
+        <CharacterInputPanel
+          textPrompt={textPrompt}
+          setTextPrompt={setTextPrompt}
+          sourceImage={sourceImage}
+          setSourceImage={setSourceImage}
+          sourcePreview={sourcePreview}
+          setSourcePreview={setSourcePreview}
+          accentColor="violet"
+          placeholder="e.g. anime girl portrait, fantasy landscape, hand pose sketch…"
+          quickExamples={["anime portrait", "fantasy scene", "character sketch", "hand pose"]}
+        />
       </div>
 
       {/* Trace style */}
