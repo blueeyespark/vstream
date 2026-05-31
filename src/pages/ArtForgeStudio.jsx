@@ -11,7 +11,7 @@ import {
   Zap, RefreshCw, Eye, ChevronDown,
   Heart, Grid3X3, List, ImagePlus, RotateCcw, ArrowUpRight,
   FlipHorizontal, Crop, Layers2, Shuffle,
-  History, Move,
+  History, Move, ShieldAlert, Skull, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Navigate } from "react-router-dom";
@@ -51,6 +51,36 @@ const STYLE_PRESETS = [
   { label: "Hand Study", emoji: "✋" }, { label: "Tracing Guide", emoji: "📐" }, { label: "Cyberpunk", emoji: "⚡" },
   { label: "Fantasy", emoji: "🧙" }, { label: "Minimalist", emoji: "⬜" }, { label: "Dark Gothic", emoji: "🦇" },
 ];
+
+const MATURE_STYLE_PRESETS = [
+  { label: "Horror", emoji: "💀" },
+  { label: "Gore / Visceral", emoji: "🩸" },
+  { label: "Dark Fantasy", emoji: "🗡️" },
+  { label: "Grim Dark", emoji: "☠️" },
+  { label: "Body Horror", emoji: "🕷️" },
+  { label: "Eldritch", emoji: "👁️" },
+  { label: "Post-Apocalyptic", emoji: "🌑" },
+  { label: "Torture / Pain", emoji: "⛓️" },
+  { label: "Demonic", emoji: "😈" },
+  { label: "Occult / Ritual", emoji: "🔮" },
+  { label: "Psychological Horror", emoji: "🌀" },
+  { label: "Brutal Combat", emoji: "⚔️" },
+];
+
+const MATURE_PROMPT_MODIFIERS = {
+  "Horror": "extreme horror atmosphere, terrifying imagery, deep shadows, disturbing details",
+  "Gore / Visceral": "visceral, graphic, detailed wounds, gritty realism, uncensored",
+  "Dark Fantasy": "dark fantasy, morally ambiguous, grim setting, blood and steel",
+  "Grim Dark": "grimdark aesthetic, no hope, brutal world, oppressive darkness",
+  "Body Horror": "body horror, grotesque transformation, disturbing anatomy",
+  "Eldritch": "cosmic horror, eldritch abomination, reality-bending, unknowable entity",
+  "Post-Apocalyptic": "post-apocalyptic wasteland, ruins, death, survival horror",
+  "Torture / Pain": "anguish, extreme pain, distress, visceral suffering",
+  "Demonic": "demonic entity, hellscape, satanic imagery, infernal",
+  "Occult / Ritual": "occult ritual, blood magic, forbidden symbols, dark ceremony",
+  "Psychological Horror": "psychological torment, surreal nightmare, mind-breaking, disturbing imagery",
+  "Brutal Combat": "brutal violence, extreme combat, graphic injury, uncensored battle",
+};
 
 const PROMPT_EXAMPLES = [
   "A majestic phoenix rising from blue digital flames, VTuber mascot style",
@@ -210,6 +240,9 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
   const [referenceImages, setReferenceImages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [matureMode, setMatureMode] = useState(() => safeJsonParse(localStorage.getItem("artforge_mature_mode"), false));
+  const [showAgeGate, setShowAgeGate] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(() => safeJsonParse(localStorage.getItem("artforge_age_confirmed"), false));
 
   // UI state
   const [galleryView, setGalleryView] = useState("grid"); // grid | list
@@ -255,6 +288,8 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
   useEffect(() => localStorage.setItem("artforge_jobs", JSON.stringify(jobs.slice(0, 50))), [jobs]);
   useEffect(() => localStorage.setItem("artforge_memory", JSON.stringify(memory)), [memory]);
   useEffect(() => localStorage.setItem("artforge_prompt_history", JSON.stringify(promptHistory.slice(0, 30))), [promptHistory]);
+  useEffect(() => localStorage.setItem("artforge_mature_mode", JSON.stringify(matureMode)), [matureMode]);
+  useEffect(() => localStorage.setItem("artforge_age_confirmed", JSON.stringify(ageConfirmed)), [ageConfirmed]);
 
   // Assets
   const { data: assets = [] } = useQuery({
@@ -282,9 +317,16 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
     const sceneLine = mode === "video" ? `Scenes: ${scenes.map((s) => `${s.name} ${s.seconds}s ${s.camera}`).join("; ")}.` : "";
     const tracerLine = mode === "tracer" ? "Include simplified pose construction lines, tracing-safe contours, high-contrast edges." : "";
     const handLine = mode === "hand_helper" ? "Prioritize accurate hand anatomy: palm block, knuckles, 5 fingers, gesture variants." : "";
-    return [prompt, styleLine, `Aspect: ${aspect}.`, mode !== "image" ? `Camera: ${camera}.` : "", sceneLine, tracerLine, handLine, `Negative: ${negativePrompt}.`]
+    const matureModifiers = matureMode
+      ? styles.filter(s => MATURE_PROMPT_MODIFIERS[s]).map(s => MATURE_PROMPT_MODIFIERS[s]).join(", ")
+      : "";
+    const matureLine = matureMode ? `Mature content enabled: uncensored, no content restrictions, adult themes allowed. ${matureModifiers}` : "";
+    const negLine = matureMode
+      ? `Negative: blurry, broken hands, extra fingers, watermark, low quality, text artifacts.`
+      : `Negative: ${negativePrompt}.`;
+    return [prompt, styleLine, `Aspect: ${aspect}.`, mode !== "image" ? `Camera: ${camera}.` : "", sceneLine, tracerLine, handLine, matureLine, negLine]
       .filter(Boolean).join(" ");
-  }, [prompt, styles, aspect, camera, scenes, mode, negativePrompt]);
+  }, [prompt, styles, aspect, camera, scenes, mode, negativePrompt, matureMode]);
 
   const toggleStyle = (style) => setStyles((prev) => prev.includes(style) ? prev.filter((s) => s !== style) : [...prev, style]);
 
@@ -413,6 +455,21 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
+  const handleMatureToggle = () => {
+    if (!matureMode) {
+      if (!ageConfirmed) { setShowAgeGate(true); return; }
+      setMatureMode(true);
+    } else {
+      setMatureMode(false);
+    }
+  };
+
+  const handleAgeConfirm = () => {
+    setAgeConfirmed(true);
+    setMatureMode(true);
+    setShowAgeGate(false);
+  };
+
   // When accessed as a standalone page (not embedded), redirect to Production
   if (!embedded) {
     return <RedirectToProduction />;
@@ -420,6 +477,47 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
 
   return (
     <div className="text-blue-50 space-y-3 min-w-0 overflow-x-hidden">
+      {/* Age Gate Modal */}
+      <AnimatePresence>
+        {showAgeGate && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-md rounded-2xl border border-red-500/30 bg-[#0a0a0a] p-6 shadow-2xl">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-red-500/15 border border-red-500/30">
+                  <ShieldAlert className="h-6 w-6 text-red-400" />
+                </div>
+                <div>
+                  <h2 className="font-black text-white text-lg">Age Verification</h2>
+                  <p className="text-xs text-red-300/70">Mature Content Access</p>
+                </div>
+              </div>
+              <div className="mb-5 rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-2">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-red-400" />
+                  <p className="text-sm text-red-200/80">This feature enables generation of mature content including graphic violence, horror, gore, and dark themes.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Skull className="h-4 w-4 shrink-0 mt-0.5 text-red-400" />
+                  <p className="text-sm text-red-200/80">You must be <strong>18 years or older</strong> to access this content.</p>
+                </div>
+              </div>
+              <p className="mb-5 text-xs text-blue-200/40">By continuing, you confirm that you are 18+ and accept full responsibility for the content you generate. Generated content is for personal use only.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowAgeGate(false)}
+                  className="flex-1 rounded-xl border border-[#1a3a60]/60 py-3 text-sm font-black text-blue-200/60 hover:text-white transition">
+                  Cancel
+                </button>
+                <button onClick={handleAgeConfirm}
+                  className="flex-1 rounded-xl bg-red-600 hover:bg-red-700 py-3 text-sm font-black text-white transition">
+                  I am 18+ — Enable
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Status bar — only shown when generating or have results */}
       {(runningJobs.length > 0 || completedJobs.length > 0) && (
         <div className="flex items-center justify-between rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 px-3 py-2">
@@ -442,6 +540,15 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
         </div>
       )}
 
+      {/* Mature mode banner */}
+      {matureMode && (
+        <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/8 px-3 py-2">
+          <Skull className="h-3.5 w-3.5 text-red-400 shrink-0" />
+          <span className="text-xs font-black text-red-300 flex-1">Mature Mode Active — Uncensored dark/horror/violence themes enabled</span>
+          <button onClick={() => setMatureMode(false)} className="text-[10px] text-red-400/60 hover:text-red-300 transition">Disable</button>
+        </div>
+      )}
+
       {/* Tab bar — hidden when parent (ProductionHub) controls tabs externally */}
       {!onTabChange && <div className="flex items-center gap-0.5 overflow-x-auto rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 p-1">
         {tabs.map(({ id, label, icon: Icon, badge }) => (
@@ -452,6 +559,13 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
             {badge > 0 && <span className="ml-0.5 rounded-full bg-[#a855f7] px-1.5 py-0.5 text-[9px] font-black text-white">{badge}</span>}
           </button>
         ))}
+        <div className="ml-auto pl-1 shrink-0">
+          <button onClick={handleMatureToggle}
+            className={cls("flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-black transition",
+              matureMode ? "border-red-500/50 bg-red-500/15 text-red-300" : "border-[#1a3a60]/60 text-blue-200/40 hover:text-red-300 hover:border-red-500/30")}>
+            <Skull className="h-3.5 w-3.5" /> {matureMode ? "18+ ON" : "18+"}
+          </button>
+        </div>
       </div>}
 
       <AnimatePresence mode="wait">
@@ -648,6 +762,22 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                         </button>
                       ))}
                     </div>
+                    {matureMode && (
+                      <div className="mt-2">
+                        <p className="mb-1.5 text-[10px] font-black text-red-400/70 uppercase tracking-widest flex items-center gap-1">
+                          <Skull className="h-3 w-3" /> Mature Themes
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {MATURE_STYLE_PRESETS.map(({ label, emoji }) => (
+                            <button key={label} onClick={() => toggleStyle(label)}
+                              className={cls("rounded-full border px-2.5 py-1 text-[11px] font-bold transition",
+                                styles.includes(label) ? "border-red-500/70 bg-red-500/20 text-red-200" : "border-red-500/20 text-red-400/50 hover:text-red-300 hover:border-red-500/40")}>
+                              {emoji} {label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Advanced toggle */}
