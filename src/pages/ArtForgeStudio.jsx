@@ -11,7 +11,7 @@ import {
   Zap, RefreshCw, Eye, ChevronDown,
   Heart, Grid3X3, List, ImagePlus, RotateCcw, ArrowUpRight,
   FlipHorizontal, Crop, Layers2, Shuffle,
-  History, Move,
+  History, Move, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Navigate } from "react-router-dom";
@@ -38,6 +38,9 @@ const CREATION_MODES = [
   { id: "hand_helper", label: "Hand Helper", icon: Hand, hint: "Poseable 3D hand reference", prompt: "Accurate hand drawing reference", color: "from-rose-400 to-pink-600", badge: null },
   { id: "image_edit", label: "Image Editor", icon: WandSparkles, hint: "Edit images with text prompts", prompt: "Edit this image", color: "from-fuchsia-500 to-violet-600", badge: "fal.ai" },
   { id: "music", label: "Music Gen", icon: Film, hint: "AI music from text prompts", prompt: "Generate music", color: "from-orange-500 to-pink-500", badge: "ElevenLabs" },
+  { id: "thumbnail", label: "Thumbnail", icon: Image, hint: "YouTube thumbnails", prompt: "Eye-catching thumbnail for gaming video", color: "from-red-500 to-orange-500", badge: "NEW" },
+  { id: "script", label: "Script", icon: Type, hint: "YouTube scripts", prompt: "Write a compelling YouTube video script", color: "from-indigo-500 to-blue-500", badge: "NEW" },
+  { id: "viggle", label: "VTuber Avatar", icon: Smile, hint: "Motion capture avatar", prompt: "Animated character avatar with motion tracking", color: "from-pink-500 to-rose-500", badge: "NEW" },
 ];
 
 const PROVIDERS = [
@@ -589,6 +592,86 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
             {/* Center: Specialty modes OR generic prompt */}
             <section className="space-y-3 min-w-0">
               {/* Specialty mode panels */}
+              {mode === "thumbnail" && (
+                <Panel title="YouTube Thumbnail Generator" icon={Image}>
+                  <div className="space-y-3">
+                    <div>
+                      <FieldLabel>Video Title</FieldLabel>
+                      <input type="text" placeholder="Enter video title..." onChange={(e) => setPrompt(`Thumbnail for: ${e.target.value}`)}
+                        className="w-full rounded-lg border border-[#1a3a60]/60 bg-[#030e1f] px-3 py-2 text-sm text-white outline-none focus:border-[#a855f7]" />
+                    </div>
+                    <div>
+                      <FieldLabel>Thumbnail Style</FieldLabel>
+                      <select onChange={(e) => setPrompt((p) => p + `, ${e.target.value} style`)}
+                        className="w-full rounded-lg border border-[#1a3a60]/60 bg-[#030e1f] px-3 py-2 text-sm text-white outline-none focus:border-[#a855f7]">
+                        <option>Gaming</option>
+                        <option>Educational</option>
+                        <option>Entertainment</option>
+                        <option>Technology</option>
+                        <option>Comedy</option>
+                      </select>
+                    </div>
+                    <button onClick={handleGenerate} disabled={isGenerating}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 px-5 py-3 text-sm font-black text-white hover:opacity-90 disabled:opacity-50">
+                      {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+                      Generate Thumbnail
+                    </button>
+                  </div>
+                </Panel>
+              )}
+              {mode === "script" && (
+                <Panel title="YouTube Script Generator" icon={FileText}>
+                  <div className="space-y-3">
+                    <div>
+                      <FieldLabel>Video Topic</FieldLabel>
+                      <textarea placeholder="What is your video about?..." rows={3} onChange={(e) => setPrompt(`Write a YouTube video script about: ${e.target.value}`)}
+                        className="w-full rounded-lg border border-[#1a3a60]/60 bg-[#030e1f] px-3 py-2 text-sm text-white outline-none focus:border-[#a855f7] resize-none" />
+                    </div>
+                    <div>
+                      <FieldLabel>Duration (minutes)</FieldLabel>
+                      <select onChange={(e) => setPrompt((p) => p + `. Script should be approximately ${e.target.value} minutes long`)}
+                        className="w-full rounded-lg border border-[#1a3a60]/60 bg-[#030e1f] px-3 py-2 text-sm text-white outline-none focus:border-[#a855f7]">
+                        <option>5</option>
+                        <option>10</option>
+                        <option>15</option>
+                        <option>20</option>
+                      </select>
+                    </div>
+                    <button onClick={async () => {
+                      const result = await base44.integrations.Core.InvokeLLM({ prompt });
+                      if (result) { setSelectedAsset({ name: "Script", description: result, type: "text" }); toast.success("Script generated!"); }
+                    }} disabled={isGenerating}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 px-5 py-3 text-sm font-black text-white hover:opacity-90 disabled:opacity-50">
+                      {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                      Generate Script
+                    </button>
+                  </div>
+                </Panel>
+              )}
+              {mode === "viggle" && (
+                <Panel title="VTuber Avatar Motion Capture" icon={Smile}>
+                  <div className="space-y-3">
+                    <p className="text-xs text-blue-200/50">Upload a character image and enable motion tracking for live streaming</p>
+                    <div className="rounded-lg border border-dashed border-[#1a3a60]/60 p-6 text-center">
+                      <label className="cursor-pointer">
+                        <Upload className="mx-auto mb-2 h-6 w-6 text-blue-300/50" />
+                        <p className="text-sm font-black text-white">Click to upload character</p>
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleReferenceUpload(e.target.files)} />
+                      </label>
+                    </div>
+                    {referenceImages.length > 0 && (
+                      <div className="rounded-lg border border-[#1a3a60]/50 bg-[#030e1f] p-3">
+                        <p className="text-xs font-black text-blue-200 mb-2">Character loaded</p>
+                        <button onClick={handleGenerate} disabled={isGenerating}
+                          className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 px-4 py-2.5 text-sm font-black text-white hover:opacity-90 disabled:opacity-50">
+                          {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+                          Enable Motion Capture
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </Panel>
+              )}
               {mode === "tracer" && (
                 <TracerMode
                   isGenerating={isGenerating}
@@ -640,7 +723,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                 </Panel>
               )}
               {/* Generic prompt box for all other modes */}
-              {!["tracer", "hand_helper", "3d_model", "2d_model", "image_edit", "music"].includes(mode) && <Panel noPad>
+              {!["tracer", "hand_helper", "3d_model", "2d_model", "image_edit", "music", "thumbnail", "script", "viggle"].includes(mode) && <Panel noPad>
                 <div className="p-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -770,7 +853,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
               } {/* end !specialty modes */}
 
               {/* Preview / Output — shown for all non-specialty modes */}
-              {!["tracer", "hand_helper", "3d_model", "2d_model", "image_edit", "music"].includes(mode) && <Panel title="Latest Output" icon={Eye}
+              {!["tracer", "hand_helper", "3d_model", "2d_model", "image_edit", "music", "thumbnail", "viggle"].includes(mode) && <Panel title="Latest Output" icon={Eye}
                 action={selectedAsset?.url && (
                   <div className="flex gap-2">
                     <button onClick={() => { setPrompt(selectedAsset.description || prompt); toast.success("Loaded for variation"); }}
