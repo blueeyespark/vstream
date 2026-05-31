@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Moon, Sun, Settings, LogOut, Search,
   Tv, Users, Scan, LayoutDashboard,
-  Radio, PlaySquare, ChevronRight, MessageSquare, Bookmark, ListVideo, Wand2, Mic2
+  Radio, PlaySquare, ChevronRight, MessageSquare, Bookmark, ListVideo, Mic2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 /** @type {any} */
@@ -201,7 +201,6 @@ export default function TopNav({
                     <div className="border-t border-[#0d1820] py-1">
                       <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Creator</p>
                       <MenuButton icon={Mic2} label="Creator OS" onClick={() => openCreatorTool("/CreatorOS")} />
-                      <MenuButton icon={Wand2} label="ArtForge AI" onClick={() => openCreatorTool("/CreatorOS?section=production&tool=artforge")} />
                       <MenuItem icon={Radio} label="Go Live Now" to="/StreamerDashboard" onClick={() => setAccountOpen(false)} />
                     </div>
                   )}
