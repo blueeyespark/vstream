@@ -658,8 +658,8 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
 
 function ContentLibrary({ videos, assets, filter, setFilter, query, setQuery }) {
   const items = [
-    ...videos.map((v) => ({ id: `video-${v.id}`, title: v.title, type: v.status === "live" ? "livestreams" : v.duration_seconds && v.duration_seconds < 90 ? "shorts" : "videos", tag: v.status, thumb: v.thumbnail_url })),
-    ...assets.map((a) => ({ id: `asset-${a.id}`, title: a.name || "Untitled", type: normalizeAssetType(a), tag: a.asset_type || a.type || "asset", thumb: a.thumbnail_url || a.url })),
+    ...videos.filter((v) => v.title).map((v) => ({ id: `video-${v.id}`, title: v.title, type: v.status === "live" ? "livestreams" : v.duration_seconds && v.duration_seconds < 90 ? "shorts" : "videos", tag: v.status, thumb: v.thumbnail_url })),
+    ...assets.filter((a) => (a.name && a.name.trim()) || a.url || a.file_url || a.thumbnail_url).map((a) => ({ id: `asset-${a.id}`, title: a.name?.trim() || "Untitled", type: normalizeAssetType(a), tag: a.asset_type || a.type || "asset", thumb: a.thumbnail_url || a.url || a.file_url })),
   ];
   const filters = ["all", "videos", "shorts", "livestreams", "images", "ai generations", "assets", "audio", "templates"];
   const filtered = items.filter((i) => (filter === "all" || i.type === filter) && (!query || i.title.toLowerCase().includes(query.toLowerCase())));
