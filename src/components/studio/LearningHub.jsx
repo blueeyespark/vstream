@@ -3,6 +3,7 @@ import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Filter 
 import { Input } from "@/components/ui/input";
 
 const courses = [
+  // Beginner Frontend
   {
     id: 1,
     title: "JavaScript Fundamentals",
@@ -16,6 +17,30 @@ const courses = [
   },
   {
     id: 2,
+    title: "HTML & CSS Essentials",
+    description: "Master semantic HTML, responsive CSS, flexbox, grid, and modern layout techniques.",
+    level: "beginner",
+    duration: "3 hours",
+    students: 18000,
+    rating: 4.7,
+    tags: ["HTML", "CSS", "Frontend"],
+    icon: "🏗️",
+  },
+  {
+    id: 3,
+    title: "Web Design Principles",
+    description: "Design stunning UIs: typography, color theory, layout, accessibility, and responsiveness.",
+    level: "beginner",
+    duration: "3 hours",
+    students: 15600,
+    rating: 4.6,
+    tags: ["Design", "CSS", "UX"],
+    icon: "🎨",
+  },
+  
+  // Intermediate Frontend
+  {
+    id: 4,
     title: "React Basics to Advanced",
     description: "Master React: hooks, state management, performance optimization, and best practices.",
     level: "intermediate",
@@ -26,7 +51,55 @@ const courses = [
     icon: "⚛️",
   },
   {
-    id: 3,
+    id: 5,
+    title: "Vue.js Complete Guide",
+    description: "Build reactive UIs with Vue: components, directives, lifecycle, composition API.",
+    level: "intermediate",
+    duration: "5 hours",
+    students: 6200,
+    rating: 4.7,
+    tags: ["Vue", "Frontend", "Framework"],
+    icon: "💚",
+  },
+  {
+    id: 6,
+    title: "REST APIs & HTTP Protocols",
+    description: "Understand HTTP methods, status codes, RESTful design, CORS, and API authentication.",
+    level: "intermediate",
+    duration: "4 hours",
+    students: 9100,
+    rating: 4.8,
+    tags: ["API", "HTTP", "Backend"],
+    icon: "🌐",
+  },
+
+  // Beginner Backend
+  {
+    id: 7,
+    title: "Python for Beginners",
+    description: "Learn Python basics: syntax, data structures, functions, and object-oriented programming.",
+    level: "beginner",
+    duration: "4.5 hours",
+    students: 14300,
+    rating: 4.8,
+    tags: ["Python", "Backend", "Programming"],
+    icon: "🐍",
+  },
+  {
+    id: 8,
+    title: "Java Essentials",
+    description: "Master Java fundamentals: syntax, OOP, collections, exception handling, and streams.",
+    level: "beginner",
+    duration: "5 hours",
+    students: 11200,
+    rating: 4.7,
+    tags: ["Java", "Backend", "OOP"],
+    icon: "☕",
+  },
+
+  // Intermediate Backend
+  {
+    id: 9,
     title: "Building APIs with Node.js",
     description: "Create scalable backend services: Express, authentication, databases, and deployment.",
     level: "intermediate",
@@ -37,18 +110,55 @@ const courses = [
     icon: "🔌",
   },
   {
-    id: 4,
-    title: "Web Design Principles",
-    description: "Design stunning UIs: typography, color theory, layout, accessibility, and responsiveness.",
-    level: "beginner",
-    duration: "3 hours",
-    students: 15600,
-    rating: 4.6,
-    tags: ["Design", "CSS", "UX"],
-    icon: "🎨",
+    id: 10,
+    title: "Spring Boot & Java Web Development",
+    description: "Build enterprise Java apps: Spring MVC, dependency injection, REST endpoints, security.",
+    level: "intermediate",
+    duration: "6.5 hours",
+    students: 5800,
+    rating: 4.8,
+    tags: ["Java", "Spring", "Backend"],
+    icon: "🌱",
   },
   {
-    id: 5,
+    id: 11,
+    title: "Python Django Framework",
+    description: "Build web applications with Django: models, views, templates, authentication, and ORM.",
+    level: "intermediate",
+    duration: "5.5 hours",
+    students: 6400,
+    rating: 4.7,
+    tags: ["Python", "Django", "Backend"],
+    icon: "🎯",
+  },
+
+  // Database
+  {
+    id: 12,
+    title: "Database Design & SQL",
+    description: "Design normalized databases and write efficient queries: PostgreSQL, indexing, transactions.",
+    level: "intermediate",
+    duration: "5 hours",
+    students: 6800,
+    rating: 4.8,
+    tags: ["SQL", "Database", "Backend"],
+    icon: "🗄️",
+  },
+  {
+    id: 13,
+    title: "MongoDB & NoSQL Databases",
+    description: "Master NoSQL: document models, querying, indexing, and when to use NoSQL vs SQL.",
+    level: "intermediate",
+    duration: "4 hours",
+    students: 5100,
+    rating: 4.6,
+    tags: ["MongoDB", "NoSQL", "Database"],
+    icon: "🍃",
+  },
+
+  // Advanced
+  {
+    id: 14,
     title: "TypeScript Mastery",
     description: "Leverage TypeScript for type-safe code: generics, interfaces, decorators, and tooling.",
     level: "advanced",
@@ -59,15 +169,72 @@ const courses = [
     icon: "📘",
   },
   {
-    id: 6,
-    title: "Database Design & SQL",
-    description: "Design normalized databases and write efficient queries: PostgreSQL, indexing, transactions.",
-    level: "intermediate",
-    duration: "5 hours",
-    students: 6800,
+    id: 15,
+    title: "Advanced Java: Concurrency & Performance",
+    description: "Master multi-threading, concurrent collections, GC tuning, and performance optimization.",
+    level: "advanced",
+    duration: "5.5 hours",
+    students: 3200,
     rating: 4.8,
-    tags: ["SQL", "Database", "Backend"],
-    icon: "🗄️",
+    tags: ["Java", "Concurrency", "Advanced"],
+    icon: "⚡",
+  },
+  {
+    id: 16,
+    title: "System Design for Scalability",
+    description: "Design large-scale systems: microservices, caching, load balancing, and distributed systems.",
+    level: "advanced",
+    duration: "7 hours",
+    students: 4100,
+    rating: 4.9,
+    tags: ["Architecture", "System Design", "Advanced"],
+    icon: "🏛️",
+  },
+  {
+    id: 17,
+    title: "DevOps & Cloud Deployment",
+    description: "Deploy to the cloud: Docker, Kubernetes, CI/CD pipelines, AWS, and infrastructure as code.",
+    level: "advanced",
+    duration: "6 hours",
+    students: 4700,
+    rating: 4.8,
+    tags: ["DevOps", "Docker", "Cloud"],
+    icon: "☁️",
+  },
+
+  // Specialized
+  {
+    id: 18,
+    title: "C++ Fundamentals",
+    description: "Learn C++: memory management, pointers, templates, and performance-critical code.",
+    level: "intermediate",
+    duration: "6 hours",
+    students: 3800,
+    rating: 4.6,
+    tags: ["C++", "Systems Programming"],
+    icon: "⚙️",
+  },
+  {
+    id: 19,
+    title: "Go Programming Language",
+    description: "Master Go: goroutines, channels, concurrency patterns, and building high-performance services.",
+    level: "intermediate",
+    duration: "4.5 hours",
+    students: 4200,
+    rating: 4.7,
+    tags: ["Go", "Concurrency", "Backend"],
+    icon: "🐹",
+  },
+  {
+    id: 20,
+    title: "Machine Learning with Python",
+    description: "Intro to ML: scikit-learn, pandas, numpy, data visualization, and supervised learning.",
+    level: "advanced",
+    duration: "7 hours",
+    students: 5900,
+    rating: 4.8,
+    tags: ["Python", "ML", "Data Science"],
+    icon: "🤖",
   },
 ];
 
@@ -243,12 +410,115 @@ export default function LearningHub() {
         </div>
       </div>
 
-      {/* Learning Path */}
+      {/* Learning Paths */}
       <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
         <div className="flex items-center gap-2 mb-4">
           <BookOpen className="h-5 w-5 text-[#a855f7]" />
-          <h2 className="text-lg font-black text-white">Suggested Learning Path</h2>
+          <h2 className="text-lg font-black text-white">Popular Learning Paths</h2>
         </div>
+        
+        <div className="space-y-4">
+          {/* Frontend Path */}
+          <div>
+            <h3 className="text-sm font-black text-[#00c8ff] mb-2">🎨 Frontend Developer Path</h3>
+            <div className="space-y-1.5">
+              {[
+                { step: 1, title: "HTML & CSS Essentials", desc: "Web fundamentals" },
+                { step: 2, title: "JavaScript Fundamentals", desc: "Core language" },
+                { step: 3, title: "React Basics to Advanced", desc: "Modern UI library" },
+                { step: 4, title: "TypeScript Mastery", desc: "Type-safe code" },
+              ].map(({ step, title, desc }) => (
+                <div key={`frontend-${step}`} className="flex items-start gap-3 rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-2.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1e78ff]/20 text-xs font-black text-[#00c8ff] flex-shrink-0">
+                    {step}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-black text-white text-xs">{title}</p>
+                    <p className="text-[10px] text-blue-100/50">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Backend Path */}
+          <div>
+            <h3 className="text-sm font-black text-emerald-400 mb-2">⚙️ Backend Developer Path</h3>
+            <div className="space-y-1.5">
+              {[
+                { step: 1, title: "Python for Beginners", desc: "Beginner-friendly language" },
+                { step: 2, title: "REST APIs & HTTP Protocols", desc: "Web API fundamentals" },
+                { step: 3, title: "Building APIs with Node.js", desc: "JavaScript backend" },
+                { step: 4, title: "Database Design & SQL", desc: "Data persistence" },
+                { step: 5, title: "System Design for Scalability", desc: "Large-scale systems" },
+              ].map(({ step, title, desc }) => (
+                <div key={`backend-${step}`} className="flex items-start gap-3 rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-2.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-xs font-black text-emerald-400 flex-shrink-0">
+                    {step}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-black text-white text-xs">{title}</p>
+                    <p className="text-[10px] text-blue-100/50">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Java Path */}
+          <div>
+            <h3 className="text-sm font-black text-amber-400 mb-2">☕ Java Developer Path</h3>
+            <div className="space-y-1.5">
+              {[
+                { step: 1, title: "Java Essentials", desc: "Core language & OOP" },
+                { step: 2, title: "REST APIs & HTTP Protocols", desc: "Web fundamentals" },
+                { step: 3, title: "Spring Boot & Java Web Development", desc: "Enterprise framework" },
+                { step: 4, title: "Database Design & SQL", desc: "Data management" },
+                { step: 5, title: "Advanced Java: Concurrency & Performance", desc: "Expert level" },
+              ].map(({ step, title, desc }) => (
+                <div key={`java-${step}`} className="flex items-start gap-3 rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-2.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/20 text-xs font-black text-amber-400 flex-shrink-0">
+                    {step}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-black text-white text-xs">{title}</p>
+                    <p className="text-[10px] text-blue-100/50">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Alternative Skills */}
+      <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+        <h3 className="text-lg font-black text-white mb-3">📚 Programming Languages & Frameworks</h3>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            { lang: "JavaScript/Node.js", level: "Beginner to Expert", icon: "📝" },
+            { lang: "Python", level: "Beginner to Expert", icon: "🐍" },
+            { lang: "Java", level: "Beginner to Expert", icon: "☕" },
+            { lang: "C++", level: "Intermediate to Expert", icon: "⚙️" },
+            { lang: "Go", level: "Intermediate to Expert", icon: "🐹" },
+            { lang: "React/Vue.js", level: "Beginner to Expert", icon: "⚛️" },
+            { lang: "Django/Flask", level: "Intermediate to Expert", icon: "🎯" },
+            { lang: "Spring Boot", level: "Intermediate to Expert", icon: "🌱" },
+            { lang: "DevOps & Cloud", level: "Intermediate to Expert", icon: "☁️" },
+          ].map(({ lang, level, icon }) => (
+            <div key={lang} className="rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-lg">{icon}</span>
+                <p className="font-black text-white text-sm">{lang}</p>
+              </div>
+              <p className="text-xs text-blue-100/50">{level}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Legacy Learning Path Section - Hidden */}
+      <div className="hidden">
         <div className="space-y-2">
           {[
             { step: 1, title: "JavaScript Fundamentals", desc: "Master core language concepts" },
