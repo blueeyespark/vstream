@@ -87,17 +87,17 @@ function Panel({ children, className = "" }) {
 
 function MetricCard({ icon: Icon, label, value, detail, trend, color = "blue", onClick }) {
   const colors = {
-    blue: { icon: "text-[#00c8ff]", bg: "bg-[#1e78ff]/12", ring: "hover:border-[#1e78ff]/40", trend: "text-emerald-400" },
-    purple: { icon: "text-purple-300", bg: "bg-purple-500/12", ring: "hover:border-purple-500/40", trend: "text-emerald-400" },
-    green: { icon: "text-emerald-300", bg: "bg-emerald-500/12", ring: "hover:border-emerald-500/40", trend: "text-emerald-400" },
-    amber: { icon: "text-amber-300", bg: "bg-amber-500/12", ring: "hover:border-amber-500/40", trend: "text-emerald-400" },
+    blue: { icon: "text-[#00c8ff]", bg: "bg-[#1e78ff]/15", ring: "hover:border-[#1e78ff]/50", trend: "text-emerald-400" },
+    purple: { icon: "text-purple-300", bg: "bg-purple-500/15", ring: "hover:border-purple-500/50", trend: "text-emerald-400" },
+    green: { icon: "text-emerald-300", bg: "bg-emerald-500/15", ring: "hover:border-emerald-500/50", trend: "text-emerald-400" },
+    amber: { icon: "text-amber-300", bg: "bg-amber-500/15", ring: "hover:border-amber-500/50", trend: "text-emerald-400" },
   };
   const c = colors[color] || colors.blue;
   return (
-    <div onClick={onClick} className={cx("rounded-2xl border border-[#12305f] bg-[#03080f]/72 p-4 transition-colors", c.ring, onClick && "cursor-pointer")}>
+    <div onClick={onClick} className={cx("rounded-2xl border border-[#1a3a60]/70 bg-gradient-to-br from-[#06101f] to-[#03080f] p-5 transition-all shadow-sm", c.ring, onClick && "cursor-pointer hover:shadow-md")}>
       <div className="flex items-start justify-between mb-3">
-        <div className={cx("grid h-9 w-9 place-items-center rounded-xl", c.bg)}>
-          <Icon className={cx("h-4 w-4", c.icon)} />
+        <div className={cx("grid h-10 w-10 place-items-center rounded-xl", c.bg)}>
+          <Icon className={cx("h-5 w-5", c.icon)} />
         </div>
         {trend && (
           <span className={cx("flex items-center gap-1 text-xs font-black", c.trend)}>
@@ -105,9 +105,9 @@ function MetricCard({ icon: Icon, label, value, detail, trend, color = "blue", o
           </span>
         )}
       </div>
-      <p className="text-2xl font-black text-white">{value}</p>
-      <p className="mt-0.5 text-xs font-black uppercase tracking-widest text-blue-100/40">{label}</p>
-      {detail && <p className="mt-1 text-xs text-blue-100/35">{detail}</p>}
+      <p className="text-3xl font-black text-white">{value}</p>
+      <p className="mt-1 text-[11px] font-black uppercase tracking-widest text-blue-100/50">{label}</p>
+      {detail && <p className="mt-1.5 text-xs text-blue-100/40">{detail}</p>}
     </div>
   );
 }
@@ -136,16 +136,16 @@ function SectionHeader({ section, channelName, channel }) {
           </div>
           <div className="flex flex-wrap gap-2 mt-1 lg:mt-0">
             <Link to="/CreatorOS?section=production"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#1e78ff] px-3 py-2 text-xs font-black text-white hover:bg-[#3d8fff] transition">
-              <Upload className="h-3.5 w-3.5" /> Upload
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#1e78ff] to-[#3d8fff] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-blue-950/30 hover:shadow-blue-950/50 transition">
+              <Upload className="h-4 w-4" /> Upload
             </Link>
             <Link to="/StreamerDashboard"
-              className="inline-flex items-center gap-2 rounded-xl border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-100 hover:bg-red-500/18 transition">
-              <Radio className="h-3.5 w-3.5" /> Go Live
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-red-600 px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-red-950/30 hover:shadow-red-950/50 transition">
+              <Radio className="h-4 w-4" /> Go Live
             </Link>
             {channel && (
               <Link to={`/Channel?id=${channel.id}`}
-                className="inline-flex items-center gap-2 rounded-xl border border-[#12305f] bg-[#03080f]/55 px-4 py-2 text-sm font-black text-blue-100/70 hover:text-white transition">
+                className="inline-flex items-center gap-2 rounded-xl border border-[#1a3a60]/60 bg-[#06101f]/80 px-4 py-2.5 text-xs font-black text-blue-100 hover:bg-[#1e78ff]/15 transition">
                 <Globe className="h-4 w-4" /> View Channel
               </Link>
             )}
@@ -179,8 +179,8 @@ function CreatorStudioContent() {
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(30,120,255,0.14),transparent_34%),radial-gradient(circle_at_83%_16%,rgba(168,85,247,0.12),transparent_32%)]" />
 
       {/* Mobile section tabs — visible only below xl */}
-      <div className="xl:hidden sticky top-16 z-30 bg-[#03080f]/95 backdrop-blur border-b border-[#12305f]/60 px-3 py-2">
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
+      <div className="xl:hidden sticky top-16 z-30 bg-[#03080f]/98 backdrop-blur-xl border-b border-[#1a3a60]/50 px-4 py-3 shadow-lg">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
           {mobileNavItems.map((item) => {
             const Icon = item.icon;
             const active = activeSection === item.id;
@@ -189,15 +189,15 @@ function CreatorStudioContent() {
                 key={item.id}
                 onClick={() => setSection(item.id)}
                 className={cx(
-                  "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-black transition",
+                  "flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-black transition",
                   active
-                    ? item.accent === "purple" ? "border-[#a855f7]/60 bg-[#a855f7]/18 text-white"
-                      : item.accent === "red" ? "border-red-400/60 bg-red-500/18 text-white"
-                      : "border-[#00c8ff]/50 bg-[#1e78ff]/16 text-white"
-                    : "border-[#12305f] bg-transparent text-blue-100/50 hover:text-white"
+                    ? item.accent === "purple" ? "border-[#a855f7]/60 bg-[#a855f7]/20 text-white"
+                      : item.accent === "red" ? "border-red-400/60 bg-red-500/20 text-white"
+                      : "border-[#00c8ff]/50 bg-[#1e78ff]/20 text-white"
+                    : "border-[#1a3a60]/60 bg-[#03080f]/60 text-blue-100/60 hover:text-white"
                 )}
               >
-                <Icon className={cx("h-3.5 w-3.5", active ? item.accent === "purple" ? "text-[#a855f7]" : item.accent === "red" ? "text-red-400" : "text-[#00c8ff]" : "text-current")} />
+                <Icon className={cx("h-4 w-4", active ? item.accent === "purple" ? "text-[#a855f7]" : item.accent === "red" ? "text-red-400" : "text-[#00c8ff]" : "text-current")} />
                 {item.label}
               </button>
             );
@@ -205,7 +205,7 @@ function CreatorStudioContent() {
         </div>
       </div>
 
-      <div className={cx("mx-auto grid max-w-[1920px] gap-4 px-3 py-4 pb-24 sm:px-5 transition-all items-start",
+      <div className={cx("mx-auto grid max-w-[1920px] gap-5 px-3 py-5 pb-24 sm:px-6 lg:px-8 transition-all items-start",
         sidebarCollapsed ? "xl:grid-cols-[72px_minmax(0,1fr)]" : "xl:grid-cols-[240px_minmax(0,1fr)]")}>
         <CreatorSidebar
           activeSection={activeSection}
@@ -388,7 +388,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
   return (
     <div className="space-y-4">
       {/* Top stats */}
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
         <MetricCard icon={Eye} label="Total Views" value={fmt(stats.views)} detail="All-time" trend={stats.views > 0 ? "+12%" : null} color="blue" onClick={() => setSection("analytics")} />
         <MetricCard icon={FileVideo} label="Published" value={fmt(stats.videos)} detail="Ready videos" color="green" onClick={() => setSection("library")} />
         <MetricCard icon={Heart} label="Total Likes" value={fmt(totalLikes)} detail="Engagement" color="purple" />
@@ -396,21 +396,21 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
       </div>
 
       {/* Quick Actions */}
-      <Panel className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-black text-white">Quick Actions</h3>
-          <span className="text-xs text-blue-100/35">Creator shortcuts</span>
+      <Panel className="p-5 sm:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-black text-white">Quick Actions</h3>
+          <span className="text-xs text-blue-100/45">Creator shortcuts</span>
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           {quickActions.map(({ label, icon: Icon, section, href, color, bg, desc }) => {
             const inner = (
-              <div className={cx("flex flex-col items-center gap-2 rounded-xl border p-3 text-center transition hover:-translate-y-0.5 hover:shadow-lg cursor-pointer", bg)}>
-                <div className={cx("grid h-9 w-9 place-items-center rounded-xl", bg.replace("border-", "").split(" ")[0])}>
+              <div className={cx("flex flex-col items-center gap-2.5 rounded-2xl border p-4 text-center transition hover:-translate-y-1 hover:shadow-xl cursor-pointer", bg)}>
+                <div className={cx("grid h-10 w-10 place-items-center rounded-xl", bg.replace("border-", "").split(" ")[0])}>
                   <Icon className={cx("h-5 w-5", color)} />
                 </div>
                 <div>
-                  <span className="block text-xs font-black text-white">{label}</span>
-                  <span className="block text-[10px] text-blue-100/35">{desc}</span>
+                  <span className="block text-xs font-black text-white leading-tight">{label}</span>
+                  <span className="block text-[10px] text-blue-100/40 mt-0.5">{desc}</span>
                 </div>
               </div>
             );
@@ -425,9 +425,9 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
         <div className="space-y-4">
 
           {/* Recent Videos — YouTube Studio style */}
-          <Panel className="p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-black text-white">Recent Videos</h3>
+          <Panel className="p-5 sm:p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-black text-white">Recent Videos</h3>
               <button onClick={() => setSection("library")} className="flex items-center gap-1 text-xs font-black text-[#00c8ff] hover:underline">
                 View all <ArrowUpRight className="h-3 w-3" />
               </button>
@@ -436,16 +436,16 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[#12305f]/60">
+                    <tr className="border-b border-[#1a3a60]/60">
                       {["Video", "Status", "Views", "Likes", "Comments"].map((h) => (
-                        <th key={h} className="pb-2 text-left text-[10px] font-black uppercase tracking-widest text-blue-100/30 pr-4">{h}</th>
+                        <th key={h} className="pb-3 text-left text-[10px] font-black uppercase tracking-widest text-blue-100/40 pr-4">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#12305f]/30">
+                  <tbody className="divide-y divide-[#1a3a60]/40">
                     {recent.map((video) => (
-                      <tr key={video.id} className="group hover:bg-[#1e78ff]/5 transition">
-                        <td className="py-2.5 pr-4">
+                      <tr key={video.id} className="group hover:bg-[#1e78ff]/8 transition">
+                        <td className="py-3 pr-4">
                           <div className="flex items-center gap-3">
                             <div className="grid h-10 w-16 shrink-0 place-items-center overflow-hidden rounded-lg bg-[#0a1525]">
                               {video.thumbnail_url
@@ -484,9 +484,9 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
           </Panel>
 
           {/* Production pipeline */}
-          <Panel className="p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-black text-white">Content Pipeline</h3>
+          <Panel className="p-5 sm:p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-black text-white">Content Pipeline</h3>
               <button onClick={() => setSection("production")} className="text-xs font-black text-[#00c8ff] hover:underline">Open Studio →</button>
             </div>
             <div className="grid gap-2 grid-cols-3 sm:grid-cols-5">
@@ -509,9 +509,9 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
 
           {/* Top performing videos */}
           {topVideos.length > 0 && (
-            <Panel className="p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="font-black text-white flex items-center gap-2"><Trophy className="h-4 w-4 text-amber-400" /> Top Performers</h3>
+            <Panel className="p-5 sm:p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-black text-white flex items-center gap-2"><Trophy className="h-4 w-4 text-amber-400" /> Top Performers</h3>
                 <button onClick={() => setSection("analytics")} className="text-xs font-black text-[#00c8ff] hover:underline">Analytics →</button>
               </div>
               <div className="space-y-2">
@@ -540,9 +540,9 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
           {channel ? (
             <Panel className="overflow-hidden">
               {channel.banner_url
-                ? <div className="h-20 w-full overflow-hidden"><img src={channel.banner_url} alt="" className="h-full w-full object-cover" /></div>
-                : <div className="h-20 w-full bg-gradient-to-br from-[#1e78ff]/20 to-[#a855f7]/20" />}
-              <div className="p-4">
+                ? <div className="h-24 w-full overflow-hidden"><img src={channel.banner_url} alt="" className="h-full w-full object-cover" /></div>
+                : <div className="h-24 w-full bg-gradient-to-br from-[#1e78ff]/20 to-[#a855f7]/20" />}
+              <div className="p-5 sm:p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-[#1e78ff] to-[#a855f7] text-sm font-black text-white shadow-lg -mt-7 border-2 border-[#03080f]">
                     {channel.channel_name.slice(0, 1).toUpperCase()}
@@ -590,8 +590,8 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
           )}
 
           {/* Channel Checklist */}
-          <Panel className="p-4">
-            <h3 className="mb-3 font-black text-white text-sm flex items-center gap-2"><Flag className="h-4 w-4 text-[#00c8ff]" /> Setup Checklist</h3>
+          <Panel className="p-5 sm:p-6">
+            <h3 className="mb-4 font-black text-white text-sm flex items-center gap-2"><Flag className="h-4 w-4 text-[#00c8ff]" /> Setup Checklist</h3>
             <div className="space-y-2">
               {[
                 { label: "Create channel", done: !!channel, section: null, href: "/Channel" },
@@ -622,8 +622,8 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
           </Panel>
 
           {/* Growth Tips */}
-          <Panel className="p-4">
-            <h3 className="mb-3 font-black text-white text-sm flex items-center gap-2"><Lightbulb className="h-4 w-4 text-amber-400" /> Growth Tips</h3>
+          <Panel className="p-5 sm:p-6">
+            <h3 className="mb-4 font-black text-white text-sm flex items-center gap-2"><Lightbulb className="h-4 w-4 text-amber-400" /> Growth Tips</h3>
             <div className="space-y-2">
               {growthTips.map(({ icon: Icon, text, color }) => (
                 <div key={text} className="flex items-start gap-2.5 rounded-xl border border-[#12305f]/60 bg-[#03080f]/55 p-2.5">
@@ -635,8 +635,8 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
           </Panel>
 
           {/* Recent Assets */}
-          <Panel className="p-4">
-            <div className="mb-3 flex items-center justify-between">
+          <Panel className="p-5 sm:p-6">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="font-black text-white text-sm flex items-center gap-2"><Sparkles className="h-4 w-4 text-purple-400" /> AI Assets</h3>
               <button onClick={() => setSection("production")} className="text-xs font-black text-purple-300 hover:underline">ArtForge →</button>
             </div>
