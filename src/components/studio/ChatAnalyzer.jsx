@@ -1,11 +1,12 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  MessageSquare, Upload, Link2, Send, Loader2, Sparkles, Copy, Download,
-  X, FileText, RefreshCw, ChevronDown, Bot, User, Lightbulb
+  Upload, Link2, Send, Loader2, Copy,
+  FileText, RefreshCw, Bot, User, Lightbulb, Key
 } from "lucide-react";
 import { toast } from "sonner";
+import OpenAIKeySetup from "./OpenAIKeySetup";
 
 function cls(...parts) { return parts.filter(Boolean).join(" "); }
 
@@ -28,8 +29,17 @@ export default function ChatAnalyzer() {
   const [chatLoaded, setChatLoaded] = useState(false);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
+  const [openaiKey, setOpenaiKey] = useState("");
+  const [showKeySetup, setShowKeySetup] = useState(false);
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
+
+  // Load saved API key from user profile
+  useEffect(() => {
+    base44.auth.me().then(user => {
+      if (user?.openai_api_key) setOpenaiKey(user.openai_api_key);
+    }).catch(() => {});
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -61,7 +71,7 @@ export default function ChatAnalyzer() {
     setIsFetchingLink(true);
     setLinkFallback(false);
     try {
-      const res = await base44.functions.invoke("fetchChatGPTShare", { url: linkUrl.trim() });
+      const res = await base44.functions.invoke("fetchChatGPTShare", { url: linkUrl.trim(), openaiApiKey: openaiKey || undefined });
       const data = res?.data || res;
       if (data?.text && data.messageCount > 0) {
         const text = data.text;
@@ -233,7 +243,28 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
           {/* Link mode */}
           {inputMode === "link" && (
             <div className="space-y-3">
-              <p className="text-xs text-blue-200/50">Paste a ChatGPT share link — we'll try to load it automatically:</p>
+              {/* API Key status bar */}
+              <div className={`flex items-center justify-between rounded-xl border px-3 py-2 ${openaiKey ? "border-emerald-500/25 bg-emerald-500/8" : "border-amber-500/25 bg-amber-500/8"}`}>
+                <div className="flex items-center gap-2">
+                  <Key className={`h-3.5 w-3.5 ${openaiKey ? "text-emerald-400" : "text-amber-400"}`} />
+                  <span className={`text-xs font-black ${openaiKey ? "text-emerald-300" : "text-amber-300"}`}>
+                    {openaiKey ? "OpenAI key connected — private chats supported" : "No API key — only public share links work"}
+                  </span>
+                </div>
+                <button onClick={() => setShowKeySetup(!showKeySetup)}
+                  className="text-xs text-blue-200/50 hover:text-white transition underline">
+                  {openaiKey ? "Change" : "Add Key"}
+                </button>
+              </div>
+
+              {showKeySetup && (
+                <OpenAIKeySetup
+                  currentKey={openaiKey}
+                  onKeySaved={(k) => { setOpenaiKey(k); setShowKeySetup(false); }}
+                />
+              )}
+
+              <p className="text-xs text-blue-200/50">Paste a ChatGPT share link:</p>
               <div className="flex gap-2">
                 <input
                   value={linkUrl}
