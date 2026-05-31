@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CreatorOSProvider, useCreatorOS } from "@/lib/CreatorOSContext";
 import { useAuth } from "@/lib/AuthContext";
+import { base44 } from "@/api/base44Client";
 import {
   Activity, AlertTriangle, BarChart3, Calendar, CheckCircle2, ChevronRight,
   CircleDollarSign, Clapperboard, Edit3, Eye, FileVideo, Folder, Gauge,
@@ -351,7 +352,7 @@ function ChannelSetupNotice() {
 function DashboardContent({ stats, videos, assets, setSection, channel, user }) {
   const recent = videos.slice(0, 5);
   const topVideos = [...videos].sort((a, b) => (b.view_count || 0) - (a.view_count || 0)).slice(0, 3);
-  const recentAssets = assets.slice(0, 4);
+  const recentAssets = assets.filter((a) => (a.url || a.file_url || a.thumbnail_url) && a.category !== "artforge_project" && a.asset_type !== "template").slice(0, 4);
   const totalLikes = videos.reduce((s, v) => s + (v.like_count || 0), 0);
   const avgViews = videos.length ? Math.round(stats.views / videos.length) : 0;
 
@@ -656,10 +657,71 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
   );
 }
 
+function AIEditModal({ item, onClose }) {
+  const [prompt, setPrompt] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const handleEdit = async () => {
+    if (!prompt.trim()) return;
+    setLoading(true);
+    try {
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are an expert creative director. The user has a piece of content called "${item.title}" (type: ${item.type}). They want to improve it with this request: "${prompt}". Give a specific, actionable plan for how to edit or improve this content. Be concise and practical.`,
+      });
+      setResult(typeof res === "string" ? res : res?.text || res?.content || "");
+    } catch (e) {
+      setResult("Sorry, AI edit failed. Please try again.");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl border border-[#a855f7]/30 bg-[#06101f] shadow-2xl shadow-purple-950/40 p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Wand2 className="h-5 w-5 text-[#a855f7]" />
+            <h3 className="font-black text-white">AI Edit</h3>
+          </div>
+          <button onClick={onClose} className="text-blue-100/40 hover:text-white transition"><X className="h-5 w-5" /></button>
+        </div>
+        <p className="mb-3 text-xs text-blue-100/50 truncate">"{item.title}"</p>
+        {item.thumb && <img src={item.thumb} alt="" className="mb-3 w-full rounded-xl object-cover max-h-40" />}
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="What would you like to change or improve? e.g. 'Make it more vibrant', 'Add a darker mood', 'Crop to square'..."
+          rows={3}
+          className="w-full resize-none rounded-xl border border-[#1a3a60]/60 bg-[#030e1f] p-3 text-sm text-white outline-none placeholder:text-blue-200/25 focus:border-[#a855f7]/60 mb-3"
+        />
+        {result && (
+          <div className="mb-3 rounded-xl border border-[#a855f7]/20 bg-[#a855f7]/8 p-3 text-sm text-blue-100/80 leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
+            {result}
+          </div>
+        )}
+        <button
+          onClick={handleEdit}
+          disabled={loading || !prompt.trim()}
+          className="w-full rounded-xl bg-gradient-to-r from-[#a855f7] to-[#1e78ff] py-2.5 text-sm font-black text-white disabled:opacity-40 transition hover:opacity-90"
+        >
+          {loading ? "Thinking…" : "Get AI Edit Suggestions"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ContentLibrary({ videos, assets, filter, setFilter, query, setQuery }) {
+  const [editingAsset, setEditingAsset] = useState(null);
   const items = [
     ...videos.filter((v) => v.title).map((v) => ({ id: `video-${v.id}`, title: v.title, type: v.status === "live" ? "livestreams" : v.duration_seconds && v.duration_seconds < 90 ? "shorts" : "videos", tag: v.status, thumb: v.thumbnail_url })),
-    ...assets.filter((a) => (a.name && a.name.trim()) || a.url || a.file_url || a.thumbnail_url).map((a) => ({ id: `asset-${a.id}`, title: a.name?.trim() || "Untitled", type: normalizeAssetType(a), tag: a.asset_type || a.type || "asset", thumb: a.thumbnail_url || a.url || a.file_url })),
+    ...assets.filter((a) => {
+      // Skip ghost assets: must have a real media URL (not just a JSON description saved as a "project")
+      const hasMedia = a.url || a.file_url || a.thumbnail_url;
+      const isProjectBlob = a.category === "artforge_project" || a.asset_type === "template";
+      return hasMedia && !isProjectBlob;
+    }).map((a) => ({ id: `asset-${a.id}`, title: a.name?.trim() || "Untitled", type: normalizeAssetType(a), tag: a.asset_type || a.type || "asset", thumb: a.thumbnail_url || a.url || a.file_url, raw: a })),
   ];
   const filters = ["all", "videos", "shorts", "livestreams", "images", "ai generations", "assets", "audio", "templates"];
   const filtered = items.filter((i) => (filter === "all" || i.type === filter) && (!query || i.title.toLowerCase().includes(query.toLowerCase())));
@@ -695,17 +757,29 @@ function ContentLibrary({ videos, assets, filter, setFilter, query, setQuery }) 
               {item.thumb
                 ? <img src={item.thumb} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 : <div className="grid h-full place-items-center"><FileVideo className="h-7 w-7 text-blue-200/20" /></div>}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center opacity-0 group-hover:opacity-100 gap-2">
                 <div className="grid h-10 w-10 place-items-center rounded-full bg-white/20 backdrop-blur">
                   <Play className="h-5 w-5 text-white" />
                 </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setEditingAsset(item); }}
+                  className="grid h-10 w-10 place-items-center rounded-full bg-[#a855f7]/70 backdrop-blur hover:bg-[#a855f7] transition"
+                  title="AI Edit"
+                >
+                  <Wand2 className="h-4 w-4 text-white" />
+                </button>
               </div>
             </div>
             <div className="p-3">
               <p className="line-clamp-1 text-sm font-black text-white">{item.title}</p>
               <div className="mt-2 flex items-center justify-between">
                 <span className="rounded-full bg-[#1e78ff]/10 px-2 py-0.5 text-[10px] font-black capitalize text-[#00c8ff]">{item.type}</span>
-                <span className="text-[10px] text-blue-100/30 capitalize">{item.tag}</span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setEditingAsset(item); }}
+                  className="flex items-center gap-1 rounded-full bg-[#a855f7]/15 border border-[#a855f7]/30 px-2 py-0.5 text-[10px] font-black text-purple-300 hover:bg-[#a855f7]/25 transition"
+                >
+                  <Wand2 className="h-3 w-3" /> AI Edit
+                </button>
               </div>
             </div>
           </div>
@@ -718,6 +792,7 @@ function ContentLibrary({ videos, assets, filter, setFilter, query, setQuery }) 
           </div>
         )}
       </div>
+      {editingAsset && <AIEditModal item={editingAsset} onClose={() => setEditingAsset(null)} />}
     </Panel>
   );
 }
