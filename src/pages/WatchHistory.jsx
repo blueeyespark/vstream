@@ -7,22 +7,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import VideoPlayerModal from "@/components/dashboard/VideoPlayerModal";
 
-function VideoCard({ video, channel, onClick, compact = false }) {
-  if (compact) {
-    return (
-      <div className="flex gap-2.5 cursor-pointer group" onClick={() => onClick(video)}>
-        <div className="relative w-36 aspect-video rounded-xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-[#060d18]">
-          <img src={video.thumbnail_url || `https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=200&h=113&fit=crop&sig=${video.id}`} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
-        </div>
-        <div className="flex-1 min-w-0 pt-0.5">
-          <p className="text-xs font-semibold text-[#e8f4ff] line-clamp-2 leading-snug">{video.title}</p>
-          <p className="text-xs text-blue-400/50 mt-1 truncate">{channel?.channel_name || "Creator"}</p>
-          <p className="text-xs text-blue-400/30 mt-0.5">{video.view_count?.toLocaleString() || 0} views</p>
-        </div>
+function VideoCard({ video, channel, onClick }) {
+  return (
+    <div className="flex gap-3 cursor-pointer group rounded-2xl border border-[#12305f]/60 bg-[#06101f] p-2 hover:border-[#1e78ff]/40 transition-all" onClick={() => onClick(video)}>
+      <div className="relative w-36 aspect-video rounded-xl overflow-hidden flex-shrink-0 bg-[#0a1525]">
+        <img src={video.thumbnail_url || `https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=200&h=113&fit=crop&sig=${video.id}`} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
       </div>
-    );
-  }
-  return null;
+      <div className="flex-1 min-w-0 py-1">
+        <p className="text-sm font-semibold text-[#e8f4ff] line-clamp-2 leading-snug group-hover:text-[#00c8ff] transition-colors">{video.title}</p>
+        <p className="text-xs text-blue-400/50 mt-1 truncate">{channel?.channel_name || "Creator"}</p>
+        <p className="text-xs text-blue-400/30 mt-0.5">{(video.view_count || 0).toLocaleString()} views</p>
+      </div>
+    </div>
+  );
 }
 
 export default function WatchHistory() {
@@ -62,8 +59,8 @@ export default function WatchHistory() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-[#03080f] text-[#e8f4ff]">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         <Link to="/" className="flex items-center gap-2 text-blue-400 hover:text-blue-300 mb-6 font-semibold">
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
@@ -83,18 +80,18 @@ export default function WatchHistory() {
             <AnimatePresence>
               {historyVideos.map((v, i) => (
                 <motion.div key={v.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}>
-                  <VideoCard video={v} channel={channelMap[v.channel_id]} onClick={handleOpenVideo} compact />
+                  <VideoCard video={v} channel={channelMap[v.channel_id]} onClick={handleOpenVideo} />
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-slate-200 dark:bg-[#050a14] border border-slate-300 dark:border-[#0d1820] flex items-center justify-center mb-4">
-              <History className="w-7 h-7 text-slate-400 dark:text-blue-400/30" />
+            <div className="w-16 h-16 rounded-2xl bg-[#06101f] border border-[#12305f] flex items-center justify-center mb-4">
+              <History className="w-7 h-7 text-blue-400/30" />
             </div>
-            <h3 className="text-foreground dark:text-[#e8f4ff] font-bold text-lg mb-1">No watch history yet</h3>
-            <p className="text-slate-600 dark:text-blue-400/40 text-sm mb-5">Videos you watch will appear here</p>
+            <h3 className="text-[#e8f4ff] font-bold text-lg mb-1">No watch history yet</h3>
+            <p className="text-blue-400/40 text-sm mb-5">Videos you watch will appear here</p>
             <Link to="/" className="text-sm text-[#1e78ff] hover:text-[#00c8ff] font-semibold">Browse videos →</Link>
           </div>
         )}
