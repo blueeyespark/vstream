@@ -19,6 +19,9 @@ import TracerMode from "@/components/artforge/TracerMode";
 import HandHelperMode from "@/components/artforge/HandHelperMode";
 import Model3DMode from "@/components/artforge/Model3DMode";
 import Model2DMode from "@/components/artforge/Model2DMode";
+import MusicGeneratorMode from "@/components/artforge/MusicGeneratorMode";
+import ImageEditorMode from "@/components/artforge/ImageEditorMode";
+import AIProviderSettings from "@/components/studio/AIProviderSettings";
 
 function RedirectToProduction() {
   return <Navigate to="/CreatorStudio?section=production" replace />;
@@ -33,14 +36,26 @@ const CREATION_MODES = [
   { id: "comic", label: "Comic", icon: LayoutGrid, hint: "Panels & strips", prompt: "Four-panel comic about a streamer discovering a magical AI art forge, vibrant manga style", color: "from-emerald-500 to-blue-500", badge: null },
   { id: "tracer", label: "Tracer", icon: PenTool, hint: "Photo → traceable line art", prompt: "Convert to clean anime line art", color: "from-cyan-400 to-blue-500", badge: null },
   { id: "hand_helper", label: "Hand Helper", icon: Hand, hint: "Poseable 3D hand reference", prompt: "Accurate hand drawing reference", color: "from-rose-400 to-pink-600", badge: null },
+  { id: "image_edit", label: "Image Editor", icon: WandSparkles, hint: "Edit images with text prompts", prompt: "Edit this image", color: "from-fuchsia-500 to-violet-600", badge: "fal.ai" },
+  { id: "music", label: "Music Gen", icon: Film, hint: "AI music from text prompts", prompt: "Generate music", color: "from-orange-500 to-pink-500", badge: "ElevenLabs" },
 ];
 
 const PROVIDERS = [
-  { id: "base44", label: "Base44 Core", note: "Built-in — no key needed", active: true },
-  { id: "openai", label: "OpenAI DALL·E 3", note: "Requires OPENAI_API_KEY" },
-  { id: "stability", label: "Stability AI SDXL", note: "Requires STABILITY_API_KEY" },
-  { id: "replicate", label: "Replicate Flux", note: "Requires REPLICATE_API_TOKEN" },
-  { id: "tripo3d", label: "Tripo3D", note: "Best for 3D — Requires TRIPO3D_API_KEY" },
+  { id: "base44", label: "Base44 (Free)", note: "Built-in — no key needed", active: true, tag: "FREE", modes: ["image","2d_model","3d_model","video","sticker","comic","tracer","hand_helper"] },
+  // fal.ai — FLUX 2 family
+  { id: "fal", label: "fal.ai · FLUX 2 Pro", note: "Requires FAL_API_KEY — high quality, 8 ref images", tag: "FLUX", modes: ["image","2d_model","sticker","comic"] },
+  { id: "fal-ultra", label: "fal.ai · FLUX 2 Ultra", note: "Requires FAL_API_KEY — highest fidelity, 4MP", tag: "FLUX", modes: ["image","sticker"] },
+  { id: "fal-kontext", label: "fal.ai · FLUX Kontext", note: "Requires FAL_API_KEY — edit images with text prompts", tag: "EDIT", modes: ["image","2d_model"] },
+  { id: "fal-fast", label: "fal.ai · FLUX Schnell", note: "Requires FAL_API_KEY — sub-second, real-time", tag: "FAST", modes: ["image","sticker"] },
+  // Music
+  { id: "elevenlabs-music", label: "ElevenLabs Music", note: "Requires ELEVENLABS_API_KEY — studio-grade AI music", tag: "MUSIC", modes: ["audio"] },
+  // Video
+  { id: "runway", label: "Runway Gen-4 Turbo", note: "Requires RUNWAY_API_KEY — high-quality AI video", tag: "VIDEO", modes: ["video"] },
+  // Existing
+  { id: "openai", label: "OpenAI DALL·E 3", note: "Requires OPENAI_API_KEY", tag: null, modes: ["image","sticker"] },
+  { id: "stability", label: "Stability AI SDXL", note: "Requires STABILITY_API_KEY", tag: null, modes: ["image"] },
+  { id: "replicate", label: "Replicate Flux", note: "Requires REPLICATE_API_TOKEN + REPLICATE_IMAGE_VERSION", tag: null, modes: ["image"] },
+  { id: "tripo3d", label: "Tripo3D", note: "Best for 3D — Requires TRIPO3D_API_KEY", tag: null, modes: ["3d_model"] },
 ];
 
 const STYLE_PRESETS = [
