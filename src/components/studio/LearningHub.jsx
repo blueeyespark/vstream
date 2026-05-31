@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Filter, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { artistCourses } from "@/lib/artistCoursesData";
+import { creatorCourses } from "@/lib/creatorCoursesData";
 
 const courses = [
   // === BEGINNER ===
@@ -1225,9 +1226,11 @@ const resources = [
 export default function LearningHub() {
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("all");
-  const [courseType, setCourseType] = useState("coding"); // "coding" or "art"
+  const [courseType, setCourseType] = useState("creator"); // "coding", "art", or "creator"
 
-  const allCourses = courseType === "art" ? artistCourses : courses;
+  let allCourses = courses;
+  if (courseType === "art") allCourses = artistCourses;
+  if (courseType === "creator") allCourses = creatorCourses;
 
   const filtered = allCourses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase()) || course.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
@@ -1298,6 +1301,16 @@ export default function LearningHub() {
             }`}
           >
             🎨 Art Courses (49+)
+          </button>
+          <button
+            onClick={() => setCourseType("creator")}
+            className={`px-4 py-2 rounded-lg text-sm font-black transition ${
+              courseType === "creator"
+                ? "bg-amber-500/20 border border-amber-500/50 text-amber-300"
+                : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+            }`}
+          >
+            🚀 Creator Growth (61+)
           </button>
         </div>
       </div>
