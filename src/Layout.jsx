@@ -218,7 +218,7 @@ export default function Layout({ children, currentPageName }) {
       <main className="flex-1 pt-16 pb-16 md:pb-0">
         {children}
       </main>
-      <MobileNav currentPageName={currentPageName} />
+      <MobileNav />
     </div>
   );
 }

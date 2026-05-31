@@ -19,7 +19,6 @@ import {
   PlaySquare,
   Plus,
   Radio,
-  Search,
   Share2,
   Sparkles,
   Star,
@@ -215,44 +214,44 @@ function LeftSidebar({ user }) {
 
 function Hero({ video, channel, onPlay }) {
   return (
-    <Panel className="relative min-h-[360px] overflow-hidden">
+    <Panel className="relative overflow-hidden">
       <img src={video.thumbnail_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(0,200,255,0.26),transparent_34%),linear-gradient(90deg,#03080f_0%,rgba(3,8,15,0.74)_45%,rgba(3,8,15,0.18)_100%)]" />
-      <div className="relative z-10 flex min-h-[360px] flex-col justify-between p-5 sm:p-7">
+      <div className="relative z-10 flex flex-col justify-between gap-4 p-4 sm:p-7 min-h-[280px] sm:min-h-[360px]">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-2 rounded-full border border-red-400/40 bg-red-500/18 px-3 py-1 text-xs font-black text-red-100">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-red-400" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-red-400/40 bg-red-500/18 px-2.5 py-1 text-xs font-black text-red-100">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-400" />
             FEATURED LIVE
           </span>
-          <span className="rounded-full border border-[#00c8ff]/25 bg-[#00c8ff]/12 px-3 py-1 text-xs font-bold text-cyan-100">{channel?.category || "Creator Spotlight"}</span>
+          <span className="rounded-full border border-[#00c8ff]/25 bg-[#00c8ff]/12 px-2.5 py-1 text-xs font-bold text-cyan-100">{channel?.category || "Creator Spotlight"}</span>
         </div>
         <div className="max-w-2xl">
-          <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-[#00c8ff]">Tonight on VStream</p>
-          <h1 className="text-3xl font-black leading-tight text-white sm:text-5xl">{video.title}</h1>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-blue-100/72">
+          <p className="mb-1.5 text-[10px] font-black uppercase tracking-[0.3em] text-[#00c8ff]">Tonight on VStream</p>
+          <h1 className="text-xl font-black leading-tight text-white sm:text-4xl line-clamp-2">{video.title}</h1>
+          <p className="mt-2 max-w-xl text-xs leading-5 text-blue-100/72 hidden sm:block">
             Live creator energy, social conversation, and cinematic discovery in one signal-rich dashboard.
           </p>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <button onClick={() => onPlay(video)} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#03080f] transition hover:scale-[1.02]">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button onClick={() => onPlay(video)} className="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-black text-[#03080f] transition hover:scale-[1.02]">
               <Play className="h-4 w-4 fill-[#03080f]" />
               Watch now
             </button>
-            <Link to="/Live" className="inline-flex items-center gap-2 rounded-xl border border-white/18 bg-white/10 px-4 py-2.5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/16">
+            <Link to="/Live" className="inline-flex items-center gap-2 rounded-xl border border-white/18 bg-white/10 px-3 py-2 text-sm font-bold text-white backdrop-blur transition hover:bg-white/16">
               Browse live
-              <Radio className="h-4 w-4 text-red-300" />
+              <Radio className="h-3.5 w-3.5 text-red-300" />
             </Link>
           </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="flex gap-2 overflow-x-auto">
           {[
             { label: "Watching", value: fmt(channel?.viewer_count || video.view_count || 18400), icon: Users },
             { label: "Creator", value: channel?.channel_name || "VStream", icon: Star },
             { label: "Pulse", value: "Hot", icon: Flame },
           ].map((stat) => (
-            <div key={stat.label} className="rounded-2xl border border-white/10 bg-black/28 p-3 backdrop-blur">
-              <stat.icon className="mb-2 h-4 w-4 text-[#00c8ff]" />
-              <p className="text-xs text-blue-100/50">{stat.label}</p>
-              <p className="truncate text-sm font-black text-white">{stat.value}</p>
+            <div key={stat.label} className="flex-1 min-w-[90px] rounded-xl border border-white/10 bg-black/28 p-2.5 backdrop-blur">
+              <stat.icon className="mb-1.5 h-3.5 w-3.5 text-[#00c8ff]" />
+              <p className="text-[10px] text-blue-100/50">{stat.label}</p>
+              <p className="truncate text-xs font-black text-white">{stat.value}</p>
             </div>
           ))}
         </div>
@@ -523,27 +522,7 @@ function RailPanel({ icon: Icon, title, children }) {
   );
 }
 
-function MobileBottomNav() {
-  const items = [
-    { label: "Home", icon: Home, to: "/" },
-    { label: "Live", icon: Radio, to: "/Live" },
-    { label: "Reels", icon: PlaySquare, to: "/Shorts" },
-    { label: "Community", icon: Users, to: "/Communities" },
-    { label: "Saved", icon: Bookmark, to: "/SavedVideos" },
-  ];
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#12305f] bg-[#03080f]/95 px-2 py-2 backdrop-blur-xl xl:hidden md:hidden">
-      <div className="grid grid-cols-5 gap-1">
-        {items.map((item) => (
-          <Link key={item.label} to={item.to} className="flex flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] font-bold text-blue-200/65 hover:bg-[#1e78ff]/12 hover:text-white">
-            <item.icon className="h-4 w-4" />
-            <span className="truncate">{item.label}</span>
-          </Link>
-        ))}
-      </div>
-    </nav>
-  );
-}
+
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -611,14 +590,6 @@ export default function Dashboard() {
 
   const handlePlay = (video) => setSelectedVideo(video);
 
-  const handleSearch = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const nextQuery = String(formData.get("dashboard-search") || "").trim();
-    if (nextQuery) setSearchParams({ search: nextQuery });
-    else setSearchParams({});
-  };
-
   return (
     <div className="min-h-screen bg-[#03080f] text-[#e8f4ff]">
       <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(30,120,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(30,120,255,0.06)_1px,transparent_1px)] bg-[size:44px_44px]" />
@@ -628,17 +599,6 @@ export default function Dashboard() {
         <LeftSidebar user={user} />
 
         <main className="min-w-0 space-y-6">
-          <div className="flex flex-col gap-3 md:hidden">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-[#00c8ff]">VStream</p>
-              <h1 className="text-2xl font-black text-white">Creator signal, live and social.</h1>
-            </div>
-            <form onSubmit={handleSearch} className="flex items-center gap-2 rounded-2xl border border-[#12305f] bg-[#06101f]/78 px-3 py-2">
-              <Search className="h-4 w-4 text-blue-300/52" />
-              <input name="dashboard-search" defaultValue={query} placeholder="Search VStream" className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-blue-300/35" />
-            </form>
-          </div>
-
           <Hero video={heroVideo} channel={heroChannel} onPlay={handlePlay} />
 
           <div className="flex items-center justify-between gap-4">
@@ -686,8 +646,6 @@ export default function Dashboard() {
 
         <RightRail liveChannels={liveChannels} trendingVideos={trendingVideos} channels={channels} onPlay={handlePlay} />
       </div>
-
-      <MobileBottomNav />
 
       <AnimatePresence>
         {selectedVideo && (
