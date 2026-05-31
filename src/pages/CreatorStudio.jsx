@@ -178,9 +178,9 @@ function CreatorStudioContent() {
       <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(30,120,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(30,120,255,0.04)_1px,transparent_1px)] bg-[size:44px_44px]" />
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(30,120,255,0.14),transparent_34%),radial-gradient(circle_at_83%_16%,rgba(168,85,247,0.12),transparent_32%)]" />
 
-      {/* Mobile section tabs — visible only below xl */}
-      <div className="xl:hidden sticky top-16 z-30 bg-[#03080f]/98 backdrop-blur-xl border-b border-[#1a3a60]/50 px-4 py-3 shadow-lg">
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
+      {/* Mobile section tabs — visible only below lg */}
+      <div className="lg:hidden sticky top-16 z-30 bg-[#03080f]/98 backdrop-blur-xl border-b border-[#1a3a60]/50 px-3 py-2.5 shadow-lg">
+        <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-3 px-3">
           {mobileNavItems.map((item) => {
             const Icon = item.icon;
             const active = activeSection === item.id;
@@ -205,8 +205,8 @@ function CreatorStudioContent() {
         </div>
       </div>
 
-      <div className={cx("mx-auto grid max-w-[1920px] gap-5 px-3 py-5 pb-24 sm:px-6 lg:px-8 transition-all items-start",
-        sidebarCollapsed ? "xl:grid-cols-[72px_minmax(0,1fr)]" : "xl:grid-cols-[240px_minmax(0,1fr)]")}>
+      <div className={cx("mx-auto grid max-w-[1920px] gap-4 px-3 py-4 pb-24 sm:px-5 lg:px-6 transition-all items-start",
+        sidebarCollapsed ? "lg:grid-cols-[72px_minmax(0,1fr)]" : "lg:grid-cols-[220px_minmax(0,1fr)]")}>
         <CreatorSidebar
           activeSection={activeSection}
           setSection={setSection}
@@ -215,7 +215,7 @@ function CreatorStudioContent() {
           collapsed={sidebarCollapsed}
           setCollapsed={setSidebarCollapsed}
         />
-        <main className="space-y-4 min-w-0 overflow-x-hidden">
+        <main className="space-y-3 min-w-0 overflow-x-hidden">
           {!channel && <ChannelSetupNotice />}
           {section.id === "dashboard" && <DashboardContent stats={stats} videos={videos} assets={assets} setSection={setSection} channel={channel} user={user} />}
           {section.id === "production" && <ProductionHub />}
@@ -243,7 +243,7 @@ export default function CreatorStudio() {
 
 function CreatorSidebar({ activeSection, setSection, channel, stats, collapsed, setCollapsed }) {
   return (
-    <aside className="hidden xl:block xl:sticky xl:top-20 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto">
+    <aside className="hidden lg:block lg:sticky lg:top-20 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto">
       <Panel className="overflow-hidden">
         {/* Channel header */}
         <div className="border-b border-[#12305f]/70 p-3">
@@ -328,11 +328,11 @@ function CreatorSidebar({ activeSection, setSection, channel, stats, collapsed, 
         {/* Stats footer */}
         {!collapsed && (
           <div className="border-t border-[#12305f]/70 p-3">
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-1.5">
               {[["Videos", stats.videos], ["Assets", stats.assets], ["Views", fmt(stats.views)], ["Drafts", stats.drafts]].map(([label, value]) => (
-                <div key={label} className="rounded-xl border border-[#12305f] bg-[#03080f]/55 p-2.5 text-center">
-                  <p className="font-black text-white text-sm">{value}</p>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-blue-100/35">{label}</p>
+                <div key={label} className="rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-2 text-center">
+                  <p className="font-black text-white text-xs">{value}</p>
+                  <p className="text-[9px] font-black uppercase tracking-wide text-blue-100/35">{label}</p>
                 </div>
               ))}
             </div>
@@ -386,9 +386,9 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Top stats */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
         <MetricCard icon={Eye} label="Total Views" value={fmt(stats.views)} detail="All-time" trend={stats.views > 0 ? "+12%" : null} color="blue" onClick={() => setSection("analytics")} />
         <MetricCard icon={FileVideo} label="Published" value={fmt(stats.videos)} detail="Ready videos" color="green" onClick={() => setSection("library")} />
         <MetricCard icon={Heart} label="Total Likes" value={fmt(totalLikes)} detail="Engagement" color="purple" />
@@ -396,12 +396,12 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
       </div>
 
       {/* Quick Actions */}
-      <Panel className="p-5 sm:p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-black text-white">Quick Actions</h3>
-          <span className="text-xs text-blue-100/45">Creator shortcuts</span>
+      <Panel className="p-4 sm:p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base font-black text-white">Quick Actions</h3>
+          <span className="text-xs text-blue-100/45">Shortcuts</span>
         </div>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {quickActions.map(({ label, icon: Icon, section, href, color, bg, desc }) => {
             const inner = (
               <div className={cx("flex flex-col items-center gap-2.5 rounded-2xl border p-4 text-center transition hover:-translate-y-1 hover:shadow-xl cursor-pointer", bg)}>
@@ -421,11 +421,11 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
       </Panel>
 
       {/* Main grid */}
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="space-y-4">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="space-y-3">
 
           {/* Recent Videos — YouTube Studio style */}
-          <Panel className="p-5 sm:p-6">
+          <Panel className="p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-black text-white">Recent Videos</h3>
               <button onClick={() => setSection("library")} className="flex items-center gap-1 text-xs font-black text-[#00c8ff] hover:underline">
@@ -484,7 +484,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
           </Panel>
 
           {/* Production pipeline */}
-          <Panel className="p-5 sm:p-6">
+          <Panel className="p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-black text-white">Content Pipeline</h3>
               <button onClick={() => setSection("production")} className="text-xs font-black text-[#00c8ff] hover:underline">Open Studio →</button>
@@ -509,7 +509,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
 
           {/* Top performing videos */}
           {topVideos.length > 0 && (
-            <Panel className="p-5 sm:p-6">
+            <Panel className="p-4 sm:p-5">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-black text-white flex items-center gap-2"><Trophy className="h-4 w-4 text-amber-400" /> Top Performers</h3>
                 <button onClick={() => setSection("analytics")} className="text-xs font-black text-[#00c8ff] hover:underline">Analytics →</button>
@@ -535,7 +535,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
         </div>
 
         {/* Right column */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Channel card */}
           {channel ? (
             <Panel className="overflow-hidden">
@@ -590,7 +590,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
           )}
 
           {/* Channel Checklist */}
-          <Panel className="p-5 sm:p-6">
+          <Panel className="p-4 sm:p-5">
             <h3 className="mb-4 font-black text-white text-sm flex items-center gap-2"><Flag className="h-4 w-4 text-[#00c8ff]" /> Setup Checklist</h3>
             <div className="space-y-2">
               {[
@@ -622,7 +622,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
           </Panel>
 
           {/* Growth Tips */}
-          <Panel className="p-5 sm:p-6">
+          <Panel className="p-4 sm:p-5">
             <h3 className="mb-4 font-black text-white text-sm flex items-center gap-2"><Lightbulb className="h-4 w-4 text-amber-400" /> Growth Tips</h3>
             <div className="space-y-2">
               {growthTips.map(({ icon: Icon, text, color }) => (
@@ -635,7 +635,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
           </Panel>
 
           {/* Recent Assets */}
-          <Panel className="p-5 sm:p-6">
+          <Panel className="p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-black text-white text-sm flex items-center gap-2"><Sparkles className="h-4 w-4 text-purple-400" /> AI Assets</h3>
               <button onClick={() => setSection("production")} className="text-xs font-black text-purple-300 hover:underline">ArtForge →</button>
