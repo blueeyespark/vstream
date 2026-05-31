@@ -189,7 +189,6 @@ export default function ProductionHub() {
 
         {/* Main workspace */}
         <main className="min-w-0 space-y-2 overflow-x-hidden">
-          <ProductionHeader selectedType={selectedType} activeStage={activeStage} activeMode={activeModeMeta} onNext={goNext} readinessScore={readinessScore} />
           <Panel>
             <ModeTabs
               activeMode={activeMode}
@@ -462,13 +461,13 @@ function ModeTabs({ activeMode, setMode, artforgeTab, setArtforgeTab }) {
 function ProductionWorkspace(props) {
   const { activeMode, selectedType, displayAssets, assetFilter, setAssetFilter, bucketCounts, selectedAssetId, setSelectedAssetId, publishForm, setPublishForm, artforgeInitialMode, artforgeTab, setArtforgeTab } = props;
 
-  if (activeMode === "upload") return <ToolFrame title="Upload Source Video" subtitle="Upload connects directly to the Editor as the next step."><VideoUpload /></ToolFrame>;
+  if (activeMode === "upload") return <VideoUpload />;
   if (activeMode === "editor") return (
     <div className="space-y-4">
-      <ToolFrame title="Video Editor" subtitle="Cut, review, and prepare assets for packaging."><VideoEditor /></ToolFrame>
+      <VideoEditor />
       <div className="grid gap-4 xl:grid-cols-2">
-        <ToolFrame title="Intro / Outro" compact><IntroOutroMaker /></ToolFrame>
-        <ToolFrame title="Music / Audio" compact><MusicEditor /></ToolFrame>
+        <IntroOutroMaker />
+        <MusicEditor />
       </div>
     </div>
   );
