@@ -52,11 +52,11 @@ export default function ChatAnalyzer() {
 
   const [linkFallback, setLinkFallback] = useState(false);
 
-  const handleLoadLink = async () => {
-    if (!linkUrl.trim()) return;
+  const handleLoadLink = async (autoAnalyze = false) => {
+    if (!linkUrl.trim()) return null;
     if (!linkUrl.match(/(?:chatgpt\.com|chat\.openai\.com)\/share\//i)) {
       toast.error("Please enter a valid ChatGPT share link (chatgpt.com/share/...)");
-      return;
+      return null;
     }
     setIsFetchingLink(true);
     setLinkFallback(false);
@@ -64,9 +64,20 @@ export default function ChatAnalyzer() {
       const res = await base44.functions.invoke("fetchChatGPTShare", { url: linkUrl.trim() });
       const data = res?.data || res;
       if (data?.text && data.messageCount > 0) {
-        setChatText(data.text);
-        setFileName(`"${data.title || "Conversation"}" (${data.messageCount} messages)`);
-        toast.success(`Loaded ${data.messageCount} messages from "${data.title || "conversation"}"`);
+        const text = data.text;
+        const name = `"${data.title || "Conversation"}" (${data.messageCount} messages)`;
+        setChatText(text);
+        setFileName(name);
+        toast.success(`Loaded ${data.messageCount} messages`);
+        setIsFetchingLink(false);
+        if (autoAnalyze) {
+          setChatLoaded(true);
+          setMessages([{
+            role: "assistant",
+            content: `✅ Conversation loaded (${text.split(/\s+/).length.toLocaleString()} words). Ask me anything about it!`
+          }]);
+        }
+        return text;
       } else if (data?.requiresManualPaste) {
         setLinkFallback(true);
       } else {
@@ -76,6 +87,7 @@ export default function ChatAnalyzer() {
       setLinkFallback(true);
     }
     setIsFetchingLink(false);
+    return null;
   };
 
   const handleLoadChat = () => {
@@ -274,11 +286,18 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
 
           {/* Load button */}
           <button
-            onClick={handleLoadChat}
-            disabled={!chatText.trim() || isLoading}
+            onClick={async () => {
+              if (inputMode === "link" && linkUrl.trim() && !chatText.trim()) {
+                await handleLoadLink(true);
+              } else {
+                handleLoadChat();
+              }
+            }}
+            disabled={(inputMode === "link" ? (!linkUrl.trim() && !chatText.trim()) : !chatText.trim()) || isLoading || isFetchingLink}
             className="w-full rounded-xl bg-gradient-to-r from-emerald-500/80 to-[#1e78ff]/80 py-3 text-sm font-black text-white disabled:opacity-40 hover:opacity-90 transition"
           >
-            {isLoading ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : "Analyze Conversation →"}
+            {isLoading || isFetchingLink ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : 
+              (inputMode === "link" && linkUrl.trim() && !chatText.trim()) ? "Fetch & Analyze →" : "Analyze Conversation →"}
           </button>
         </div>
       ) : (
