@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Moon, Sun, Settings, LogOut, Search,
   Tv, Users, Scan, LayoutDashboard,
-  Radio, PlaySquare, ChevronRight, MessageSquare, Bookmark, ListVideo, Wand2, Mic2, Plus
+  Radio, PlaySquare, ChevronRight, MessageSquare, Bookmark, ListVideo, Wand2, Mic2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 /** @type {any} */
@@ -31,15 +31,12 @@ export default function TopNav({
   newVideos = [],
 }) {
   const [accountOpen, setAccountOpen] = useState(false);
-  const [createOpen, setCreateOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Channel switching is handled by the CreatorOS context
   /** @type {import('react').MutableRefObject<HTMLDivElement | null>} */
   const dropdownRef = useRef(null);
-  /** @type {import('react').MutableRefObject<HTMLDivElement | null>} */
-  const createRef = useRef(null);
   const navigate = useNavigate();
   const { logout, navigateToLogin } = useAuth();
   const isAdmin = user?.role === "admin";
@@ -55,9 +52,7 @@ export default function TopNav({
       if (dropdownRef.current && !dropdownRef.current.contains?.(t)) {
         setAccountOpen(false);
       }
-      if (createRef.current && !createRef.current.contains?.(t)) {
-        setCreateOpen(false);
-      }
+
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -75,7 +70,6 @@ export default function TopNav({
 
   /** @param {string} to */
   const openCreatorTool = (to) => {
-    setCreateOpen(false);
     setAccountOpen(false);
     if (!user?.email) {
       navigateToLogin(to);
@@ -154,41 +148,6 @@ export default function TopNav({
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             LIVE
           </Link>
-
-          <div className="relative block" ref={createRef}>
-            <button
-              type="button"
-              onClick={() => user?.email ? setCreateOpen((open) => !open) : openCreatorTool("/CreatorOS")}
-              className="flex items-center gap-1.5 rounded-xl bg-[#1e78ff] px-3 py-2 text-xs font-black text-white transition hover:bg-[#00a6ff]"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Creator OS</span>
-            </button>
-            <AnimatePresence>
-              {createOpen && user?.email && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                  transition={{ duration: 0.12 }}
-                  className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-2xl border border-[#0d1820] bg-[#030810] shadow-2xl shadow-black/60"
-                >
-                  <button onClick={() => openCreatorTool("/CreatorOS")} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-blue-200/75 transition hover:bg-blue-900/20 hover:text-white">
-                    <Mic2 className="h-4 w-4 text-[#00c8ff]" />
-                    Creator OS
-                  </button>
-                  <button onClick={() => openCreatorTool("/CreatorOS?section=production&tool=artforge")} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-blue-200/75 transition hover:bg-blue-900/20 hover:text-white">
-                    <Wand2 className="h-4 w-4 text-[#a855f7]" />
-                    ArtForge AI
-                  </button>
-                  <button onClick={() => openCreatorTool("/StreamerDashboard")} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-bold text-blue-200/75 transition hover:bg-blue-900/20 hover:text-white">
-                    <Radio className="h-4 w-4 text-red-300" />
-                    Go Live
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
 
           {user ? (
           <div className="relative ml-1" ref={dropdownRef}>
