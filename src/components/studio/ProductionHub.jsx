@@ -331,7 +331,7 @@ function ProductionWorkspace(props) {
       </div>
     );
   }
-  if (activeMode === "artforge") return <ArtForgeStudio embedded initialMode={artforgeInitialMode} />;
+  if (activeMode === "artforge") return <ArtForgeStudio embedded hideModePicker initialMode={artforgeInitialMode} />;
   if (activeMode === "assets") return <AssetLibraryPanel assets={displayAssets} assetFilter={assetFilter} setAssetFilter={setAssetFilter} bucketCounts={bucketCounts} selectedAssetId={selectedAssetId} setSelectedAssetId={setSelectedAssetId} />;
   return <PublishPackageForm publishForm={publishForm} setPublishForm={setPublishForm} selectedAsset={displayAssets.find((asset) => asset.id === selectedAssetId)} />;
 }

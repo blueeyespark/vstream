@@ -170,7 +170,7 @@ function GenerationCard({ job, onClick }) {
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-export default function ArtForgeStudio({ embedded = false, initialMode = "image" }) {
+export default function ArtForgeStudio({ embedded = false, initialMode = "image", hideModePicker = false }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const promptRef = useRef(null);
@@ -462,8 +462,8 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
 
             {/* Left: Mode + Settings */}
             <aside className="space-y-4">
-              {/* Mode selector */}
-              <Panel title="Creation Mode" icon={Sparkles}>
+              {/* Mode selector — hidden when parent controls mode via project type */}
+              {!hideModePicker && <Panel title="Creation Mode" icon={Sparkles}>
                 <div className="grid grid-cols-2 gap-2">
                   {CREATION_MODES.map((item) => {
                     const Icon = item.icon;
@@ -481,7 +481,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                     );
                   })}
                 </div>
-              </Panel>
+              </Panel>}
 
               {/* Aspect ratio */}
               <Panel title="Aspect Ratio" icon={Crop}>
