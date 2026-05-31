@@ -727,14 +727,41 @@ function AIEditModal({ item, onClose }) {
 
 function ContentLibrary({ videos, assets, filter, setFilter, query, setQuery }) {
   const [editingAsset, setEditingAsset] = useState(null);
+  
+  // Aggressive ghost data filtering
+  const cleanVideos = videos.filter((v) => v.id && v.title && v.title.trim());
+  const cleanAssets = assets.filter((a) => {
+    if (!a.id) return false;
+    const hasMedia = a.url || a.file_url || a.thumbnail_url;
+    const isGhost = a.category === "artforge_project" || a.asset_type === "template" || !a.name?.trim();
+    const isValid = hasMedia && !isGhost && typeof a.name === "string" && a.name.length > 0;
+    return isValid;
+  });
+  
+  // Deduplicate by ID
+  const seen = new Set();
+  const deduped = cleanAssets.filter((a) => {
+    if (seen.has(a.id)) return false;
+    seen.add(a.id);
+    return true;
+  });
+  
   const items = [
-    ...videos.filter((v) => v.title).map((v) => ({ id: `video-${v.id}`, title: v.title, type: v.status === "live" ? "livestreams" : v.duration_seconds && v.duration_seconds < 90 ? "shorts" : "videos", tag: v.status, thumb: v.thumbnail_url })),
-    ...assets.filter((a) => {
-      // Skip ghost assets: must have a real media URL (not just a JSON description saved as a "project")
-      const hasMedia = a.url || a.file_url || a.thumbnail_url;
-      const isProjectBlob = a.category === "artforge_project" || a.asset_type === "template";
-      return hasMedia && !isProjectBlob;
-    }).map((a) => ({ id: `asset-${a.id}`, title: a.name?.trim() || "Untitled", type: normalizeAssetType(a), tag: a.asset_type || a.type || "asset", thumb: a.thumbnail_url || a.url || a.file_url, raw: a })),
+    ...cleanVideos.map((v) => ({ 
+      id: `video-${v.id}`, 
+      title: v.title, 
+      type: v.status === "live" ? "livestreams" : v.duration_seconds && v.duration_seconds < 90 ? "shorts" : "videos", 
+      tag: v.status, 
+      thumb: v.thumbnail_url 
+    })),
+    ...deduped.map((a) => ({ 
+      id: `asset-${a.id}`, 
+      title: a.name.trim(), 
+      type: normalizeAssetType(a), 
+      tag: a.asset_type || a.type || "asset", 
+      thumb: a.thumbnail_url || a.url || a.file_url, 
+      raw: a 
+    })),
   ];
   const filters = ["all", "videos", "shorts", "livestreams", "images", "ai generations", "assets", "audio", "templates"];
   const filtered = items.filter((i) => (filter === "all" || i.type === filter) && (!query || i.title.toLowerCase().includes(query.toLowerCase())));
