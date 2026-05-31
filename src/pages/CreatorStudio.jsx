@@ -5,17 +5,17 @@ import { useAuth } from "@/lib/AuthContext";
 import { base44 } from "@/api/base44Client";
 import {
   Activity, AlertTriangle, BarChart3, Calendar, CheckCircle2, ChevronRight,
-  CircleDollarSign, Clapperboard, Edit3, Eye, FileVideo, Folder, Gauge,
-  Image, Library, MessageSquare, Mic2, MonitorUp, Play, Plus, Radio, Search,
-  Settings, Sparkles, Tags, Upload, Users, Wand2, Zap, TrendingUp, Clock,
-  Video, ArrowUpRight, Star, MoreHorizontal, Layers, WandSparkles, Bell,
-  Flame, Globe, Hash, Heart, LayoutDashboard, Lightbulb, Lock, Medal,
-  Megaphone, PenTool, Rocket, Send, Shield, Smile, Target, ThumbsUp,
-  Timer, Trophy, UserCheck, Wallet, Wifi, X, ChevronDown, ChevronUp,
-  BookOpen, Bookmark, Box, Camera, Cast, Film, Gift, Headphones, Map,
-  Music, Package, Pause, Repeat, Share2, Shuffle, SkipForward, Sliders,
-  Tv, Volume2, Wrench, Flag, Award, Bot,
-} from "lucide-react";
+    CircleDollarSign, Clapperboard, Edit3, Eye, FileVideo, Folder, Gauge,
+    Image, Library, MessageSquare, Mic2, MonitorUp, Play, Plus, Radio, Search,
+    Settings, Sparkles, Tags, Upload, Users, Wand2, Zap, TrendingUp, Clock,
+    Video, ArrowUpRight, Star, MoreHorizontal, Layers, WandSparkles, Bell,
+    Flame, Globe, Hash, Heart, LayoutDashboard, Lightbulb, Lock, Medal,
+    Megaphone, PenTool, Rocket, Send, Shield, Smile, Target, ThumbsUp,
+    Timer, Trophy, UserCheck, Wallet, Wifi, X, ChevronDown, ChevronUp,
+    BookOpen, Bookmark, Box, Camera, Cast, Film, Gift, Headphones, Map,
+    Music, Package, Pause, Repeat, Share2, Shuffle, SkipForward, Sliders,
+    Tv, Volume2, Wrench, Flag, Award, Bot,
+  } from "lucide-react";
 import ProductionHub from "@/components/studio/ProductionHub";
 import PlanningHub from "@/components/studio/PlanningHub";
 import AnalyticsHub from "@/components/studio/AnalyticsHub";
@@ -27,6 +27,7 @@ import ChannelEditor from "@/components/studio/ChannelEditor";
 import IntegrationsHub from "@/components/studio/IntegrationsHub";
 import LiveControlRoom from "@/components/studio/LiveControlRoom";
 import ChatAnalyzer from "@/components/studio/ChatAnalyzer";
+import LearningHub from "@/components/studio/LearningHub";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const navGroups = [
@@ -50,6 +51,12 @@ const navGroups = [
       { id: "analytics", label: "Analytics", icon: BarChart3, tagline: "Growth and revenue" },
       { id: "community", label: "Community", icon: MessageSquare, tagline: "Comments & moderation" },
       { id: "monetization", label: "Monetize", icon: CircleDollarSign, tagline: "Memberships & payouts" },
+    ],
+  },
+  {
+    label: "Learn",
+    items: [
+      { id: "learning", label: "Learning Hub", icon: BookOpen, tagline: "Code courses & resources", accent: "cyan" },
     ],
   },
   {
@@ -224,6 +231,7 @@ function CreatorStudioContent() {
           {section.id === "analytics" && <AnalyticsSection stats={stats} />}
           {section.id === "community" && <CommunitySection />}
           {section.id === "monetization" && <MonetizationSection stats={stats} />}
+          {section.id === "learning" && <LearningHub />}
           {section.id === "chat_analyzer" && <Panel className="p-4"><ChatAnalyzer /></Panel>}
           {section.id === "team" && <Panel className="p-4"><TeamManagement /></Panel>}
           {section.id === "settings" && <SettingsSection />}
@@ -294,6 +302,8 @@ function CreatorSidebar({ activeSection, setSection, channel, stats, collapsed, 
                         ? active ? "bg-red-500/18 text-white" : "text-red-200/55 hover:bg-red-500/10 hover:text-red-100"
                         : isGreen
                         ? active ? "bg-emerald-500/18 text-white" : "text-emerald-200/55 hover:bg-emerald-500/10 hover:text-emerald-100"
+                        : item.accent === "cyan"
+                        ? active ? "bg-[#00c8ff]/14 text-white" : "text-cyan-200/55 hover:bg-[#00c8ff]/8 hover:text-cyan-100"
                         : active ? "bg-[#1e78ff]/14 text-white" : "text-blue-100/55 hover:bg-[#1e78ff]/8 hover:text-white"
                     )}>
                     <Icon className={cx(
@@ -301,6 +311,7 @@ function CreatorSidebar({ activeSection, setSection, channel, stats, collapsed, 
                       isPurple ? active ? "text-[#a855f7]" : "text-purple-400/50 group-hover:text-[#a855f7]"
                       : isRed ? active ? "text-red-400" : "text-red-400/50 group-hover:text-red-400"
                       : isGreen ? active ? "text-emerald-400" : "text-emerald-400/50 group-hover:text-emerald-400"
+                      : item.accent === "cyan" ? active ? "text-[#00c8ff]" : "text-cyan-300/45 group-hover:text-[#00c8ff]"
                       : active ? "text-[#00c8ff]" : "text-blue-300/45 group-hover:text-[#00c8ff]"
                     )} />
                     {!collapsed && (
@@ -311,9 +322,9 @@ function CreatorSidebar({ activeSection, setSection, channel, stats, collapsed, 
                         </span>
                         <div className="flex items-center gap-1.5">
                           {active && <div className={cx("h-1.5 w-1.5 rounded-full", isPurple ? "bg-[#a855f7]" : isRed ? "bg-red-400" : isGreen ? "bg-emerald-400" : "bg-[#00c8ff]")} />}
-                          {isPurple && !active && <span className="rounded-full bg-[#a855f7]/20 px-1.5 py-0.5 text-[9px] font-black text-purple-300">AI</span>}
-                          {isGreen && !active && <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-black text-emerald-300">AI</span>}
-                          {isRed && channel?.is_live && <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[9px] font-black text-red-300 animate-pulse">LIVE</span>}
+                          {item.accent === "purple" && !active && <span className="rounded-full bg-[#a855f7]/20 px-1.5 py-0.5 text-[9px] font-black text-purple-300">AI</span>}
+                          {item.accent === "green" && !active && <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-black text-emerald-300">AI</span>}
+                          {item.accent === "red" && channel?.is_live && <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[9px] font-black text-red-300 animate-pulse">LIVE</span>}
                         </div>
                       </>
                     )}
