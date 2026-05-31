@@ -57,8 +57,6 @@ const projectTypeGroups = [
     types: [
       { id: "build-2d", label: "2D Model", icon: Layers2, format: "Sprites / PNGTuber", mode: "artforge", path: ["Character", "States", "Preview", "Save"] },
       { id: "build-3d", label: "3D Model", icon: Box, format: "3D model", mode: "artforge", path: ["Prompt", "Preview", "Save"] },
-      { id: "trace-pose", label: "Tracer", icon: ScanLine, format: "Line art", mode: "artforge", path: ["Upload", "Style", "Generate", "Save"] },
-      { id: "hand-helper", label: "Hand Helper", icon: Hand, format: "Pose reference", mode: "artforge", path: ["Pose", "View", "Generate", "Save"] },
     ],
   },
   {
@@ -98,8 +96,6 @@ const artforgeModeMap = {
   "make-comic": "comic",
   "build-2d": "2d_model",
   "build-3d": "3d_model",
-  "trace-pose": "tracer",
-  "hand-helper": "hand_helper",
 };
 
 export default function ProductionHub() {
