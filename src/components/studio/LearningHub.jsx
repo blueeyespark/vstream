@@ -6,20 +6,7 @@ import MyCourses from "@/components/learning/MyCourses";
 import LearningPathGenerator from "@/components/learning/LearningPathGenerator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const courses = [
-  // === BEGINNER ===
-  // Frontend Beginner
-  {
-    id: 1,
-    title: "HTML & CSS Essentials",
-    description: "Master semantic HTML, responsive CSS, flexbox, grid, and modern layout techniques.",
-    level: "beginner",
-    duration: "3 hours",
-    students: 18000,
-    rating: 4.7,
-    tags: ["HTML", "CSS", "Frontend"],
-    icon: "🏗️",
-  },
+// Old courses removed - using expandedCourses from data file instead
   {
     id: 2,
     title: "Web Design Principles",
@@ -1194,31 +1181,7 @@ const courses = [
     tags: ["Traditional Art", "Painting", "Media"],
     icon: "🎨",
   },
-  {
-    id: 105,
-    title: "Motion Graphics & VFX",
-    description: "Create motion graphics: After Effects, animation, visual effects, and compositing.",
-    level: "advanced",
-    duration: "6.5 hours",
-    students: 3700,
-    rating: 4.8,
-    tags: ["Motion Graphics", "After Effects", "VFX"],
-    icon: "🎬",
-  },
-  {
-    id: 106,
-    title: "Web Design & UI Development",
-    description: "Design and code websites: responsive design, CSS, animations, and interactions.",
-    level: "intermediate",
-    duration: "5.5 hours",
-    students: 6500,
-    rating: 4.8,
-    tags: ["Web Design", "UI", "CSS"],
-    icon: "🌐",
-  },
-];
-
-const resources = [
+  const resources = [
   { name: "MDN Web Docs", url: "https://developer.mozilla.org", icon: "📚", desc: "Comprehensive web dev reference" },
   { name: "GitHub", url: "https://github.com", icon: "🐙", desc: "Version control & code hosting" },
   { name: "Stack Overflow", url: "https://stackoverflow.com", icon: "❓", desc: "Q&A for developers" },
@@ -1228,8 +1191,8 @@ const resources = [
 export default function LearningHub() {
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("all");
-  const [courseType, setCourseType] = useState("creator"); // "coding", "art", or "creator"
-  const [activeTab, setActiveTab] = useState("explore"); // "explore" or "mycourses"
+  const [courseType, setCourseType] = useState("coding");
+  const [activeTab, setActiveTab] = useState("explore");
 
   let allCourses = expandedCourses;
   if (courseType === "art") allCourses = artCoursesExpanded;
@@ -1242,17 +1205,40 @@ export default function LearningHub() {
     return matchesSearch && matchesLevel;
   });
 
+  const getCourseCount = () => {
+    switch(courseType) {
+      case "coding": return codingCoursesExpanded.length;
+      case "art": return artCoursesExpanded.length;
+      case "creator": return creatorCoursesExpanded.length;
+      default: return expandedCourses.length;
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+      <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-6">
         <div className="flex items-center gap-3 mb-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1e78ff] to-[#a855f7] text-xl">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1e78ff] to-[#a855f7] text-2xl">
             📚
           </span>
-          <div>
-            <h1 className="text-2xl font-black text-white">Learning Hub</h1>
-            <p className="text-sm text-blue-100/50">Level up your coding skills with curated courses and resources</p>
+          <div className="flex-1">
+            <h1 className="text-3xl font-black text-white">Learning Hub</h1>
+            <p className="text-sm text-blue-100/60 mt-1">Master new skills with 150+ comprehensive courses across coding, art & content creation</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-[#12305f]/50">
+          <div className="text-center">
+            <p className="text-2xl font-black text-[#00c8ff]">150+</p>
+            <p className="text-xs text-blue-100/50">Total Courses</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-black text-amber-300">1M+</p>
+            <p className="text-xs text-blue-100/50">Students Enrolled</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-black text-emerald-400">4.8★</p>
+            <p className="text-xs text-blue-100/50">Avg Rating</p>
           </div>
         </div>
       </div>
@@ -1303,43 +1289,48 @@ export default function LearningHub() {
                 ))}
               </div>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCourseType("coding")}
-                className={`px-4 py-2 rounded-lg text-sm font-black transition ${
-                  courseType === "coding"
-                    ? "bg-[#1e78ff]/20 border border-[#1e78ff]/50 text-white"
-                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
-                }`}
-              >
-                💻 Coding Courses
-              </button>
-              <button
-                onClick={() => setCourseType("art")}
-                className={`px-4 py-2 rounded-lg text-sm font-black transition ${
-                  courseType === "art"
-                    ? "bg-purple-500/20 border border-purple-500/50 text-purple-300"
-                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
-                }`}
-              >
-                🎨 Art Courses (49+)
-              </button>
-              <button
-                onClick={() => setCourseType("creator")}
-                className={`px-4 py-2 rounded-lg text-sm font-black transition ${
-                  courseType === "creator"
-                    ? "bg-amber-500/20 border border-amber-500/50 text-amber-300"
-                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
-                }`}
-              >
-                🚀 Creator Growth (61+)
-              </button>
+            <div className="flex gap-2 flex-wrap">
+             <button
+               onClick={() => setCourseType("coding")}
+               className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                 courseType === "coding"
+                   ? "bg-[#1e78ff]/20 border border-[#1e78ff]/50 text-white"
+                   : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+               }`}
+             >
+               💻 Coding <span className="text-xs text-blue-100/70">({codingCoursesExpanded.length})</span>
+             </button>
+             <button
+               onClick={() => setCourseType("art")}
+               className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                 courseType === "art"
+                   ? "bg-purple-500/20 border border-purple-500/50 text-purple-300"
+                   : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+               }`}
+             >
+               🎨 Art <span className="text-xs text-blue-100/70">({artCoursesExpanded.length})</span>
+             </button>
+             <button
+               onClick={() => setCourseType("creator")}
+               className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                 courseType === "creator"
+                   ? "bg-amber-500/20 border border-amber-500/50 text-amber-300"
+                   : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+               }`}
+             >
+               🚀 Creator <span className="text-xs text-blue-100/70">({creatorCoursesExpanded.length})</span>
+             </button>
             </div>
           </div>
 
           {/* Courses Grid */}
+          {filtered.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-[#12305f] bg-[#06101f]/50 p-12 text-center">
+              <p className="text-blue-100/60 text-sm">No courses match your filters. Try adjusting your search.</p>
+            </div>
+          ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((course) => (
+          {filtered.map((course) => (
           <button
             key={course.id}
             className="group text-left rounded-2xl border border-[#12305f]/70 bg-[#06101f]/90 p-4 hover:border-[#1e78ff]/40 hover:shadow-lg hover:shadow-[#1e78ff]/10 transition"
@@ -1382,6 +1373,11 @@ export default function LearningHub() {
           </button>
         ))}
       </div>
+           )}
+           
+           <div className="text-center py-4">
+             <p className="text-sm text-blue-100/50">Showing {filtered.length} of {getCourseCount()} courses in {courseType === "art" ? "Art" : courseType === "creator" ? "Creator Growth" : "Coding"}</p>
+           </div>
 
       {/* Resources */}
       <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
@@ -1664,30 +1660,6 @@ export default function LearningHub() {
 
         </>
       )}
-
-      {/* Legacy Learning Path Section - Hidden */}
-      <div className="hidden">
-        <div className="space-y-2">
-          {[
-            { step: 1, title: "JavaScript Fundamentals", desc: "Master core language concepts" },
-            { step: 2, title: "Web Design Principles", desc: "Learn UI/UX and CSS" },
-            { step: 3, title: "React Basics to Advanced", desc: "Build modern frontends" },
-            { step: 4, title: "Building APIs with Node.js", desc: "Create backend services" },
-            { step: 5, title: "Database Design & SQL", desc: "Store and query data" },
-            { step: 6, title: "TypeScript Mastery", desc: "Write production-grade code" },
-          ].map(({ step, title, desc }) => (
-            <div key={step} className="flex items-start gap-3 rounded-xl border border-[#12305f]/50 bg-[#03080f]/55 p-3">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1e78ff]/20 text-xs font-black text-[#00c8ff] flex-shrink-0">
-                {step}
-              </div>
-              <div className="min-w-0">
-                <p className="font-black text-white text-sm">{title}</p>
-                <p className="text-xs text-blue-100/50">{desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
