@@ -15,8 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Navigate } from "react-router-dom";
-import TracerMode from "@/components/artforge/TracerMode";
-import HandHelperMode from "@/components/artforge/HandHelperMode";
+
 import Model3DMode from "@/components/artforge/Model3DMode";
 import Model2DMode from "@/components/artforge/Model2DMode";
 import MusicGeneratorMode from "@/components/artforge/MusicGeneratorMode";
@@ -34,8 +33,6 @@ const CREATION_MODES = [
   { id: "video", label: "Video", icon: Film, hint: "AI-generated clips", prompt: "Camera pushes through a glowing portal into a neon cyberpunk cityscape, cinematic vertical short", color: "from-pink-500 to-violet-500", badge: "NEW" },
   { id: "sticker", label: "Sticker", icon: Smile, hint: "Transparent packs", prompt: "Kawaii blue fire mascot sticker pack with bold outline, transparent background, expressive face", color: "from-amber-400 to-orange-500", badge: null },
   { id: "comic", label: "Comic", icon: LayoutGrid, hint: "Panels & strips", prompt: "Four-panel comic about a streamer discovering a magical AI art forge, vibrant manga style", color: "from-emerald-500 to-blue-500", badge: null },
-  { id: "tracer", label: "Tracer", icon: PenTool, hint: "Photo → traceable line art", prompt: "Convert to clean anime line art", color: "from-cyan-400 to-blue-500", badge: null },
-  { id: "hand_helper", label: "Hand Helper", icon: Hand, hint: "Poseable 3D hand reference", prompt: "Accurate hand drawing reference", color: "from-rose-400 to-pink-600", badge: null },
   { id: "image_edit", label: "Image Editor", icon: WandSparkles, hint: "Edit images with text prompts", prompt: "Edit this image", color: "from-fuchsia-500 to-violet-600", badge: "fal.ai" },
   { id: "music", label: "Music Gen", icon: Film, hint: "AI music from text prompts", prompt: "Generate music", color: "from-orange-500 to-pink-500", badge: "ElevenLabs" },
   { id: "thumbnail", label: "Thumbnail", icon: Image, hint: "YouTube thumbnails", prompt: "Eye-catching thumbnail for gaming video", color: "from-red-500 to-orange-500", badge: "NEW" },
@@ -45,7 +42,7 @@ const CREATION_MODES = [
 
 const PROVIDERS = [
   // ✅ FREE
-  { id: "base44", label: "Base44 (Free)", note: "Built-in — no key needed", tier: "FREE", tag: "FREE", modes: ["image","2d_model","3d_model","video","sticker","comic","tracer","hand_helper"] },
+  { id: "base44", label: "Base44 (Free)", note: "Built-in — no key needed", tier: "FREE", tag: "FREE", modes: ["image","2d_model","3d_model","video","sticker","comic"] },
   // fal.ai — FLUX 2 family (Premium)
   { id: "fal", label: "fal.ai · FLUX 2 Pro", note: "Requires FAL_API_KEY — high quality, 8 ref images", tier: "PREMIUM", tag: "FLUX", modes: ["image","2d_model","sticker","comic"] },
   { id: "fal-ultra", label: "fal.ai · FLUX 2 Ultra", note: "Requires FAL_API_KEY — highest fidelity, 4MP", tier: "PREMIUM", tag: "FLUX", modes: ["image","sticker"] },
@@ -672,26 +669,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                   </div>
                 </Panel>
               )}
-              {mode === "tracer" && (
-                <TracerMode
-                  isGenerating={isGenerating}
-                  selectedAsset={selectedAsset}
-                  onGenerate={({ prompt: p, referenceImages: refs, quality: q, aspect: a }) => {
-                    setPrompt(p); setReferenceImages(refs || []); setQuality(q || "high"); setAspect(a || "1:1");
-                    setTimeout(() => handleGenerate(), 50);
-                  }}
-                />
-              )}
-              {mode === "hand_helper" && (
-                <HandHelperMode
-                  isGenerating={isGenerating}
-                  selectedAsset={selectedAsset}
-                  onGenerate={({ prompt: p, quality: q, aspect: a }) => {
-                    setPrompt(p); setQuality(q || "high"); setAspect(a || "1:1");
-                    setTimeout(() => handleGenerate(), 50);
-                  }}
-                />
-              )}
+
               {mode === "3d_model" && (
                 <Model3DMode
                   isGenerating={isGenerating}
@@ -723,7 +701,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                 </Panel>
               )}
               {/* Generic prompt box for all other modes */}
-              {!["tracer", "hand_helper", "3d_model", "2d_model", "image_edit", "music", "thumbnail", "script", "viggle"].includes(mode) && <Panel noPad>
+              {!["3d_model", "2d_model", "image_edit", "music", "thumbnail", "script", "viggle"].includes(mode) && <Panel noPad>
                 <div className="p-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -853,7 +831,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
               } {/* end !specialty modes */}
 
               {/* Preview / Output — shown for all non-specialty modes */}
-              {!["tracer", "hand_helper", "3d_model", "2d_model", "image_edit", "music", "thumbnail", "viggle"].includes(mode) && <Panel title="Latest Output" icon={Eye}
+              {!["3d_model", "2d_model", "image_edit", "music", "thumbnail", "viggle"].includes(mode) && <Panel title="Latest Output" icon={Eye}
                 action={selectedAsset?.url && (
                   <div className="flex gap-2">
                     <button onClick={() => { setPrompt(selectedAsset.description || prompt); toast.success("Loaded for variation"); }}
