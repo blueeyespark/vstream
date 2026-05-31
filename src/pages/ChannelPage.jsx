@@ -192,7 +192,6 @@ export default function ChannelPage() {
             userEmail={user.email}
             onCreated={() => {
               queryClient.invalidateQueries({ queryKey: ["channels-all"] });
-              refetchChannels();
               setShowCreateForm(false);
             }}
             onCancel={() => navigate("/")}

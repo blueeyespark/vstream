@@ -1,5 +1,5 @@
 import React from "react";
-import { Eye, FileVideo, Library, CircleDollarSign, Clapperboard, Calendar } from "lucide-react";
+import { Eye, FileVideo, Library, CircleDollarSign, Clapperboard, Calendar, CheckCircle2 } from "lucide-react";
 
 function fmt(value = 0) {
   if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;

@@ -12,6 +12,8 @@ export default function TaskComments({ taskId, teamMembers = [] }) {
   const [replyingTo, setReplyingTo] = useState(null);
   const [user, setUser] = useState(null);
 
+  const { user: authUser } = useAuth();
+
   useEffect(() => {
     setUser(authUser);
   }, [authUser]);
@@ -76,7 +78,7 @@ export default function TaskComments({ taskId, teamMembers = [] }) {
           <Button
             size="sm"
             onClick={handleSubmit}
-            disabled={!input.trim() || createCommentMutation.isPending}
+            disabled={!input.trim() || addCommentMutation.isPending}
             className="gap-1"
           >
             <Send className="w-3 h-3" />

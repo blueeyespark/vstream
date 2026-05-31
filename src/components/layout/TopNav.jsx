@@ -194,74 +194,92 @@ export default function TopNav({
           <div className="relative ml-1" ref={dropdownRef}>
             <button
               onClick={() => setAccountOpen(!accountOpen)}
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1e78ff] to-[#a855f7] flex items-center justify-center text-white text-sm font-black hover:ring-2 hover:ring-[#1e78ff]/60 transition-all"
+              className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1e78ff] to-[#a855f7] flex items-center justify-center text-white text-sm font-black hover:ring-2 hover:ring-[#1e78ff]/60 transition-all overflow-hidden"
             >
-              {user?.full_name?.charAt(0) || "U"}
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                user?.full_name?.charAt(0) || "U"
+              )}
             </button>
 
             <AnimatePresence>
               {accountOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                  initial={{ opacity: 0, y: -6, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                  transition={{ duration: 0.12 }}
-                  className="absolute right-0 top-full mt-2 w-64 bg-[#030810] border border-[#0d1820] rounded-2xl shadow-2xl shadow-black/60 overflow-hidden z-50"
+                  exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-full mt-2 w-72 bg-[#0a0f1a] border border-[#1a2a40] rounded-2xl shadow-2xl shadow-black/70 overflow-hidden z-50"
                 >
-                  {/* User header */}
-                  <div className="px-4 py-4 border-b border-[#0d1820]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1e78ff] to-[#a855f7] flex items-center justify-center text-white font-black text-base flex-shrink-0">
-                        {user?.full_name?.charAt(0) || "U"}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-[#e8f4ff] truncate">{user?.full_name || "User"}</p>
-                        <p className="text-xs text-blue-400/50 truncate">{user?.email}</p>
-                      </div>
+                  {/* YouTube-style: big avatar header */}
+                  <div className="px-5 py-5 border-b border-[#1a2a40] flex flex-col items-center gap-3 text-center">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#1e78ff] to-[#a855f7] flex items-center justify-center text-white font-black text-2xl flex-shrink-0 overflow-hidden ring-2 ring-[#1e78ff]/40">
+                      {user?.avatar_url ? (
+                        <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        user?.full_name?.charAt(0) || "U"
+                      )}
                     </div>
+                    <div>
+                      <p className="text-base font-bold text-white leading-tight">{user?.full_name || "User"}</p>
+                      <p className="text-xs text-blue-400/55 mt-0.5">{user?.email}</p>
+                    </div>
+                    <Link
+                      to="/Channel"
+                      onClick={() => setAccountOpen(false)}
+                      className="mt-1 rounded-full border border-[#1e78ff]/50 px-4 py-1.5 text-xs font-bold text-[#1e78ff] hover:bg-[#1e78ff]/10 transition-colors"
+                    >
+                      View your channel
+                    </Link>
+                  </div>
+
+                  {/* Creator OS — featured section */}
+                  <div className="px-3 py-2 border-b border-[#1a2a40]">
+                    <button
+                      onClick={() => openCreatorTool("/CreatorOS")}
+                      className="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-r from-[#1e78ff]/15 to-[#a855f7]/10 border border-[#1e78ff]/25 hover:from-[#1e78ff]/25 hover:to-[#a855f7]/20 transition-all group"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1e78ff] to-[#a855f7] flex items-center justify-center flex-shrink-0">
+                        <Mic2 className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="text-left min-w-0">
+                        <p className="text-sm font-bold text-white">Creator OS</p>
+                        <p className="text-xs text-blue-300/50">Studio · ArtForge · Analytics</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-blue-400/40 ml-auto group-hover:text-blue-300 transition-colors" />
+                    </button>
+                  </div>
+
+                  {/* Quick creator links */}
+                  <div className="py-1 border-b border-[#1a2a40]">
+                    <MenuButton icon={Wand2} label="ArtForge AI" sublabel="AI image & video tools" onClick={() => openCreatorTool("/CreatorOS?section=production&tool=artforge")} accent="purple" />
+                    <MenuButton icon={Radio} label="Go Live" sublabel="Start streaming now" onClick={() => openCreatorTool("/StreamerDashboard")} accent="red" />
+                    <MenuItem icon={PlaySquare} label="Your Clips" to="/Shorts" onClick={() => setAccountOpen(false)} />
                   </div>
 
                   {/* Channel switcher */}
-                  <div className="border-b border-[#0d1820] py-1">
+                  <div className="border-b border-[#1a2a40] py-1">
                     <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Switch Channel</p>
                     <ChannelSwitcher user={user} />
                   </div>
 
-                  {/* Menu items */}
-                  <div className="py-1">
-                    <MenuItem icon={Tv} label="View Channel" to="/Channel" onClick={() => setAccountOpen(false)} />
-                    <MenuItem icon={PlaySquare} label="Your Clips" to="/Shorts" onClick={() => setAccountOpen(false)} />
-                  </div>
-
-                  {/* Creator-only actions */}
-                  {user?.email && (
-                    <div className="border-t border-[#0d1820] py-1">
-                      <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Creator</p>
-                      <MenuButton icon={Mic2} label="Creator OS" onClick={() => openCreatorTool("/CreatorOS")} />
-                      <MenuButton icon={Wand2} label="ArtForge AI" onClick={() => openCreatorTool("/CreatorOS?section=production&tool=artforge")} />
-                      <MenuItem icon={Radio} label="Go Live Now" to="/StreamerDashboard" onClick={() => setAccountOpen(false)} />
-                    </div>
-                  )}
-
-                  {/* Staff-only actions */}
+                  {/* Admin */}
                   {isAdmin && (
-                    <div className="border-t border-[#0d1820] py-1">
-                      <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Staff</p>
+                    <div className="py-1 border-b border-[#1a2a40]">
                       <MenuItem icon={Scan} label="Staff Tools" to="/AITools" onClick={() => setAccountOpen(false)} />
                     </div>
                   )}
 
-                  <div className="border-t border-[#0d1820] py-1">
+                  {/* Bottom */}
+                  <div className="py-1">
                     <MenuItem icon={Settings} label="Settings" to="/Settings" onClick={() => setAccountOpen(false)} />
                     <button
-                      onClick={() => {
-                        setAccountOpen(false);
-                        logout('/login');
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-blue-300/70 hover:bg-blue-900/20 hover:text-blue-200 transition-colors"
+                      onClick={() => { setAccountOpen(false); logout('/login'); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-blue-300/60 hover:bg-red-900/10 hover:text-red-300 transition-colors"
                     >
                       <LogOut className="w-4 h-4 flex-shrink-0" />
-                      Sign out
+                      <span className="flex-1 text-left">Sign out</span>
                     </button>
                   </div>
                 </motion.div>
@@ -379,16 +397,20 @@ function MenuItem({ icon: Icon, label, to = "/", onClick = undefined }) {
   );
 }
 
-/** @param {{icon:any,label:string,onClick?: (e?: any)=>void}} props */
-function MenuButton({ icon: Icon, label, onClick = undefined }) {
+/** @param {{icon:any, label:string, sublabel?:string, accent?:string, onClick?: (e?: any)=>void}} props */
+function MenuButton({ icon: Icon, label, sublabel, accent, onClick = undefined }) {
+  const iconColor = accent === "purple" ? "text-[#a855f7]" : accent === "red" ? "text-red-400" : "text-[#00c8ff]";
   return (
     <button
       type="button"
       onClick={onClick}
       className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-blue-300/70 transition-colors hover:bg-blue-900/20 hover:text-blue-200"
     >
-      <Icon className="w-4 h-4 flex-shrink-0" />
-      <span className="flex-1">{label}</span>
+      <Icon className={`w-4 h-4 flex-shrink-0 ${iconColor}`} />
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-blue-100/80">{label}</p>
+        {sublabel && <p className="text-xs text-blue-400/40">{sublabel}</p>}
+      </div>
       <ChevronRight className="w-3.5 h-3.5 text-blue-400/20" />
     </button>
   );

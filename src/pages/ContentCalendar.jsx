@@ -88,6 +88,7 @@ function EventDetailsPanel({ event, type, onClose, onEdit }) {
 }
 
 export default function ContentCalendar({ blogPosts = [], socialPosts = [] }) {
+  const { user: authUser } = useAuth();
   const [user, setUser] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState("month");

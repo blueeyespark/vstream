@@ -256,24 +256,21 @@ export default function ArtForgeStudio({ embedded = false }) {
   useEffect(() => localStorage.setItem("artforge_jobs", JSON.stringify(jobs.slice(0, 50))), [jobs]);
   useEffect(() => localStorage.setItem("artforge_memory", JSON.stringify(memory)), [memory]);
 
-  // If embedded inside CreatorOS, reuse CreatorOSContext assets to avoid duplicate queries.
-  let assets = [];
-  if (embedded) {
-    const ctx = useCreatorOS();
-    assets = ctx.assets || [];
-  } else {
-    const { data: _assets = [] } = useQuery({
-      queryKey: ["artforge-assets", user?.email],
-      enabled: !!user?.email,
-      queryFn: async () => {
-        const result = await base44.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 150);
-        return Array.isArray(result) ? result : [];
-      },
-      staleTime: 15_000,
-      gcTime: 300_000,
-    });
-    assets = _assets;
-  }
+  // Always call hooks unconditionally to satisfy Rules of Hooks
+  const creatorOSCtx = useCreatorOS();
+  const { data: _queryAssets = [] } = useQuery({
+    queryKey: ["artforge-assets", user?.email],
+    enabled: !!user?.email && !embedded,
+    queryFn: async () => {
+      const result = await base44.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 150);
+      return Array.isArray(result) ? result : [];
+    },
+    staleTime: 15_000,
+    gcTime: 300_000,
+  });
+
+  // Use context assets when embedded, query assets otherwise
+  const assets = embedded ? (creatorOSCtx?.assets || []) : _queryAssets;
 
   const filteredAssets = useMemo(() => {
     const q = assetSearch.toLowerCase().trim();

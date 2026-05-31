@@ -14,6 +14,8 @@ export default function ProjectChat({ projectId, projectName, onClose }) {
   const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
 
+  const { user: authUser } = useAuth();
+
   useEffect(() => {
     setUser(authUser);
   }, [authUser]);

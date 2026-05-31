@@ -14,6 +14,8 @@ export default function TimeTracker({ taskId, taskTitle }) {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
 
+  const { user: authUser } = useAuth();
+
   useEffect(() => {
     setUser(authUser);
   }, [authUser]);
