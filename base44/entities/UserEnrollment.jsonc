@@ -77,6 +77,43 @@
       "type": "boolean",
       "default": false,
       "description": "Whether certificate has been generated"
+    },
+    "estimated_hours": {
+      "type": "number",
+      "description": "Estimated total hours to complete course"
+    },
+    "actual_hours_spent": {
+      "type": "number",
+      "default": 0,
+      "description": "Actual hours user has spent learning"
+    },
+    "learning_sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "minutes_spent": {
+            "type": "number"
+          },
+          "module_index": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Learning session history with timestamps"
+    },
+    "estimated_completion_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Projected completion date based on learning pace"
+    },
+    "learning_pace": {
+      "type": "number",
+      "description": "Hours per week learning pace"
     }
   },
   "required": [

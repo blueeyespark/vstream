@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, CheckCircle2, Clock, Trophy, Play, Download } from "lucide-react";
+import { BookOpen, CheckCircle2, Clock, Trophy, Play, Download, AlertCircle, Zap } from "lucide-react";
+import TimeTracker from "./TimeTracker";
+import LearningTimeAnalytics from "./LearningTimeAnalytics";
 
 export default function MyCourses() {
   const { data: enrollments = [], isLoading } = useQuery({
@@ -22,13 +24,18 @@ export default function MyCourses() {
 
   const completed = enrollments.filter(e => e.status === "completed").length;
   const inProgress = enrollments.filter(e => e.status === "in_progress").length;
+  const totalHours = enrollments.reduce((sum, e) => sum + (e.actual_hours_spent || 0), 0);
+  const [selectedEnrollment, setSelectedEnrollment] = useState(null);
 
   if (isLoading) return <div className="text-white">Loading...</div>;
 
   return (
     <div className="space-y-6">
+      {/* Learning Time Analytics */}
+      <LearningTimeAnalytics enrollments={enrollments} />
+
       {/* Stats */}
-      <div className="grid gap-3 grid-cols-3">
+      <div className="grid gap-3 grid-cols-4">
         <div className="rounded-lg border border-[#12305f] bg-[#06101f] p-4">
           <p className="text-2xl font-black text-white">{enrollments.length}</p>
           <p className="text-xs text-blue-100/50">Courses Enrolled</p>
@@ -41,7 +48,21 @@ export default function MyCourses() {
           <p className="text-2xl font-black text-amber-400">{completed}</p>
           <p className="text-xs text-blue-100/50">Completed</p>
         </div>
+        <div className="rounded-lg border border-[#12305f] bg-[#06101f] p-4">
+          <p className="text-2xl font-black text-[#00c8ff]">{totalHours.toFixed(1)}h</p>
+          <p className="text-xs text-blue-100/50">Time Invested</p>
+        </div>
       </div>
+
+      {/* Timer Widget */}
+      {selectedEnrollment && (
+        <TimeTracker 
+          enrollmentId={selectedEnrollment.id}
+          onSessionSaved={() => {
+            setSelectedEnrollment(null);
+          }}
+        />
+      )}
 
       {/* Continue Watching */}
       {enrollments.filter(e => e.status === "in_progress").length > 0 && (
@@ -50,20 +71,45 @@ export default function MyCourses() {
             <Clock className="h-4 w-4 text-[#00c8ff]" /> Continue Watching
           </h3>
           <div className="space-y-3">
-            {enrollments.filter(e => e.status === "in_progress").slice(0, 3).map(e => (
-              <div key={e.id} className="flex items-center justify-between rounded-lg border border-[#1a3a60] bg-[#03080f] p-3">
-                <div className="flex-1">
-                  <p className="font-black text-white text-sm">{e.course_title}</p>
-                  <div className="mt-1 h-2 bg-[#12305f] rounded-full overflow-hidden">
+            {enrollments.filter(e => e.status === "in_progress").slice(0, 3).map(e => {
+              const estimatedHours = e.estimated_hours || 0;
+              const actualHours = e.actual_hours_spent || 0;
+              const remainingHours = Math.max(0, estimatedHours - actualHours);
+              const efficiency = estimatedHours > 0 ? (actualHours / estimatedHours * 100).toFixed(0) : 0;
+              
+              return (
+                <div key={e.id} className="rounded-lg border border-[#1a3a60] bg-[#03080f] p-3">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <p className="font-black text-white text-sm">{e.course_title}</p>
+                      <div className="flex items-center gap-2 text-xs text-blue-100/60 mt-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{actualHours.toFixed(1)}h / {estimatedHours}h</span>
+                        {remainingHours > 0 && <span className="text-amber-400">({remainingHours.toFixed(1)}h remaining)</span>}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-black text-[#00c8ff]">{efficiency}%</p>
+                      <p className="text-[10px] text-blue-100/40">of time</p>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-[#12305f] rounded-full overflow-hidden mb-2">
                     <div className="h-full bg-gradient-to-r from-[#1e78ff] to-[#00c8ff]" style={{ width: `${e.completion_percentage}%` }} />
                   </div>
-                  <p className="text-xs text-blue-100/40 mt-1">{e.completion_percentage}% complete</p>
+                  <p className="text-xs text-blue-100/40 mb-2">{e.completion_percentage}% modules complete</p>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setSelectedEnrollment(e)}
+                      className="flex-1 rounded-lg bg-[#1e78ff]/20 border border-[#1e78ff]/50 py-1.5 text-[#00c8ff] hover:bg-[#1e78ff]/30 transition text-xs font-black flex items-center justify-center gap-1">
+                      <Clock className="h-3 w-3" /> Track Time
+                    </button>
+                    <button className="flex-1 rounded-lg bg-purple-500/20 border border-purple-500/50 py-1.5 text-purple-300 hover:bg-purple-500/30 transition text-xs font-black flex items-center justify-center gap-1">
+                      <Play className="h-3 w-3" /> Continue
+                    </button>
+                  </div>
                 </div>
-                <button className="ml-4 rounded-lg bg-[#1e78ff]/20 border border-[#1e78ff]/50 p-2 text-[#00c8ff] hover:bg-[#1e78ff]/30 transition">
-                  <Play className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
