@@ -52,8 +52,7 @@ export default function TracerMode({ onGenerate, isGenerating, selectedAsset }) 
       gesture: "Convert to flowing gesture drawing lines, energetic rhythmic strokes, loose artist sketch style",
       crosshatch: "Convert to cross-hatching line art reference with parallel and crossing strokes indicating shadow and form",
     };
-    const style = CREATION_MODES_MAP[traceStyle] || styleMap[traceStyle];
-    return `${styleMap[traceStyle]}. Line weight: ${lineWeight}. Simplification level ${simplify}%. Traceable reference for artists. Clean white background. ${simplify > 70 ? "Highly simplified for easy tracing." : "Detailed line work."}`;
+    return `${styleMap[traceStyle] || styleMap.anime_lineart}. Line weight: ${lineWeight}. Simplification level ${simplify}%. Traceable reference for artists. Clean white background. ${simplify > 70 ? "Highly simplified for easy tracing." : "Detailed line work."}`;
   };
 
   const handleTrace = () => {
@@ -208,6 +207,3 @@ export default function TracerMode({ onGenerate, isGenerating, selectedAsset }) 
     </div>
   );
 }
-
-// local stub so buildPrompt doesn't crash
-const CREATION_MODES_MAP = {};

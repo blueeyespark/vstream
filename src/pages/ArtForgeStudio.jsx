@@ -166,16 +166,16 @@ function GenerationCard({ job, onClick }) {
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-export default function ArtForgeStudio({ embedded = false }) {
+export default function ArtForgeStudio({ embedded = false, initialMode = "image" }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const promptRef = useRef(null);
 
   // Core state
-  const [mode, setMode] = useState("image");
+  const [mode, setMode] = useState(initialMode);
   const [provider, setProvider] = useState("base44");
-  const [prompt, setPrompt] = useState(CREATION_MODES[0].prompt);
+  const [prompt, setPrompt] = useState(() => CREATION_MODES.find(m => m.id === initialMode)?.prompt || CREATION_MODES[0].prompt);
   const [negativePrompt, setNegativePrompt] = useState("blurry, broken hands, extra fingers, watermark, low quality, distorted anatomy, text artifacts");
   const [styles, setStyles] = useState(["Cinematic"]);
   const [aspect, setAspect] = useState("16:9");
@@ -361,7 +361,7 @@ export default function ArtForgeStudio({ embedded = false }) {
   };
 
   useEffect(() => {
-    if (!embedded) navigate("/CreatorOS?section=artforge", { replace: true });
+    if (!embedded) navigate("/CreatorOS?section=production", { replace: true });
   }, [embedded, navigate]);
 
   const copyPrompt = async () => { await navigator.clipboard.writeText(pipelinePrompt); toast.success("Prompt copied"); };

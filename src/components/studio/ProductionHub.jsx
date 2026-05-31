@@ -59,8 +59,8 @@ const projectTypes = [
   { id: "make-comic", label: "Make Comic", icon: Layers, format: "Comic strip", mode: "artforge", path: ["Story beats", "Panels", "Captions", "Export"] },
   { id: "build-2d", label: "Build 2D Model", icon: Palette, format: "2D model", mode: "artforge", path: ["Character", "Sprite states", "Preview", "Save"] },
   { id: "build-3d", label: "Build 3D Model", icon: Box, format: "3D model", mode: "artforge", path: ["Prompt/reference", "3D checklist", "Preview", "Save"] },
-  { id: "trace-pose", label: "Trace / Pose Guide", icon: PenTool, format: "Reference guide", mode: "canvas", path: ["Guide overlay", "Reference", "Canvas"] },
-  { id: "hand-helper", label: "Hand Helper", icon: Hand, format: "Hand reference", mode: "canvas", path: ["Gesture", "Reference sheet", "Canvas"] },
+  { id: "trace-pose", label: "Trace / Pose Guide", icon: PenTool, format: "Reference guide", mode: "artforge", path: ["Upload image", "Trace style", "Generate", "Save"] },
+  { id: "hand-helper", label: "Hand Helper", icon: Hand, format: "Hand reference", mode: "artforge", path: ["Pose", "View", "Generate", "Save"] },
   { id: "intro-outro", label: "Intro / Outro", icon: Radio, format: "Motion bumper", mode: "editor", path: ["Template", "Brand copy", "Preview", "Export"] },
   { id: "music-audio", label: "Music / Audio", icon: Music, format: "Audio bed", mode: "editor", path: ["Upload music", "Mix", "Preview", "Export"] },
   { id: "publish-package", label: "Publish Package", icon: PackageCheck, format: "Publish bundle", mode: "publish", path: ["Metadata", "Thumbnail", "Checklist", "Schedule", "Publish"] },
@@ -89,6 +89,7 @@ export default function ProductionHub() {
   const [assetFilter, setAssetFilter] = useState("videos");
   const [selectedAssetId, setSelectedAssetId] = useState("");
   const [draftSaved, setDraftSaved] = useState(false);
+  const [artforgeInitialMode, setArtforgeInitialMode] = useState("image");
   const [publishForm, setPublishForm] = useState({
     title: "Untitled VStream production",
     description: "",
@@ -143,9 +144,21 @@ export default function ProductionHub() {
     setActiveStage(modeStage(modeId));
   };
 
+  const artforgeModeMap = {
+    "generate-image": "image",
+    "make-thumbnail": "image",
+    "make-sticker": "sticker",
+    "make-comic": "comic",
+    "build-2d": "2d_model",
+    "build-3d": "3d_model",
+    "trace-pose": "tracer",
+    "hand-helper": "hand_helper",
+  };
+
   const selectProjectType = (type) => {
     setSelectedTypeId(type.id);
     setMode(type.mode);
+    if (artforgeModeMap[type.id]) setArtforgeInitialMode(artforgeModeMap[type.id]);
     setPublishForm((current) => ({ ...current, title: `${type.label} draft` }));
   };
 
@@ -185,6 +198,7 @@ export default function ProductionHub() {
                 setSelectedAssetId={setSelectedAssetId}
                 publishForm={publishForm}
                 setPublishForm={setPublishForm}
+                artforgeInitialMode={artforgeInitialMode}
               />
             </div>
           </Panel>
@@ -308,7 +322,7 @@ function ModeTabs({ activeMode, setMode }) {
 }
 
 function ProductionWorkspace(props) {
-  const { activeMode, selectedType, displayAssets, assetFilter, setAssetFilter, bucketCounts, selectedAssetId, setSelectedAssetId, publishForm, setPublishForm } = props;
+  const { activeMode, selectedType, displayAssets, assetFilter, setAssetFilter, bucketCounts, selectedAssetId, setSelectedAssetId, publishForm, setPublishForm, artforgeInitialMode } = props;
 
   if (activeMode === "upload") return <ToolFrame title="Upload source video" subtitle="Upload connects directly to Editor as the next step."><VideoUpload /></ToolFrame>;
   if (activeMode === "editor") {
@@ -322,7 +336,7 @@ function ProductionWorkspace(props) {
       </div>
     );
   }
-  if (activeMode === "artforge") return <ToolFrame title="ArtForge tools" subtitle="Generated images can be saved into Assets and used as thumbnails, stickers, comics, model references, or publish media."><ArtForgeStudio embedded /></ToolFrame>;
+  if (activeMode === "artforge") return <ArtForgeStudio embedded initialMode={artforgeInitialMode} />;
   if (activeMode === "canvas") return <CanvasWorkspace selectedType={selectedType} />;
   if (activeMode === "assets") return <AssetLibraryPanel assets={displayAssets} assetFilter={assetFilter} setAssetFilter={setAssetFilter} bucketCounts={bucketCounts} selectedAssetId={selectedAssetId} setSelectedAssetId={setSelectedAssetId} />;
   return <PublishPackageForm publishForm={publishForm} setPublishForm={setPublishForm} selectedAsset={displayAssets.find((asset) => asset.id === selectedAssetId)} />;
