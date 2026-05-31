@@ -178,7 +178,6 @@ function CreatorStudioContent() {
           setCollapsed={setSidebarCollapsed}
         />
         <main className="space-y-4 min-w-0 overflow-x-hidden">
-          {section.id !== "production" && <SectionHeader section={section} channelName={channel?.channel_name} channel={channel} />}
           {!channel && <ChannelSetupNotice />}
           {section.id === "dashboard" && <DashboardContent stats={stats} videos={videos} assets={assets} setSection={setSection} channel={channel} user={user} />}
           {section.id === "production" && <ProductionHub />}
