@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Filter, Sparkles, Trophy } from "lucide-react";
+import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Filter, Sparkles, Trophy, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { artistCourses } from "@/lib/artistCoursesData";
-import { creatorCourses } from "@/lib/creatorCoursesData";
+import { expandedCourses, creatorCoursesExpanded, codingCoursesExpanded, artCoursesExpanded } from "@/lib/expandedCoursesData";
 import MyCourses from "@/components/learning/MyCourses";
+import LearningPathGenerator from "@/components/learning/LearningPathGenerator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const courses = [
@@ -1231,9 +1231,10 @@ export default function LearningHub() {
   const [courseType, setCourseType] = useState("creator"); // "coding", "art", or "creator"
   const [activeTab, setActiveTab] = useState("explore"); // "explore" or "mycourses"
 
-  let allCourses = courses;
-  if (courseType === "art") allCourses = artistCourses;
-  if (courseType === "creator") allCourses = creatorCourses;
+  let allCourses = expandedCourses;
+  if (courseType === "art") allCourses = artCoursesExpanded;
+  if (courseType === "coding") allCourses = codingCoursesExpanded;
+  if (courseType === "creator") allCourses = creatorCoursesExpanded;
 
   const filtered = allCourses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase()) || course.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
@@ -1257,16 +1258,21 @@ export default function LearningHub() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
-        <TabsList className="bg-[#06101f] border border-[#12305f]">
+        <TabsList className="bg-[#06101f] border border-[#12305f] flex flex-wrap">
           <TabsTrigger value="explore">Explore Courses</TabsTrigger>
           <TabsTrigger value="mycourses" className="flex items-center gap-2">
             <Trophy className="h-4 w-4" /> My Courses
+          </TabsTrigger>
+          <TabsTrigger value="pathgen" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" /> AI Path
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
       {activeTab === "mycourses" ? (
         <MyCourses />
+      ) : activeTab === "pathgen" ? (
+        <LearningPathGenerator />
       ) : (
         <>
           {/* Search & Filter */}

@@ -1,0 +1,108 @@
+{
+  "name": "TeamProject",
+  "type": "object",
+  "properties": {
+    "course_id": {
+      "type": "number",
+      "description": "Associated course ID"
+    },
+    "enrollment_id": {
+      "type": "string",
+      "description": "Associated enrollment ID"
+    },
+    "project_name": {
+      "type": "string",
+      "description": "Name of the project"
+    },
+    "description": {
+      "type": "string",
+      "description": "Project description"
+    },
+    "team_lead_email": {
+      "type": "string",
+      "description": "Email of team lead"
+    },
+    "team_members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "lead",
+              "contributor",
+              "viewer"
+            ]
+          },
+          "joined_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Team members with roles"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planning",
+        "in_progress",
+        "completed"
+      ],
+      "default": "planning",
+      "description": "Project status"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "uploaded_by": {
+            "type": "string"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Shared project files"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Project deadline"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "course_id",
+    "project_name",
+    "team_lead_email"
+  ]
+}
