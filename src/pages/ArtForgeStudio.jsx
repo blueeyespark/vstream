@@ -15,16 +15,19 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
+import TracerMode from "@/components/artforge/TracerMode";
+import HandHelperMode from "@/components/artforge/HandHelperMode";
+import Model3DMode from "@/components/artforge/Model3DMode";
 
 const CREATION_MODES = [
   { id: "image", label: "Image", icon: WandSparkles, hint: "Text → stunning art", prompt: "A cinematic neon cyberpunk dragon over a rainy city, dramatic lighting, ultra-sharp detail, 8K", color: "from-blue-500 to-violet-600", badge: null },
   { id: "2d_model", label: "2D Model", icon: Layers, hint: "Sprites & PNGTubers", prompt: "Cute streamer mascot character sheet with idle, talking, happy, angry states, clean white background, transparent PNG", color: "from-violet-500 to-fuchsia-500", badge: null },
-  { id: "3d_model", label: "3D Model", icon: Box, hint: "3D assets & scenes", prompt: "Stylized VTuber desk companion robot, rounded body, glowing blue eyes, game-ready low-poly", color: "from-orange-500 to-violet-500", badge: null },
+  { id: "3d_model", label: "3D Model", icon: Box, hint: "Text or image → 3D model", prompt: "Stylized VTuber desk companion robot, rounded body, glowing blue eyes, game-ready low-poly", color: "from-orange-500 to-violet-500", badge: null },
   { id: "video", label: "Video", icon: Film, hint: "AI-generated clips", prompt: "Camera pushes through a glowing portal into a neon cyberpunk cityscape, cinematic vertical short", color: "from-pink-500 to-violet-500", badge: "NEW" },
   { id: "sticker", label: "Sticker", icon: Smile, hint: "Transparent packs", prompt: "Kawaii blue fire mascot sticker pack with bold outline, transparent background, expressive face", color: "from-amber-400 to-orange-500", badge: null },
   { id: "comic", label: "Comic", icon: LayoutGrid, hint: "Panels & strips", prompt: "Four-panel comic about a streamer discovering a magical AI art forge, vibrant manga style", color: "from-emerald-500 to-blue-500", badge: null },
-  { id: "tracer", label: "Tracer", icon: PenTool, hint: "Pose & line guides", prompt: "Clean tracing guide for a dynamic anime running pose with construction lines and anatomy notes", color: "from-cyan-400 to-blue-500", badge: null },
-  { id: "hand_helper", label: "Hand Helper", icon: Hand, hint: "Hand references", prompt: "Hand reference sheet: open palm, fist, pointing, peace sign, holding microphone, anatomically correct", color: "from-rose-400 to-pink-600", badge: null },
+  { id: "tracer", label: "Tracer", icon: PenTool, hint: "Photo → traceable line art", prompt: "Convert to clean anime line art", color: "from-cyan-400 to-blue-500", badge: null },
+  { id: "hand_helper", label: "Hand Helper", icon: Hand, hint: "Poseable 3D hand reference", prompt: "Accurate hand drawing reference", color: "from-rose-400 to-pink-600", badge: null },
 ];
 
 const PROVIDERS = [
@@ -528,10 +531,41 @@ export default function ArtForgeStudio({ embedded = false }) {
               </Panel>
             </aside>
 
-            {/* Center: Prompt + Preview */}
+            {/* Center: Specialty modes OR generic prompt */}
             <section className="space-y-4 min-w-0">
-              {/* Prompt box */}
-              <Panel noPad>
+              {/* Specialty mode panels */}
+              {mode === "tracer" && (
+                <TracerMode
+                  isGenerating={isGenerating}
+                  selectedAsset={selectedAsset}
+                  onGenerate={({ prompt: p, referenceImages: refs, quality: q, aspect: a }) => {
+                    setPrompt(p); setReferenceImages(refs || []); setQuality(q || "high"); setAspect(a || "1:1");
+                    setTimeout(() => handleGenerate(), 50);
+                  }}
+                />
+              )}
+              {mode === "hand_helper" && (
+                <HandHelperMode
+                  isGenerating={isGenerating}
+                  selectedAsset={selectedAsset}
+                  onGenerate={({ prompt: p, quality: q, aspect: a }) => {
+                    setPrompt(p); setQuality(q || "high"); setAspect(a || "1:1");
+                    setTimeout(() => handleGenerate(), 50);
+                  }}
+                />
+              )}
+              {mode === "3d_model" && (
+                <Model3DMode
+                  isGenerating={isGenerating}
+                  selectedAsset={selectedAsset}
+                  onGenerate={({ prompt: p, provider: prov, referenceImages: refs, quality: q, aspect: a }) => {
+                    setPrompt(p); if (prov) setProvider(prov); setReferenceImages(refs || []); setQuality(q || "ultra"); setAspect(a || "1:1");
+                    setTimeout(() => handleGenerate(), 50);
+                  }}
+                />
+              )}
+              {/* Generic prompt box for all other modes */}
+              {!["tracer", "hand_helper", "3d_model"].includes(mode) && <Panel noPad>
                 <div className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -658,8 +692,10 @@ export default function ArtForgeStudio({ embedded = false }) {
                 </div>
               </Panel>
 
-              {/* Preview / Output */}
-              <Panel title="Latest Output" icon={Eye}
+              } {/* end !specialty modes */}
+
+              {/* Preview / Output — shown for all non-specialty modes */}
+              {!["tracer", "hand_helper", "3d_model"].includes(mode) && <Panel title="Latest Output" icon={Eye}
                 action={selectedAsset?.url && (
                   <div className="flex gap-2">
                     <button onClick={() => { setPrompt(selectedAsset.description || prompt); toast.success("Loaded for variation"); }}
@@ -709,7 +745,7 @@ export default function ArtForgeStudio({ embedded = false }) {
                     </div>
                   )}
                 </div>
-              </Panel>
+              </Panel>}
             </section>
 
             {/* Right: Queue + Pipeline */}
