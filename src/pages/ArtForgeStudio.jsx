@@ -622,8 +622,18 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                   }}
                 />
               )}
+              {mode === "image_edit" && (
+                <Panel title="AI Image Editor" icon={WandSparkles}>
+                  <ImageEditorMode onAssetSaved={(data) => { setSelectedAsset({ url: data.url, type: "image", name: "Edited Image" }); queryClient.invalidateQueries({ queryKey: ["artforge-assets"] }); }} />
+                </Panel>
+              )}
+              {mode === "music" && (
+                <Panel title="AI Music Generator" icon={Film}>
+                  <MusicGeneratorMode onAssetSaved={(data) => { queryClient.invalidateQueries({ queryKey: ["artforge-assets"] }); }} />
+                </Panel>
+              )}
               {/* Generic prompt box for all other modes */}
-              {!["tracer", "hand_helper", "3d_model", "2d_model"].includes(mode) && <Panel noPad>
+              {!["tracer", "hand_helper", "3d_model", "2d_model", "image_edit", "music"].includes(mode) && <Panel noPad>
                 <div className="p-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -753,7 +763,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
               } {/* end !specialty modes */}
 
               {/* Preview / Output — shown for all non-specialty modes */}
-              {!["tracer", "hand_helper", "3d_model", "2d_model"].includes(mode) && <Panel title="Latest Output" icon={Eye}
+              {!["tracer", "hand_helper", "3d_model", "2d_model", "image_edit", "music"].includes(mode) && <Panel title="Latest Output" icon={Eye}
                 action={selectedAsset?.url && (
                   <div className="flex gap-2">
                     <button onClick={() => { setPrompt(selectedAsset.description || prompt); toast.success("Loaded for variation"); }}
@@ -1125,21 +1135,8 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
         {/* ── SETTINGS TAB ─────────────────────────────────────────────── */}
         {activeTab === "settings" && (
           <motion.div key="settings" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="grid gap-4 md:grid-cols-2">
-            <Panel title="AI Provider Setup" icon={Settings}>
-              <div className="space-y-3">
-                {PROVIDERS.map((item) => (
-                  <div key={item.id} className={cls("rounded-xl border p-4", item.id === "base44" ? "border-emerald-500/30 bg-emerald-500/5" : "border-[#1a3a60]/50 bg-[#030e1f]/60")}>
-                    <div className="mb-1.5 flex items-center justify-between">
-                      <h4 className="font-black text-white">{item.label}</h4>
-                      {item.id === "base44"
-                        ? <span className="rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-black text-emerald-300">ACTIVE</span>
-                        : <span className="rounded-full border border-[#1a3a60]/50 px-2 py-0.5 text-[10px] text-blue-200/35">API KEY NEEDED</span>}
-                    </div>
-                    <p className="text-xs text-blue-200/40">{item.note}</p>
-                    {item.id !== "base44" && <p className="mt-1.5 text-[10px] text-blue-200/25">Set in: Dashboard → Settings → Environment Variables</p>}
-                  </div>
-                ))}
-              </div>
+            <Panel title="AI Provider Keys" icon={Settings}>
+              <AIProviderSettings />
             </Panel>
             <Panel title="AI Style Memory" icon={Brain}
               action={<button onClick={() => setMemory((prev) => [...prev, "New style rule…"])}
