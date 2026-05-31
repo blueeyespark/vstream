@@ -135,3 +135,9 @@ export function useCreatorOS() {
   }
   return context;
 }
+
+// Safe version — returns empty defaults when used outside the provider (e.g. in TopNav)
+export function useCreatorOSSafe() {
+  const context = useContext(CreatorOSContext);
+  return context || { channels: [], myChannels: [], channel: null, channelVideos: [], assets: [], activeChannelId: null, setActiveChannelId: () => {} };
+}

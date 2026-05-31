@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCreatorOS } from "@/lib/CreatorOSContext";
+import { useCreatorOSSafe } from "@/lib/CreatorOSContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Plus, Tv, Zap } from "lucide-react";
 
@@ -52,7 +52,7 @@ export default function ChannelSwitcher({ user }) {
   const [open, setOpen] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const queryClient = useQueryClient();
-  const { channels = [], myChannels = [], activeChannelId, setActiveChannelId } = useCreatorOS();
+  const { channels = [], myChannels = [], activeChannelId, setActiveChannelId } = useCreatorOSSafe();
 
   const activeChannel = myChannels.find((c) => c.id === activeChannelId) || myChannels[0];
 
