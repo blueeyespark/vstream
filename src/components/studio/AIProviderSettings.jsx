@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { Key, Check, Eye, EyeOff, ExternalLink, Zap, Music, Video, Image, Loader2 } from "lucide-react";
+import { Key, Check, Eye, EyeOff, ExternalLink, Zap, Music, Video, Image, Loader2, Disc3 } from "lucide-react";
 import { toast } from "sonner";
 
 const PROVIDERS = [
@@ -68,6 +68,20 @@ const PROVIDERS = [
     tags: ["Music", "Audio", "Paid"],
     free: false,
     note: "Optional: Free tier 10k chars/month, then $0.03/credit"
+  },
+  {
+    id: "suno",
+    label: "Suno AI Music (Premium)",
+    field: "suno_api_key",
+    icon: Disc3,
+    color: "from-rose-500 to-pink-500",
+    description: "Full song generation with vocals, lyrics, and any style—complete tracks in seconds",
+    url: "https://app.suno.ai/api-keys",
+    urlLabel: "suno.ai/api-keys",
+    tier: "PREMIUM",
+    tags: ["Music", "Vocals", "Songs", "Paid"],
+    free: false,
+    note: "Optional: Free tier 50 songs/month, $10/mo for unlimited"
   },
   {
     id: "runway",
@@ -189,6 +203,7 @@ export default function AIProviderSettings() {
         elevenlabs_api_key: user.elevenlabs_api_key || "",
         runway_api_key: user.runway_api_key || "",
         tripo3d_api_key: user.tripo3d_api_key || "",
+        suno_api_key: user.suno_api_key || "",
       });
     }
   }, [user]);

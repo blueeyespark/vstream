@@ -46,9 +46,38 @@ async function callElevenLabsMusic(prompt, durationMs, apiKey) {
     body: JSON.stringify({ prompt, music_length_ms: clampedMs, model_id: 'music_v1' }),
   });
   if (!res.ok) throw new Error(`ElevenLabs music failed: ${res.status} ${await res.text()}`);
-  // Returns audio binary — upload it
   const audioBlob = await res.blob();
   return audioBlob;
+}
+
+// ── Suno AI Music ─────────────────────────────────────────────────────────
+async function callSunoMusic(prompt, apiKey) {
+  if (!apiKey) throw new Error('Suno API key not configured');
+  const res = await fetch('https://api.suno.ai/api/generate/v2/', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, model: 'chirp-v3-5', continue_at: null, tags: 'ai generated' }),
+  });
+  if (!res.ok) throw new Error(`Suno submit failed: ${res.status} ${await res.text()}`);
+  const data = await res.json();
+  const ids = data?.ids || [];
+  if (!ids.length) throw new Error('Suno returned no song IDs');
+
+  // Poll for completion (max 2 min)
+  for (let i = 0; i < 24; i++) {
+    await new Promise(r => setTimeout(r, 5000));
+    const statusRes = await fetch('https://api.suno.ai/api/generate/status/', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+    });
+    if (!statusRes.ok) continue;
+    const statusData = await statusRes.json();
+    const completed = statusData?.[0];
+    if (completed?.status === 'complete') return completed?.audio_url || null;
+    if (completed?.status === 'error') throw new Error(`Suno generation failed: ${completed?.error || 'unknown'}`);
+  }
+  throw new Error('Suno generation timed out');
 }
 
 // ── Runway Gen-4 ──────────────────────────────────────────────────────────
@@ -190,20 +219,34 @@ Deno.serve(async (req) => {
     const startedAt = new Date().toISOString();
     let usedFree = false;
 
-    // Music mode → ElevenLabs or free fallback
-    if (mode === 'music' || provider === 'elevenlabs') {
-      const apiKey = userKeys.elevenlabs_api_key || Deno.env.get('ELEVENLABS_API_KEY');
+    // Music mode → Suno, ElevenLabs, or free fallback
+    if (mode === 'music' || provider === 'suno' || provider === 'elevenlabs') {
       let audioBlob;
-      if (apiKey) {
-        audioBlob = await callElevenLabsMusic(prompt, durationMs, apiKey);
+      
+      if (provider === 'suno') {
+        const apiKey = userKeys.suno_api_key || Deno.env.get('SUNO_API_KEY');
+        if (!apiKey) {
+          audioBlob = await callFreeMusic(prompt);
+          usedFree = true;
+        } else {
+          url = await callSunoMusic(prompt, apiKey);
+          type = 'audio';
+        }
       } else {
-        audioBlob = await callFreeMusic(prompt);
-        usedFree = true;
+        const apiKey = userKeys.elevenlabs_api_key || Deno.env.get('ELEVENLABS_API_KEY');
+        if (apiKey) {
+          audioBlob = await callElevenLabsMusic(prompt, durationMs, apiKey);
+        } else {
+          audioBlob = await callFreeMusic(prompt);
+          usedFree = true;
+        }
       }
-      // Upload to storage
-      const uploaded = await base44.asServiceRole.integrations.Core.UploadFile({ file: audioBlob });
-      url = uploaded?.file_url;
-      type = 'audio';
+
+      if (audioBlob) {
+        const uploaded = await base44.asServiceRole.integrations.Core.UploadFile({ file: audioBlob });
+        url = uploaded?.file_url;
+        type = 'audio';
+      }
     }
     // fal.ai provider (image or image editing) — optional premium
     else if (provider === 'fal') {

@@ -41,21 +41,23 @@ const CREATION_MODES = [
 ];
 
 const PROVIDERS = [
-  { id: "base44", label: "Base44 (Free)", note: "Built-in — no key needed", active: true, tag: "FREE", modes: ["image","2d_model","3d_model","video","sticker","comic","tracer","hand_helper"] },
-  // fal.ai — FLUX 2 family
-  { id: "fal", label: "fal.ai · FLUX 2 Pro", note: "Requires FAL_API_KEY — high quality, 8 ref images", tag: "FLUX", modes: ["image","2d_model","sticker","comic"] },
-  { id: "fal-ultra", label: "fal.ai · FLUX 2 Ultra", note: "Requires FAL_API_KEY — highest fidelity, 4MP", tag: "FLUX", modes: ["image","sticker"] },
-  { id: "fal-kontext", label: "fal.ai · FLUX Kontext", note: "Requires FAL_API_KEY — edit images with text prompts", tag: "EDIT", modes: ["image","2d_model"] },
-  { id: "fal-fast", label: "fal.ai · FLUX Schnell", note: "Requires FAL_API_KEY — sub-second, real-time", tag: "FAST", modes: ["image","sticker"] },
-  // Music
-  { id: "elevenlabs-music", label: "ElevenLabs Music", note: "Requires ELEVENLABS_API_KEY — studio-grade AI music", tag: "MUSIC", modes: ["audio"] },
-  // Video
-  { id: "runway", label: "Runway Gen-4 Turbo", note: "Requires RUNWAY_API_KEY — high-quality AI video", tag: "VIDEO", modes: ["video"] },
-  // Existing
-  { id: "openai", label: "OpenAI DALL·E 3", note: "Requires OPENAI_API_KEY", tag: null, modes: ["image","sticker"] },
-  { id: "stability", label: "Stability AI SDXL", note: "Requires STABILITY_API_KEY", tag: null, modes: ["image"] },
-  { id: "replicate", label: "Replicate Flux", note: "Requires REPLICATE_API_TOKEN + REPLICATE_IMAGE_VERSION", tag: null, modes: ["image"] },
-  { id: "tripo3d", label: "Tripo3D", note: "Best for 3D — Requires TRIPO3D_API_KEY", tag: null, modes: ["3d_model"] },
+  // ✅ FREE
+  { id: "base44", label: "Base44 (Free)", note: "Built-in — no key needed", tier: "FREE", tag: "FREE", modes: ["image","2d_model","3d_model","video","sticker","comic","tracer","hand_helper"] },
+  // fal.ai — FLUX 2 family (Premium)
+  { id: "fal", label: "fal.ai · FLUX 2 Pro", note: "Requires FAL_API_KEY — high quality, 8 ref images", tier: "PREMIUM", tag: "FLUX", modes: ["image","2d_model","sticker","comic"] },
+  { id: "fal-ultra", label: "fal.ai · FLUX 2 Ultra", note: "Requires FAL_API_KEY — highest fidelity, 4MP", tier: "PREMIUM", tag: "FLUX", modes: ["image","sticker"] },
+  { id: "fal-kontext", label: "fal.ai · FLUX Kontext", note: "Requires FAL_API_KEY — edit images with text prompts", tier: "PREMIUM", tag: "EDIT", modes: ["image","2d_model"] },
+  { id: "fal-fast", label: "fal.ai · FLUX Schnell", note: "Requires FAL_API_KEY — sub-second, real-time", tier: "PREMIUM", tag: "FAST", modes: ["image","sticker"] },
+  // Music (Premium)
+  { id: "elevenlabs-music", label: "ElevenLabs Music", note: "Requires ELEVENLABS_API_KEY — studio-grade AI music", tier: "PREMIUM", tag: "MUSIC", modes: ["audio"] },
+  { id: "suno", label: "Suno AI Music", note: "Requires SUNO_API_KEY — full songs with vocals & lyrics", tier: "PREMIUM", tag: "SONGS", modes: ["audio"] },
+  // Video (Premium)
+  { id: "runway", label: "Runway Gen-4 Turbo", note: "Requires RUNWAY_API_KEY — high-quality AI video", tier: "PREMIUM", tag: "VIDEO", modes: ["video"] },
+  // Legacy (Premium)
+  { id: "openai", label: "OpenAI DALL·E 3", note: "Requires OPENAI_API_KEY", tier: "PREMIUM", tag: null, modes: ["image","sticker"] },
+  { id: "stability", label: "Stability AI SDXL", note: "Requires STABILITY_API_KEY", tier: "PREMIUM", tag: null, modes: ["image"] },
+  { id: "replicate", label: "Replicate Flux", note: "Requires REPLICATE_API_TOKEN + REPLICATE_IMAGE_VERSION", tier: "PREMIUM", tag: null, modes: ["image"] },
+  { id: "tripo3d", label: "Tripo3D", note: "Best for 3D — Requires TRIPO3D_API_KEY", tier: "PREMIUM", tag: null, modes: ["3d_model"] },
 ];
 
 const STYLE_PRESETS = [
