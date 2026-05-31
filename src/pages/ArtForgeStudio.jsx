@@ -11,7 +11,7 @@ import {
   Zap, RefreshCw, Eye, ChevronRight, Maximize2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const CREATION_MODES = [
   { id: "image", label: "Art", icon: WandSparkles, hint: "Text or reference image to finished art", prompt: "A cinematic neon cyberpunk dragon over a rainy city, dramatic lighting, ultra-sharp detail, 8K", color: "from-blue-500 to-violet-500" },
@@ -88,6 +88,7 @@ function ModeButton({ item, active, onClick }) {
 
 export default function ArtForgeStudio({ embedded = false }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("studio");
   const [mode, setMode] = useState("image");
@@ -281,6 +282,10 @@ export default function ArtForgeStudio({ embedded = false }) {
     }
   };
 
+  useEffect(() => {
+    if (!embedded) navigate("/CreatorOS?section=artforge", { replace: true });
+  }, [embedded, navigate]);
+
   const copyPrompt = async () => { await navigator.clipboard.writeText(pipelinePrompt); toast.success("Prompt copied"); };
 
   const handleSaveProject = async () => {
@@ -307,37 +312,22 @@ export default function ArtForgeStudio({ embedded = false }) {
     { id: "providers", label: "Providers", icon: Settings },
   ];
 
-  return (
-    <div className={embedded ? "text-blue-50" : "min-h-screen bg-[#020712] text-blue-50"}>
-      {!embedded && (
-        <div className="sticky top-0 z-30 border-b border-[#1a3a60]/50 bg-[#020712]/95 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-4 px-4 py-3 lg:px-6">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#1e78ff] to-[#a855f7] shadow-lg shadow-blue-950/60">
-                <WandSparkles className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-lg font-black text-white">ArtForge AI Studio</h1>
-                  <span className="rounded-full border border-[#00c8ff]/30 bg-[#00c8ff]/10 px-2 py-0.5 text-[10px] font-black text-[#00c8ff]">BETA</span>
-                </div>
-                <p className="text-xs text-blue-200/45">AI art, video, stickers, 3D models and more</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 overflow-x-auto">
-              {tabs.map(({ id, label, icon: Icon }) => (
-                <button key={id} onClick={() => setActiveTab(id)}
-                  className={cls("flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-black transition",
-                    activeTab === id ? "border-[#1e78ff]/60 bg-[#1e78ff]/15 text-white" : "border-[#1a3a60]/50 bg-transparent text-blue-200/50 hover:border-[#1e78ff]/40 hover:text-white")}>
-                  <Icon className="h-3.5 w-3.5" />{label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+  if (!embedded) return null;
 
-      <div className={embedded ? "grid gap-4 p-3 xl:grid-cols-[260px_minmax(0,1fr)_280px]" : "mx-auto grid max-w-[1800px] gap-4 px-4 py-4 lg:px-6 xl:grid-cols-[280px_minmax(0,1fr)_300px]"}>
+  return (
+    <div className="text-blue-50">
+      {/* Tab bar shown inside Creator OS */}
+      <div className="mb-4 flex items-center gap-1.5 overflow-x-auto rounded-2xl border border-[#1a3a60]/50 bg-[#06101f]/80 p-2">
+        {tabs.map(({ id, label, icon: Icon }) => (
+          <button key={id} onClick={() => setActiveTab(id)}
+            className={cls("flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-black transition",
+              activeTab === id ? "border-[#a855f7]/60 bg-[#a855f7]/15 text-white" : "border-transparent bg-transparent text-blue-200/45 hover:text-white")}>
+            <Icon className="h-3.5 w-3.5" />{label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)_280px]">
         {/* Left sidebar */}
         <aside className="space-y-4">
           <Panel title="Creation Mode" icon={Sparkles}>
@@ -777,20 +767,7 @@ export default function ArtForgeStudio({ embedded = false }) {
             </Panel>
           )}
 
-          <Panel title="Quick Links" icon={ChevronRight}>
-            <div className="space-y-1.5">
-              {[
-                { label: "Creator Studio", href: "/CreatorOS" },
-                { label: "Media Library", href: "/MediaLibrary" },
-                { label: "Thumbnail Maker", href: "/ThumbnailMaker" },
-                { label: "Video Editor", href: "/VideoEditor" },
-              ].map(({ label, href }) => (
-                <Link key={href} to={href} className="flex items-center justify-between rounded-lg border border-[#1a3a60]/40 bg-[#030e1f]/60 px-3 py-2 text-xs font-black text-blue-200/60 transition hover:border-[#1e78ff]/40 hover:text-white">
-                  {label}<ChevronRight className="h-3 w-3" />
-                </Link>
-              ))}
-            </div>
-          </Panel>
+
         </aside>
       </div>
     </div>

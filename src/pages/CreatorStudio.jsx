@@ -7,8 +7,9 @@ import {
   CircleDollarSign, Clapperboard, Edit3, Eye, FileVideo, Folder, Gauge, Heart,
   Image, Library, MessageSquare, Mic2, MonitorUp, Play, Plus, Radio, Search,
   Settings, Sparkles, Tags, Upload, Users, Wand2, Zap, TrendingUp, Clock,
-  Video, ArrowUpRight, Star, MoreHorizontal, Layers,
+  Video, ArrowUpRight, Star, MoreHorizontal, Layers, WandSparkles,
 } from "lucide-react";
+import ArtForgeStudio from "@/pages/ArtForgeStudio";
 import ProductionHub from "@/components/studio/ProductionHub";
 import PlanningHub from "@/components/studio/PlanningHub";
 import AnalyticsHub from "@/components/studio/AnalyticsHub";
@@ -24,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const sections = [
   { id: "dashboard", label: "Dashboard", icon: Gauge, tagline: "Creator command center" },
   { id: "production", label: "Production", icon: Clapperboard, tagline: "Idea to publish pipeline" },
+  { id: "artforge", label: "ArtForge AI", icon: WandSparkles, tagline: "AI art, video, stickers, 3D" },
   { id: "live", label: "Live Room", icon: Radio, tagline: "Streams, scenes, chat, clips" },
   { id: "library", label: "Content Library", icon: Library, tagline: "Media, assets, drafts" },
   { id: "analytics", label: "Analytics", icon: BarChart3, tagline: "Growth and revenue" },
@@ -68,7 +70,10 @@ function SectionHeader({ section, channelName }) {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(0,200,255,0.14),transparent_35%),radial-gradient(circle_at_90%_0%,rgba(168,85,247,0.12),transparent_34%)]" />
         <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#1e78ff] to-[#a855f7] text-white shadow-lg shadow-blue-950/40">
+            <span className={cx("grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white shadow-lg",
+              section.id === "artforge"
+                ? "bg-gradient-to-br from-[#a855f7] to-[#ec4899] shadow-purple-950/40"
+                : "bg-gradient-to-br from-[#1e78ff] to-[#a855f7] shadow-blue-950/40")}>
               <Icon className="h-5 w-5" />
             </span>
             <div>
@@ -115,6 +120,7 @@ function CreatorStudioContent() {
           {!channel && <ChannelSetupNotice />}
           {section.id === "dashboard" && <DashboardContent stats={stats} videos={videos} assets={assets} setSection={setSection} channel={channel} />}
           {section.id === "production" && <ProductionHub />}
+          {section.id === "artforge" && <ArtForgeStudio embedded={true} />}
           {section.id === "live" && <LiveControlRoom streamForm={streamForm} setStreamForm={setStreamForm} />}
           {section.id === "library" && <ContentLibrary videos={videos} assets={assets} filter={libraryFilter} setFilter={setLibraryFilter} query={libraryQuery} setQuery={setLibraryQuery} />}
           {section.id === "analytics" && <AnalyticsSection stats={stats} />}
@@ -158,13 +164,19 @@ function CreatorSidebar({ activeSection, setSection, channel, stats }) {
             return (
               <button key={item.id} onClick={() => setSection(item.id)}
                 className={cx("group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-all",
-                  active ? "bg-[#1e78ff]/14 text-white" : "text-blue-100/55 hover:bg-[#1e78ff]/8 hover:text-white")}>
-                <Icon className={cx("h-4 w-4 shrink-0", active ? "text-[#00c8ff]" : "text-blue-300/45 group-hover:text-[#00c8ff] transition")} />
+                  item.id === "artforge"
+                    ? active ? "bg-[#a855f7]/18 text-white" : "text-purple-200/60 hover:bg-[#a855f7]/10 hover:text-purple-100"
+                    : active ? "bg-[#1e78ff]/14 text-white" : "text-blue-100/55 hover:bg-[#1e78ff]/8 hover:text-white")}>
+                <Icon className={cx("h-4 w-4 shrink-0",
+                  item.id === "artforge"
+                    ? active ? "text-[#a855f7]" : "text-purple-400/50 group-hover:text-[#a855f7] transition"
+                    : active ? "text-[#00c8ff]" : "text-blue-300/45 group-hover:text-[#00c8ff] transition")} />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-black">{item.label}</span>
                   <span className="block truncate text-[10px] text-blue-100/30">{item.tagline}</span>
                 </span>
-                {active && <div className="h-1.5 w-1.5 rounded-full bg-[#00c8ff]" />}
+                {active && <div className={cx("h-1.5 w-1.5 rounded-full", item.id === "artforge" ? "bg-[#a855f7]" : "bg-[#00c8ff]")} />}
+                {item.id === "artforge" && !active && <span className="shrink-0 rounded-full bg-[#a855f7]/20 px-1.5 py-0.5 text-[9px] font-black text-purple-300">AI</span>}
               </button>
             );
           })}
@@ -179,12 +191,7 @@ function CreatorSidebar({ activeSection, setSection, channel, stats }) {
             ))}
           </div>
         </div>
-        <div className="border-t border-[#12305f]/70 p-3">
-          <Link to="/ArtForge" className="flex items-center justify-between rounded-xl border border-[#a855f7]/30 bg-[#a855f7]/10 px-3 py-2.5 text-sm font-black text-purple-200 hover:bg-[#a855f7]/18 transition">
-            <div className="flex items-center gap-2"><Layers className="h-4 w-4 text-purple-400" /> ArtForge AI</div>
-            <ChevronRight className="h-4 w-4 text-purple-400/60" />
-          </Link>
-        </div>
+
       </Panel>
     </aside>
   );
@@ -216,7 +223,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel }) {
   const quickActions = [
     { label: "Upload Video", icon: Upload, section: "production", color: "text-[#1e78ff]", bg: "bg-[#1e78ff]/10 border-[#1e78ff]/30" },
     { label: "Go Live", icon: Radio, href: "/StreamerDashboard", color: "text-red-300", bg: "bg-red-500/8 border-red-400/25" },
-    { label: "ArtForge", icon: Wand2, href: "/ArtForge", color: "text-purple-300", bg: "bg-purple-500/8 border-purple-400/25" },
+    { label: "ArtForge AI", icon: Wand2, section: "artforge", color: "text-purple-300", bg: "bg-purple-500/8 border-purple-400/25" },
     { label: "Analytics", icon: BarChart3, section: "analytics", color: "text-emerald-300", bg: "bg-emerald-500/8 border-emerald-400/25" },
     { label: "Content Calendar", icon: Calendar, href: "/ContentCalendar", color: "text-amber-300", bg: "bg-amber-500/8 border-amber-400/25" },
     { label: "Thumbnail Maker", icon: Image, href: "/ThumbnailMaker", color: "text-cyan-300", bg: "bg-cyan-500/8 border-cyan-400/25" },
@@ -342,7 +349,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel }) {
           <Panel className="p-4">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-black text-white text-sm">Recent Assets</h3>
-              <Link to="/ArtForge" className="text-xs font-black text-[#00c8ff] hover:underline">ArtForge</Link>
+              <button onClick={() => setSection("artforge")} className="text-xs font-black text-purple-300 hover:underline">ArtForge AI →</button>
             </div>
             {recentAssets.length > 0 ? (
               <div className="space-y-2">
@@ -363,7 +370,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel }) {
             ) : (
               <div className="rounded-xl border border-dashed border-[#12305f] p-5 text-center">
                 <p className="text-xs text-blue-100/40">No assets yet</p>
-                <Link to="/ArtForge" className="mt-2 block text-xs font-black text-[#00c8ff]">Generate with ArtForge →</Link>
+                <button onClick={() => setSection("artforge")} className="mt-2 text-xs font-black text-purple-300 hover:underline">Generate with ArtForge AI →</button>
               </div>
             )}
           </Panel>
