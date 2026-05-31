@@ -170,14 +170,19 @@ function GenerationCard({ job, onClick }) {
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-export default function ArtForgeStudio({ embedded = false, initialMode = "image", hideModePicker = false }) {
+export default function ArtForgeStudio({ embedded = false, initialMode = "image", hideModePicker = false, externalTab, onTabChange }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const promptRef = useRef(null);
 
   // Core state
   const [mode, setMode] = useState(initialMode);
-  const [activeTab, setActiveTab] = useState("generate");
+  const [activeTab, setActiveTab] = useState(externalTab || "generate");
+
+  // Sync with external tab control from ProductionHub
+  useEffect(() => {
+    if (externalTab && externalTab !== activeTab) setActiveTab(externalTab);
+  }, [externalTab]);
   const [provider, setProvider] = useState("base44");
   const [prompt, setPrompt] = useState(() => CREATION_MODES.find(m => m.id === initialMode)?.prompt || CREATION_MODES[0].prompt);
 
@@ -436,17 +441,17 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
         </div>
       )}
 
-      {/* Tab bar */}
-      <div className="flex items-center gap-0.5 overflow-x-auto rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 p-1">
+      {/* Tab bar — hidden when parent (ProductionHub) controls tabs externally */}
+      {!onTabChange && <div className="flex items-center gap-0.5 overflow-x-auto rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 p-1">
         {tabs.map(({ id, label, icon: Icon, badge }) => (
-          <button key={id} onClick={() => setActiveTab(id)}
+          <button key={id} onClick={() => { setActiveTab(id); onTabChange?.(id); }}
             className={cls("relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black transition",
               activeTab === id ? "bg-[#a855f7]/20 text-white border border-[#a855f7]/40" : "text-blue-200/45 hover:text-white hover:bg-white/5 border border-transparent")}>
             <Icon className="h-3.5 w-3.5" />{label}
             {badge > 0 && <span className="ml-0.5 rounded-full bg-[#a855f7] px-1.5 py-0.5 text-[9px] font-black text-white">{badge}</span>}
           </button>
         ))}
-      </div>
+      </div>}
 
       <AnimatePresence mode="wait">
 

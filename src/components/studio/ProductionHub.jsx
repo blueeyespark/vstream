@@ -6,7 +6,7 @@ import {
   PackageCheck, Palette, PenTool, Radio, Save, Send, Smile,
   Upload, Video, WandSparkles, Zap, Film, Sparkles, ArrowRight,
   Play, FileVideo, Wand2, Grid2x2, Layers2, Brush, ScanLine,
-  LayoutGrid, Star, TrendingUp, Loader2, Circle, CheckCircle,
+  LayoutGrid, Star, TrendingUp, Loader2, Circle, CheckCircle, Settings,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import VStreamAIAssistant from "@/components/ai/VStreamAIAssistant";
@@ -108,6 +108,7 @@ export default function ProductionHub() {
   const selectedType = projectTypes.find((t) => t.id === selectedTypeId) || projectTypes[0];
   const [activeMode, setActiveMode] = useState(selectedType.mode);
   const [activeStage, setActiveStage] = useState(modeStage(selectedType.mode));
+  const [artforgeTab, setArtforgeTab] = useState("generate");
   const [assetFilter, setAssetFilter] = useState("videos");
   const [selectedAssetId, setSelectedAssetId] = useState("");
   const [draftSaved, setDraftSaved] = useState(false);
@@ -190,7 +191,12 @@ export default function ProductionHub() {
         <main className="min-w-0 space-y-2 overflow-x-hidden">
           <ProductionHeader selectedType={selectedType} activeStage={activeStage} activeMode={activeModeMeta} onNext={goNext} readinessScore={readinessScore} />
           <Panel>
-            <ModeTabs activeMode={activeMode} setMode={setMode} />
+            <ModeTabs
+              activeMode={activeMode}
+              setMode={setMode}
+              artforgeTab={artforgeTab}
+              setArtforgeTab={setArtforgeTab}
+            />
             <div className="p-3">
               <ProductionWorkspace
                 activeMode={activeMode}
@@ -204,6 +210,8 @@ export default function ProductionHub() {
                 publishForm={publishForm}
                 setPublishForm={setPublishForm}
                 artforgeInitialMode={artforgeInitialMode}
+                artforgeTab={artforgeTab}
+                setArtforgeTab={setArtforgeTab}
               />
             </div>
           </Panel>
@@ -376,7 +384,52 @@ function ProductionHeader({ selectedType, activeStage, activeMode, onNext, readi
 
 // ─── Mode Tabs ───────────────────────────────────────────────────────────────
 
-function ModeTabs({ activeMode, setMode }) {
+const artforgeTabs = [
+  { id: "generate", label: "Generate", icon: WandSparkles },
+  { id: "gallery", label: "Gallery", icon: LayoutGrid },
+  { id: "canvas", label: "Canvas", icon: Layers2 },
+  { id: "workflow", label: "Workflow", icon: Zap },
+  { id: "history", label: "History", icon: Clock },
+  { id: "settings", label: "Settings", icon: Settings },
+];
+
+function ModeTabs({ activeMode, setMode, artforgeTab, setArtforgeTab }) {
+  // When in artforge mode, show artforge's sub-tabs merged into this bar
+  if (activeMode === "artforge") {
+    return (
+      <div className="border-b border-[#1a3a60]/50 px-2.5 py-2">
+        <div className="flex gap-1 overflow-x-auto">
+          {/* Back button to exit artforge */}
+          <button
+            onClick={() => setMode("upload")}
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[#1a3a60]/40 px-2 py-1.5 text-xs font-black text-blue-100/40 hover:text-white hover:bg-[#0d1f38]/50 transition-all mr-1"
+          >
+            <ChevronRight className="h-3 w-3 rotate-180" />
+          </button>
+          <div className="h-4 w-px bg-[#1a3a60]/60 self-center mr-1" />
+          {artforgeTabs.map(({ id, label, icon: Icon }) => {
+            const active = artforgeTab === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setArtforgeTab(id)}
+                className={cx(
+                  "flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-black transition-all",
+                  active
+                    ? "border-[#a855f7]/50 bg-[#a855f7]/15 text-white"
+                    : "border-transparent text-blue-100/45 hover:border-[#1a3a60]/60 hover:text-white hover:bg-[#0d1f38]/50"
+                )}
+              >
+                <Icon className={cx("h-3.5 w-3.5", active ? "text-[#a855f7]" : "")} />
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="border-b border-[#1a3a60]/50 px-2.5 py-2">
       <div className="flex gap-1 overflow-x-auto">
@@ -407,7 +460,7 @@ function ModeTabs({ activeMode, setMode }) {
 // ─── Workspace ───────────────────────────────────────────────────────────────
 
 function ProductionWorkspace(props) {
-  const { activeMode, selectedType, displayAssets, assetFilter, setAssetFilter, bucketCounts, selectedAssetId, setSelectedAssetId, publishForm, setPublishForm, artforgeInitialMode } = props;
+  const { activeMode, selectedType, displayAssets, assetFilter, setAssetFilter, bucketCounts, selectedAssetId, setSelectedAssetId, publishForm, setPublishForm, artforgeInitialMode, artforgeTab, setArtforgeTab } = props;
 
   if (activeMode === "upload") return <ToolFrame title="Upload Source Video" subtitle="Upload connects directly to the Editor as the next step."><VideoUpload /></ToolFrame>;
   if (activeMode === "editor") return (
@@ -419,7 +472,7 @@ function ProductionWorkspace(props) {
       </div>
     </div>
   );
-  if (activeMode === "artforge") return <ArtForgeStudio embedded hideModePicker initialMode={artforgeInitialMode} />;
+  if (activeMode === "artforge") return <ArtForgeStudio embedded hideModePicker initialMode={artforgeInitialMode} externalTab={artforgeTab} onTabChange={setArtforgeTab} />;
   if (activeMode === "assets") return (
     <AssetLibraryPanel
       assets={displayAssets}
