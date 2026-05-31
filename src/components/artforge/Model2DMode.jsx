@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Layers, Loader2, Download, Sparkles, ImagePlus, X, CheckCircle2, Wand2, User, Smile, Zap } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { Layers, Loader2, Download, Sparkles, CheckCircle2, Wand2, Zap } from "lucide-react";
 import { toast } from "sonner";
 import Live2DRigPreview from "@/components/artforge/Live2DRigPreview";
+import CharacterInputPanel from "@/components/artforge/CharacterInputPanel";
 
 // ── Config ───────────────────────────────────────────────────────────────────
 
@@ -107,34 +107,18 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
   const [outfit, setOutfit] = useState("idol costume");
   const [sourceImage, setSourceImage] = useState(null);
   const [sourcePreview, setSourcePreview] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [useReference, setUseReference] = useState(false);
 
   const selected = OUTPUT_TYPES.find((t) => t.id === outputType) || OUTPUT_TYPES[0];
   const styleObj = CHARACTER_STYLES.find((s) => s.id === charStyle);
   const bodyObj = BODY_TYPES.find((b) => b.id === bodyType);
   const exprObj = EXPRESSION_PACKS.find((e) => e.id === expressionPack);
 
-  const handleImageUpload = async (files) => {
-    const file = files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => setSourcePreview(e.target.result);
-    reader.readAsDataURL(file);
-    setIsUploading(true);
-    try {
-      const res = await base44.integrations.Core.UploadFile({ file });
-      if (res?.file_url) setSourceImage(res.file_url);
-    } catch { toast.error("Upload failed"); }
-    finally { setIsUploading(false); }
-  };
-
   const buildPrompt = () => {
     const base = textPrompt.trim() || `${styleObj?.label} ${bodyObj?.label} character`;
     const exprLine = exprObj && exprObj.states.length
       ? `Expression states: ${exprObj.states.join(", ")}.`
       : "";
-    const refLine = useReference && sourceImage ? "Match the reference image's character design as closely as possible." : "";
+    const refLine = sourceImage ? "Match the reference image's character design as closely as possible." : "";
 
     return [
       base,
@@ -200,21 +184,18 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
           </div>
         </div>
 
-        {/* Character description */}
-        <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
-          <p className="mb-2 text-xs font-black uppercase tracking-widest text-blue-200/50">Character Description</p>
-          <textarea value={textPrompt} onChange={(e) => setTextPrompt(e.target.value)} rows={3}
-            placeholder="e.g. cute anime idol singer, long twintails, pastel pink dress, big expressive eyes…"
-            className="w-full resize-none rounded-xl border border-[#1a3a60]/60 bg-[#030e1f] p-3 text-sm text-white outline-none focus:border-violet-500/60 placeholder:text-blue-200/20" />
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {["anime idol", "fantasy mage", "cyberpunk hacker", "forest spirit", "vtuber cat girl"].map((ex) => (
-              <button key={ex} onClick={() => setTextPrompt(ex)}
-                className="rounded-full border border-[#1a3a60]/50 px-2.5 py-1 text-[11px] text-blue-200/40 hover:text-white hover:border-violet-500/40 transition">
-                {ex}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Character description — text, photo, or speech */}
+        <CharacterInputPanel
+          textPrompt={textPrompt}
+          setTextPrompt={setTextPrompt}
+          sourceImage={sourceImage}
+          setSourceImage={setSourceImage}
+          sourcePreview={sourcePreview}
+          setSourcePreview={setSourcePreview}
+          accentColor="violet"
+          placeholder="e.g. cute anime idol singer, long twintails, pastel pink dress, big expressive eyes…"
+          quickExamples={["anime idol", "fantasy mage", "cyberpunk hacker", "forest spirit", "vtuber cat girl"]}
+        />
 
         {/* Character customization */}
         <div className="grid gap-3 md:grid-cols-2">
@@ -290,48 +271,7 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
           </div>
         )}
 
-        {/* Reference image toggle */}
-        <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-black uppercase tracking-widest text-blue-200/50">Reference Image</p>
-            <button onClick={() => setUseReference(!useReference)}
-              className={`rounded-full border px-3 py-1 text-xs font-black transition ${useReference ? "border-violet-500/60 bg-violet-500/20 text-white" : "border-[#1a3a60]/60 text-blue-200/40 hover:text-white"}`}>
-              {useReference ? "ON" : "OFF"}
-            </button>
-          </div>
-          {useReference && (
-            <div onDrop={(e) => { e.preventDefault(); handleImageUpload(e.dataTransfer.files); }}
-              onDragOver={(e) => e.preventDefault()}
-              className="rounded-xl border-2 border-dashed border-violet-500/30 bg-violet-500/5 hover:border-violet-500/50 transition">
-              {sourcePreview ? (
-                <div className="relative">
-                  <img src={sourcePreview} alt="reference" className="w-full max-h-48 object-contain rounded-xl" />
-                  <button onClick={() => { setSourceImage(null); setSourcePreview(null); }}
-                    className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 text-white hover:bg-red-600 transition">
-                    <X className="h-4 w-4" />
-                  </button>
-                  {isUploading && (
-                    <div className="absolute inset-0 grid place-items-center rounded-xl bg-black/50">
-                      <Loader2 className="h-8 w-8 animate-spin text-violet-400" />
-                    </div>
-                  )}
-                  {sourceImage && !isUploading && (
-                    <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-emerald-500/80 px-2 py-1 text-[10px] font-black text-white">
-                      <CheckCircle2 className="h-3 w-3" /> Ready
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <label className="flex cursor-pointer flex-col items-center gap-2 p-6">
-                  <ImagePlus className="h-8 w-8 text-violet-400/60" />
-                  <p className="text-sm font-black text-white">Upload reference</p>
-                  <p className="text-xs text-blue-200/35">Character or concept art to match</p>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e.target.files)} />
-                </label>
-              )}
-            </div>
-          )}
-        </div>
+
 
         {/* Generate */}
         <button onClick={handleGenerate} disabled={isGenerating}

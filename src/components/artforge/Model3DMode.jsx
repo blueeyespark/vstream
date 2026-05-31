@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import {
-  Box, Loader2, Download, Zap, ImagePlus, X, CheckCircle2,
-  Play, RotateCcw, Maximize2, Layers, Sparkles, Camera, Eye
+  Box, Loader2, Download, Zap, CheckCircle2,
+  RotateCcw, Layers, Sparkles, Camera, Eye
 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import CharacterInputPanel from "@/components/artforge/CharacterInputPanel";
 import { toast } from "sonner";
 import * as THREE from "three";
 import Model3DRigPreview from "@/components/artforge/Model3DRigPreview";
@@ -226,7 +226,6 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
   const [selectedFormats, setSelectedFormats] = useState(["GLB"]);
   const [sourceImage, setSourceImage] = useState(null);
   const [sourcePreview, setSourcePreview] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [viewerKey] = useState(0);
 
   const preset = CHARACTER_PRESETS.find((p) => p.id === selectedPreset);
@@ -235,26 +234,11 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
     prev.includes(fmt) ? (prev.length > 1 ? prev.filter((f) => f !== fmt) : prev) : [...prev, fmt]
   );
 
-  const handleImageUpload = async (files) => {
-    const file = files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => setSourcePreview(e.target.result);
-    reader.readAsDataURL(file);
-    setIsUploading(true);
-    try {
-      const res = await base44.integrations.Core.UploadFile({ file });
-      if (res?.file_url) setSourceImage(res.file_url);
-    } catch { toast.error("Upload failed"); }
-    finally { setIsUploading(false); }
-  };
-
   const buildPrompt = () => {
     const style = MODEL_STYLES.find((s) => s.id === modelStyle);
     const tex = TEXTURE_STYLES.find((t) => t.id === textureStyle);
     const base = inputType === "preset" ? preset?.prompt
-      : inputType === "image" ? "Convert this reference image into a high-quality 3D character model"
-      : textPrompt;
+      : (sourceImage ? "Convert this reference image into a high-quality 3D character model. " : "") + (textPrompt || "stylized 3D character");
 
     return [
       base,
@@ -268,12 +252,8 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
   };
 
   const handleGenerate = () => {
-    if (inputType === "text" && !textPrompt.trim()) {
-      toast.error("Describe your character");
-      return;
-    }
-    if (inputType === "image" && !sourceImage) {
-      toast.error("Upload a reference image first");
+    if (inputType === "text" && !textPrompt.trim() && !sourceImage) {
+      toast.error("Describe your character or upload a photo");
       return;
     }
     onGenerate({
@@ -303,7 +283,7 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
           </div>
           {/* Input tabs */}
           <div className="flex rounded-xl border border-[#1a3a60]/60 overflow-hidden text-xs font-black">
-            {[["preset", "🎭 Presets"], ["text", "📝 Text to 3D"], ["image", "🖼️ Image to 3D"]].map(([id, label]) => (
+            {[["preset", "🎭 Presets"], ["text", "✏️ Text / Speech / Photo"]].map(([id, label]) => (
               <button key={id} onClick={() => setInputType(id)}
                 className={`flex-1 py-2.5 transition ${inputType === id ? "bg-orange-500/20 text-white" : "text-blue-200/40 hover:text-white"}`}>
                 {label}
@@ -329,63 +309,19 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
           </div>
         )}
 
-        {/* Text prompt */}
+        {/* Text / Photo / Speech unified input */}
         {inputType === "text" && (
-          <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
-            <p className="mb-2 text-xs font-black uppercase tracking-widest text-blue-200/50">Character Description</p>
-            <textarea value={textPrompt} onChange={(e) => setTextPrompt(e.target.value)} rows={4}
-              placeholder="e.g. Stylized anime warrior girl with glowing sword, fantasy armor, flowing white hair, VTuber-style expressive face…"
-              className="w-full resize-none rounded-xl border border-[#1a3a60]/60 bg-[#030e1f] p-3 text-sm text-white outline-none focus:border-orange-500/60 placeholder:text-blue-200/20" />
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {["anime girl mage", "chibi dragon rider", "cyberpunk idol", "fantasy knight"].map((ex) => (
-                <button key={ex} onClick={() => setTextPrompt(ex)}
-                  className="rounded-full border border-[#1a3a60]/50 px-2.5 py-1 text-[11px] text-blue-200/40 hover:text-white hover:border-orange-500/40 transition">
-                  {ex}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Image upload */}
-        {inputType === "image" && (
-          <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
-            <p className="mb-3 text-xs font-black uppercase tracking-widest text-blue-200/50">Reference Image</p>
-            <div onDrop={(e) => { e.preventDefault(); handleImageUpload(e.dataTransfer.files); }}
-              onDragOver={(e) => e.preventDefault()}
-              className="rounded-xl border-2 border-dashed border-orange-500/30 bg-orange-500/5 hover:border-orange-500/50 transition">
-              {sourcePreview ? (
-                <div className="relative">
-                  <img src={sourcePreview} alt="source" className="w-full max-h-56 object-contain rounded-xl" />
-                  <button onClick={() => { setSourceImage(null); setSourcePreview(null); }}
-                    className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 text-white hover:bg-red-600 transition">
-                    <X className="h-4 w-4" />
-                  </button>
-                  {isUploading && (
-                    <div className="absolute inset-0 grid place-items-center rounded-xl bg-black/50">
-                      <Loader2 className="h-8 w-8 animate-spin text-orange-400" />
-                    </div>
-                  )}
-                  {sourceImage && !isUploading && (
-                    <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-emerald-500/80 px-2 py-1 text-[10px] font-black text-white">
-                      <CheckCircle2 className="h-3 w-3" /> Ready
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <label className="flex cursor-pointer flex-col items-center gap-3 p-8">
-                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-orange-500/15 text-orange-400">
-                    <ImagePlus className="h-6 w-6" />
-                  </div>
-                  <div className="text-center">
-                    <p className="font-black text-white">Drop image or click to upload</p>
-                    <p className="mt-0.5 text-xs text-blue-200/35">Front-facing character reference works best</p>
-                  </div>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e.target.files)} />
-                </label>
-              )}
-            </div>
-          </div>
+          <CharacterInputPanel
+            textPrompt={textPrompt}
+            setTextPrompt={setTextPrompt}
+            sourceImage={sourceImage}
+            setSourceImage={setSourceImage}
+            sourcePreview={sourcePreview}
+            setSourcePreview={setSourcePreview}
+            accentColor="orange"
+            placeholder="e.g. Stylized anime warrior girl with glowing sword, fantasy armor, flowing white hair…"
+            quickExamples={["anime girl mage", "chibi dragon rider", "cyberpunk idol", "fantasy knight"]}
+          />
         )}
 
         {/* Style options */}
