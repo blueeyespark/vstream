@@ -126,14 +126,14 @@ function SectionHeader({ section, channelName, channel }) {
               <p className="text-sm text-blue-100/50">{section.tagline}{channelName ? ` · ${channelName}` : ""}</p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mt-1 lg:mt-0">
             <Link to="/CreatorOS?section=production"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#1e78ff] px-4 py-2 text-sm font-black text-white hover:bg-[#3d8fff] transition">
-              <Upload className="h-4 w-4" /> Upload
+              className="inline-flex items-center gap-2 rounded-xl bg-[#1e78ff] px-3 py-2 text-xs font-black text-white hover:bg-[#3d8fff] transition">
+              <Upload className="h-3.5 w-3.5" /> Upload
             </Link>
             <Link to="/StreamerDashboard"
-              className="inline-flex items-center gap-2 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-2 text-sm font-black text-red-100 hover:bg-red-500/18 transition">
-              <Radio className="h-4 w-4" /> Go Live
+              className="inline-flex items-center gap-2 rounded-xl border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-100 hover:bg-red-500/18 transition">
+              <Radio className="h-3.5 w-3.5" /> Go Live
             </Link>
             {channel && (
               <Link to={`/Channel?id=${channel.id}`}
@@ -147,6 +147,9 @@ function SectionHeader({ section, channelName, channel }) {
     </Panel>
   );
 }
+
+// Flat list of sections for mobile tab scrolling
+const mobileNavItems = sections; // reuse the same flat array
 
 function CreatorStudioContent() {
   const { user } = useAuth();
@@ -167,7 +170,34 @@ function CreatorStudioContent() {
       <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(30,120,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(30,120,255,0.04)_1px,transparent_1px)] bg-[size:44px_44px]" />
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(30,120,255,0.14),transparent_34%),radial-gradient(circle_at_83%_16%,rgba(168,85,247,0.12),transparent_32%)]" />
 
-      <div className={cx("mx-auto grid max-w-[1920px] gap-4 px-3 py-4 pb-12 sm:px-5 transition-all items-start",
+      {/* Mobile section tabs — visible only below xl */}
+      <div className="xl:hidden sticky top-16 z-30 bg-[#03080f]/95 backdrop-blur border-b border-[#12305f]/60 px-3 py-2">
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
+          {mobileNavItems.map((item) => {
+            const Icon = item.icon;
+            const active = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setSection(item.id)}
+                className={cx(
+                  "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-black transition",
+                  active
+                    ? item.accent === "purple" ? "border-[#a855f7]/60 bg-[#a855f7]/18 text-white"
+                      : item.accent === "red" ? "border-red-400/60 bg-red-500/18 text-white"
+                      : "border-[#00c8ff]/50 bg-[#1e78ff]/16 text-white"
+                    : "border-[#12305f] bg-transparent text-blue-100/50 hover:text-white"
+                )}
+              >
+                <Icon className={cx("h-3.5 w-3.5", active ? item.accent === "purple" ? "text-[#a855f7]" : item.accent === "red" ? "text-red-400" : "text-[#00c8ff]" : "text-current")} />
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={cx("mx-auto grid max-w-[1920px] gap-4 px-3 py-4 pb-24 sm:px-5 transition-all items-start",
         sidebarCollapsed ? "xl:grid-cols-[72px_minmax(0,1fr)]" : "xl:grid-cols-[240px_minmax(0,1fr)]")}>
         <CreatorSidebar
           activeSection={activeSection}
@@ -204,7 +234,7 @@ export default function CreatorStudio() {
 
 function CreatorSidebar({ activeSection, setSection, channel, stats, collapsed, setCollapsed }) {
   return (
-    <aside className="xl:sticky xl:top-20 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto">
+    <aside className="hidden xl:block xl:sticky xl:top-20 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto">
       <Panel className="overflow-hidden">
         {/* Channel header */}
         <div className="border-b border-[#12305f]/70 p-3">
@@ -445,7 +475,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
               <h3 className="font-black text-white">Content Pipeline</h3>
               <button onClick={() => setSection("production")} className="text-xs font-black text-[#00c8ff] hover:underline">Open Studio →</button>
             </div>
-            <div className="grid gap-2 grid-cols-5">
+            <div className="grid gap-2 grid-cols-3 sm:grid-cols-5">
               {[
                 { stage: "Idea", desc: "Capture concepts", icon: Lightbulb, color: "text-amber-300 bg-amber-500/10 border-amber-500/20" },
                 { stage: "Create", desc: "Record or generate", icon: Camera, color: "text-[#00c8ff] bg-[#00c8ff]/10 border-[#00c8ff]/20" },
