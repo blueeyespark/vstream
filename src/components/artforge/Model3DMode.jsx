@@ -6,6 +6,7 @@ import {
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import * as THREE from "three";
+import Model3DRigPreview from "@/components/artforge/Model3DRigPreview";
 
 // ── Config ──────────────────────────────────────────────────────────────────
 
@@ -443,14 +444,22 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
 
       {/* Right — 3D viewer */}
       <div className="space-y-3">
-        {/* Viewer */}
-        <div className="rounded-2xl border border-orange-500/20 bg-[#030e1f] overflow-hidden" style={{ height: 380 }}>
-          <TurntableViewer key={viewerKey} isGenerating={isGenerating} prompt={
-            inputType === "preset" ? preset?.label
-            : inputType === "text" ? textPrompt
-            : "Reference image"
-          } modelUrl={selectedAsset?.url} />
-        </div>
+        {/* Interactive 3D rig preview */}
+        {!isGenerating && <Model3DRigPreview preset={selectedPreset} />}
+
+        {/* Generating overlay */}
+        {isGenerating && (
+          <div className="rounded-2xl border border-orange-500/20 bg-[#030e1f] overflow-hidden" style={{ height: 360 }}>
+            <div className="h-full flex flex-col items-center justify-center gap-4">
+              <div className="relative">
+                <div className="h-16 w-16 rounded-full border-4 border-[#1a3a60] border-t-orange-500 animate-spin" />
+                <Box className="absolute inset-0 m-auto h-7 w-7 text-orange-400" />
+              </div>
+              <p className="font-black text-white text-sm">Building 3D Model…</p>
+              <p className="text-xs text-blue-200/40">Tripo3D processing · ~30–60s</p>
+            </div>
+          </div>
+        )}
 
         {/* Preset info card */}
         {inputType === "preset" && preset && (
