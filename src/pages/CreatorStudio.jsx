@@ -167,8 +167,8 @@ function CreatorStudioContent() {
       <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(30,120,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(30,120,255,0.04)_1px,transparent_1px)] bg-[size:44px_44px]" />
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_12%_8%,rgba(30,120,255,0.14),transparent_34%),radial-gradient(circle_at_83%_16%,rgba(168,85,247,0.12),transparent_32%)]" />
 
-      <div className={cx("mx-auto grid max-w-[1920px] gap-4 px-3 py-4 sm:px-5 transition-all",
-        sidebarCollapsed ? "xl:grid-cols-[72px_minmax(0,1fr)]" : "xl:grid-cols-[260px_minmax(0,1fr)]")}>
+      <div className={cx("mx-auto grid max-w-[1920px] gap-4 px-3 py-4 pb-12 sm:px-5 transition-all items-start",
+        sidebarCollapsed ? "xl:grid-cols-[72px_minmax(0,1fr)]" : "xl:grid-cols-[240px_minmax(0,1fr)]")}>
         <CreatorSidebar
           activeSection={activeSection}
           setSection={setSection}
@@ -177,7 +177,7 @@ function CreatorStudioContent() {
           collapsed={sidebarCollapsed}
           setCollapsed={setSidebarCollapsed}
         />
-        <main className="space-y-4 min-w-0">
+        <main className="space-y-4 min-w-0 overflow-x-hidden">
           <SectionHeader section={section} channelName={channel?.channel_name} channel={channel} />
           {!channel && <ChannelSetupNotice />}
           {section.id === "dashboard" && <DashboardContent stats={stats} videos={videos} assets={assets} setSection={setSection} channel={channel} user={user} />}
@@ -205,7 +205,7 @@ export default function CreatorStudio() {
 
 function CreatorSidebar({ activeSection, setSection, channel, stats, collapsed, setCollapsed }) {
   return (
-    <aside className="xl:sticky xl:top-20 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto">
+    <aside className="xl:sticky xl:top-20 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto">
       <Panel className="overflow-hidden">
         {/* Channel header */}
         <div className="border-b border-[#12305f]/70 p-3">

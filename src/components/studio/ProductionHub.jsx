@@ -174,7 +174,7 @@ export default function ProductionHub() {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-7rem)] overflow-hidden rounded-3xl border border-[#1a3a60]/60 bg-[#030812] text-[#e8f4ff]">
+    <div className="relative rounded-3xl border border-[#1a3a60]/60 bg-[#030812] text-[#e8f4ff]">
       {/* Background grid */}
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(30,120,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(30,120,255,0.05)_1px,transparent_1px)] bg-[size:48px_48px]" />
       {/* Glow orbs */}
@@ -183,7 +183,7 @@ export default function ProductionHub() {
         <div className="absolute -top-16 right-1/4 h-64 w-64 rounded-full bg-violet-600/12 blur-3xl" />
       </div>
 
-      <div className="relative z-10 grid gap-4 p-3 xl:p-4 lg:grid-cols-[260px_minmax(0,1fr)] 2xl:grid-cols-[260px_minmax(0,1fr)_300px]">
+      <div className="relative z-10 grid gap-4 p-3 xl:p-4 lg:grid-cols-[240px_minmax(0,1fr)] 2xl:grid-cols-[240px_minmax(0,1fr)_280px] items-start">
         {/* Sidebar */}
         <ProductionSidebar
           selectedTypeId={selectedTypeId}
@@ -193,11 +193,11 @@ export default function ProductionHub() {
         />
 
         {/* Main workspace */}
-        <main className="min-w-0 space-y-3">
+        <main className="min-w-0 space-y-3 overflow-x-hidden">
           <ProductionHeader selectedType={selectedType} activeStage={activeStage} activeMode={activeModeMeta} onNext={goNext} readinessScore={readinessScore} />
           <Panel>
             <ModeTabs activeMode={activeMode} setMode={setMode} />
-            <div className="min-h-0 p-3 lg:p-4">
+            <div className="p-3 lg:p-4">
               <ProductionWorkspace
                 activeMode={activeMode}
                 selectedType={selectedType}
@@ -248,7 +248,7 @@ function modeStage(modeId) {
 
 function ProductionSidebar({ selectedTypeId, onSelectType, activeStage, setActiveStage }) {
   return (
-    <aside className="space-y-3 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-0.5">
+    <aside className="space-y-3 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto lg:pr-0.5 scrollbar-thin">
       {/* Project Types */}
       <Panel>
         <div className="border-b border-[#1a3a60]/50 px-4 py-3">
@@ -586,7 +586,7 @@ function ProductionRightRail(props) {
   const group = projectTypeGroups.find((g) => g.types.some((t) => t.id === selectedType.id));
 
   return (
-    <aside className="space-y-3 lg:col-span-2 2xl:col-span-1 2xl:sticky 2xl:top-20 2xl:max-h-[calc(100vh-6rem)] 2xl:overflow-y-auto">
+    <aside className="space-y-3 lg:col-span-2 2xl:col-span-1 2xl:sticky 2xl:top-20 2xl:max-h-[calc(100vh-5rem)] 2xl:overflow-y-auto scrollbar-thin">
       {/* Project card */}
       <Panel>
         <div className={cx("rounded-t-2xl p-4 bg-gradient-to-r", group?.color ? `bg-gradient-to-br ${group.color}` : "from-blue-600 to-violet-600")}>

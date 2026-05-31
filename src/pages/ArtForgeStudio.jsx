@@ -413,7 +413,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
   }
 
   return (
-    <div className="text-blue-50 space-y-4">
+    <div className="text-blue-50 space-y-4 min-w-0 overflow-x-hidden">
       {/* Header bar */}
       <div className="flex items-center justify-between rounded-2xl border border-[#1a3a60]/50 bg-[#06101f]/80 px-4 py-3">
         <div className="flex items-center gap-3">
