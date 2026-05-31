@@ -14,10 +14,14 @@ import {
   History, Move,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Link, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import TracerMode from "@/components/artforge/TracerMode";
 import HandHelperMode from "@/components/artforge/HandHelperMode";
 import Model3DMode from "@/components/artforge/Model3DMode";
+
+function RedirectToProduction() {
+  return <Navigate to="/CreatorStudio?section=production" replace />;
+}
 
 const CREATION_MODES = [
   { id: "image", label: "Image", icon: WandSparkles, hint: "Text → stunning art", prompt: "A cinematic neon cyberpunk dragon over a rainy city, dramatic lighting, ultra-sharp detail, 8K", color: "from-blue-500 to-violet-600", badge: null },
@@ -168,14 +172,28 @@ function GenerationCard({ job, onClick }) {
 
 export default function ArtForgeStudio({ embedded = false, initialMode = "image" }) {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const promptRef = useRef(null);
 
   // Core state
   const [mode, setMode] = useState(initialMode);
+  const [activeTab, setActiveTab] = useState("generate");
   const [provider, setProvider] = useState("base44");
   const [prompt, setPrompt] = useState(() => CREATION_MODES.find(m => m.id === initialMode)?.prompt || CREATION_MODES[0].prompt);
+
+  // Sync when parent changes initialMode (e.g. different project type selected)
+  const prevInitialMode = useRef(initialMode);
+  useEffect(() => {
+    if (initialMode !== prevInitialMode.current) {
+      prevInitialMode.current = initialMode;
+      const modeData = CREATION_MODES.find(m => m.id === initialMode);
+      if (modeData) {
+        setMode(initialMode);
+        setPrompt(modeData.prompt);
+        setActiveTab("generate");
+      }
+    }
+  }, [initialMode]);
   const [negativePrompt, setNegativePrompt] = useState("blurry, broken hands, extra fingers, watermark, low quality, distorted anatomy, text artifacts");
   const [styles, setStyles] = useState(["Cinematic"]);
   const [aspect, setAspect] = useState("16:9");
@@ -188,7 +206,6 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
   const [isEnhancing, setIsEnhancing] = useState(false);
 
   // UI state
-  const [activeTab, setActiveTab] = useState("generate");
   const [galleryView, setGalleryView] = useState("grid"); // grid | list
   const [assetSearch, setAssetSearch] = useState("");
   const [assetFilter, setAssetFilter] = useState("all");
@@ -360,9 +377,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
     if (generationCount > 1) toast.success(`✨ Batch of ${generationCount} complete!`);
   };
 
-  useEffect(() => {
-    if (!embedded) navigate("/CreatorOS?section=production", { replace: true });
-  }, [embedded, navigate]);
+
 
   const copyPrompt = async () => { await navigator.clipboard.writeText(pipelinePrompt); toast.success("Prompt copied"); };
 
@@ -392,7 +407,10 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
-  if (!embedded) return null;
+  // When accessed as a standalone page (not embedded), redirect to Production
+  if (!embedded) {
+    return <RedirectToProduction />;
+  }
 
   return (
     <div className="text-blue-50 space-y-4">

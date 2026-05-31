@@ -17,22 +17,18 @@ import {
   PackageCheck,
   Palette,
   PenTool,
-  Play,
   Radio,
   Save,
   Send,
   Smile,
-  Sparkles,
   Upload,
   Video,
   WandSparkles,
 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import VStreamAIAssistant from "@/components/ai/VStreamAIAssistant";
 import VideoUpload from "@/pages/VideoUpload";
 import VideoEditor from "@/pages/VideoEditor";
-import ThumbnailMaker from "@/pages/ThumbnailMaker";
 import IntroOutroMaker from "@/pages/IntroOutroMaker";
 import MusicEditor from "@/pages/MusicEditor";
 import ArtForgeStudio from "@/pages/ArtForgeStudio";
@@ -43,8 +39,7 @@ const assetBuckets = ["videos", "images", "thumbnails", "audio", "models", "stic
 const modes = [
   { id: "upload", label: "Upload", icon: Upload, stage: "Assets" },
   { id: "editor", label: "Editor", icon: Video, stage: "Edit" },
-  { id: "artforge", label: "ArtForge", icon: WandSparkles, stage: "Create" },
-  { id: "canvas", label: "Canvas", icon: Palette, stage: "Create" },
+  { id: "artforge", label: "ArtForge AI", icon: WandSparkles, stage: "Create" },
   { id: "assets", label: "Assets", icon: Library, stage: "Assets" },
   { id: "publish", label: "Publish", icon: Send, stage: "Publish" },
 ];
@@ -53,7 +48,7 @@ const projectTypes = [
   { id: "upload-video", label: "Upload Video", icon: Upload, format: "Long-form video", mode: "upload", path: ["Upload", "Editor", "Thumbnail", "Metadata", "Publish"] },
   { id: "edit-video", label: "Edit Video", icon: Video, format: "Video edit", mode: "editor", path: ["Select asset", "Timeline", "Audio", "Review", "Publish"] },
   { id: "generate-image", label: "Generate Image", icon: WandSparkles, format: "Image asset", mode: "artforge", path: ["Prompt", "Canvas", "Variants", "Save asset", "Use"] },
-  { id: "make-thumbnail", label: "Make Thumbnail", icon: Image, format: "Thumbnail", mode: "canvas", path: ["Art", "Text overlay", "Preview", "Attach"] },
+  { id: "make-thumbnail", label: "Make Thumbnail", icon: Image, format: "Thumbnail", mode: "artforge", path: ["Prompt", "Generate", "Preview", "Attach"] },
   { id: "create-short", label: "Create Short/Reel", icon: Clapperboard, format: "Vertical short", mode: "editor", path: ["Script", "Scenes", "Timeline", "Render", "Publish"] },
   { id: "make-sticker", label: "Make Sticker", icon: Smile, format: "Sticker pack", mode: "artforge", path: ["Prompt", "Transparent art", "Variants", "Save"] },
   { id: "make-comic", label: "Make Comic", icon: Layers, format: "Comic strip", mode: "artforge", path: ["Story beats", "Panels", "Captions", "Export"] },
@@ -156,9 +151,10 @@ export default function ProductionHub() {
   };
 
   const selectProjectType = (type) => {
+    const newArtforgeMode = artforgeModeMap[type.id] || artforgeInitialMode;
+    setArtforgeInitialMode(newArtforgeMode);
     setSelectedTypeId(type.id);
     setMode(type.mode);
-    if (artforgeModeMap[type.id]) setArtforgeInitialMode(artforgeModeMap[type.id]);
     setPublishForm((current) => ({ ...current, title: `${type.label} draft` }));
   };
 
@@ -167,10 +163,9 @@ export default function ProductionHub() {
       upload: "editor",
       editor: "assets",
       artforge: "assets",
-      canvas: "assets",
       assets: "publish",
       publish: "publish",
-    }[activeMode];
+    }[activeMode] || "assets";
     setMode(nextMode);
   };
 
@@ -337,7 +332,6 @@ function ProductionWorkspace(props) {
     );
   }
   if (activeMode === "artforge") return <ArtForgeStudio embedded initialMode={artforgeInitialMode} />;
-  if (activeMode === "canvas") return <CanvasWorkspace selectedType={selectedType} />;
   if (activeMode === "assets") return <AssetLibraryPanel assets={displayAssets} assetFilter={assetFilter} setAssetFilter={setAssetFilter} bucketCounts={bucketCounts} selectedAssetId={selectedAssetId} setSelectedAssetId={setSelectedAssetId} />;
   return <PublishPackageForm publishForm={publishForm} setPublishForm={setPublishForm} selectedAsset={displayAssets.find((asset) => asset.id === selectedAssetId)} />;
 }
@@ -354,28 +348,6 @@ function ToolFrame({ title, subtitle, compact = false, children }) {
   );
 }
 
-function CanvasWorkspace({ selectedType }) {
-  const tools = ["2D model", "3D model", "stickers", "comics", "tracer", "hand helper", "canvas", "nodes", "timeline", "providers"];
-  return (
-    <div className="rounded-2xl border border-[#12305f] bg-[radial-gradient(circle_at_50%_20%,rgba(30,120,255,0.22),transparent_34%),linear-gradient(135deg,#03080f,#071326)] p-5">
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="grid min-h-[460px] place-items-center rounded-2xl border border-dashed border-[#00c8ff]/25 bg-[#020712]/60 p-6 text-center">
-          <div>
-            <span className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl border border-[#00c8ff]/30 bg-[#00c8ff]/12 text-[#00c8ff]"><Palette className="h-7 w-7" /></span>
-            <h3 className="text-2xl font-black text-white">{selectedType.label} canvas</h3>
-            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-blue-100/58">Use this workspace for guides, overlays, model references, node planning, and timeline prep before saving assets.</p>
-            <button className="mt-5 rounded-xl border border-[#00c8ff]/30 bg-[#00c8ff]/10 px-4 py-2 text-xs font-black text-[#00c8ff]">Coming soon / connect provider</button>
-          </div>
-        </div>
-        <div className="space-y-2">
-          {tools.map((tool) => (
-            <div key={tool} className="rounded-xl border border-[#12305f] bg-[#03080f]/62 px-3 py-2 text-sm font-black capitalize text-blue-50">{tool}</div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function AssetLibraryPanel({ assets, assetFilter, setAssetFilter, bucketCounts, selectedAssetId, setSelectedAssetId }) {
   return (
