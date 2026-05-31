@@ -91,9 +91,10 @@ export default function PlannerPage() {
     },
   });
 
-  // Filter planners: owned by user or shared with user
-  const myPlanners = planners.filter(p => p.owner_email === user?.email);
-  const sharedWithMe = planners.filter(p => 
+  // Filter out ghost data: planners must have required fields and valid owner
+  const validPlanners = planners.filter(p => p.id && p.name?.trim() && p.owner_email?.trim());
+  const myPlanners = validPlanners.filter(p => p.owner_email === user?.email);
+  const sharedWithMe = validPlanners.filter(p => 
     p.owner_email !== user?.email && 
     p.shared_with?.some(s => s.email === user?.email)
   );

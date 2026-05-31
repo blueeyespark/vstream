@@ -84,8 +84,9 @@ export default function Projects() {
     },
   });
 
-  // Filter projects user has access to
-  const myProjects = projects.filter(p => 
+  // Filter out ghost data: projects must have required fields and valid owner
+  const validProjects = projects.filter(p => p.id && p.name?.trim() && p.owner_email?.trim());
+  const myProjects = validProjects.filter(p => 
     p.owner_email === user?.email || p.team_members?.includes(user?.email)
   );
 

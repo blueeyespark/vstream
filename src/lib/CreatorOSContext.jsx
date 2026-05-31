@@ -30,7 +30,7 @@ export function CreatorOSProvider({ children }) {
     // via `setActiveChannelId` from the CreatorOSProvider API.
   }, []);
 
-  const { data: channels = [] } = useQuery({
+  const { data: rawChannels = [] } = useQuery({
     queryKey: ["channels-all"],
     queryFn: () => base44.entities.Channel.list(),
     enabled: !!user?.email,
@@ -38,7 +38,7 @@ export function CreatorOSProvider({ children }) {
     gcTime: 20 * 60 * 1000,
   });
 
-  const { data: videos = [] } = useQuery({
+  const { data: rawVideos = [] } = useQuery({
     queryKey: ["videos-all", user?.email],
     queryFn: () => base44.entities.Video.list("-created_date", 120),
     enabled: !!user?.email,
@@ -46,13 +46,18 @@ export function CreatorOSProvider({ children }) {
     gcTime: 20 * 60 * 1000,
   });
 
-  const { data: assets = [] } = useQuery({
+  const { data: rawAssets = [] } = useQuery({
     queryKey: ["creator-os-assets", user?.email],
     queryFn: () => base44.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 120),
     enabled: !!user?.email,
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
   });
+
+  // Filter out ghost data
+  const channels = rawChannels.filter(c => c.id && c.channel_name?.trim() && c.creator_email?.trim());
+  const videos = rawVideos.filter(v => v.id && v.title?.trim() && v.channel_id && v.status && v.status !== "deleted" && v.status !== "uploading");
+  const assets = rawAssets.filter(a => a.id && a.name?.trim() && (a.url || a.file_url || a.thumbnail_url) && a.asset_type !== "template" && a.category !== "artforge_project");
 
   const { data: analytics = [] } = useQuery({
     queryKey: ["creator-os-analytics"],
@@ -121,8 +126,11 @@ export function CreatorOSProvider({ children }) {
       stats,
       activeChannelId,
       setActiveChannelId,
+      rawChannels,
+      rawVideos,
+      rawAssets,
     }),
-    [user, channels, videos, assets, analytics, myChannels, channel, channelVideos, readyVideos, drafts, stats, activeChannelId]
+    [user, channels, videos, assets, analytics, myChannels, channel, channelVideos, readyVideos, drafts, stats, activeChannelId, rawChannels, rawVideos, rawAssets]
   );
 
   return <CreatorOSContext.Provider value={value}>{children}</CreatorOSContext.Provider>;

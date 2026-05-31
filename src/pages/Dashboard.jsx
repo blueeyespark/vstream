@@ -557,10 +557,14 @@ export default function Dashboard() {
     refetchOnWindowFocus: false,
   });
 
-  const hasRealVideos = rawVideos.length > 0;
-  const hasRealChannels = rawChannels.length > 0;
-  const channels = hasRealChannels ? rawChannels : demoChannels;
-  const videos = (hasRealVideos ? rawVideos : demoVideos).filter((video) => video.status !== "deleted" && video.status !== "uploading");
+  // Filter out ghost data: videos & channels must have valid required fields
+  const cleanVideos = rawVideos.filter((v) => v.id && v.title?.trim() && v.channel_id && v.status && v.status !== "deleted" && v.status !== "uploading");
+  const cleanChannels = rawChannels.filter((c) => c.id && c.channel_name?.trim() && c.creator_email?.trim());
+  
+  const hasRealVideos = cleanVideos.length > 0;
+  const hasRealChannels = cleanChannels.length > 0;
+  const channels = hasRealChannels ? cleanChannels : demoChannels;
+  const videos = hasRealVideos ? cleanVideos : demoVideos;
 
   const channelMap = useMemo(() => channels.reduce((map, channel) => ({ ...map, [channel.id]: channel }), {}), [channels]);
   const liveChannels = useMemo(() => channels.filter((channel) => channel.is_live), [channels]);
@@ -569,7 +573,10 @@ export default function Dashboard() {
   const filteredVideos = useMemo(() => {
     const normalizedQuery = query.toLowerCase();
     return videos.filter((video) => {
+      // Skip if video lacks required fields
+      if (!video.id || !video.title?.trim() || !video.channel_id) return false;
       const channel = channelMap[video.channel_id];
+      if (!channel) return false;
       const haystack = `${video.title || ""} ${channel?.channel_name || ""} ${video.category || ""}`.toLowerCase();
       const matchesSearch = !normalizedQuery || haystack.includes(normalizedQuery);
       const matchesMood =
