@@ -1,12 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload, Link2, Send, Loader2, Copy,
-  FileText, RefreshCw, Bot, User, Lightbulb, Key
+  FileText, RefreshCw, Bot, User, Lightbulb, ClipboardPaste, CheckCircle2
 } from "lucide-react";
 import { toast } from "sonner";
-import OpenAIKeySetup from "./OpenAIKeySetup";
 
 function cls(...parts) { return parts.filter(Boolean).join(" "); }
 
@@ -19,31 +18,27 @@ const QUICK_QUESTIONS = [
   "What is the overall tone and sentiment of this conversation?",
 ];
 
+const MODES = [
+  { id: "paste", label: "Paste Text", icon: ClipboardPaste },
+  { id: "file", label: "Upload File", icon: Upload },
+  { id: "link", label: "Share Link", icon: Link2 },
+];
+
 export default function ChatAnalyzer() {
-  const [inputMode, setInputMode] = useState("paste"); // paste | file | link
+  const [inputMode, setInputMode] = useState("paste");
   const [chatText, setChatText] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [fileName, setFileName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingLink, setIsFetchingLink] = useState(false);
   const [chatLoaded, setChatLoaded] = useState(false);
+  const [linkFallback, setLinkFallback] = useState(false);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
-  const [openaiKey, setOpenaiKey] = useState("");
-  const [showKeySetup, setShowKeySetup] = useState(false);
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
-  // Load saved API key from user profile
-  useEffect(() => {
-    base44.auth.me().then(user => {
-      if (user?.openai_api_key) setOpenaiKey(user.openai_api_key);
-    }).catch(() => {});
-  }, []);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
   const handleFileUpload = async (file) => {
     if (!file) return;
@@ -52,7 +47,6 @@ export default function ChatAnalyzer() {
     try {
       const text = await file.text();
       setChatText(text);
-      setChatLoaded(false);
       toast.success(`Loaded ${file.name}`);
     } catch {
       toast.error("Failed to read file");
@@ -60,44 +54,34 @@ export default function ChatAnalyzer() {
     setIsLoading(false);
   };
 
-  const [linkFallback, setLinkFallback] = useState(false);
-
-  const handleLoadLink = async (autoAnalyze = false) => {
-    if (!linkUrl.trim()) return null;
+  const handleLoadLink = async () => {
+    if (!linkUrl.trim()) return;
     if (!linkUrl.match(/(?:chatgpt\.com|chat\.openai\.com)\/share\//i)) {
-      toast.error("Please enter a valid ChatGPT share link (chatgpt.com/share/...)");
-      return null;
+      toast.error("Please enter a valid ChatGPT share link");
+      return;
     }
     setIsFetchingLink(true);
     setLinkFallback(false);
     try {
-      const res = await base44.functions.invoke("fetchChatGPTShare", { url: linkUrl.trim(), openaiApiKey: openaiKey || undefined });
+      const res = await base44.functions.invoke("fetchChatGPTShare", { url: linkUrl.trim() });
       const data = res?.data || res;
       if (data?.text && data.messageCount > 0) {
-        const text = data.text;
-        const name = `"${data.title || "Conversation"}" (${data.messageCount} messages)`;
-        setChatText(text);
-        setFileName(name);
-        toast.success(`Loaded ${data.messageCount} messages`);
-        setIsFetchingLink(false);
-        if (autoAnalyze) {
-          setChatLoaded(true);
-          setMessages([{
-            role: "assistant",
-            content: `✅ Conversation loaded (${text.split(/\s+/).length.toLocaleString()} words). Ask me anything about it!`
-          }]);
-        }
-        return text;
-      } else if (data?.requiresManualPaste) {
-        setLinkFallback(true);
+        setChatText(data.text);
+        setFileName(`"${data.title || "Conversation"}" — ${data.messageCount} messages`);
+        // Auto-proceed to chat
+        setChatLoaded(true);
+        setMessages([{
+          role: "assistant",
+          content: `✅ Loaded "${data.title || "Conversation"}" (${data.messageCount} messages, ${data.text.split(/\s+/).length.toLocaleString()} words). Ask me anything about it!`
+        }]);
+        setTimeout(scrollToBottom, 100);
       } else {
-        throw new Error(data?.error || "No content found");
+        setLinkFallback(true);
       }
-    } catch (e) {
+    } catch {
       setLinkFallback(true);
     }
     setIsFetchingLink(false);
-    return null;
   };
 
   const handleLoadChat = () => {
@@ -116,7 +100,7 @@ export default function ChatAnalyzer() {
   const handleAsk = async (q) => {
     const userQ = q || question;
     if (!userQ.trim() || !chatLoaded) return;
-    
+
     setMessages(prev => [...prev, { role: "user", content: userQ }]);
     setQuestion("");
     setIsLoading(true);
@@ -124,74 +108,54 @@ export default function ChatAnalyzer() {
 
     try {
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are analyzing a ChatGPT conversation that the user has shared with you. Your job is to answer questions about this conversation accurately and helpfully.
+        prompt: `You are analyzing a ChatGPT conversation. Answer the user's question based only on what's in the conversation. Be clear, structured, and concise. Use bullet points when appropriate.
 
-=== CONVERSATION TEXT ===
+=== CONVERSATION ===
 ${chatText.slice(0, 50000)}
-=== END OF CONVERSATION ===
+=== END ===
 
-User's question: ${userQ}
-
-Answer based only on what's in the conversation. Be clear, structured, and concise. Use bullet points or numbered lists when appropriate.`,
+Question: ${userQ}`,
       });
-
       const answer = typeof res === "string" ? res : res?.text || res?.content || "No response generated.";
       setMessages(prev => [...prev, { role: "assistant", content: answer }]);
-    } catch (e) {
+    } catch {
       setMessages(prev => [...prev, { role: "assistant", content: "Sorry, I couldn't analyze that. Please try again." }]);
     }
     setIsLoading(false);
     setTimeout(scrollToBottom, 100);
   };
 
-  const copyAnswer = (text) => {
-    navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard");
-  };
-
   const reset = () => {
-    setChatText("");
-    setLinkUrl("");
-    setFileName("");
-    setChatLoaded(false);
-    setMessages([]);
-    setQuestion("");
-    setLinkFallback(false);
+    setChatText(""); setLinkUrl(""); setFileName("");
+    setChatLoaded(false); setMessages([]); setQuestion(""); setLinkFallback(false);
   };
 
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="rounded-xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-[#1e78ff]/20 border border-emerald-500/30">
-              <Bot className="h-5 w-5 text-emerald-400" />
-            </div>
-            <div>
-              <h2 className="font-black text-white">Chat Analyzer</h2>
-              <p className="text-xs text-blue-200/50">Load a ChatGPT conversation and ask questions about it</p>
-            </div>
+      <div className="rounded-xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-[#1e78ff]/20 border border-emerald-500/30">
+            <Bot className="h-5 w-5 text-emerald-400" />
           </div>
-          {chatLoaded && (
-            <button onClick={reset} className="flex items-center gap-1.5 rounded-lg border border-[#1a3a60]/60 px-3 py-1.5 text-xs font-black text-blue-200/60 hover:text-white transition">
-              <RefreshCw className="h-3.5 w-3.5" /> New Chat
-            </button>
-          )}
+          <div>
+            <h2 className="font-black text-white">Chat Analyzer</h2>
+            <p className="text-xs text-blue-200/50">Load a ChatGPT conversation and ask questions about it</p>
+          </div>
         </div>
+        {chatLoaded && (
+          <button onClick={reset} className="flex items-center gap-1.5 rounded-lg border border-[#1a3a60]/60 px-3 py-1.5 text-xs font-black text-blue-200/60 hover:text-white transition">
+            <RefreshCw className="h-3.5 w-3.5" /> New Chat
+          </button>
+        )}
       </div>
 
       {!chatLoaded ? (
-        /* Input area */
         <div className="rounded-xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4 space-y-4">
-          {/* Mode selector */}
+          {/* Mode tabs */}
           <div className="flex gap-1.5 rounded-xl border border-[#1a3a60]/50 bg-[#030e1f]/60 p-1">
-            {[
-              { id: "paste", label: "Paste Text", icon: FileText },
-              { id: "file", label: "Upload File", icon: Upload },
-              { id: "link", label: "Share Link", icon: Link2 },
-            ].map(({ id, label, icon: Icon }) => (
-              <button key={id} onClick={() => setInputMode(id)}
+            {MODES.map(({ id, label, icon: Icon }) => (
+              <button key={id} onClick={() => { setInputMode(id); setLinkFallback(false); }}
                 className={cls("flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-black transition",
                   inputMode === id ? "bg-[#1e78ff]/20 text-white border border-[#1e78ff]/30" : "text-blue-200/45 hover:text-white")}>
                 <Icon className="h-3.5 w-3.5" />{label}
@@ -202,7 +166,7 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
           {/* Paste mode */}
           {inputMode === "paste" && (
             <div>
-              <p className="mb-2 text-xs text-blue-200/50">Open your ChatGPT conversation, select all text (Ctrl+A), copy (Ctrl+C), and paste below:</p>
+              <p className="mb-2 text-xs text-blue-200/50">Open your ChatGPT conversation → select all (Ctrl+A) → copy (Ctrl+C) → paste below:</p>
               <textarea
                 value={chatText}
                 onChange={(e) => setChatText(e.target.value)}
@@ -217,7 +181,9 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
           {/* File mode */}
           {inputMode === "file" && (
             <div>
-              <p className="mb-2 text-xs text-blue-200/50">Upload a .txt or .json file exported from ChatGPT:</p>
+              <p className="mb-2 text-xs text-blue-200/50">
+                Export from ChatGPT: <strong className="text-blue-200/70">Settings → Data Controls → Export data</strong> → upload the JSON file here:
+              </p>
               <div
                 className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-[#1a3a60]/60 bg-[#030e1f]/60 p-10 cursor-pointer hover:border-[#1e78ff]/40 transition"
                 onClick={() => fileInputRef.current?.click()}
@@ -225,17 +191,17 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
                 onDrop={(e) => { e.preventDefault(); handleFileUpload(e.dataTransfer.files[0]); }}
               >
                 <Upload className="h-8 w-8 text-blue-200/30" />
-                {fileName ? (
-                  <p className="text-sm font-black text-white">{fileName}</p>
-                ) : (
-                  <p className="text-sm text-blue-200/40">Drop file here or click to browse</p>
-                )}
+                {fileName
+                  ? <p className="text-sm font-black text-white">{fileName}</p>
+                  : <p className="text-sm text-blue-200/40">Drop file here or click to browse</p>}
                 <p className="text-xs text-blue-200/25">Supports .txt, .json</p>
                 <input ref={fileInputRef} type="file" accept=".txt,.json,.md" className="hidden"
                   onChange={(e) => handleFileUpload(e.target.files[0])} />
               </div>
               {chatText && (
-                <p className="mt-2 text-xs text-emerald-400">✓ File loaded — {chatText.split(/\s+/).filter(Boolean).length.toLocaleString()} words</p>
+                <p className="mt-2 flex items-center gap-1.5 text-xs text-emerald-400">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> File loaded — {chatText.split(/\s+/).filter(Boolean).length.toLocaleString()} words
+                </p>
               )}
             </div>
           )}
@@ -243,34 +209,12 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
           {/* Link mode */}
           {inputMode === "link" && (
             <div className="space-y-3">
-              {/* API Key status bar */}
-              <div className={`flex items-center justify-between rounded-xl border px-3 py-2 ${openaiKey ? "border-emerald-500/25 bg-emerald-500/8" : "border-amber-500/25 bg-amber-500/8"}`}>
-                <div className="flex items-center gap-2">
-                  <Key className={`h-3.5 w-3.5 ${openaiKey ? "text-emerald-400" : "text-amber-400"}`} />
-                  <span className={`text-xs font-black ${openaiKey ? "text-emerald-300" : "text-amber-300"}`}>
-                    {openaiKey ? "OpenAI key connected — private chats supported" : "No API key — only public share links work"}
-                  </span>
-                </div>
-                <button onClick={() => setShowKeySetup(!showKeySetup)}
-                  className="text-xs text-blue-200/50 hover:text-white transition underline">
-                  {openaiKey ? "Change" : "Add Key"}
-                </button>
-              </div>
-
-              {showKeySetup && (
-                <OpenAIKeySetup
-                  currentKey={openaiKey}
-                  onKeySaved={(k) => { setOpenaiKey(k); setShowKeySetup(false); }}
-                />
-              )}
-
-              <p className="text-xs text-blue-200/50">Paste a ChatGPT share link:</p>
               <div className="flex gap-2">
                 <input
                   value={linkUrl}
                   onChange={(e) => { setLinkUrl(e.target.value); setLinkFallback(false); }}
                   onKeyDown={(e) => e.key === "Enter" && handleLoadLink()}
-                  placeholder="https://chatgpt.com/share/6a18ff21-8bfc-83e8-9bef-b649397ffebd"
+                  placeholder="https://chatgpt.com/share/..."
                   className="flex-1 rounded-xl border border-[#1a3a60]/60 bg-[#030e1f] px-3 py-2.5 text-sm text-white outline-none placeholder:text-blue-200/20 focus:border-[#1e78ff]/60 transition"
                 />
                 <button onClick={handleLoadLink} disabled={isFetchingLink || !linkUrl.trim()}
@@ -279,35 +223,31 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
                   {isFetchingLink ? "Loading…" : "Load"}
                 </button>
               </div>
-              <p className="text-[10px] text-blue-200/30">Supports: chatgpt.com/share/... and chat.openai.com/share/... links</p>
+              <p className="text-[10px] text-blue-200/30">Works with public share links (chatgpt.com/share/...)</p>
 
-              {/* Success state */}
-              {chatText && !linkFallback && (
-                <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-xs text-emerald-300">
-                  ✓ {fileName} — {chatText.split(/\s+/).filter(Boolean).length.toLocaleString()} words loaded. Click "Analyze Conversation" below.
-                </div>
-              )}
-
-              {/* Fallback: ChatGPT renders via JS so server can't extract it */}
+              {/* Fallback instructions */}
               {linkFallback && (
                 <div className="rounded-xl border border-amber-500/30 bg-amber-500/8 p-4 space-y-3">
-                  <p className="text-xs font-black text-amber-300">⚡ Auto-load didn't work — here's the quick fix:</p>
-                  <ol className="space-y-2 text-xs text-amber-200/75">
+                  <p className="text-xs font-black text-amber-300">⚡ Couldn't auto-load — ChatGPT uses JavaScript rendering. Here's the quick fix:</p>
+                  <ol className="space-y-2.5 text-xs text-amber-200/75">
                     <li className="flex gap-2.5 items-start">
-                      <span className="font-black text-amber-400 shrink-0 w-4">1.</span>
-                      <span>Open the link: <a href={linkUrl} target="_blank" rel="noreferrer" className="underline text-amber-300 break-all">{linkUrl}</a></span>
+                      <span className="font-black text-amber-400 shrink-0">1.</span>
+                      <span>Open the link in your browser: <a href={linkUrl} target="_blank" rel="noreferrer" className="underline text-amber-300 break-all">{linkUrl}</a></span>
                     </li>
                     <li className="flex gap-2.5 items-start">
-                      <span className="font-black text-amber-400 shrink-0 w-4">2.</span>
-                      <span>Press <kbd className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-white">Ctrl+A</kbd> (or <kbd className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-white">Cmd+A</kbd> on Mac) to select all</span>
+                      <span className="font-black text-amber-400 shrink-0">2.</span>
+                      <span>Press <kbd className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-white">Ctrl+A</kbd> to select all text</span>
                     </li>
                     <li className="flex gap-2.5 items-start">
-                      <span className="font-black text-amber-400 shrink-0 w-4">3.</span>
+                      <span className="font-black text-amber-400 shrink-0">3.</span>
                       <span>Press <kbd className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-white">Ctrl+C</kbd> to copy</span>
                     </li>
                     <li className="flex gap-2.5 items-start">
-                      <span className="font-black text-amber-400 shrink-0 w-4">4.</span>
-                      <span>Click <button onClick={() => setInputMode("paste")} className="underline font-black text-amber-300">Paste Text</button> tab and paste it there</span>
+                      <span className="font-black text-amber-400 shrink-0">4.</span>
+                      <button onClick={() => { setInputMode("paste"); setLinkFallback(false); }}
+                        className="underline font-black text-amber-300 hover:text-amber-200 transition text-left">
+                        Switch to "Paste Text" tab and paste it there →
+                      </button>
                     </li>
                   </ol>
                 </div>
@@ -315,26 +255,22 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
             </div>
           )}
 
-          {/* Load button */}
+          {/* Analyze button */}
           <button
-            onClick={async () => {
-              if (inputMode === "link" && linkUrl.trim() && !chatText.trim()) {
-                await handleLoadLink(true);
-              } else {
-                handleLoadChat();
-              }
-            }}
-            disabled={(inputMode === "link" ? (!linkUrl.trim() && !chatText.trim()) : !chatText.trim()) || isLoading || isFetchingLink}
+            onClick={inputMode === "link" && linkUrl.trim() && !chatText.trim() ? handleLoadLink : handleLoadChat}
+            disabled={(inputMode === "link" ? !linkUrl.trim() : !chatText.trim()) || isLoading || isFetchingLink}
             className="w-full rounded-xl bg-gradient-to-r from-emerald-500/80 to-[#1e78ff]/80 py-3 text-sm font-black text-white disabled:opacity-40 hover:opacity-90 transition"
           >
-            {isLoading || isFetchingLink ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : 
-              (inputMode === "link" && linkUrl.trim() && !chatText.trim()) ? "Fetch & Analyze →" : "Analyze Conversation →"}
+            {isLoading || isFetchingLink
+              ? <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+              : inputMode === "link" && linkUrl.trim() && !chatText.trim()
+              ? "Fetch & Analyze →"
+              : "Analyze Conversation →"}
           </button>
         </div>
       ) : (
         /* Chat interface */
         <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
-          {/* Messages */}
           <div className="rounded-xl border border-[#1a3a60]/70 bg-[#06101f]/90 flex flex-col" style={{ minHeight: 500 }}>
             <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ maxHeight: 520 }}>
               <AnimatePresence initial={false}>
@@ -352,7 +288,7 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
                         : "bg-[#030e1f] border border-[#1a3a60]/60 text-blue-100/80")}>
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                       {msg.role === "assistant" && i > 0 && (
-                        <button onClick={() => copyAnswer(msg.content)}
+                        <button onClick={() => { navigator.clipboard.writeText(msg.content); toast.success("Copied"); }}
                           className="mt-2 flex items-center gap-1 text-[10px] text-blue-200/30 hover:text-blue-200/60 transition">
                           <Copy className="h-3 w-3" /> Copy
                         </button>
@@ -382,8 +318,6 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
               )}
               <div ref={messagesEndRef} />
             </div>
-
-            {/* Input */}
             <div className="border-t border-[#1a3a60]/50 p-3">
               <div className="flex gap-2">
                 <input
@@ -402,7 +336,7 @@ Answer based only on what's in the conversation. Be clear, structured, and conci
             </div>
           </div>
 
-          {/* Quick Questions sidebar */}
+          {/* Sidebar */}
           <div className="space-y-3">
             <div className="rounded-xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
               <div className="flex items-center gap-2 mb-3">
