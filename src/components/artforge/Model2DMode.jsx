@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Layers, Loader2, Download, Sparkles, ImagePlus, X, CheckCircle2, Wand2, User, Smile, Zap } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import Live2DRigPreview from "@/components/artforge/Live2DRigPreview";
 
 // ── Config ───────────────────────────────────────────────────────────────────
 
@@ -343,7 +344,26 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
 
       {/* Right — preview + info */}
       <div className="space-y-3">
-        {/* Live preview card */}
+        {/* Live2D interactive rig preview */}
+        {outputType === "live2d" && (
+          <Live2DRigPreview
+            hairColorPreset={
+              hairColor.toLowerCase().includes("pink") || hairColor.toLowerCase().includes("red") ? "pink"
+              : hairColor.toLowerCase().includes("blue") ? "blue"
+              : hairColor.toLowerCase().includes("teal") || hairColor.toLowerCase().includes("green") ? "teal"
+              : hairColor.toLowerCase().includes("silver") || hairColor.toLowerCase().includes("grey") || hairColor.toLowerCase().includes("gray") ? "silver"
+              : "purple"
+            }
+            skinTone={
+              eyeColor.toLowerCase().includes("tan") ? "tan"
+              : eyeColor.toLowerCase().includes("medium") ? "medium"
+              : "fair"
+            }
+          />
+        )}
+
+        {/* Generic output preview for non-Live2D types */}
+        {outputType !== "live2d" && (
         <div className="rounded-2xl border border-violet-500/20 bg-[#030e1f] overflow-hidden">
           <div className="border-b border-[#1a3a60]/50 px-4 py-2.5 flex items-center gap-2">
             <Wand2 className="h-3.5 w-3.5 text-violet-400" />
@@ -374,6 +394,7 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
             )}
           </div>
         </div>
+        )}
 
         {/* Download section */}
         {selectedAsset?.url && (
