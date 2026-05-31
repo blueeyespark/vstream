@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Filter, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { artistCourses } from "@/lib/artistCoursesData";
 
 const courses = [
   // === BEGINNER ===
@@ -1224,8 +1225,11 @@ const resources = [
 export default function LearningHub() {
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("all");
+  const [showArtCourses, setShowArtCourses] = useState(false);
 
-  const filtered = courses.filter((course) => {
+  const allCourses = showArtCourses ? [...courses, ...artistCourses] : courses;
+
+  const filtered = allCourses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase()) || course.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
     const matchesLevel = levelFilter === "all" || course.level === levelFilter;
     return matchesSearch && matchesLevel;
@@ -1247,31 +1251,43 @@ export default function LearningHub() {
       </div>
 
       {/* Search & Filter */}
-      <div className="flex flex-col sm:flex-row gap-2">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-300/40" />
-          <Input
-            placeholder="Search courses..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 bg-[#06101f] border-[#12305f]/60 text-white"
-          />
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-300/40" />
+            <Input
+              placeholder="Search courses..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 bg-[#06101f] border-[#12305f]/60 text-white"
+            />
+          </div>
+          <div className="flex gap-1 bg-[#06101f]/90 border border-[#12305f]/60 rounded-xl p-1">
+            {["all", "beginner", "intermediate", "advanced"].map((level) => (
+              <button
+                key={level}
+                onClick={() => setLevelFilter(level)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-black capitalize transition ${
+                  levelFilter === level
+                    ? "bg-[#1e78ff]/20 text-white border border-[#1e78ff]/50"
+                    : "text-blue-100/60 hover:text-white"
+                }`}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex gap-1 bg-[#06101f]/90 border border-[#12305f]/60 rounded-xl p-1">
-          {["all", "beginner", "intermediate", "advanced"].map((level) => (
-            <button
-              key={level}
-              onClick={() => setLevelFilter(level)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-black capitalize transition ${
-                levelFilter === level
-                  ? "bg-[#1e78ff]/20 text-white border border-[#1e78ff]/50"
-                  : "text-blue-100/60 hover:text-white"
-              }`}
-            >
-              {level}
-            </button>
-          ))}
-        </div>
+        <button
+          onClick={() => setShowArtCourses(!showArtCourses)}
+          className={`px-4 py-2 rounded-lg text-sm font-black transition ${
+            showArtCourses
+              ? "bg-purple-500/20 border border-purple-500/50 text-purple-300"
+              : "bg-[#1e78ff]/12 border border-[#1e78ff]/30 text-[#00c8ff] hover:border-[#1e78ff]/50"
+          }`}
+        >
+          🎨 {showArtCourses ? "Hide" : "Show"} Comprehensive Art Courses (49+)
+        </button>
       </div>
 
       {/* Courses Grid */}
