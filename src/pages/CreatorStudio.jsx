@@ -567,9 +567,9 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
                   ))}
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <button onClick={() => {}} className="rounded-xl bg-[#1e78ff]/10 border border-[#1e78ff]/25 py-2 text-xs font-black text-[#00c8ff] hover:bg-[#1e78ff]/18 transition">
+                  <Link to="/CreatorOS?section=settings" className="rounded-xl bg-[#1e78ff]/10 border border-[#1e78ff]/25 py-2 text-xs font-black text-[#00c8ff] hover:bg-[#1e78ff]/18 transition text-center">
                     Edit Channel
-                  </button>
+                  </Link>
                   <Link to="/StreamerDashboard" className="rounded-xl bg-red-500/10 border border-red-500/20 py-2 text-xs font-black text-red-300 hover:bg-red-500/18 transition text-center">
                     Go Live
                   </Link>
