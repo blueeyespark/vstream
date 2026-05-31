@@ -458,7 +458,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
         {/* ── GENERATE TAB ─────────────────────────────────────────────── */}
         {activeTab === "generate" && (
           <motion.div key="generate" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)_300px]">
+            className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_280px]">
 
             {/* Left: Mode + Settings */}
             <aside className="space-y-4">
@@ -470,13 +470,13 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                     const active = mode === item.id;
                     return (
                       <button key={item.id} onClick={() => handleModeChange(item)}
-                        className={cls("relative group rounded-xl border p-2.5 text-left transition-all", active ? "border-[#a855f7]/60 bg-[#a855f7]/15 shadow-lg shadow-purple-950/30" : "border-[#1a3a60]/60 bg-[#03080f]/60 hover:border-[#a855f7]/30 hover:bg-[#a855f7]/5")}>
-                        {item.badge && <span className="absolute right-2 top-2 rounded-full bg-[#a855f7] px-1.5 py-0.5 text-[8px] font-black text-white">{item.badge}</span>}
-                        <div className={cls("mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br text-white", item.color)}>
-                          <Icon className="h-3.5 w-3.5" />
+                        className={cls("relative group rounded-xl border p-2 text-left transition-all", active ? "border-[#a855f7]/60 bg-[#a855f7]/15 shadow-lg shadow-purple-950/30" : "border-[#1a3a60]/60 bg-[#03080f]/60 hover:border-[#a855f7]/30 hover:bg-[#a855f7]/5")}>
+                        {item.badge && <span className="absolute right-1.5 top-1.5 rounded-full bg-[#a855f7] px-1.5 py-0.5 text-[8px] font-black text-white">{item.badge}</span>}
+                        <div className={cls("mb-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br text-white", item.color)}>
+                          <Icon className="h-3 w-3" />
                         </div>
-                        <div className="text-xs font-black text-white">{item.label}</div>
-                        <p className="mt-0.5 text-[10px] text-blue-100/38 leading-4">{item.hint}</p>
+                        <div className="text-[11px] font-black text-white leading-tight">{item.label}</div>
+                        <p className="mt-0.5 text-[9px] text-blue-100/38 leading-3 truncate">{item.hint}</p>
                       </button>
                     );
                   })}
