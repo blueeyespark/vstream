@@ -14,7 +14,7 @@ import {
   Timer, Trophy, UserCheck, Wallet, Wifi, X, ChevronDown, ChevronUp,
   BookOpen, Bookmark, Box, Camera, Cast, Film, Gift, Headphones, Map,
   Music, Package, Pause, Repeat, Share2, Shuffle, SkipForward, Sliders,
-  Tv, Volume2, Wrench, Flag, Award,
+  Tv, Volume2, Wrench, Flag, Award, Bot,
 } from "lucide-react";
 import ProductionHub from "@/components/studio/ProductionHub";
 import PlanningHub from "@/components/studio/PlanningHub";
@@ -26,6 +26,7 @@ import TeamManagement from "@/components/studio/TeamManagement";
 import ChannelEditor from "@/components/studio/ChannelEditor";
 import IntegrationsHub from "@/components/studio/IntegrationsHub";
 import LiveControlRoom from "@/components/studio/LiveControlRoom";
+import ChatAnalyzer from "@/components/studio/ChatAnalyzer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const navGroups = [
@@ -49,6 +50,12 @@ const navGroups = [
       { id: "analytics", label: "Analytics", icon: BarChart3, tagline: "Growth and revenue" },
       { id: "community", label: "Community", icon: MessageSquare, tagline: "Comments & moderation" },
       { id: "monetization", label: "Monetize", icon: CircleDollarSign, tagline: "Memberships & payouts" },
+    ],
+  },
+  {
+    label: "AI Tools",
+    items: [
+      { id: "chat_analyzer", label: "Chat Analyzer", icon: Bot, tagline: "Analyze ChatGPT convos", accent: "green" },
     ],
   },
   {
@@ -217,6 +224,7 @@ function CreatorStudioContent() {
           {section.id === "analytics" && <AnalyticsSection stats={stats} />}
           {section.id === "community" && <CommunitySection />}
           {section.id === "monetization" && <MonetizationSection stats={stats} />}
+          {section.id === "chat_analyzer" && <Panel className="p-4"><ChatAnalyzer /></Panel>}
           {section.id === "team" && <Panel className="p-4"><TeamManagement /></Panel>}
           {section.id === "settings" && <SettingsSection />}
         </main>
@@ -271,39 +279,44 @@ function CreatorSidebar({ activeSection, setSection, channel, stats, collapsed, 
                   const active = activeSection === item.id;
                   const isPurple = item.accent === "purple";
                   const isRed = item.accent === "red";
+                  const isGreen = item.accent === "green";
                   return (
-                    <button
-                      key={item.id}
-                      onClick={() => setSection(item.id)}
-                      title={collapsed ? item.label : undefined}
-                      className={cx(
-                        "group flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-all",
-                        collapsed && "justify-center",
-                        isPurple
-                          ? active ? "bg-[#a855f7]/18 text-white" : "text-purple-200/55 hover:bg-[#a855f7]/10 hover:text-purple-100"
-                          : isRed
-                          ? active ? "bg-red-500/18 text-white" : "text-red-200/55 hover:bg-red-500/10 hover:text-red-100"
-                          : active ? "bg-[#1e78ff]/14 text-white" : "text-blue-100/55 hover:bg-[#1e78ff]/8 hover:text-white"
-                      )}>
-                      <Icon className={cx(
-                        "h-4 w-4 shrink-0 transition",
-                        isPurple ? active ? "text-[#a855f7]" : "text-purple-400/50 group-hover:text-[#a855f7]"
-                        : isRed ? active ? "text-red-400" : "text-red-400/50 group-hover:text-red-400"
-                        : active ? "text-[#00c8ff]" : "text-blue-300/45 group-hover:text-[#00c8ff]"
-                      )} />
-                      {!collapsed && (
-                        <>
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-black">{item.label}</span>
-                            <span className="block truncate text-[10px] text-blue-100/28">{item.tagline}</span>
-                          </span>
-                          <div className="flex items-center gap-1.5">
-                            {active && <div className={cx("h-1.5 w-1.5 rounded-full", isPurple ? "bg-[#a855f7]" : isRed ? "bg-red-400" : "bg-[#00c8ff]")} />}
-                            {isPurple && !active && <span className="rounded-full bg-[#a855f7]/20 px-1.5 py-0.5 text-[9px] font-black text-purple-300">AI</span>}
-                            {isRed && channel?.is_live && <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[9px] font-black text-red-300 animate-pulse">LIVE</span>}
-                          </div>
-                        </>
-                      )}
+                  <button
+                    key={item.id}
+                    onClick={() => setSection(item.id)}
+                    title={collapsed ? item.label : undefined}
+                    className={cx(
+                      "group flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-all",
+                      collapsed && "justify-center",
+                      isPurple
+                        ? active ? "bg-[#a855f7]/18 text-white" : "text-purple-200/55 hover:bg-[#a855f7]/10 hover:text-purple-100"
+                        : isRed
+                        ? active ? "bg-red-500/18 text-white" : "text-red-200/55 hover:bg-red-500/10 hover:text-red-100"
+                        : isGreen
+                        ? active ? "bg-emerald-500/18 text-white" : "text-emerald-200/55 hover:bg-emerald-500/10 hover:text-emerald-100"
+                        : active ? "bg-[#1e78ff]/14 text-white" : "text-blue-100/55 hover:bg-[#1e78ff]/8 hover:text-white"
+                    )}>
+                    <Icon className={cx(
+                      "h-4 w-4 shrink-0 transition",
+                      isPurple ? active ? "text-[#a855f7]" : "text-purple-400/50 group-hover:text-[#a855f7]"
+                      : isRed ? active ? "text-red-400" : "text-red-400/50 group-hover:text-red-400"
+                      : isGreen ? active ? "text-emerald-400" : "text-emerald-400/50 group-hover:text-emerald-400"
+                      : active ? "text-[#00c8ff]" : "text-blue-300/45 group-hover:text-[#00c8ff]"
+                    )} />
+                    {!collapsed && (
+                      <>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-black">{item.label}</span>
+                          <span className="block truncate text-[10px] text-blue-100/28">{item.tagline}</span>
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {active && <div className={cx("h-1.5 w-1.5 rounded-full", isPurple ? "bg-[#a855f7]" : isRed ? "bg-red-400" : isGreen ? "bg-emerald-400" : "bg-[#00c8ff]")} />}
+                          {isPurple && !active && <span className="rounded-full bg-[#a855f7]/20 px-1.5 py-0.5 text-[9px] font-black text-purple-300">AI</span>}
+                          {isGreen && !active && <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-black text-emerald-300">AI</span>}
+                          {isRed && channel?.is_live && <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[9px] font-black text-red-300 animate-pulse">LIVE</span>}
+                        </div>
+                      </>
+                    )}
                     </button>
                   );
                 })}
