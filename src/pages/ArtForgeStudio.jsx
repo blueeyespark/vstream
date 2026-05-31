@@ -413,33 +413,28 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
   }
 
   return (
-    <div className="text-blue-50 space-y-4 min-w-0 overflow-x-hidden">
-      {/* Header bar */}
-      <div className="flex items-center justify-between rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 px-3 py-2.5">
-        <div className="flex items-center gap-3">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#a855f7] to-[#ec4899]">
-            <WandSparkles className="h-4 w-4 text-white" />
+    <div className="text-blue-50 space-y-3 min-w-0 overflow-x-hidden">
+      {/* Status bar — only shown when generating or have results */}
+      {(runningJobs.length > 0 || completedJobs.length > 0) && (
+        <div className="flex items-center justify-between rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 px-3 py-2">
+          <div className="flex items-center gap-2">
+            {runningJobs.length > 0 && (
+              <div className="flex items-center gap-2 rounded-full border border-[#a855f7]/30 bg-[#a855f7]/10 px-3 py-1">
+                <Loader2 className="h-3 w-3 animate-spin text-[#a855f7]" />
+                <span className="text-xs font-black text-purple-300">{runningJobs.length} generating…</span>
+              </div>
+            )}
+            {completedJobs.length > 0 && (
+              <span className="flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-black text-emerald-300">
+                <CheckCircle2 className="h-3 w-3" /> {completedJobs.length} created
+              </span>
+            )}
           </div>
-          <div>
-            <h2 className="text-sm font-black text-white">ArtForge AI</h2>
-            <p className="text-[10px] text-blue-200/35">{PROVIDERS.find(p => p.id === provider)?.label || "Base44 Core"}</p>
-          </div>
-          {runningJobs.length > 0 && (
-            <div className="flex items-center gap-2 rounded-full border border-[#a855f7]/30 bg-[#a855f7]/10 px-3 py-1">
-              <Loader2 className="h-3 w-3 animate-spin text-[#a855f7]" />
-              <span className="text-xs font-black text-purple-300">{runningJobs.length} generating…</span>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="hidden sm:flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-black text-emerald-300">
-            <CheckCircle2 className="h-3 w-3" /> {completedJobs.length} created
-          </span>
-          <button onClick={handleSaveProject} className="rounded-xl border border-[#1a3a60]/60 px-3 py-1.5 text-xs font-black text-blue-200/60 hover:text-white transition">
-            <Save className="mr-1.5 inline h-3 w-3" /> Save Project
+          <button onClick={handleSaveProject} className="rounded-lg border border-[#1a3a60]/60 px-2.5 py-1 text-xs font-black text-blue-200/50 hover:text-white transition">
+            <Save className="mr-1 inline h-3 w-3" /> Save
           </button>
         </div>
-      </div>
+      )}
 
       {/* Tab bar */}
       <div className="flex items-center gap-0.5 overflow-x-auto rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 p-1">
@@ -550,7 +545,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
             </aside>
 
             {/* Center: Specialty modes OR generic prompt */}
-            <section className="space-y-4 min-w-0">
+            <section className="space-y-3 min-w-0">
               {/* Specialty mode panels */}
               {mode === "tracer" && (
                 <TracerMode
@@ -811,25 +806,6 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                 <pre className="max-h-[180px] overflow-auto whitespace-pre-wrap rounded-xl border border-[#1a3a60]/40 bg-[#030e1f]/80 p-3 text-[11px] leading-5 text-blue-100/45">{pipelinePrompt}</pre>
               </Panel>
 
-              {/* AI Memory */}
-              <Panel title="AI Style Memory" icon={Brain}
-                action={<button onClick={() => setMemory((prev) => [...prev, "New rule…"])}
-                  className="rounded-lg bg-[#a855f7]/20 px-2.5 py-1.5 text-xs font-black text-purple-200 hover:bg-[#a855f7]/30">
-                  <Plus className="mr-1 inline h-3 w-3" />Add
-                </button>}>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {memory.map((item, i) => (
-                    <div key={i} className="flex gap-2 rounded-xl border border-[#1a3a60]/50 bg-[#030e1f]/60 p-2.5">
-                      <Star className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#a855f7]/70" />
-                      <textarea value={item} onChange={(e) => setMemory((prev) => prev.map((r, idx) => idx === i ? e.target.value : r))}
-                        rows={2} className="min-h-8 flex-1 resize-none bg-transparent text-xs text-white outline-none" />
-                      <button onClick={() => setMemory((prev) => prev.filter((_, idx) => idx !== i))} className="text-blue-200/25 hover:text-red-300 transition shrink-0">
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </Panel>
             </aside>
           </motion.div>
         )}
