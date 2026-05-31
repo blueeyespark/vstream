@@ -422,7 +422,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
           </div>
           <div>
             <h2 className="text-sm font-black text-white">ArtForge AI</h2>
-            <p className="text-[10px] text-blue-200/40">Powered by Base44 + {provider === "base44" ? "Built-in" : PROVIDERS.find(p => p.id === provider)?.label}</p>
+            <p className="text-[10px] text-blue-200/35">{PROVIDERS.find(p => p.id === provider)?.label || "Base44 Core"}</p>
           </div>
           {runningJobs.length > 0 && (
             <div className="flex items-center gap-2 rounded-full border border-[#a855f7]/30 bg-[#a855f7]/10 px-3 py-1">
