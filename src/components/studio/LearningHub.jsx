@@ -202,6 +202,47 @@ export default function LearningHub() {
         </div>
       </div>
 
+      {/* Drawing Learning Tools */}
+      <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-lg">✏️</span>
+          <h2 className="text-lg font-black text-white">Drawing & Tracing Tools</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {[
+            {
+              name: "Tracer",
+              desc: "Upload an image and use your phone to trace lines and shapes in real-time",
+              icon: "📱",
+              features: ["Image upload", "Live tracing", "Phone camera", "Line detection"],
+            },
+            {
+              name: "Hand Helper",
+              desc: "AI-powered drawing assistant that helps stabilize your strokes and improve technique",
+              icon: "🖐️",
+              features: ["Stroke stabilization", "Technique tips", "Real-time feedback", "Practice modes"],
+            },
+          ].map((tool) => (
+            <div key={tool.name} className="rounded-xl border border-[#12305f]/60 bg-[#03080f]/55 p-4">
+              <div className="flex items-start gap-3 mb-3">
+                <span className="text-2xl">{tool.icon}</span>
+                <div>
+                  <h3 className="font-black text-white">{tool.name}</h3>
+                  <p className="text-xs text-blue-100/60 mt-0.5">{tool.desc}</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {tool.features.map((feature) => (
+                  <span key={feature} className="rounded-full bg-[#1e78ff]/12 px-2 py-0.5 text-[9px] font-black text-[#00c8ff]">
+                    {feature}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Learning Path */}
       <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
         <div className="flex items-center gap-2 mb-4">
