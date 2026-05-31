@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { RotateCcw, Maximize2, Eye, Smile, Move, Sliders, Play, Pause } from "lucide-react";
+import AvatarExportPanel from "@/components/artforge/AvatarExportPanel";
 
 // ── Live2D Parameter ranges (mirrors Cubism spec) ───────────────────────────
 // ParamAngleX:  -30 to 30  (head yaw)
@@ -652,6 +653,20 @@ export default function Live2DRigPreview({ hairColorPreset = "purple", skinTone 
       {/* Footer hint */}
       <div className="border-t border-[#1a3a60]/40 px-3 py-2 flex items-center gap-2">
         <span className="text-[9px] text-blue-200/25">Simulates Live2D Cubism parameters · AngleX/Y · EyeOpen · MouthOpen · BrowY</span>
+      </div>
+
+      {/* Export panel */}
+      <div className="p-3 pt-0">
+        <AvatarExportPanel
+          type="live2d"
+          modelName="MyLive2DAvatar"
+          colors={{ hair: colorSet.hair, eye: colorSet.eye }}
+          params={{
+            ParamAngleX: 0, ParamAngleY: 0,
+            ParamEyeLOpen: 1, ParamEyeROpen: 1,
+            ParamMouthOpenY: 0,
+          }}
+        />
       </div>
     </div>
   );

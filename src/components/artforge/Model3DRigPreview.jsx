@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { RotateCcw, Play, Pause, Sliders, Move, Eye, Box, Zap } from "lucide-react";
+import AvatarExportPanel from "@/components/artforge/AvatarExportPanel";
 
 // ── Color presets ─────────────────────────────────────────────────────────────
 const COLOR_PRESETS = [
@@ -592,6 +593,16 @@ export default function Model3DRigPreview({ preset = "anime_girl" }) {
       {/* Footer */}
       <div className="border-t border-[#1a3a60]/40 px-3 py-2">
         <span className="text-[9px] text-blue-200/25">Three.js toon shading · Live2D-style params · Mouse-driven face tracking</span>
+      </div>
+
+      {/* Export panel */}
+      <div className="p-3 pt-0">
+        <AvatarExportPanel
+          type="3d"
+          modelName="My3DAvatar"
+          colors={{ hair: `#${colorSet.hair.toString(16).padStart(6,"0")}`, eye: `#${colorSet.eye.toString(16).padStart(6,"0")}` }}
+          params={{ angleX: liveParams.angleX, angleY: liveParams.angleY, eyeOpen: liveParams.eyeOpen }}
+        />
       </div>
     </div>
   );
