@@ -1,0 +1,127 @@
+{
+  "name": "QuizScore",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of user taking quiz"
+    },
+    "course_id": {
+      "type": "number",
+      "description": "Course ID"
+    },
+    "course_title": {
+      "type": "string",
+      "description": "Course title"
+    },
+    "lesson_number": {
+      "type": "number",
+      "description": "Which lesson/module this quiz is for"
+    },
+    "quiz_type": {
+      "type": "string",
+      "enum": [
+        "module",
+        "final"
+      ],
+      "description": "Type of quiz"
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "correct_answer": {
+            "type": "string"
+          },
+          "user_answer": {
+            "type": "string"
+          },
+          "is_correct": {
+            "type": "boolean"
+          }
+        }
+      },
+      "description": "Quiz questions and user responses"
+    },
+    "score": {
+      "type": "number",
+      "description": "Quiz score as percentage (0-100)"
+    },
+    "total_questions": {
+      "type": "number",
+      "description": "Total number of questions"
+    },
+    "correct_answers": {
+      "type": "number",
+      "description": "Number of correct answers"
+    },
+    "time_taken_seconds": {
+      "type": "number",
+      "description": "Time taken to complete quiz in seconds"
+    },
+    "passed": {
+      "type": "boolean",
+      "description": "Whether user passed (typically 70%+)"
+    },
+    "taken_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When quiz was taken"
+    }
+  },
+  "required": [
+    "user_email",
+    "course_id",
+    "quiz_type",
+    "score"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": {
+          "$ne": "guest"
+        }
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

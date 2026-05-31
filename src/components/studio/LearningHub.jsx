@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Filter, Sparkles } from "lucide-react";
+import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Filter, Sparkles, Trophy } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { artistCourses } from "@/lib/artistCoursesData";
 import { creatorCourses } from "@/lib/creatorCoursesData";
+import MyCourses from "@/components/learning/MyCourses";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const courses = [
   // === BEGINNER ===
@@ -1227,6 +1229,7 @@ export default function LearningHub() {
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("all");
   const [courseType, setCourseType] = useState("creator"); // "coding", "art", or "creator"
+  const [activeTab, setActiveTab] = useState("explore"); // "explore" or "mycourses"
 
   let allCourses = courses;
   if (courseType === "art") allCourses = artistCourses;
@@ -1253,70 +1256,83 @@ export default function LearningHub() {
         </div>
       </div>
 
-      {/* Search & Filter */}
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-300/40" />
-            <Input
-              placeholder="Search courses..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-[#06101f] border-[#12305f]/60 text-white"
-            />
-          </div>
-          <div className="flex gap-1 bg-[#06101f]/90 border border-[#12305f]/60 rounded-xl p-1">
-            {["all", "beginner", "intermediate", "advanced"].map((level) => (
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
+        <TabsList className="bg-[#06101f] border border-[#12305f]">
+          <TabsTrigger value="explore">Explore Courses</TabsTrigger>
+          <TabsTrigger value="mycourses" className="flex items-center gap-2">
+            <Trophy className="h-4 w-4" /> My Courses
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {activeTab === "mycourses" ? (
+        <MyCourses />
+      ) : (
+        <>
+          {/* Search & Filter */}
+          <div className="flex flex-col gap-2 mb-6">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-300/40" />
+                <Input
+                  placeholder="Search courses..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10 bg-[#06101f] border-[#12305f]/60 text-white"
+                />
+              </div>
+              <div className="flex gap-1 bg-[#06101f]/90 border border-[#12305f]/60 rounded-xl p-1">
+                {["all", "beginner", "intermediate", "advanced"].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setLevelFilter(level)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-black capitalize transition ${
+                      levelFilter === level
+                        ? "bg-[#1e78ff]/20 text-white border border-[#1e78ff]/50"
+                        : "text-blue-100/60 hover:text-white"
+                    }`}
+                  >
+                    {level}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-2">
               <button
-                key={level}
-                onClick={() => setLevelFilter(level)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-black capitalize transition ${
-                  levelFilter === level
-                    ? "bg-[#1e78ff]/20 text-white border border-[#1e78ff]/50"
-                    : "text-blue-100/60 hover:text-white"
+                onClick={() => setCourseType("coding")}
+                className={`px-4 py-2 rounded-lg text-sm font-black transition ${
+                  courseType === "coding"
+                    ? "bg-[#1e78ff]/20 border border-[#1e78ff]/50 text-white"
+                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
                 }`}
               >
-                {level}
+                💻 Coding Courses
               </button>
-            ))}
+              <button
+                onClick={() => setCourseType("art")}
+                className={`px-4 py-2 rounded-lg text-sm font-black transition ${
+                  courseType === "art"
+                    ? "bg-purple-500/20 border border-purple-500/50 text-purple-300"
+                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                }`}
+              >
+                🎨 Art Courses (49+)
+              </button>
+              <button
+                onClick={() => setCourseType("creator")}
+                className={`px-4 py-2 rounded-lg text-sm font-black transition ${
+                  courseType === "creator"
+                    ? "bg-amber-500/20 border border-amber-500/50 text-amber-300"
+                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                }`}
+              >
+                🚀 Creator Growth (61+)
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setCourseType("coding")}
-            className={`px-4 py-2 rounded-lg text-sm font-black transition ${
-              courseType === "coding"
-                ? "bg-[#1e78ff]/20 border border-[#1e78ff]/50 text-white"
-                : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
-            }`}
-          >
-            💻 Coding Courses
-          </button>
-          <button
-            onClick={() => setCourseType("art")}
-            className={`px-4 py-2 rounded-lg text-sm font-black transition ${
-              courseType === "art"
-                ? "bg-purple-500/20 border border-purple-500/50 text-purple-300"
-                : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
-            }`}
-          >
-            🎨 Art Courses (49+)
-          </button>
-          <button
-            onClick={() => setCourseType("creator")}
-            className={`px-4 py-2 rounded-lg text-sm font-black transition ${
-              courseType === "creator"
-                ? "bg-amber-500/20 border border-amber-500/50 text-amber-300"
-                : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
-            }`}
-          >
-            🚀 Creator Growth (61+)
-          </button>
-        </div>
-      </div>
 
-      {/* Courses Grid */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Courses Grid */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((course) => (
           <button
             key={course.id}
@@ -1639,6 +1655,9 @@ export default function LearningHub() {
           </div>
         </div>
       </div>
+
+        </>
+      )}
 
       {/* Legacy Learning Path Section - Hidden */}
       <div className="hidden">

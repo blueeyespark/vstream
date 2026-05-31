@@ -1,0 +1,132 @@
+{
+  "name": "UserEnrollment",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of enrolled user"
+    },
+    "course_id": {
+      "type": "number",
+      "description": "Course ID"
+    },
+    "course_title": {
+      "type": "string",
+      "description": "Course title for quick reference"
+    },
+    "course_type": {
+      "type": "string",
+      "enum": [
+        "coding",
+        "art",
+        "creator"
+      ],
+      "description": "Type of course"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "enrolled",
+        "in_progress",
+        "completed"
+      ],
+      "default": "enrolled",
+      "description": "Enrollment status"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "default": 0,
+      "description": "Overall completion percentage (0-100)"
+    },
+    "modules_completed": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "List of completed module indices"
+    },
+    "current_module": {
+      "type": "number",
+      "default": 0,
+      "description": "Current module index (for continue watching)"
+    },
+    "last_accessed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time user accessed this course"
+    },
+    "enrolled_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When user enrolled"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When course was completed"
+    },
+    "total_modules": {
+      "type": "number",
+      "description": "Total number of modules in course"
+    },
+    "quiz_score": {
+      "type": "number",
+      "description": "Final quiz score (0-100)"
+    },
+    "certificate_generated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether certificate has been generated"
+    }
+  },
+  "required": [
+    "user_email",
+    "course_id",
+    "course_title"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": {
+          "$ne": "guest"
+        }
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
