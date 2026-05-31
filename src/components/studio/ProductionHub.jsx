@@ -174,16 +174,10 @@ export default function ProductionHub() {
   };
 
   return (
-    <div className="relative rounded-3xl border border-[#1a3a60]/60 bg-[#030812] text-[#e8f4ff]">
-      {/* Background grid */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(30,120,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(30,120,255,0.05)_1px,transparent_1px)] bg-[size:48px_48px]" />
-      {/* Glow orbs */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-32 left-1/4 h-96 w-96 rounded-full bg-blue-600/10 blur-3xl" />
-        <div className="absolute -top-16 right-1/4 h-64 w-64 rounded-full bg-violet-600/12 blur-3xl" />
-      </div>
+    <div className="relative rounded-2xl border border-[#1a3a60]/60 bg-[#030812] text-[#e8f4ff] overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(30,120,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(30,120,255,0.04)_1px,transparent_1px)] bg-[size:48px_48px]" />
 
-      <div className="relative z-10 grid gap-4 p-3 xl:p-4 lg:grid-cols-[240px_minmax(0,1fr)] 2xl:grid-cols-[240px_minmax(0,1fr)_280px] items-start">
+      <div className="relative z-10 grid gap-3 p-3 lg:grid-cols-[220px_minmax(0,1fr)] 2xl:grid-cols-[220px_minmax(0,1fr)_260px] items-start">
         {/* Sidebar */}
         <ProductionSidebar
           selectedTypeId={selectedTypeId}
@@ -193,11 +187,11 @@ export default function ProductionHub() {
         />
 
         {/* Main workspace */}
-        <main className="min-w-0 space-y-3 overflow-x-hidden">
+        <main className="min-w-0 space-y-2 overflow-x-hidden">
           <ProductionHeader selectedType={selectedType} activeStage={activeStage} activeMode={activeModeMeta} onNext={goNext} readinessScore={readinessScore} />
           <Panel>
             <ModeTabs activeMode={activeMode} setMode={setMode} />
-            <div className="p-3 lg:p-4">
+            <div className="p-3">
               <ProductionWorkspace
                 activeMode={activeMode}
                 selectedType={selectedType}
@@ -248,21 +242,21 @@ function modeStage(modeId) {
 
 function ProductionSidebar({ selectedTypeId, onSelectType, activeStage, setActiveStage }) {
   return (
-    <aside className="space-y-3 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto lg:pr-0.5 scrollbar-thin">
+    <aside className="space-y-2 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto lg:pr-0.5">
       {/* Project Types */}
       <Panel>
-        <div className="border-b border-[#1a3a60]/50 px-4 py-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#00c8ff]">New Project</p>
-          <h2 className="mt-0.5 text-base font-black text-white">What are you making?</h2>
+        <div className="border-b border-[#1a3a60]/50 px-3 py-2.5">
+          <p className="text-[9px] font-black uppercase tracking-[0.22em] text-[#00c8ff]">New Project</p>
+          <h2 className="mt-0.5 text-sm font-black text-white">What are you making?</h2>
         </div>
-        <div className="p-2 space-y-3">
+        <div className="p-1.5 space-y-1">
           {projectTypeGroups.map((group) => (
             <div key={group.label}>
-              <div className="flex items-center gap-2 px-2 py-1">
-                <div className={cx("h-1.5 w-1.5 rounded-full bg-gradient-to-br", group.color)} />
-                <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: group.accent }}>{group.label}</span>
+              <div className="flex items-center gap-1.5 px-2 pt-2 pb-1">
+                <div className={cx("h-1.5 w-1.5 rounded-full bg-gradient-to-br shrink-0", group.color)} />
+                <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: group.accent }}>{group.label}</span>
               </div>
-              <div className="space-y-0.5">
+              <div className="space-y-px">
                 {group.types.map((type) => {
                   const Icon = type.icon;
                   const active = selectedTypeId === type.id;
@@ -271,25 +265,23 @@ function ProductionSidebar({ selectedTypeId, onSelectType, activeStage, setActiv
                       key={type.id}
                       onClick={() => onSelectType(type)}
                       className={cx(
-                        "flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-all",
+                        "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-all",
                         active
-                          ? "bg-gradient-to-r from-[#1e78ff]/20 to-[#a855f7]/10 border border-[#1e78ff]/40 text-white"
-                          : "border border-transparent text-blue-100/55 hover:border-[#1a3a60]/60 hover:bg-[#0d1f38]/60 hover:text-white"
+                          ? "bg-[#1e78ff]/15 border border-[#1e78ff]/35 text-white"
+                          : "border border-transparent text-blue-100/50 hover:bg-[#0d1f38]/60 hover:text-white"
                       )}
                     >
                       <span className={cx(
-                        "grid h-7 w-7 shrink-0 place-items-center rounded-lg transition-all",
-                        active
-                          ? `bg-gradient-to-br ${group.color} text-white shadow-lg`
-                          : "bg-[#0d1f38] text-blue-300/60"
+                        "grid h-6 w-6 shrink-0 place-items-center rounded-md transition-all",
+                        active ? `bg-gradient-to-br ${group.color} text-white` : "bg-[#0d1f38] text-blue-300/50"
                       )}>
-                        <Icon className="h-3.5 w-3.5" />
+                        <Icon className="h-3 w-3" />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[12px] font-black leading-tight">{type.label}</span>
-                        <span className="block truncate text-[10px] text-blue-100/38 leading-tight">{type.format}</span>
+                        <span className="block truncate text-[11px] font-black leading-tight">{type.label}</span>
+                        <span className="block truncate text-[9px] text-blue-100/35 leading-tight">{type.format}</span>
                       </span>
-                      {active && <ChevronRight className="h-3 w-3 shrink-0 text-[#00c8ff]" />}
+                      {active && <ChevronRight className="h-2.5 w-2.5 shrink-0 text-[#00c8ff]" />}
                     </button>
                   );
                 })}
@@ -301,10 +293,10 @@ function ProductionSidebar({ selectedTypeId, onSelectType, activeStage, setActiv
 
       {/* Workflow stages */}
       <Panel>
-        <div className="border-b border-[#1a3a60]/50 px-4 py-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#00c8ff]">Workflow</p>
+        <div className="border-b border-[#1a3a60]/50 px-3 py-2">
+          <p className="text-[9px] font-black uppercase tracking-[0.22em] text-[#00c8ff]">Workflow</p>
         </div>
-        <div className="p-2 space-y-0.5">
+        <div className="p-1.5 space-y-px">
           {workflowStages.map((stage, index) => {
             const active = activeStage === stage;
             const past = workflowStages.indexOf(activeStage) > index;
@@ -313,17 +305,17 @@ function ProductionSidebar({ selectedTypeId, onSelectType, activeStage, setActiv
                 key={stage}
                 onClick={() => setActiveStage(stage)}
                 className={cx(
-                  "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all",
-                  active ? "bg-[#00c8ff]/15 border border-[#00c8ff]/35 text-white" : "border border-transparent hover:bg-[#0d1f38]/60 text-blue-100/55 hover:text-white"
+                  "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-all",
+                  active ? "bg-[#00c8ff]/12 border border-[#00c8ff]/30 text-white" : "border border-transparent hover:bg-[#0d1f38]/60 text-blue-100/50 hover:text-white"
                 )}
               >
                 <span className={cx(
-                  "grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-black transition-all",
+                  "grid h-5 w-5 shrink-0 place-items-center rounded-full text-[10px] font-black",
                   active ? "bg-[#00c8ff] text-[#020712]" : past ? "bg-emerald-500/20 text-emerald-300" : "bg-[#0d1f38] text-blue-100/40"
                 )}>
-                  {past ? <CheckCircle className="h-3.5 w-3.5" /> : index + 1}
+                  {past ? <CheckCircle className="h-3 w-3" /> : index + 1}
                 </span>
-                <span className={cx("text-sm font-black", active ? "text-white" : "")}>{stage}</span>
+                <span className={cx("text-xs font-black", active ? "text-white" : "")}>{stage}</span>
                 {active && <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#00c8ff] animate-pulse" />}
               </button>
             );
@@ -343,45 +335,38 @@ function ProductionHeader({ selectedType, activeStage, activeMode, onNext, readi
 
   return (
     <Panel>
-      <div className="flex flex-col gap-3 p-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex items-center gap-4 min-w-0">
-          <div className={cx("grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br text-white shadow-lg", group?.color || "from-blue-500 to-violet-500")}>
-            <Icon className="h-5 w-5" />
+      <div className="flex items-center gap-3 p-3">
+        <div className={cx("grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-white", group?.color || "from-blue-500 to-violet-500")}>
+          <Icon className="h-4 w-4" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-base font-black text-white truncate">{selectedType.label}</h1>
+            <span className="rounded-full border border-[#1a3a60]/60 bg-[#0d1f38]/80 px-2 py-0.5 text-[9px] font-black text-blue-200/50">{selectedType.format}</span>
           </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-black text-white truncate">{selectedType.label}</h1>
-              <span className="rounded-full border border-[#1a3a60]/60 bg-[#0d1f38]/80 px-2 py-0.5 text-[10px] font-black text-blue-200/60">{selectedType.format}</span>
-            </div>
-            {/* Path breadcrumb */}
-            <div className="mt-1.5 flex items-center gap-1 overflow-x-auto">
-              {selectedType.path.map((step, i) => (
-                <span key={step} className="flex items-center gap-1 shrink-0">
-                  <span className={cx(
-                    "rounded-full px-2 py-0.5 text-[10px] font-black",
-                    i === stageIndex ? "bg-[#00c8ff]/20 text-[#00c8ff] border border-[#00c8ff]/30" : i < stageIndex ? "text-emerald-400/70" : "text-blue-200/30"
-                  )}>{step}</span>
-                  {i < selectedType.path.length - 1 && <ArrowRight className="h-2.5 w-2.5 text-blue-200/20 shrink-0" />}
-                </span>
-              ))}
-            </div>
+          <div className="mt-1 flex items-center gap-0.5 overflow-x-auto">
+            {selectedType.path.map((step, i) => (
+              <span key={step} className="flex items-center gap-0.5 shrink-0">
+                <span className={cx(
+                  "rounded px-1.5 py-0.5 text-[9px] font-black",
+                  i === stageIndex ? "bg-[#00c8ff]/20 text-[#00c8ff]" : i < stageIndex ? "text-emerald-400/70" : "text-blue-200/25"
+                )}>{step}</span>
+                {i < selectedType.path.length - 1 && <ArrowRight className="h-2 w-2 text-blue-200/15 shrink-0" />}
+              </span>
+            ))}
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap shrink-0">
-          {/* Readiness mini bar */}
-          <div className="flex items-center gap-2 rounded-xl border border-[#1a3a60]/50 bg-[#03080f]/60 px-3 py-2">
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden sm:flex items-center gap-1.5 rounded-lg border border-[#1a3a60]/50 bg-[#03080f]/60 px-2.5 py-1.5">
             <div className="flex gap-0.5">
               {[0,1,2,3,4].map((i) => (
-                <div key={i} className={cx("h-1.5 w-4 rounded-full transition-all", i < readinessScore ? "bg-emerald-400" : "bg-[#1a3a60]")} />
+                <div key={i} className={cx("h-1 w-3 rounded-full transition-all", i < readinessScore ? "bg-emerald-400" : "bg-[#1a3a60]")} />
               ))}
             </div>
-            <span className="text-xs font-black text-blue-200/50">{readinessScore}/5</span>
+            <span className="text-[10px] font-black text-blue-200/40">{readinessScore}/5</span>
           </div>
-          <button
-            onClick={onNext}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#1e78ff] to-[#00a6ff] px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-blue-900/40 transition hover:opacity-90 active:scale-95"
-          >
-            Next <ChevronRight className="h-4 w-4" />
+          <button onClick={onNext} className="inline-flex items-center gap-1.5 rounded-xl bg-[#1e78ff] px-3 py-2 text-xs font-black text-white transition hover:bg-[#3d8fff] active:scale-95">
+            Next <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
@@ -393,8 +378,8 @@ function ProductionHeader({ selectedType, activeStage, activeMode, onNext, readi
 
 function ModeTabs({ activeMode, setMode }) {
   return (
-    <div className="border-b border-[#1a3a60]/50 px-3 py-2.5">
-      <div className="flex gap-1.5 overflow-x-auto">
+    <div className="border-b border-[#1a3a60]/50 px-2.5 py-2">
+      <div className="flex gap-1 overflow-x-auto">
         {modes.map((mode) => {
           const Icon = mode.icon;
           const active = activeMode === mode.id;
@@ -403,7 +388,7 @@ function ModeTabs({ activeMode, setMode }) {
               key={mode.id}
               onClick={() => setMode(mode.id)}
               className={cx(
-                "flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-black transition-all",
+                "flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-black transition-all",
                 active
                   ? "border-[#00c8ff]/50 bg-gradient-to-r from-[#00c8ff]/15 to-[#1e78ff]/10 text-white shadow-sm"
                   : "border-transparent text-blue-100/45 hover:border-[#1a3a60]/60 hover:text-white hover:bg-[#0d1f38]/50"
@@ -586,21 +571,21 @@ function ProductionRightRail(props) {
   const group = projectTypeGroups.find((g) => g.types.some((t) => t.id === selectedType.id));
 
   return (
-    <aside className="space-y-3 lg:col-span-2 2xl:col-span-1 2xl:sticky 2xl:top-20 2xl:max-h-[calc(100vh-5rem)] 2xl:overflow-y-auto scrollbar-thin">
+    <aside className="space-y-2 lg:col-span-2 2xl:col-span-1 2xl:sticky 2xl:top-20 2xl:max-h-[calc(100vh-5rem)] 2xl:overflow-y-auto">
       {/* Project card */}
       <Panel>
-        <div className={cx("rounded-t-2xl p-4 bg-gradient-to-r", group?.color ? `bg-gradient-to-br ${group.color}` : "from-blue-600 to-violet-600")}>
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/20 backdrop-blur text-white">
-              <selectedType.icon className="h-4.5 w-4.5" style={{ width: 18, height: 18 }} />
+        <div className={cx("rounded-t-2xl px-3 py-2.5", group?.color ? `bg-gradient-to-r ${group.color}` : "bg-gradient-to-r from-blue-600 to-violet-600")}>
+          <div className="flex items-center gap-2.5">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/20 text-white">
+              <selectedType.icon style={{ width: 15, height: 15 }} />
             </div>
             <div>
-              <h3 className="font-black text-white leading-tight">{selectedType.label}</h3>
-              <p className="text-xs text-white/70">{selectedType.format}</p>
+              <h3 className="text-sm font-black text-white leading-tight">{selectedType.label}</h3>
+              <p className="text-[10px] text-white/65">{selectedType.format}</p>
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 p-3">
+        <div className="grid grid-cols-2 gap-1.5 p-2.5">
           <StatCell icon={BadgeCheck} label="Stage" value={activeStage} color="text-[#00c8ff]" />
           <StatCell icon={activeMode.icon} label="Mode" value={activeMode.label} color="text-[#a855f7]" />
           <StatCell icon={Library} label="Assets" value={String(assetCount)} color="text-emerald-400" />
@@ -624,11 +609,11 @@ function ProductionRightRail(props) {
 
       {/* Package asset */}
       <Panel>
-        <div className="flex items-center gap-2 border-b border-[#1a3a60]/50 px-4 py-3">
-          <Library className="h-4 w-4 text-[#00c8ff]" />
-          <h3 className="font-black text-white text-sm">Package Asset</h3>
+        <div className="flex items-center gap-2 border-b border-[#1a3a60]/50 px-3 py-2">
+          <Library className="h-3.5 w-3.5 text-[#00c8ff]" />
+          <h3 className="font-black text-white text-xs">Package Asset</h3>
         </div>
-        <div className="p-3 space-y-1.5">
+        <div className="p-2 space-y-1">
           {displayAssets.slice(0, 4).map((asset) => {
             const selected = selectedAssetId === asset.id;
             return (
@@ -650,32 +635,29 @@ function ProductionRightRail(props) {
 
       {/* Publish readiness */}
       <Panel>
-        <div className="flex items-center justify-between border-b border-[#1a3a60]/50 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <ListChecks className="h-4 w-4 text-[#00c8ff]" />
-            <h3 className="font-black text-white text-sm">Publish Readiness</h3>
+        <div className="flex items-center justify-between border-b border-[#1a3a60]/50 px-3 py-2">
+          <div className="flex items-center gap-1.5">
+            <ListChecks className="h-3.5 w-3.5 text-[#00c8ff]" />
+            <h3 className="font-black text-white text-xs">Readiness</h3>
           </div>
           <span className={cx(
-            "rounded-full px-2 py-0.5 text-[10px] font-black",
-            readinessScore === 5 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-[#1a3a60]/50 text-blue-200/50"
+            "rounded-full px-1.5 py-0.5 text-[9px] font-black",
+            readinessScore === 5 ? "bg-emerald-500/20 text-emerald-300" : "bg-[#1a3a60]/50 text-blue-200/40"
           )}>
             {readinessScore}/5
           </span>
         </div>
-        {/* Progress bar */}
-        <div className="mx-4 mt-3 h-1.5 overflow-hidden rounded-full bg-[#1a3a60]/50">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-[#00c8ff] to-emerald-400 transition-all duration-500"
-            style={{ width: `${(readinessScore / 5) * 100}%` }}
-          />
+        <div className="mx-3 mt-2 h-1 overflow-hidden rounded-full bg-[#1a3a60]/50">
+          <div className="h-full rounded-full bg-gradient-to-r from-[#00c8ff] to-emerald-400 transition-all duration-500"
+            style={{ width: `${(readinessScore / 5) * 100}%` }} />
         </div>
-        <div className="p-3 space-y-1.5">
+        <div className="p-2 space-y-1">
           {readiness.map((item) => (
-            <div key={item.label} className="flex items-center gap-2.5 rounded-xl border border-[#1a3a60]/40 bg-[#030e1f]/60 px-3 py-2">
+            <div key={item.label} className="flex items-center gap-2 rounded-lg border border-[#1a3a60]/40 bg-[#030e1f]/60 px-2.5 py-1.5">
               {item.done
-                ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
-                : <Circle className="h-3.5 w-3.5 shrink-0 text-blue-900/80" />}
-              <span className={cx("text-xs", item.done ? "text-blue-50" : "text-blue-100/40")}>{item.label}</span>
+                ? <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-400" />
+                : <Circle className="h-3 w-3 shrink-0 text-blue-900/80" />}
+              <span className={cx("text-[11px]", item.done ? "text-blue-50" : "text-blue-100/40")}>{item.label}</span>
             </div>
           ))}
         </div>
@@ -684,12 +666,12 @@ function ProductionRightRail(props) {
       {/* Render queue */}
       {queue.length > 0 && (
         <Panel>
-          <div className="flex items-center gap-2 border-b border-[#1a3a60]/50 px-4 py-3">
-            <Loader2 className="h-4 w-4 text-[#a855f7] animate-spin" />
-            <h3 className="font-black text-white text-sm">Render Queue</h3>
-            <span className="ml-auto rounded-full bg-[#a855f7]/20 px-2 py-0.5 text-[10px] font-black text-purple-300">{queue.length}</span>
+          <div className="flex items-center gap-2 border-b border-[#1a3a60]/50 px-3 py-2">
+            <Loader2 className="h-3.5 w-3.5 text-[#a855f7] animate-spin" />
+            <h3 className="font-black text-white text-xs">Render Queue</h3>
+            <span className="ml-auto rounded-full bg-[#a855f7]/20 px-1.5 py-0.5 text-[9px] font-black text-purple-300">{queue.length}</span>
           </div>
-          <div className="p-3 space-y-2">
+          <div className="p-2 space-y-1.5">
             {queue.map((job) => (
               <div key={job.id} className="rounded-xl border border-[#1a3a60]/50 bg-[#030e1f]/60 p-2.5">
                 <p className="line-clamp-1 text-xs font-black text-white">{job.title}</p>
@@ -704,23 +686,22 @@ function ProductionRightRail(props) {
       )}
 
       {/* Actions */}
-      <div className="grid gap-2">
+      <div className="grid gap-1.5">
         <button onClick={onSaveDraft}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#1a3a60]/60 bg-[#030e1f]/80 px-4 py-3 text-sm font-black text-blue-200 transition hover:border-[#00c8ff]/40 hover:text-white">
-          <Save className="h-4 w-4" />
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#1a3a60]/60 bg-[#030e1f]/80 px-3 py-2.5 text-xs font-black text-blue-200 transition hover:border-[#00c8ff]/40 hover:text-white">
+          <Save className="h-3.5 w-3.5" />
           {draftSaved ? "Draft saved ✓" : "Save draft"}
         </button>
         <button
           disabled={!canPublish}
-          title={canPublish ? "Publish package" : "Complete the checklist first"}
           className={cx(
-            "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-black transition",
+            "inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-black transition",
             canPublish
-              ? "bg-gradient-to-r from-[#1e78ff] to-[#00a6ff] text-white shadow-lg shadow-blue-900/40 hover:opacity-90 active:scale-95"
+              ? "bg-gradient-to-r from-[#1e78ff] to-[#00a6ff] text-white hover:opacity-90 active:scale-95"
               : "cursor-not-allowed border border-[#1a3a60]/40 bg-[#030e1f]/60 text-blue-100/30"
           )}
         >
-          <Send className="h-4 w-4" />
+          <Send className="h-3.5 w-3.5" />
           {canPublish ? "Publish Now" : "Publish Locked"}
         </button>
       </div>
@@ -730,10 +711,10 @@ function ProductionRightRail(props) {
 
 function StatCell({ icon: Icon, label, value, color }) {
   return (
-    <div className="rounded-xl border border-[#1a3a60]/40 bg-[#030e1f]/60 p-2.5">
-      <Icon className={cx("mb-1.5 h-3.5 w-3.5", color)} />
-      <p className="text-[9px] font-black uppercase tracking-widest text-blue-100/35">{label}</p>
-      <p className="mt-0.5 truncate text-xs font-black text-white">{value}</p>
+    <div className="rounded-lg border border-[#1a3a60]/40 bg-[#030e1f]/60 p-2">
+      <Icon className={cx("mb-1 h-3 w-3", color)} />
+      <p className="text-[8px] font-black uppercase tracking-widest text-blue-100/30">{label}</p>
+      <p className="mt-0.5 truncate text-[11px] font-black text-white">{value}</p>
     </div>
   );
 }

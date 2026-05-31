@@ -75,17 +75,17 @@ function cls(...parts) { return parts.filter(Boolean).join(" "); }
 
 function Panel({ title, icon: Icon, children, action, className = "", noPad = false }) {
   return (
-    <section className={cls("rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 shadow-xl shadow-black/30 backdrop-blur", className)}>
+    <section className={cls("rounded-xl border border-[#1a3a60]/70 bg-[#06101f]/90 shadow-lg shadow-black/20 backdrop-blur", className)}>
       {(title || Icon) && (
-        <div className="flex items-center justify-between border-b border-[#1a3a60]/50 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-[#1a3a60]/50 px-3 py-2.5">
           <div className="flex items-center gap-2">
-            {Icon && <Icon className="h-4 w-4 text-[#a855f7]" />}
-            {title && <h3 className="text-sm font-black text-white">{title}</h3>}
+            {Icon && <Icon className="h-3.5 w-3.5 text-[#a855f7]" />}
+            {title && <h3 className="text-xs font-black text-white">{title}</h3>}
           </div>
           {action}
         </div>
       )}
-      <div className={noPad ? "" : "p-4"}>{children}</div>
+      <div className={noPad ? "" : "p-3"}>{children}</div>
     </section>
   );
 }
@@ -415,7 +415,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
   return (
     <div className="text-blue-50 space-y-4 min-w-0 overflow-x-hidden">
       {/* Header bar */}
-      <div className="flex items-center justify-between rounded-2xl border border-[#1a3a60]/50 bg-[#06101f]/80 px-4 py-3">
+      <div className="flex items-center justify-between rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 px-3 py-2.5">
         <div className="flex items-center gap-3">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#a855f7] to-[#ec4899]">
             <WandSparkles className="h-4 w-4 text-white" />
@@ -442,7 +442,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
       </div>
 
       {/* Tab bar */}
-      <div className="flex items-center gap-1 overflow-x-auto rounded-2xl border border-[#1a3a60]/50 bg-[#06101f]/80 p-1.5">
+      <div className="flex items-center gap-0.5 overflow-x-auto rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 p-1">
         {tabs.map(({ id, label, icon: Icon, badge }) => (
           <button key={id} onClick={() => setActiveTab(id)}
             className={cls("relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black transition",
@@ -458,10 +458,10 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
         {/* ── GENERATE TAB ─────────────────────────────────────────────── */}
         {activeTab === "generate" && (
           <motion.div key="generate" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_280px]">
+            className="grid gap-3 lg:grid-cols-[190px_minmax(0,1fr)] xl:grid-cols-[200px_minmax(0,1fr)_250px]">
 
             {/* Left: Mode + Settings */}
-            <aside className="space-y-4">
+            <aside className="space-y-3">
               {/* Mode selector — hidden when parent controls mode via project type */}
               {!hideModePicker && <Panel title="Creation Mode" icon={Sparkles}>
                 <div className="grid grid-cols-2 gap-2">
@@ -485,14 +485,14 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
 
               {/* Aspect ratio */}
               <Panel title="Aspect Ratio" icon={Crop}>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1.5">
                   {ASPECTS.map((a) => <AspectButton key={a} value={a} current={aspect} onClick={() => setAspect(a)} />)}
                 </div>
               </Panel>
 
               {/* Quality & Provider */}
               <Panel title="Output Settings" icon={Cpu}>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   <div>
                     <FieldLabel>Quality</FieldLabel>
                     <div className="grid grid-cols-3 gap-1.5">
@@ -584,7 +584,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
               )}
               {/* Generic prompt box for all other modes */}
               {!["tracer", "hand_helper", "3d_model"].includes(mode) && <Panel noPad>
-                <div className="p-4 space-y-3">
+                <div className="p-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <CurrentModeIcon className="h-4 w-4 text-[#a855f7]" />
@@ -767,7 +767,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
             </section>
 
             {/* Right: Queue + Pipeline */}
-            <aside className="space-y-4">
+            <aside className="space-y-3">
               {/* Render queue with mini thumbnails */}
               <Panel title={`Queue (${jobs.length})`} icon={Clock}
                 action={jobs.length > 0 && (
