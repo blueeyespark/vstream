@@ -1225,9 +1225,9 @@ const resources = [
 export default function LearningHub() {
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("all");
-  const [showArtCourses, setShowArtCourses] = useState(false);
+  const [courseType, setCourseType] = useState("coding"); // "coding" or "art"
 
-  const allCourses = showArtCourses ? [...courses, ...artistCourses] : courses;
+  const allCourses = courseType === "art" ? artistCourses : courses;
 
   const filtered = allCourses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase()) || course.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
@@ -1278,16 +1278,28 @@ export default function LearningHub() {
             ))}
           </div>
         </div>
-        <button
-          onClick={() => setShowArtCourses(!showArtCourses)}
-          className={`px-4 py-2 rounded-lg text-sm font-black transition ${
-            showArtCourses
-              ? "bg-purple-500/20 border border-purple-500/50 text-purple-300"
-              : "bg-[#1e78ff]/12 border border-[#1e78ff]/30 text-[#00c8ff] hover:border-[#1e78ff]/50"
-          }`}
-        >
-          🎨 {showArtCourses ? "Hide" : "Show"} Comprehensive Art Courses (49+)
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setCourseType("coding")}
+            className={`px-4 py-2 rounded-lg text-sm font-black transition ${
+              courseType === "coding"
+                ? "bg-[#1e78ff]/20 border border-[#1e78ff]/50 text-white"
+                : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+            }`}
+          >
+            💻 Coding Courses
+          </button>
+          <button
+            onClick={() => setCourseType("art")}
+            className={`px-4 py-2 rounded-lg text-sm font-black transition ${
+              courseType === "art"
+                ? "bg-purple-500/20 border border-purple-500/50 text-purple-300"
+                : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+            }`}
+          >
+            🎨 Art Courses (49+)
+          </button>
+        </div>
       </div>
 
       {/* Courses Grid */}
