@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Filter } from "lucide-react";
+import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Filter, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const courses = [
@@ -935,6 +935,283 @@ const courses = [
     tags: ["Teamwork", "Communication", "Professional"],
     icon: "👥",
   },
+
+  // === ART & DRAWING ===
+  {
+    id: 82,
+    title: "Drawing Fundamentals",
+    description: "Master the basics: line, shape, form, perspective, shading, and composition.",
+    level: "beginner",
+    duration: "4 hours",
+    students: 8900,
+    rating: 4.8,
+    tags: ["Drawing", "Art Fundamentals", "Beginner"],
+    icon: "✏️",
+  },
+  {
+    id: 83,
+    title: "Anatomy for Artists",
+    description: "Learn human and animal anatomy: proportions, skeletal structure, and muscles.",
+    level: "intermediate",
+    duration: "5.5 hours",
+    students: 6200,
+    rating: 4.8,
+    tags: ["Anatomy", "Drawing", "Art"],
+    icon: "🦴",
+  },
+  {
+    id: 84,
+    title: "Character Design Essentials",
+    description: "Create memorable characters: silhouettes, expression, personality, and variations.",
+    level: "intermediate",
+    duration: "5 hours",
+    students: 5800,
+    rating: 4.8,
+    tags: ["Character Design", "Art", "Design"],
+    icon: "🧑",
+  },
+  {
+    id: 85,
+    title: "Digital Painting Fundamentals",
+    description: "Learn digital art: brushes, layers, color theory, and digital painting techniques.",
+    level: "intermediate",
+    duration: "5 hours",
+    students: 6500,
+    rating: 4.8,
+    tags: ["Digital Art", "Painting", "Design"],
+    icon: "🎨",
+  },
+  {
+    id: 86,
+    title: "Hand Helper: Stroke Stabilization",
+    description: "Master smooth, stable strokes with Hand Helper: drawing techniques & practice drills.",
+    level: "beginner",
+    duration: "1.5 hours",
+    students: 4200,
+    rating: 4.9,
+    tags: ["Drawing Tools", "Hand Control", "Technique"],
+    icon: "🖐️",
+  },
+  {
+    id: 87,
+    title: "Tracer: Line Tracing & Precision",
+    description: "Perfect your line control with Tracer: trace accurately and build muscle memory.",
+    level: "beginner",
+    duration: "1.5 hours",
+    students: 3800,
+    rating: 4.8,
+    tags: ["Drawing Tools", "Line Work", "Precision"],
+    icon: "📱",
+  },
+  {
+    id: 88,
+    title: "Perspective Drawing Mastery",
+    description: "Master 1-point, 2-point, and 3-point perspective: environments and composition.",
+    level: "intermediate",
+    duration: "4.5 hours",
+    students: 5400,
+    rating: 4.8,
+    tags: ["Perspective", "Drawing", "Technique"],
+    icon: "🏙️",
+  },
+  {
+    id: 89,
+    title: "Illustration & Visual Storytelling",
+    description: "Tell stories with art: narrative illustration, mood, composition, and style.",
+    level: "intermediate",
+    duration: "5 hours",
+    students: 4900,
+    rating: 4.7,
+    tags: ["Illustration", "Storytelling", "Art"],
+    icon: "📖",
+  },
+  {
+    id: 90,
+    title: "Concept Art for Games & Film",
+    description: "Create concept art: environments, creatures, props, and production design.",
+    level: "advanced",
+    duration: "6.5 hours",
+    students: 4100,
+    rating: 4.8,
+    tags: ["Concept Art", "Game Dev", "Film"],
+    icon: "🎬",
+  },
+  {
+    id: 91,
+    title: "Color Theory & Application",
+    description: "Master color: harmony, psychology, mood, and effective color composition.",
+    level: "intermediate",
+    duration: "4 hours",
+    students: 5600,
+    rating: 4.8,
+    tags: ["Color", "Design", "Theory"],
+    icon: "🌈",
+  },
+  {
+    id: 92,
+    title: "Portrait Drawing & Painting",
+    description: "Draw and paint portraits: features, expression, likeness, and different mediums.",
+    level: "intermediate",
+    duration: "5 hours",
+    students: 6100,
+    rating: 4.8,
+    tags: ["Portraits", "Drawing", "Painting"],
+    icon: "👤",
+  },
+  {
+    id: 93,
+    title: "Landscape & Environment Art",
+    description: "Paint natural landscapes: terrain, weather, lighting, and environmental design.",
+    level: "intermediate",
+    duration: "4.5 hours",
+    students: 4700,
+    rating: 4.7,
+    tags: ["Landscape", "Environment", "Painting"],
+    icon: "🏞️",
+  },
+  {
+    id: 94,
+    title: "Animation Principles & Motion",
+    description: "Learn animation: 12 principles, timing, easing, and bringing art to life.",
+    level: "intermediate",
+    duration: "5.5 hours",
+    students: 5200,
+    rating: 4.8,
+    tags: ["Animation", "Motion", "Art"],
+    icon: "🎞️",
+  },
+  {
+    id: 95,
+    title: "Adobe Photoshop Mastery",
+    description: "Professional image editing: layers, masks, filters, effects, and retouching.",
+    level: "intermediate",
+    duration: "6 hours",
+    students: 7800,
+    rating: 4.8,
+    tags: ["Photoshop", "Image Editing", "Design"],
+    icon: "🎨",
+  },
+  {
+    id: 96,
+    title: "Adobe Illustrator & Vector Art",
+    description: "Create vector graphics: shapes, paths, color, and scalable illustrations.",
+    level: "intermediate",
+    duration: "5.5 hours",
+    students: 6900,
+    rating: 4.8,
+    tags: ["Illustrator", "Vector Art", "Design"],
+    icon: "✨",
+  },
+  {
+    id: 97,
+    title: "Clip Studio Paint for Digital Art",
+    description: "Master Clip Studio Paint: brushes, layers, 3D models, and animation ready.",
+    level: "intermediate",
+    duration: "5 hours",
+    students: 4500,
+    rating: 4.8,
+    tags: ["Clip Studio Paint", "Digital Art", "Tools"],
+    icon: "🖌️",
+  },
+  {
+    id: 98,
+    title: "Procreate iPad Drawing",
+    description: "Create on iPad with Procreate: brushes, gestures, animation, and design.",
+    level: "intermediate",
+    duration: "4.5 hours",
+    students: 5100,
+    rating: 4.8,
+    tags: ["Procreate", "iPad", "Digital Art"],
+    icon: "📱",
+  },
+  {
+    id: 99,
+    title: "3D Modeling & Sculpting Basics",
+    description: "3D art fundamentals: Blender, modeling, sculpting, materials, and rendering.",
+    level: "intermediate",
+    duration: "6.5 hours",
+    students: 4800,
+    rating: 4.7,
+    tags: ["3D Modeling", "Blender", "Art"],
+    icon: "🎯",
+  },
+  {
+    id: 100,
+    title: "Game Art & Texturing",
+    description: "Create game assets: modeling, UV mapping, texturing, and optimization.",
+    level: "advanced",
+    duration: "6 hours",
+    students: 3900,
+    rating: 4.8,
+    tags: ["Game Art", "Texturing", "3D"],
+    icon: "🎮",
+  },
+  {
+    id: 101,
+    title: "UI/UX Design Principles",
+    description: "Design user interfaces: wireframing, prototyping, usability, and accessibility.",
+    level: "intermediate",
+    duration: "5 hours",
+    students: 7200,
+    rating: 4.8,
+    tags: ["UI/UX", "Design", "User Experience"],
+    icon: "🎨",
+  },
+  {
+    id: 102,
+    title: "Figma for Product Design",
+    description: "Design with Figma: components, prototypes, collaboration, and design systems.",
+    level: "intermediate",
+    duration: "5 hours",
+    students: 6800,
+    rating: 4.8,
+    tags: ["Figma", "Design", "Product Design"],
+    icon: "🎨",
+  },
+  {
+    id: 103,
+    title: "Comic Art & Manga Drawing",
+    description: "Draw comics and manga: panel layout, inking, lettering, and storytelling.",
+    level: "intermediate",
+    duration: "5.5 hours",
+    students: 4600,
+    rating: 4.8,
+    tags: ["Comics", "Manga", "Drawing"],
+    icon: "💭",
+  },
+  {
+    id: 104,
+    title: "Traditional Art Techniques",
+    description: "Master traditional media: watercolor, oil, acrylic, charcoal, and mixed media.",
+    level: "intermediate",
+    duration: "5 hours",
+    students: 4300,
+    rating: 4.7,
+    tags: ["Traditional Art", "Painting", "Media"],
+    icon: "🎨",
+  },
+  {
+    id: 105,
+    title: "Motion Graphics & VFX",
+    description: "Create motion graphics: After Effects, animation, visual effects, and compositing.",
+    level: "advanced",
+    duration: "6.5 hours",
+    students: 3700,
+    rating: 4.8,
+    tags: ["Motion Graphics", "After Effects", "VFX"],
+    icon: "🎬",
+  },
+  {
+    id: 106,
+    title: "Web Design & UI Development",
+    description: "Design and code websites: responsive design, CSS, animations, and interactions.",
+    level: "intermediate",
+    duration: "5.5 hours",
+    students: 6500,
+    rating: 4.8,
+    tags: ["Web Design", "UI", "CSS"],
+    icon: "🌐",
+  },
 ];
 
 const resources = [
@@ -1190,6 +1467,34 @@ export default function LearningHub() {
         </div>
       </div>
 
+      {/* Art & Drawing Tools */}
+      <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="h-5 w-5 text-purple-400" />
+          <h2 className="text-lg font-black text-white">Drawing Tools & Practice</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-4">
+            <h4 className="font-black text-purple-300 mb-2 flex items-center gap-2">
+              🖐️ Hand Helper
+            </h4>
+            <p className="text-sm text-blue-100/70 mb-3">Improve stroke stability and hand control with guided drawing exercises.</p>
+            <button className="w-full rounded-lg bg-purple-500/20 border border-purple-500/40 hover:bg-purple-500/30 text-purple-300 font-black text-sm py-2 transition">
+              Start Practicing
+            </button>
+          </div>
+          <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-4">
+            <h4 className="font-black text-cyan-300 mb-2 flex items-center gap-2">
+              📱 Tracer
+            </h4>
+            <p className="text-sm text-blue-100/70 mb-3">Trace lines accurately and build precision with phone-based line tracing exercises.</p>
+            <button className="w-full rounded-lg bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-black text-sm py-2 transition">
+              Start Tracing
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Alternative Skills */}
       <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
         <h3 className="text-lg font-black text-white mb-3">📚 Programming Languages & Frameworks</h3>
@@ -1213,6 +1518,84 @@ export default function LearningHub() {
               <p className="text-xs text-blue-100/50">{level}</p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Art & Design Learning Path */}
+      <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+        <h3 className="text-lg font-black text-white mb-3">🎨 Art & Design Learning Paths</h3>
+        <div className="space-y-4">
+          {/* Digital Artist Path */}
+          <div>
+            <h4 className="text-sm font-black text-purple-400 mb-2">🖌️ Digital Artist Path</h4>
+            <div className="space-y-1.5">
+              {[
+                { step: 1, title: "Drawing Fundamentals", desc: "Core techniques & theory" },
+                { step: 2, title: "Anatomy for Artists", desc: "Human & creature anatomy" },
+                { step: 3, title: "Digital Painting Fundamentals", desc: "Learn digital tools" },
+                { step: 4, title: "Procreate iPad Drawing", desc: "iPad digital art" },
+                { step: 5, title: "Character Design Essentials", desc: "Create unique characters" },
+              ].map(({ step, title, desc }) => (
+                <div key={`digital-${step}`} className="flex items-start gap-3 rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-2.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500/20 text-xs font-black text-purple-400 flex-shrink-0">
+                    {step}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-black text-white text-xs">{title}</p>
+                    <p className="text-[10px] text-blue-100/50">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Game Artist Path */}
+          <div>
+            <h4 className="text-sm font-black text-cyan-400 mb-2">🎮 Game Artist Path</h4>
+            <div className="space-y-1.5">
+              {[
+                { step: 1, title: "Drawing Fundamentals", desc: "Core techniques" },
+                { step: 2, title: "Character Design Essentials", desc: "Game character creation" },
+                { step: 3, title: "3D Modeling & Sculpting Basics", desc: "Learn 3D tools" },
+                { step: 4, title: "Game Art & Texturing", desc: "Assets & optimization" },
+                { step: 5, title: "Animation Principles & Motion", desc: "Bring characters to life" },
+              ].map(({ step, title, desc }) => (
+                <div key={`game-${step}`} className="flex items-start gap-3 rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-2.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-500/20 text-xs font-black text-cyan-400 flex-shrink-0">
+                    {step}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-black text-white text-xs">{title}</p>
+                    <p className="text-[10px] text-blue-100/50">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* UI/UX Designer Path */}
+          <div>
+            <h4 className="text-sm font-black text-amber-400 mb-2">🎨 UI/UX Designer Path</h4>
+            <div className="space-y-1.5">
+              {[
+                { step: 1, title: "Design Principles & Color Theory", desc: "Visual fundamentals" },
+                { step: 2, title: "UI/UX Design Principles", desc: "User-centered design" },
+                { step: 3, title: "Figma for Product Design", desc: "Professional design tool" },
+                { step: 4, title: "Web Design & UI Development", desc: "Code your designs" },
+                { step: 5, title: "Animation Principles & Motion", desc: "Interactive UX" },
+              ].map(({ step, title, desc }) => (
+                <div key={`uiux-${step}`} className="flex items-start gap-3 rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-2.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/20 text-xs font-black text-amber-400 flex-shrink-0">
+                    {step}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-black text-white text-xs">{title}</p>
+                    <p className="text-[10px] text-blue-100/50">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
