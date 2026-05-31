@@ -15,7 +15,6 @@ import {
   Music, Package, Pause, Repeat, Share2, Shuffle, SkipForward, Sliders,
   Tv, Volume2, Wrench, Flag, Award,
 } from "lucide-react";
-import ArtForgeStudio from "@/pages/ArtForgeStudio";
 import ProductionHub from "@/components/studio/ProductionHub";
 import PlanningHub from "@/components/studio/PlanningHub";
 import AnalyticsHub from "@/components/studio/AnalyticsHub";
@@ -38,8 +37,7 @@ const navGroups = [
   {
     label: "Create",
     items: [
-      { id: "production", label: "Production", icon: Clapperboard, tagline: "Idea → publish pipeline" },
-      { id: "artforge", label: "ArtForge AI", icon: WandSparkles, tagline: "Art, video, stickers, 3D", accent: "purple" },
+      { id: "production", label: "Production & ArtForge", icon: Clapperboard, tagline: "Create, generate & publish", accent: "purple" },
       { id: "live", label: "Live Room", icon: Radio, tagline: "Streams, scenes, chat", accent: "red" },
     ],
   },
@@ -184,7 +182,6 @@ function CreatorStudioContent() {
           {!channel && <ChannelSetupNotice />}
           {section.id === "dashboard" && <DashboardContent stats={stats} videos={videos} assets={assets} setSection={setSection} channel={channel} user={user} />}
           {section.id === "production" && <ProductionHub />}
-          {section.id === "artforge" && <ArtForgeStudio embedded={true} />}
           {section.id === "live" && <LiveControlRoom streamForm={streamForm} setStreamForm={setStreamForm} />}
           {section.id === "library" && <ContentLibrary videos={videos} assets={assets} filter={libraryFilter} setFilter={setLibraryFilter} query={libraryQuery} setQuery={setLibraryQuery} />}
           {section.id === "analytics" && <AnalyticsSection stats={stats} />}
@@ -332,7 +329,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
   const quickActions = [
     { label: "Upload Video", icon: Upload, section: "production", color: "text-[#1e78ff]", bg: "bg-[#1e78ff]/10 border-[#1e78ff]/25", desc: "Long-form" },
     { label: "Go Live", icon: Radio, href: "/StreamerDashboard", color: "text-red-300", bg: "bg-red-500/8 border-red-400/20", desc: "Stream now" },
-    { label: "ArtForge AI", icon: WandSparkles, section: "artforge", color: "text-purple-300", bg: "bg-purple-500/8 border-purple-400/20", desc: "Generate art" },
+    { label: "ArtForge AI", icon: WandSparkles, section: "production", color: "text-purple-300", bg: "bg-purple-500/8 border-purple-400/20", desc: "Generate art" },
     { label: "Analytics", icon: BarChart3, section: "analytics", color: "text-emerald-300", bg: "bg-emerald-500/8 border-emerald-400/20", desc: "Deep dive" },
     { label: "Thumbnail", icon: Image, href: "/ThumbnailMaker", color: "text-cyan-300", bg: "bg-cyan-500/8 border-cyan-400/20", desc: "Design" },
     { label: "Shorts", icon: Film, href: "/Shorts", color: "text-amber-300", bg: "bg-amber-500/8 border-amber-400/20", desc: "Short-form" },
@@ -598,7 +595,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
           <Panel className="p-4">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-black text-white text-sm flex items-center gap-2"><Sparkles className="h-4 w-4 text-purple-400" /> AI Assets</h3>
-              <button onClick={() => setSection("artforge")} className="text-xs font-black text-purple-300 hover:underline">ArtForge →</button>
+              <button onClick={() => setSection("production")} className="text-xs font-black text-purple-300 hover:underline">ArtForge →</button>
             </div>
             {recentAssets.length > 0 ? (
               <div className="grid grid-cols-2 gap-2">
@@ -620,7 +617,7 @@ function DashboardContent({ stats, videos, assets, setSection, channel, user }) 
               <div className="rounded-xl border border-dashed border-[#12305f] p-5 text-center">
                 <WandSparkles className="mx-auto mb-2 h-6 w-6 text-purple-400/40" />
                 <p className="text-xs text-blue-100/40">No AI assets yet</p>
-                <button onClick={() => setSection("artforge")} className="mt-2 text-xs font-black text-purple-300 hover:underline">Generate with ArtForge →</button>
+                <button onClick={() => setSection("production")} className="mt-2 text-xs font-black text-purple-300 hover:underline">Generate with ArtForge →</button>
               </div>
             )}
           </Panel>
