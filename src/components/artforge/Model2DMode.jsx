@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Layers, Loader2, Download, Sparkles, CheckCircle2, Wand2, Zap, Copy } from "lucide-react";
 import { toast } from "sonner";
 import Live2DRigPreview from "@/components/artforge/Live2DRigPreview";
@@ -147,10 +147,10 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
     });
   };
 
-  const copyPrompt = () => {
+  const copyPrompt = useCallback(() => {
     navigator.clipboard.writeText(buildPrompt());
     toast.success("Prompt copied to clipboard");
-  };
+  }, [buildPrompt]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">

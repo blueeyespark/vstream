@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Box, Loader2, Download, Zap, CheckCircle2,
   RotateCcw, Layers, Sparkles, Camera, Eye, Copy
@@ -269,10 +269,10 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
     });
   };
 
-  const copyPrompt = () => {
+  const copyPrompt = useCallback(() => {
     navigator.clipboard.writeText(buildPrompt());
     toast.success("Prompt copied to clipboard");
-  };
+  }, [buildPrompt]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">

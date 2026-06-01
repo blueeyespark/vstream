@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
@@ -214,7 +214,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
   // Sync with external tab control from ProductionHub
   useEffect(() => {
     if (externalTab && externalTab !== activeTab) setActiveTab(externalTab);
-  }, [externalTab]);
+  }, [externalTab]); // eslint-disable-line react-hooks/exhaustive-deps
   const [provider, setProvider] = useState("base44");
   const [prompt, setPrompt] = useState(() => CREATION_MODES.find(m => m.id === initialMode)?.prompt || CREATION_MODES[0].prompt);
 
@@ -319,14 +319,14 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
 
   const toggleStyle = (style) => setStyles((prev) => prev.includes(style) ? prev.filter((s) => s !== style) : [...prev, style]);
 
-  const handleModeChange = (nextMode) => {
+  const handleModeChange = useCallback((nextMode) => {
     setMode(nextMode.id);
     setPrompt(nextMode.prompt);
     if (nextMode.id === "video") setAspect("9:16");
     if (nextMode.id === "tracer") setStyles(["Tracing Guide"]);
     if (nextMode.id === "hand_helper") setStyles(["Hand Study"]);
     if (nextMode.id === "3d_model") setProvider("tripo3d");
-  };
+  }, []);
 
   const handleReferenceUpload = async (files) => {
     const fileList = Array.from(files || []);
@@ -340,7 +340,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
     toast.success("Reference image added");
   };
 
-  const handleEnhancePrompt = async () => {
+  const handleEnhancePrompt = useCallback(async () => {
     if (!prompt.trim()) return;
     setIsEnhancing(true);
     try {
@@ -350,7 +350,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
       const text = typeof response === "string" ? response : response?.text || response?.content || "";
       if (text) { setPrompt(text.slice(0, 1500).trim()); toast.success("✨ Prompt enhanced"); }
     } catch { toast.error("Prompt enhancer failed"); } finally { setIsEnhancing(false); }
-  };
+  }, [prompt, currentMode.label]);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) { toast.error("Enter a description first"); return; }
@@ -416,7 +416,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
 
 
 
-  const copyPrompt = async () => { await navigator.clipboard.writeText(pipelinePrompt); toast.success("Prompt copied"); };
+  const copyPrompt = useCallback(async () => { await navigator.clipboard.writeText(pipelinePrompt); toast.success("Prompt copied"); }, [pipelinePrompt]);
 
   const handleSaveProject = async () => {
     try {
@@ -854,7 +854,8 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                 </div>
               </Panel>
 
-              } {/* end !specialty modes */}
+              }
+              {/* end !specialty modes */}
 
               {/* Preview / Output — shown for all non-specialty modes */}
               {!["3d_model", "2d_model", "image_edit", "music", "thumbnail", "viggle"].includes(mode) && <Panel title="Latest Output" icon={Eye}

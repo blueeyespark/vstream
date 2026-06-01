@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import * as THREE from "three";
 import { RotateCcw, Play, Pause, Sliders, Move, Eye, Box, Zap } from "lucide-react";
 import AvatarExportPanel from "@/components/artforge/AvatarExportPanel";
