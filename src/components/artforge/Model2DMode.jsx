@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Layers, Loader2, Download, Sparkles, CheckCircle2, Wand2, Zap } from "lucide-react";
+import { Layers, Loader2, Download, Sparkles, CheckCircle2, Wand2, Zap, Copy } from "lucide-react";
 import { toast } from "sonner";
 import Live2DRigPreview from "@/components/artforge/Live2DRigPreview";
 import CharacterInputPanel from "@/components/artforge/CharacterInputPanel";
@@ -135,7 +135,7 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
 
   const handleGenerate = () => {
     if (!textPrompt.trim() && !sourceImage) {
-      toast.error("Describe your character or upload a reference");
+      toast.error("Describe your character or upload a reference image");
       return;
     }
     onGenerate({
@@ -145,6 +145,11 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
       quality: "ultra",
       aspect: outputType === "sprite_sheet" || outputType === "character_sheet" ? "16:9" : "1:1",
     });
+  };
+
+  const copyPrompt = () => {
+    navigator.clipboard.writeText(buildPrompt());
+    toast.success("Prompt copied to clipboard");
   };
 
   return (
@@ -170,8 +175,9 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {OUTPUT_TYPES.map((t) => (
               <button key={t.id} onClick={() => setOutputType(t.id)}
-                className={`rounded-xl border p-3 text-left transition ${outputType === t.id ? "border-violet-500/60 bg-violet-500/12" : "border-[#1a3a60]/60 bg-[#030e1f]/60 hover:border-violet-500/30"}`}>
-                <span className="text-xl block mb-1">{t.emoji}</span>
+                className={`rounded-xl border p-3 text-left transition group ${outputType === t.id ? "border-violet-500/60 bg-violet-500/12" : "border-[#1a3a60]/60 bg-[#030e1f]/60 hover:border-violet-500/30"}`}
+                title={t.hint}>
+                <span className="text-xl block mb-1 group-hover:scale-110 transition-transform">{t.emoji}</span>
                 <p className="text-xs font-black text-white leading-tight">{t.label}</p>
                 <p className="mt-1 text-[10px] text-blue-200/35 leading-tight">{t.desc}</p>
               </button>
@@ -273,13 +279,19 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
 
 
 
-        {/* Generate */}
-        <button onClick={handleGenerate} disabled={isGenerating}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-5 py-3.5 text-sm font-black text-white shadow-lg transition hover:opacity-90 disabled:opacity-50">
-          {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-          {isGenerating ? "Generating 2D Model…" : `Generate ${selected.label}`}
-        </button>
-        <p className="text-center text-[10px] text-blue-200/30">AI-generated · Ultra quality · Export-ready layers</p>
+        {/* Generate & Copy buttons */}
+        <div className="flex gap-2">
+          <button onClick={handleGenerate} disabled={isGenerating}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-5 py-3.5 text-sm font-black text-white shadow-lg transition hover:opacity-90 disabled:opacity-50">
+            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {isGenerating ? "Generating…" : "Generate 2D"}
+          </button>
+          <button onClick={copyPrompt}
+            className="flex items-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3.5 text-sm font-black text-violet-300 transition hover:bg-violet-500/20">
+            <Copy className="h-4 w-4" />
+          </button>
+        </div>
+        <p className="text-center text-[10px] text-blue-200/30">FLUX AI · Ultra quality · Export-ready</p>
       </div>
 
       {/* Right — preview + info */}

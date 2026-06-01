@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Box, Loader2, Download, Zap, CheckCircle2,
-  RotateCcw, Layers, Sparkles, Camera, Eye
+  RotateCcw, Layers, Sparkles, Camera, Eye, Copy
 } from "lucide-react";
-import CharacterInputPanel from "@/components/artforge/CharacterInputPanel";
 import { toast } from "sonner";
+import CharacterInputPanel from "@/components/artforge/CharacterInputPanel";
 import * as THREE from "three";
 import Model3DRigPreview from "@/components/artforge/Model3DRigPreview";
 
@@ -226,7 +226,6 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
   const [selectedFormats, setSelectedFormats] = useState(["GLB"]);
   const [sourceImage, setSourceImage] = useState(null);
   const [sourcePreview, setSourcePreview] = useState(null);
-  const [viewerKey] = useState(0);
 
   const preset = CHARACTER_PRESETS.find((p) => p.id === selectedPreset);
 
@@ -252,8 +251,12 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
   };
 
   const handleGenerate = () => {
+    if (inputType === "preset" && !selectedPreset) {
+      toast.error("Select a character preset");
+      return;
+    }
     if (inputType === "text" && !textPrompt.trim() && !sourceImage) {
-      toast.error("Describe your character or upload a photo");
+      toast.error("Describe your character or upload a reference photo");
       return;
     }
     onGenerate({
@@ -264,6 +267,11 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
       quality: "ultra",
       aspect: "1:1",
     });
+  };
+
+  const copyPrompt = () => {
+    navigator.clipboard.writeText(buildPrompt());
+    toast.success("Prompt copied to clipboard");
   };
 
   return (
@@ -292,15 +300,16 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
           </div>
         </div>
 
-        {/* Preset picker */}
+        {/* Preset picker with quick details */}
         {inputType === "preset" && (
           <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
             <p className="mb-3 text-xs font-black uppercase tracking-widest text-blue-200/50">Character Presets</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {CHARACTER_PRESETS.map((p) => (
                 <button key={p.id} onClick={() => setSelectedPreset(p.id)}
-                  className={`rounded-xl border p-3 text-left transition ${selectedPreset === p.id ? "border-orange-500/60 bg-orange-500/12" : "border-[#1a3a60]/60 bg-[#030e1f]/60 hover:border-orange-500/30"}`}>
-                  <span className="text-2xl block mb-1">{p.emoji}</span>
+                  className={`rounded-xl border p-3 text-left transition group ${selectedPreset === p.id ? "border-orange-500/60 bg-orange-500/12" : "border-[#1a3a60]/60 bg-[#030e1f]/60 hover:border-orange-500/30"}`}
+                  title={p.prompt}>
+                  <span className="text-2xl block mb-1 group-hover:scale-110 transition-transform">{p.emoji}</span>
                   <p className="text-xs font-black text-white leading-tight">{p.label}</p>
                   <p className="mt-1 text-[10px] text-blue-200/35 line-clamp-2 leading-tight">{p.prompt.split(",")[0]}</p>
                 </button>
@@ -369,13 +378,19 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
           </div>
         </div>
 
-        {/* Generate button */}
-        <button onClick={handleGenerate} disabled={isGenerating}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-violet-500 px-5 py-3.5 text-sm font-black text-white shadow-lg transition hover:opacity-90 disabled:opacity-50">
-          {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-          {isGenerating ? "Generating Character Model…" : inputType === "image" ? "Image → 3D Character" : "Generate 3D Character"}
-        </button>
-        <p className="text-center text-[10px] text-blue-200/30">Powered by Tripo3D AI · Ultra quality · 30–60 second generation</p>
+        {/* Generate & Copy buttons */}
+        <div className="flex gap-2">
+          <button onClick={handleGenerate} disabled={isGenerating}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-violet-500 px-5 py-3.5 text-sm font-black text-white shadow-lg transition hover:opacity-90 disabled:opacity-50">
+            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {isGenerating ? "Generating…" : "Generate 3D"}
+          </button>
+          <button onClick={copyPrompt}
+            className="flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-3.5 text-sm font-black text-orange-300 transition hover:bg-orange-500/20">
+            <Copy className="h-4 w-4" />
+          </button>
+        </div>
+        <p className="text-center text-[10px] text-blue-200/30">Tripo3D AI · 30–60s generation</p>
       </div>
 
       {/* Right — 3D viewer */}
