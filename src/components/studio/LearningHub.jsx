@@ -105,17 +105,21 @@ export default function LearningHub() {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
-        <TabsList className="bg-[#06101f] border border-[#12305f] flex flex-wrap">
-          <TabsTrigger value="explore">Explore Courses</TabsTrigger>
-          <TabsTrigger value="mycourses" className="flex items-center gap-2">
-            <Trophy className="h-4 w-4" /> My Courses
-          </TabsTrigger>
-          <TabsTrigger value="pathgen" className="flex items-center gap-2">
-            <Zap className="h-4 w-4" /> AI Path
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="rounded-2xl border border-[#12305f]/50 bg-[#06101f]/80 p-1 backdrop-blur mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="bg-transparent border-none flex flex-wrap justify-start p-2 gap-1">
+            <TabsTrigger value="explore" className="rounded-xl data-[state=active]:bg-[#1e78ff]/20 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-[#1e78ff]/50 font-black text-sm">
+              📚 Explore Courses
+            </TabsTrigger>
+            <TabsTrigger value="mycourses" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-amber-500/20 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-amber-500/50 font-black text-sm">
+              <Trophy className="h-4 w-4" /> My Courses
+            </TabsTrigger>
+            <TabsTrigger value="pathgen" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-purple-500/20 data-[state=active]:text-white data-[state=active]:border data-[state=active]:border-purple-500/50 font-black text-sm">
+              <Zap className="h-4 w-4" /> AI Path
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
       {activeTab === "mycourses" ? (
         <MyCourses />
@@ -213,8 +217,8 @@ export default function LearningHub() {
           )}
 
           {skillTab === "art" && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+            <div className="space-y-8">
+              <div className="rounded-3xl border border-[#12305f]/60 bg-gradient-to-br from-pink-500/10 via-[#06101f] to-[#03080f] p-6 sm:p-8 backdrop-blur-sm shadow-xl shadow-pink-500/5">
                 <h2 className="text-xl font-black text-pink-300 mb-4">🎨 Digital Art & Illustration</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
@@ -249,8 +253,8 @@ export default function LearningHub() {
           )}
 
           {skillTab === "creator" && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+            <div className="space-y-8">
+              <div className="rounded-3xl border border-[#12305f]/60 bg-gradient-to-br from-red-500/10 via-[#06101f] to-[#03080f] p-6 sm:p-8 backdrop-blur-sm shadow-xl shadow-red-500/5">
                 <h2 className="text-xl font-black text-red-400 mb-4">🎬 Content Creation & Streaming</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
@@ -285,8 +289,8 @@ export default function LearningHub() {
           )}
 
           {skillTab === "design" && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+            <div className="space-y-8">
+              <div className="rounded-3xl border border-[#12305f]/60 bg-gradient-to-br from-purple-500/10 via-[#06101f] to-[#03080f] p-6 sm:p-8 backdrop-blur-sm shadow-xl shadow-purple-500/5">
                 <h2 className="text-xl font-black text-purple-400 mb-4">✨ UI/UX & Product Design</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
@@ -321,8 +325,8 @@ export default function LearningHub() {
           )}
 
           {skillTab === "business" && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+            <div className="space-y-8">
+              <div className="rounded-3xl border border-[#12305f]/60 bg-gradient-to-br from-emerald-500/10 via-[#06101f] to-[#03080f] p-6 sm:p-8 backdrop-blur-sm shadow-xl shadow-emerald-500/5">
                 <h2 className="text-xl font-black text-emerald-400 mb-4">💼 Business & Entrepreneurship</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
@@ -357,8 +361,8 @@ export default function LearningHub() {
           )}
 
           {skillTab === "music" && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+            <div className="space-y-8">
+              <div className="rounded-3xl border border-[#12305f]/60 bg-gradient-to-br from-orange-500/10 via-[#06101f] to-[#03080f] p-6 sm:p-8 backdrop-blur-sm shadow-xl shadow-orange-500/5">
                 <h2 className="text-xl font-black text-orange-400 mb-4">🎵 Music Production & Theory</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
@@ -393,8 +397,8 @@ export default function LearningHub() {
           )}
 
           {skillTab === "photography" && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+            <div className="space-y-8">
+              <div className="rounded-3xl border border-[#12305f]/60 bg-gradient-to-br from-yellow-500/10 via-[#06101f] to-[#03080f] p-6 sm:p-8 backdrop-blur-sm shadow-xl shadow-yellow-500/5">
                 <h2 className="text-xl font-black text-yellow-400 mb-4">📸 Photography & Editing</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
@@ -1067,41 +1071,7 @@ export default function LearningHub() {
             </div>
           </div>
 
-          {/* Learning Resources Library */}
-          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Code className="h-5 w-5 text-cyan-400" />
-              <h2 className="text-lg font-black text-white">📚 Resource Library</h2>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                { name: "MDN Web Docs", type: "Reference", desc: "Comprehensive web dev docs", icon: "📖", url: "#" },
-                { name: "Figma Community", type: "Assets", desc: "10k+ design files & components", icon: "🎨", url: "#" },
-                { name: "GitHub Awesome Lists", type: "Curated", desc: "Topic-specific resource lists", icon: "⭐", url: "#" },
-                { name: "CSS Tricks", type: "Blog", desc: "Advanced CSS techniques & tips", icon: "✨", url: "#" },
-                { name: "Dev.to Articles", type: "Blog", desc: "Developer community articles", icon: "📝", url: "#" },
-                { name: "Stack Overflow", type: "Q&A", desc: "Ask and answer coding questions", icon: "❓", url: "#" },
-                { name: "Codepen", type: "Showcase", desc: "Share & discover code pens", icon: "💻", url: "#" },
-                { name: "Behance", type: "Portfolio", desc: "Design inspiration & portfolios", icon: "🎬", url: "#" },
-                { name: "Unsplash", type: "Photos", desc: "1M+ free high-quality images", icon: "📸", url: "#" },
-              ].map((resource, idx) => (
-                <a
-                  key={idx}
-                  href={resource.url}
-                  className="group rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3 hover:border-cyan-500/40 transition"
-                >
-                  <div className="flex items-start gap-2 mb-2">
-                    <span className="text-lg">{resource.icon}</span>
-                    <div className="min-w-0">
-                      <p className="font-black text-white text-xs group-hover:text-cyan-300 transition">{resource.name}</p>
-                      <p className="text-[9px] text-cyan-300/60">{resource.type}</p>
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-blue-100/50">{resource.desc}</p>
-                </a>
-              ))}
-            </div>
-          </div>
+
 
           {/* Live Workshops & Events */}
           <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
@@ -1134,30 +1104,7 @@ export default function LearningHub() {
             </div>
           </div>
 
-          {/* Case Studies & Real-World Examples */}
-          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <BookOpen className="h-5 w-5 text-blue-400" />
-              <h2 className="text-lg font-black text-white">📊 Case Studies</h2>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                { title: "How I Built a $1M SaaS in 6 Months", category: "Entrepreneurship", reads: "12.4K", icon: "💼" },
-                { title: "Redesigning Airbnb's Search Experience", category: "Product Design", reads: "8.9K", icon: "🎨" },
-                { title: "Growing YouTube Channel to 1M Subs", category: "Content Creation", reads: "15.2K", icon: "📺" },
-                { title: "Music Producer's Journey to 10M Streams", category: "Music", reads: "6.3K", icon: "🎵" },
-              ].map((study, idx) => (
-                <button key={idx} className="text-left rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3 hover:border-blue-500/40 transition">
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="text-lg">{study.icon}</span>
-                    <span className="text-[9px] font-black text-blue-300">{study.reads} reads</span>
-                  </div>
-                  <h4 className="font-black text-white text-xs mb-1 line-clamp-2">{study.title}</h4>
-                  <p className="text-[10px] text-blue-100/50">{study.category}</p>
-                </button>
-              ))}
-            </div>
-          </div>
+
 
            {/* Resources */}
            <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
@@ -1184,29 +1131,7 @@ export default function LearningHub() {
              </div>
            </div>
 
-          {/* Drawing Tools */}
-          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="h-5 w-5 text-purple-400" />
-              <h2 className="text-lg font-black text-white">Drawing Tools & Practice</h2>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-4">
-                <h4 className="font-black text-purple-300 mb-2">🖐️ Hand Helper</h4>
-                <p className="text-sm text-blue-100/70 mb-3">Improve stroke stability and hand control with guided drawing exercises.</p>
-                <button className="w-full rounded-lg bg-purple-500/20 border border-purple-500/40 hover:bg-purple-500/30 text-purple-300 font-black text-sm py-2 transition">
-                  Start Practicing
-                </button>
-              </div>
-              <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-4">
-                <h4 className="font-black text-cyan-300 mb-2">📱 Tracer</h4>
-                <p className="text-sm text-blue-100/70 mb-3">Trace lines accurately and build precision with phone-based line tracing exercises.</p>
-                <button className="w-full rounded-lg bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-black text-sm py-2 transition">
-                  Start Tracing
-                </button>
-              </div>
-            </div>
-          </div>
+
 
           {/* Curated Learning Paths */}
           <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
@@ -1240,30 +1165,7 @@ export default function LearningHub() {
             </div>
           </div>
 
-          {/* Skill Assessment & Progress */}
-          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Trophy className="h-5 w-5 text-amber-400" />
-              <h2 className="text-lg font-black text-white">🎯 Your Skill Level</h2>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-4">
-              {[
-                { skill: "Programming", level: "Beginner", progress: 25, color: "bg-[#1e78ff]" },
-                { skill: "Design", level: "Intermediate", progress: 60, color: "bg-pink-500" },
-                { skill: "Content Creation", level: "Beginner", progress: 15, color: "bg-amber-500" },
-                { skill: "Music Production", level: "Not Started", progress: 0, color: "bg-red-500" },
-              ].map((item) => (
-                <div key={item.skill} className="rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3">
-                  <p className="text-xs font-black text-white mb-1">{item.skill}</p>
-                  <p className="text-[10px] text-blue-100/50 mb-2">{item.level}</p>
-                  <div className="w-full bg-[#12305f]/50 rounded-full h-2">
-                    <div className={`${item.color} h-2 rounded-full transition-all`} style={{ width: `${item.progress}%` }}></div>
-                  </div>
-                  <p className="text-[9px] text-blue-100/40 mt-2">{item.progress}% complete</p>
-                </div>
-              ))}
-            </div>
-          </div>
+
 
           {/* Practice Projects */}
           <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
