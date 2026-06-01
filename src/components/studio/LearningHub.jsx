@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Sparkles, Trophy, Zap, ChevronDown } from "lucide-react";
+import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Sparkles, Trophy, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { expandedCourses, creatorCoursesExpanded, codingCoursesExpanded, artCoursesExpanded } from "@/lib/expandedCoursesData";
 import MyCourses from "@/components/learning/MyCourses";
@@ -18,7 +18,6 @@ export default function LearningHub() {
   const [levelFilter, setLevelFilter] = useState("all");
   const [courseType, setCourseType] = useState("coding");
   const [activeTab, setActiveTab] = useState("explore");
-  const [expandedCategories, setExpandedCategories] = useState({});
 
   let allCourses = expandedCourses;
   if (courseType === "art") allCourses = artCoursesExpanded;
@@ -30,18 +29,6 @@ export default function LearningHub() {
     const matchesLevel = levelFilter === "all" || course.level === levelFilter;
     return matchesSearch && matchesLevel;
   });
-
-  // Group courses by category
-  const groupedCourses = filtered.reduce((acc, course) => {
-    const category = course.category || "Other";
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(course);
-    return acc;
-  }, {});
-
-  const toggleCategory = (category) => {
-    setExpandedCategories(prev => ({ ...prev, [category]: !prev[category] }));
-  };
 
   const getCourseCount = () => {
     switch(courseType) {
@@ -161,69 +148,54 @@ export default function LearningHub() {
             </div>
           </div>
 
-          {/* Courses by Category */}
+          {/* Courses Grid */}
           {filtered.length === 0 ? (
             <div className="rounded-lg border border-dashed border-[#12305f] bg-[#06101f]/50 p-12 text-center">
               <p className="text-blue-100/60 text-sm">No courses match your filters. Try adjusting your search.</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {Object.entries(groupedCourses).map(([category, courses]) => (
-                <div key={category} className="rounded-xl border border-[#12305f]/70 bg-[#06101f]/90 overflow-hidden">
-                  <button
-                    onClick={() => toggleCategory(category)}
-                    className="w-full flex items-center justify-between gap-3 p-4 hover:bg-[#0a1525]/60 transition"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">{courses[0]?.icon || "📚"}</span>
-                      <div className="text-left">
-                        <h3 className="font-black text-white text-base">{category}</h3>
-                        <p className="text-xs text-blue-100/50">{courses.length} course{courses.length !== 1 ? "s" : ""}</p>
-                      </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((course) => (
+                <button
+                  key={course.id}
+                  className="group text-left rounded-2xl border border-[#12305f]/70 bg-[#06101f]/90 p-4 hover:border-[#1e78ff]/40 hover:shadow-lg hover:shadow-[#1e78ff]/10 transition"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <span className="text-2xl">{course.icon}</span>
+                    <span className="rounded-full bg-[#1e78ff]/20 px-2 py-1 text-[10px] font-black text-[#00c8ff] capitalize">
+                      {course.level}
+                    </span>
+                  </div>
+                  <h3 className="font-black text-white mb-1.5 group-hover:text-[#00c8ff] transition">{course.title}</h3>
+                  <p className="text-xs text-blue-100/60 mb-3 line-clamp-2">{course.description}</p>
+
+                  <div className="space-y-1 mb-3 pb-3 border-b border-[#12305f]/50">
+                    <div className="flex items-center gap-2 text-[10px] text-blue-100/50">
+                      <Clock className="h-3 w-3" /> {course.duration}
                     </div>
-                    <ChevronDown className={`h-5 w-5 text-[#00c8ff] transition transform ${expandedCategories[category] ? "rotate-180" : ""}`} />
-                  </button>
-
-                  {expandedCategories[category] && (
-                    <div className="grid gap-3 p-4 border-t border-[#12305f]/50 sm:grid-cols-2 lg:grid-cols-3">
-                      {courses.map((course) => (
-                        <button
-                          key={course.id}
-                          className="group text-left rounded-xl border border-[#12305f]/50 bg-[#03080f]/55 p-3 hover:border-[#1e78ff]/40 hover:shadow-lg hover:shadow-[#1e78ff]/10 transition"
-                        >
-                          <div className="flex items-start justify-between mb-2">
-                            <span className="text-xl">{course.icon}</span>
-                            <span className="rounded-full bg-[#1e78ff]/20 px-2 py-0.5 text-[9px] font-black text-[#00c8ff] capitalize">
-                              {course.level}
-                            </span>
-                          </div>
-                          <h4 className="font-black text-white mb-1 group-hover:text-[#00c8ff] transition text-sm">{course.title}</h4>
-                          <p className="text-xs text-blue-100/60 mb-2 line-clamp-2">{course.description}</p>
-
-                          <div className="space-y-0.5 mb-2 pb-2 border-b border-[#12305f]/50">
-                            <div className="flex items-center gap-2 text-[9px] text-blue-100/50">
-                              <Clock className="h-2.5 w-2.5" /> {course.duration}
-                            </div>
-                          </div>
-
-                          <div className="flex flex-wrap gap-0.5 mb-2">
-                            {course.tags.slice(0, 2).map((tag) => (
-                              <span key={tag} className="rounded-full bg-[#1e78ff]/10 px-1.5 py-0.5 text-[8px] font-black text-[#00c8ff]">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-
-                          <div className="flex items-center gap-2 font-black text-[#00c8ff] text-xs group-hover:gap-3 transition">
-                            <Play className="h-3 w-3" />
-                            Learn
-                            <ChevronRight className="h-3 w-3 ml-auto" />
-                          </div>
-                        </button>
-                      ))}
+                    <div className="flex items-center gap-2 text-[10px] text-blue-100/50">
+                      <Users className="h-3 w-3" /> No enrollments yet
                     </div>
-                  )}
-                </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      <span className="text-[10px] text-amber-300">No ratings yet</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {course.tags.slice(0, 3).map((tag) => (
+                      <span key={tag} className="rounded-full bg-[#1e78ff]/10 px-2 py-0.5 text-[9px] font-black text-[#00c8ff]">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2 font-black text-[#00c8ff] text-sm group-hover:gap-3 transition">
+                    <Play className="h-3.5 w-3.5" />
+                    Start Learning
+                    <ChevronRight className="h-3.5 w-3.5 ml-auto" />
+                  </div>
+                </button>
               ))}
             </div>
           )}
