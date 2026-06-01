@@ -158,9 +158,9 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
       <div className="space-y-4">
         {/* Header */}
         <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
-              <Layers className="h-4 w-4 text-white" />
+          <div className="flex items-center gap-3 mb-3">
+             <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
+               <Layers className="h-4 w-4 text-white" />
             </div>
             <div>
               <h3 className="font-black text-white">2D Character Studio</h3>
@@ -275,11 +275,9 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
               ))}
             </div>
           </div>
-        )}
+          )}
 
-
-
-        {/* Generate & Copy buttons */}
+          {/* Generate & Copy buttons */}
         <div className="flex gap-2">
           <button onClick={handleGenerate} disabled={isGenerating}
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-5 py-3.5 text-sm font-black text-white shadow-lg transition hover:opacity-90 disabled:opacity-50">
