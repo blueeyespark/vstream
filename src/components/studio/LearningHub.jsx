@@ -95,8 +95,8 @@ export default function LearningHub() {
             <p className="text-xs text-blue-100/60 mt-1">Total Courses</p>
           </div>
           <div className="text-center bg-gradient-to-br from-amber-500/10 to-transparent rounded-xl p-3">
-            <p className="text-3xl font-black text-amber-300">Community</p>
-            <p className="text-xs text-blue-100/60 mt-1">Active Learners</p>
+            <p className="text-3xl font-black text-amber-300">Start Today</p>
+             <p className="text-xs text-blue-100/60 mt-1">Begin Your Journey</p>
           </div>
           <div className="text-center bg-gradient-to-br from-emerald-500/10 to-transparent rounded-xl p-3">
             <p className="text-3xl font-black text-emerald-400">4.8+</p>
@@ -171,18 +171,18 @@ export default function LearningHub() {
                 <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00c8ff] to-[#1e78ff] mb-6">💻 Web & Programming</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "JavaScript Fundamentals", level: "Beginner", students: 34200, rating: "4.9", icon: "📝" },
-                    { title: "React.js Mastery", level: "Intermediate", students: 28900, rating: "4.8", icon: "⚛️" },
-                    { title: "HTML & CSS Essentials", level: "Beginner", students: 38100, rating: "4.9", icon: "🌐" },
-                    { title: "Node.js Backend Development", level: "Intermediate", students: 22800, rating: "4.8", icon: "⚙️" },
-                    { title: "TypeScript Advanced", level: "Advanced", students: 16500, rating: "4.9", icon: "📘" },
-                    { title: "Vue.js Complete Guide", level: "Beginner", students: 18600, rating: "4.8", icon: "💚" },
-                    { title: "Full Stack MERN Stack", level: "Advanced", students: 24200, rating: "4.9", icon: "🚀" },
-                    { title: "Web APIs & REST Services", level: "Intermediate", students: 19300, rating: "4.7", icon: "🔌" },
-                    { title: "Next.js & SSR", level: "Intermediate", students: 15600, rating: "4.9", icon: "▲" },
-                    { title: "GraphQL Mastery", level: "Advanced", students: 12400, rating: "4.8", icon: "◇" },
-                    { title: "Web Performance Optimization", level: "Advanced", students: 11200, rating: "4.9", icon: "⚡" },
-                    { title: "Progressive Web Apps (PWA)", level: "Intermediate", students: 9800, rating: "4.8", icon: "📱" },
+                    { title: "JavaScript Fundamentals", level: "Beginner", icon: "📝" },
+                    { title: "React.js Mastery", level: "Intermediate", icon: "⚛️" },
+                    { title: "HTML & CSS Essentials", level: "Beginner", icon: "🌐" },
+                    { title: "Node.js Backend Development", level: "Intermediate", icon: "⚙️" },
+                    { title: "TypeScript Advanced", level: "Advanced", icon: "📘" },
+                    { title: "Vue.js Complete Guide", level: "Beginner", icon: "💚" },
+                    { title: "Full Stack MERN Stack", level: "Advanced", icon: "🚀" },
+                    { title: "Web APIs & REST Services", level: "Intermediate", icon: "🔌" },
+                    { title: "Next.js & SSR", level: "Intermediate", icon: "▲" },
+                    { title: "GraphQL Mastery", level: "Advanced", icon: "◇" },
+                    { title: "Web Performance Optimization", level: "Advanced", icon: "⚡" },
+                    { title: "Progressive Web Apps (PWA)", level: "Intermediate", icon: "📱" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-[#1e78ff]/40 bg-[#1e78ff]/10 p-3 hover:border-[#1e78ff]/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -190,10 +190,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-[#00c8ff] bg-[#1e78ff]/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -222,18 +219,18 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-pink-300 mb-4">🎨 Digital Art & Illustration</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Digital Painting Fundamentals", level: "Beginner", students: 21800, rating: "4.9", icon: "🖌️" },
-                    { title: "Character Design Essentials", level: "Intermediate", students: 18200, rating: "4.8", icon: "👤" },
-                    { title: "Illustration Masterclass", level: "Intermediate", students: 19900, rating: "4.9", icon: "🖼️" },
-                    { title: "Concept Art for Games", level: "Advanced", students: 14100, rating: "4.9", icon: "🎮" },
-                    { title: "Anatomy for Artists", level: "Intermediate", students: 16300, rating: "4.8", icon: "💀" },
-                    { title: "Color Theory Mastery", level: "Beginner", students: 22400, rating: "4.9", icon: "🎨" },
-                    { title: "Perspective Drawing", level: "Beginner", students: 17600, rating: "4.8", icon: "📏" },
-                    { title: "Digital Inking & Linework", level: "Intermediate", students: 11200, rating: "4.9", icon: "✏️" },
-                    { title: "Creature Design Workshop", level: "Advanced", students: 9800, rating: "4.8", icon: "🦾" },
-                    { title: "Comic Book Art Essentials", level: "Intermediate", students: 13400, rating: "4.9", icon: "💭" },
-                    { title: "Speed Painting Techniques", level: "Intermediate", students: 10600, rating: "4.8", icon: "⚡" },
-                    { title: "Digital Collage & Mixed Media", level: "Beginner", students: 8900, rating: "4.9", icon: "🎭" },
+                    { title: "Digital Painting Fundamentals", level: "Beginner", icon: "🖌️" },
+                    { title: "Character Design Essentials", level: "Intermediate", icon: "👤" },
+                    { title: "Illustration Masterclass", level: "Intermediate", icon: "🖼️" },
+                    { title: "Concept Art for Games", level: "Advanced", icon: "🎮" },
+                    { title: "Anatomy for Artists", level: "Intermediate", icon: "💀" },
+                    { title: "Color Theory Mastery", level: "Beginner", icon: "🎨" },
+                    { title: "Perspective Drawing", level: "Beginner", icon: "📏" },
+                    { title: "Digital Inking & Linework", level: "Intermediate", icon: "✏️" },
+                    { title: "Creature Design Workshop", level: "Advanced", icon: "🦾" },
+                    { title: "Comic Book Art Essentials", level: "Intermediate", icon: "💭" },
+                    { title: "Speed Painting Techniques", level: "Intermediate", icon: "⚡" },
+                    { title: "Digital Collage & Mixed Media", level: "Beginner", icon: "🎭" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-pink-500/40 bg-pink-500/10 p-3 hover:border-pink-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -241,10 +238,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-pink-300 bg-pink-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -258,18 +252,18 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-red-400 mb-4">🎬 Content Creation & Streaming</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "YouTube Growth Strategies", level: "Beginner", students: 34500, rating: "4.9", icon: "📺" },
-                    { title: "Video Production Fundamentals", level: "Beginner", students: 28900, rating: "4.8", icon: "📹" },
-                    { title: "Thumbnail Design Secrets", level: "Beginner", students: 25600, rating: "4.9", icon: "🎯" },
-                    { title: "Content Calendar Mastery", level: "Beginner", students: 19200, rating: "4.7", icon: "📅" },
-                    { title: "Adobe Premiere Pro Mastery", level: "Intermediate", students: 22300, rating: "4.9", icon: "🎞️" },
-                    { title: "Personal Branding 2025", level: "Intermediate", students: 19800, rating: "4.8", icon: "⭐" },
-                    { title: "Podcast Production Pro", level: "Intermediate", students: 16300, rating: "4.8", icon: "🎙️" },
-                    { title: "Twitch Streaming Mastery", level: "Beginner", students: 15200, rating: "4.9", icon: "🎮" },
-                    { title: "Audience Building Psychology", level: "Advanced", students: 12100, rating: "4.9", icon: "👥" },
-                    { title: "Shorts & TikTok Strategy", level: "Beginner", students: 23400, rating: "4.8", icon: "🎬" },
-                    { title: "Community Management Pro", level: "Intermediate", students: 14800, rating: "4.9", icon: "💬" },
-                    { title: "Monetization Strategies", level: "Intermediate", students: 17600, rating: "4.8", icon: "💰" },
+                    { title: "YouTube Growth Strategies", level: "Beginner", icon: "📺" },
+                    { title: "Video Production Fundamentals", level: "Beginner", icon: "📹" },
+                    { title: "Thumbnail Design Secrets", level: "Beginner", icon: "🎯" },
+                    { title: "Content Calendar Mastery", level: "Beginner", icon: "📅" },
+                    { title: "Adobe Premiere Pro Mastery", level: "Intermediate", icon: "🎞️" },
+                    { title: "Personal Branding 2025", level: "Intermediate", icon: "⭐" },
+                    { title: "Podcast Production Pro", level: "Intermediate", icon: "🎙️" },
+                    { title: "Twitch Streaming Mastery", level: "Beginner", icon: "🎮" },
+                    { title: "Audience Building Psychology", level: "Advanced", icon: "👥" },
+                    { title: "Shorts & TikTok Strategy", level: "Beginner", icon: "🎬" },
+                    { title: "Community Management Pro", level: "Intermediate", icon: "💬" },
+                    { title: "Monetization Strategies", level: "Intermediate", icon: "💰" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-red-500/40 bg-red-500/10 p-3 hover:border-red-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -277,10 +271,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-red-300 bg-red-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -294,18 +285,18 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-purple-400 mb-4">✨ UI/UX & Product Design</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "UI/UX Design Complete", level: "Beginner", students: 26700, rating: "4.9", icon: "🎨" },
-                    { title: "Figma Advanced Techniques", level: "Intermediate", students: 22400, rating: "4.8", icon: "📐" },
-                    { title: "Web Design Fundamentals", level: "Beginner", students: 24500, rating: "4.8", icon: "🌐" },
-                    { title: "Mobile App Design", level: "Intermediate", students: 23200, rating: "4.8", icon: "📱" },
-                    { title: "Design System Creation", level: "Advanced", students: 17200, rating: "4.9", icon: "🔧" },
-                    { title: "Interaction Design Mastery", level: "Intermediate", students: 16800, rating: "4.9", icon: "⚡" },
-                    { title: "Branding & Logo Design", level: "Intermediate", students: 20300, rating: "4.9", icon: "📛" },
-                    { title: "Accessibility in Design", level: "Beginner", students: 18900, rating: "4.8", icon: "♿" },
-                    { title: "User Research & Testing", level: "Intermediate", students: 15400, rating: "4.9", icon: "🔍" },
-                    { title: "Prototyping & Wireframing", level: "Beginner", students: 19200, rating: "4.8", icon: "📋" },
-                    { title: "Design Thinking Workshop", level: "Beginner", students: 16800, rating: "4.9", icon: "💡" },
-                    { title: "Advanced Animation in Design", level: "Advanced", students: 12600, rating: "4.8", icon: "✨" },
+                    { title: "UI/UX Design Complete", level: "Beginner", icon: "🎨" },
+                    { title: "Figma Advanced Techniques", level: "Intermediate", icon: "📐" },
+                    { title: "Web Design Fundamentals", level: "Beginner", icon: "🌐" },
+                    { title: "Mobile App Design", level: "Intermediate", icon: "📱" },
+                    { title: "Design System Creation", level: "Advanced", icon: "🔧" },
+                    { title: "Interaction Design Mastery", level: "Intermediate", icon: "⚡" },
+                    { title: "Branding & Logo Design", level: "Intermediate", icon: "📛" },
+                    { title: "Accessibility in Design", level: "Beginner", icon: "♿" },
+                    { title: "User Research & Testing", level: "Intermediate", icon: "🔍" },
+                    { title: "Prototyping & Wireframing", level: "Beginner", icon: "📋" },
+                    { title: "Design Thinking Workshop", level: "Beginner", icon: "💡" },
+                    { title: "Advanced Animation in Design", level: "Advanced", icon: "✨" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-purple-500/40 bg-purple-500/10 p-3 hover:border-purple-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -313,10 +304,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-purple-300 bg-purple-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -330,18 +318,18 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-emerald-400 mb-4">💼 Business & Entrepreneurship</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Entrepreneurship 101", level: "Beginner", students: 29800, rating: "4.9", icon: "🚀" },
-                    { title: "Digital Marketing Mastery", level: "Intermediate", students: 34100, rating: "4.8", icon: "📊" },
-                    { title: "Sales Fundamentals", level: "Beginner", students: 27600, rating: "4.9", icon: "💰" },
-                    { title: "Project Management Excellence", level: "Intermediate", students: 25400, rating: "4.9", icon: "📋" },
-                    { title: "Social Media Strategy", level: "Beginner", students: 32300, rating: "4.8", icon: "📱" },
-                    { title: "Financial Analysis Pro", level: "Advanced", students: 19300, rating: "4.8", icon: "📈" },
-                    { title: "Copywriting & Content Marketing", level: "Intermediate", students: 28700, rating: "4.9", icon: "✍️" },
-                    { title: "Leadership & Team Building", level: "Intermediate", students: 22600, rating: "4.8", icon: "👔" },
-                    { title: "Negotiation Skills Mastery", level: "Intermediate", students: 16200, rating: "4.9", icon: "🤝" },
-                    { title: "Customer Relationship Management", level: "Beginner", students: 20400, rating: "4.8", icon: "👥" },
-                    { title: "Business Writing Essentials", level: "Beginner", students: 18900, rating: "4.9", icon: "📄" },
-                    { title: "Operations Management", level: "Intermediate", students: 14700, rating: "4.8", icon: "⚙️" },
+                    { title: "Entrepreneurship 101", level: "Beginner", icon: "🚀" },
+                    { title: "Digital Marketing Mastery", level: "Intermediate", icon: "📊" },
+                    { title: "Sales Fundamentals", level: "Beginner", icon: "💰" },
+                    { title: "Project Management Excellence", level: "Intermediate", icon: "📋" },
+                    { title: "Social Media Strategy", level: "Beginner", icon: "📱" },
+                    { title: "Financial Analysis Pro", level: "Advanced", icon: "📈" },
+                    { title: "Copywriting & Content Marketing", level: "Intermediate", icon: "✍️" },
+                    { title: "Leadership & Team Building", level: "Intermediate", icon: "👔" },
+                    { title: "Negotiation Skills Mastery", level: "Intermediate", icon: "🤝" },
+                    { title: "Customer Relationship Management", level: "Beginner", icon: "👥" },
+                    { title: "Business Writing Essentials", level: "Beginner", icon: "📄" },
+                    { title: "Operations Management", level: "Intermediate", icon: "⚙️" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 hover:border-emerald-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -349,10 +337,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -366,18 +351,18 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-orange-400 mb-4">🎵 Music Production & Theory</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Music Production Fundamentals", level: "Beginner", students: 23400, rating: "4.9", icon: "🎚️" },
-                    { title: "Music Theory for Producers", level: "Beginner", students: 22300, rating: "4.8", icon: "🎼" },
-                    { title: "Beat Making & Hip Hop", level: "Intermediate", students: 19800, rating: "4.8", icon: "🎛️" },
-                    { title: "Electronic Music Production", level: "Intermediate", students: 20700, rating: "4.9", icon: "⚡" },
-                    { title: "Ableton Live Mastery", level: "Intermediate", students: 17400, rating: "4.8", icon: "🎹" },
-                    { title: "Music Mixing & Mastering", level: "Advanced", students: 18600, rating: "4.9", icon: "🎧" },
-                    { title: "Sound Design Secrets", level: "Advanced", students: 16200, rating: "4.9", icon: "🔊" },
-                    { title: "FL Studio Complete Guide", level: "Beginner", students: 15800, rating: "4.8", icon: "🎵" },
-                    { title: "Logic Pro Mastery", level: "Intermediate", students: 13400, rating: "4.9", icon: "🍎" },
-                    { title: "Music Business & Licensing", level: "Intermediate", students: 14800, rating: "4.8", icon: "📜" },
-                    { title: "Orchestration & Arrangement", level: "Advanced", students: 11200, rating: "4.9", icon: "🎻" },
-                    { title: "Lo-Fi Hip Hop Production", level: "Beginner", students: 18600, rating: "4.8", icon: "☕" },
+                    { title: "Music Production Fundamentals", level: "Beginner", icon: "🎚️" },
+                    { title: "Music Theory for Producers", level: "Beginner", icon: "🎼" },
+                    { title: "Beat Making & Hip Hop", level: "Intermediate", icon: "🎛️" },
+                    { title: "Electronic Music Production", level: "Intermediate", icon: "⚡" },
+                    { title: "Ableton Live Mastery", level: "Intermediate", icon: "🎹" },
+                    { title: "Music Mixing & Mastering", level: "Advanced", icon: "🎧" },
+                    { title: "Sound Design Secrets", level: "Advanced", icon: "🔊" },
+                    { title: "FL Studio Complete Guide", level: "Beginner", icon: "🎵" },
+                    { title: "Logic Pro Mastery", level: "Intermediate", icon: "🍎" },
+                    { title: "Music Business & Licensing", level: "Intermediate", icon: "📜" },
+                    { title: "Orchestration & Arrangement", level: "Advanced", icon: "🎻" },
+                    { title: "Lo-Fi Hip Hop Production", level: "Beginner", icon: "☕" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-orange-500/40 bg-orange-500/10 p-3 hover:border-orange-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -385,10 +370,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-orange-300 bg-orange-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -402,18 +384,18 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-yellow-400 mb-4">📸 Photography & Editing</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Photography Fundamentals", level: "Beginner", students: 28900, rating: "4.9", icon: "📷" },
-                    { title: "Portrait Photography Pro", level: "Intermediate", students: 22700, rating: "4.8", icon: "👤" },
-                    { title: "Landscape Photography", level: "Intermediate", students: 20400, rating: "4.9", icon: "🏔️" },
-                    { title: "Photo Editing in Lightroom", level: "Beginner", students: 26200, rating: "4.8", icon: "🖼️" },
-                    { title: "Advanced Photoshop Techniques", level: "Advanced", students: 18900, rating: "4.9", icon: "🎨" },
-                    { title: "Product Photography Mastery", level: "Intermediate", students: 17600, rating: "4.8", icon: "📦" },
-                    { title: "Wedding Photography Pro", level: "Advanced", students: 16300, rating: "4.9", icon: "💍" },
-                    { title: "Street Photography Mastery", level: "Intermediate", students: 13400, rating: "4.8", icon: "🏙️" },
-                    { title: "Photography Business & Marketing", level: "Intermediate", students: 14400, rating: "4.8", icon: "💼" },
-                    { title: "Lighting Techniques Mastery", level: "Intermediate", students: 15200, rating: "4.9", icon: "💡" },
-                    { title: "Macro & Close-up Photography", level: "Intermediate", students: 11800, rating: "4.8", icon: "🔬" },
-                    { title: "Photography Composition Secrets", level: "Beginner", students: 19600, rating: "4.9", icon: "🎯" },
+                    { title: "Photography Fundamentals", level: "Beginner", icon: "📷" },
+                    { title: "Portrait Photography Pro", level: "Intermediate", icon: "👤" },
+                    { title: "Landscape Photography", level: "Intermediate", icon: "🏔️" },
+                    { title: "Photo Editing in Lightroom", level: "Beginner", icon: "🖼️" },
+                    { title: "Advanced Photoshop Techniques", level: "Advanced", icon: "🎨" },
+                    { title: "Product Photography Mastery", level: "Intermediate", icon: "📦" },
+                    { title: "Wedding Photography Pro", level: "Advanced", icon: "💍" },
+                    { title: "Street Photography Mastery", level: "Intermediate", icon: "🏙️" },
+                    { title: "Photography Business & Marketing", level: "Intermediate", icon: "💼" },
+                    { title: "Lighting Techniques Mastery", level: "Intermediate", icon: "💡" },
+                    { title: "Macro & Close-up Photography", level: "Intermediate", icon: "🔬" },
+                    { title: "Photography Composition Secrets", level: "Beginner", icon: "🎯" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-yellow-500/40 bg-yellow-500/10 p-3 hover:border-yellow-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -421,10 +403,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-yellow-300 bg-yellow-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -438,14 +417,14 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-indigo-400 mb-4">🎮 Game Development</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Unity Game Development Fundamentals", level: "Beginner", students: 21400, rating: "4.9", icon: "🎮" },
-                    { title: "Unreal Engine 5 Mastery", level: "Intermediate", students: 16800, rating: "4.8", icon: "⚡" },
-                    { title: "Game Design Principles", level: "Beginner", students: 12300, rating: "4.9", icon: "🎯" },
-                    { title: "C# Programming for Games", level: "Intermediate", students: 14700, rating: "4.8", icon: "💜" },
-                    { title: "Game Physics & Mechanics", level: "Advanced", students: 8900, rating: "4.9", icon: "⚙️" },
-                    { title: "3D Game Environments", level: "Intermediate", students: 9200, rating: "4.8", icon: "🌍" },
-                    { title: "Multiplayer Networking", level: "Advanced", students: 6500, rating: "4.9", icon: "🌐" },
-                    { title: "Mobile Game Development", level: "Intermediate", students: 11200, rating: "4.8", icon: "📱" },
+                    { title: "Unity Game Development Fundamentals", level: "Beginner", icon: "🎮" },
+                    { title: "Unreal Engine 5 Mastery", level: "Intermediate", icon: "⚡" },
+                    { title: "Game Design Principles", level: "Beginner", icon: "🎯" },
+                    { title: "C# Programming for Games", level: "Intermediate", icon: "💜" },
+                    { title: "Game Physics & Mechanics", level: "Advanced", icon: "⚙️" },
+                    { title: "3D Game Environments", level: "Intermediate", icon: "🌍" },
+                    { title: "Multiplayer Networking", level: "Advanced", icon: "🌐" },
+                    { title: "Mobile Game Development", level: "Intermediate", icon: "📱" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-indigo-500/40 bg-indigo-500/10 p-3 hover:border-indigo-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -453,10 +432,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-indigo-300 bg-indigo-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -470,14 +446,14 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-cyan-400 mb-4">📊 Data Science & Analytics</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Python for Data Analysis", level: "Beginner", students: 28400, rating: "4.9", icon: "🐍" },
-                    { title: "Machine Learning Fundamentals", level: "Intermediate", students: 19800, rating: "4.8", icon: "🤖" },
-                    { title: "Data Visualization Mastery", level: "Intermediate", students: 14600, rating: "4.9", icon: "📈" },
-                    { title: "SQL & Database Design", level: "Beginner", students: 22100, rating: "4.8", icon: "🗄️" },
-                    { title: "Advanced Statistics", level: "Advanced", students: 9700, rating: "4.9", icon: "📊" },
-                    { title: "TensorFlow & Deep Learning", level: "Advanced", students: 11300, rating: "4.8", icon: "🧠" },
-                    { title: "Big Data with Spark", level: "Advanced", students: 7200, rating: "4.9", icon: "💥" },
-                    { title: "Tableau & Power BI", level: "Intermediate", students: 16800, rating: "4.8", icon: "📉" },
+                    { title: "Python for Data Analysis", level: "Beginner", icon: "🐍" },
+                    { title: "Machine Learning Fundamentals", level: "Intermediate", icon: "🤖" },
+                    { title: "Data Visualization Mastery", level: "Intermediate", icon: "📈" },
+                    { title: "SQL & Database Design", level: "Beginner", icon: "🗄️" },
+                    { title: "Advanced Statistics", level: "Advanced", icon: "📊" },
+                    { title: "TensorFlow & Deep Learning", level: "Advanced", icon: "🧠" },
+                    { title: "Big Data with Spark", level: "Advanced", icon: "💥" },
+                    { title: "Tableau & Power BI", level: "Intermediate", icon: "📉" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-cyan-500/40 bg-cyan-500/10 p-3 hover:border-cyan-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -485,10 +461,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-cyan-300 bg-cyan-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -502,14 +475,14 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-blue-400 mb-4">📱 Mobile Development</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "React Native Mastery", level: "Intermediate", students: 18900, rating: "4.9", icon: "⚛️" },
-                    { title: "iOS Development with Swift", level: "Intermediate", students: 15200, rating: "4.8", icon: "🍎" },
-                    { title: "Android Development Kotlin", level: "Intermediate", students: 16700, rating: "4.9", icon: "🤖" },
-                    { title: "Flutter Complete Guide", level: "Beginner", students: 19300, rating: "4.8", icon: "🦋" },
-                    { title: "Mobile UI/UX Design", level: "Intermediate", students: 13400, rating: "4.9", icon: "🎨" },
-                    { title: "App Monetization Strategies", level: "Intermediate", students: 8600, rating: "4.8", icon: "💰" },
-                    { title: "Push Notifications & APIs", level: "Intermediate", students: 7300, rating: "4.9", icon: "📲" },
-                    { title: "App Store Optimization", level: "Beginner", students: 10200, rating: "4.8", icon: "📈" },
+                    { title: "React Native Mastery", level: "Intermediate", icon: "⚛️" },
+                    { title: "iOS Development with Swift", level: "Intermediate", icon: "🍎" },
+                    { title: "Android Development Kotlin", level: "Intermediate", icon: "🤖" },
+                    { title: "Flutter Complete Guide", level: "Beginner", icon: "🦋" },
+                    { title: "Mobile UI/UX Design", level: "Intermediate", icon: "🎨" },
+                    { title: "App Monetization Strategies", level: "Intermediate", icon: "💰" },
+                    { title: "Push Notifications & APIs", level: "Intermediate", icon: "📲" },
+                    { title: "App Store Optimization", level: "Beginner", icon: "📈" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-blue-500/40 bg-blue-500/10 p-3 hover:border-blue-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -517,10 +490,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-blue-300 bg-blue-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -534,14 +504,14 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-purple-400 mb-4">🎬 Animation & Motion Graphics</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Animation Fundamentals", level: "Beginner", students: 14200, rating: "4.9", icon: "⏯️" },
-                    { title: "Blender 3D Animation", level: "Intermediate", students: 12800, rating: "4.8", icon: "🎨" },
-                    { title: "Motion Graphics Design", level: "Intermediate", students: 10600, rating: "4.9", icon: "✨" },
-                    { title: "After Effects Mastery", level: "Intermediate", students: 16300, rating: "4.8", icon: "🎬" },
-                    { title: "2D Animation Techniques", level: "Beginner", students: 11400, rating: "4.9", icon: "🖼️" },
-                    { title: "Character Animation Pro", level: "Advanced", students: 8900, rating: "4.8", icon: "👤" },
-                    { title: "Rigging & Skeletal Animation", level: "Advanced", students: 7100, rating: "4.9", icon: "🦴" },
-                    { title: "VFX & Visual Effects", level: "Advanced", students: 6400, rating: "4.8", icon: "💥" },
+                    { title: "Animation Fundamentals", level: "Beginner", icon: "⏯️" },
+                    { title: "Blender 3D Animation", level: "Intermediate", icon: "🎨" },
+                    { title: "Motion Graphics Design", level: "Intermediate", icon: "✨" },
+                    { title: "After Effects Mastery", level: "Intermediate", icon: "🎬" },
+                    { title: "2D Animation Techniques", level: "Beginner", icon: "🖼️" },
+                    { title: "Character Animation Pro", level: "Advanced", icon: "👤" },
+                    { title: "Rigging & Skeletal Animation", level: "Advanced", icon: "🦴" },
+                    { title: "VFX & Visual Effects", level: "Advanced", icon: "💥" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-purple-600/40 bg-purple-600/10 p-3 hover:border-purple-600/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -549,10 +519,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-purple-300 bg-purple-600/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -566,14 +533,14 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-fuchsia-400 mb-4">🗿 3D Modeling & Sculpting</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Blender Fundamentals", level: "Beginner", students: 19700, rating: "4.9", icon: "🟠" },
-                    { title: "Character Modeling", level: "Intermediate", students: 12400, rating: "4.8", icon: "👤" },
-                    { title: "3D Sculpting Mastery", level: "Intermediate", students: 10800, rating: "4.9", icon: "🗿" },
-                    { title: "Environment Design", level: "Intermediate", students: 9300, rating: "4.8", icon: "🌍" },
-                    { title: "Hard Surface Modeling", level: "Advanced", students: 7600, rating: "4.9", icon: "⚙️" },
-                    { title: "Texturing & Shading", level: "Intermediate", students: 13200, rating: "4.8", icon: "🎨" },
-                    { title: "3D Printing Preparation", level: "Intermediate", students: 5800, rating: "4.9", icon: "🖨️" },
-                    { title: "Motion Capture & Rigging", level: "Advanced", students: 6200, rating: "4.8", icon: "🎬" },
+                    { title: "Blender Fundamentals", level: "Beginner", icon: "🟠" },
+                    { title: "Character Modeling", level: "Intermediate", icon: "👤" },
+                    { title: "3D Sculpting Mastery", level: "Intermediate", icon: "🗿" },
+                    { title: "Environment Design", level: "Intermediate", icon: "🌍" },
+                    { title: "Hard Surface Modeling", level: "Advanced", icon: "⚙️" },
+                    { title: "Texturing & Shading", level: "Intermediate", icon: "🎨" },
+                    { title: "3D Printing Preparation", level: "Intermediate", icon: "🖨️" },
+                    { title: "Motion Capture & Rigging", level: "Advanced", icon: "🎬" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-fuchsia-500/40 bg-fuchsia-500/10 p-3 hover:border-fuchsia-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -581,10 +548,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-fuchsia-300 bg-fuchsia-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -598,14 +562,14 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-red-400 mb-4">🎞️ Video Editing & Production</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Adobe Premiere Pro Complete", level: "Beginner", students: 22500, rating: "4.9", icon: "🎬" },
-                    { title: "DaVinci Resolve Mastery", level: "Intermediate", students: 14300, rating: "4.8", icon: "⚫" },
-                    { title: "Final Cut Pro Professional", level: "Intermediate", students: 10200, rating: "4.9", icon: "🍎" },
-                    { title: "Video Color Grading", level: "Intermediate", students: 11800, rating: "4.8", icon: "🎨" },
-                    { title: "Sound Design for Video", level: "Intermediate", students: 8900, rating: "4.9", icon: "🔊" },
-                    { title: "Cinematic Techniques", level: "Advanced", students: 9400, rating: "4.8", icon: "🎥" },
-                    { title: "VFX & Compositing", level: "Advanced", students: 7600, rating: "4.9", icon: "💥" },
-                    { title: "Subtitle & Caption Design", level: "Beginner", students: 6200, rating: "4.8", icon: "📝" },
+                    { title: "Adobe Premiere Pro Complete", level: "Beginner", icon: "🎬" },
+                    { title: "DaVinci Resolve Mastery", level: "Intermediate", icon: "⚫" },
+                    { title: "Final Cut Pro Professional", level: "Intermediate", icon: "🍎" },
+                    { title: "Video Color Grading", level: "Intermediate", icon: "🎨" },
+                    { title: "Sound Design for Video", level: "Intermediate", icon: "🔊" },
+                    { title: "Cinematic Techniques", level: "Advanced", icon: "🎥" },
+                    { title: "VFX & Compositing", level: "Advanced", icon: "💥" },
+                    { title: "Subtitle & Caption Design", level: "Beginner", icon: "📝" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-red-600/40 bg-red-600/10 p-3 hover:border-red-600/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -613,10 +577,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-red-300 bg-red-600/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -630,14 +591,14 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-rose-400 mb-4">🖌️ Graphic Design</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Adobe Creative Suite Mastery", level: "Beginner", students: 24800, rating: "4.9", icon: "🎨" },
-                    { title: "Logo Design Professional", level: "Intermediate", students: 16200, rating: "4.8", icon: "📛" },
-                    { title: "Typography Mastery", level: "Intermediate", students: 12400, rating: "4.9", icon: "🔤" },
-                    { title: "Package Design", level: "Intermediate", students: 9800, rating: "4.8", icon: "📦" },
-                    { title: "Print Design Essentials", level: "Beginner", students: 10600, rating: "4.9", icon: "📄" },
-                    { title: "Poster & Flyer Design", level: "Intermediate", students: 14300, rating: "4.8", icon: "📃" },
-                    { title: "Brand Identity Design", level: "Advanced", students: 11700, rating: "4.9", icon: "🎯" },
-                    { title: "Layout & Composition", level: "Beginner", students: 13900, rating: "4.8", icon: "📐" },
+                    { title: "Adobe Creative Suite Mastery", level: "Beginner", icon: "🎨" },
+                    { title: "Logo Design Professional", level: "Intermediate", icon: "📛" },
+                    { title: "Typography Mastery", level: "Intermediate", icon: "🔤" },
+                    { title: "Package Design", level: "Intermediate", icon: "📦" },
+                    { title: "Print Design Essentials", level: "Beginner", icon: "📄" },
+                    { title: "Poster & Flyer Design", level: "Intermediate", icon: "📃" },
+                    { title: "Brand Identity Design", level: "Advanced", icon: "🎯" },
+                    { title: "Layout & Composition", level: "Beginner", icon: "📐" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 hover:border-rose-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -645,10 +606,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-rose-300 bg-rose-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -662,14 +620,14 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-lime-400 mb-4">📢 Marketing & Growth</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Digital Marketing Complete", level: "Beginner", students: 26300, rating: "4.9", icon: "📊" },
-                    { title: "SEO & SEM Mastery", level: "Intermediate", students: 19400, rating: "4.8", icon: "🔍" },
-                    { title: "Content Marketing Strategy", level: "Intermediate", students: 15800, rating: "4.9", icon: "📝" },
-                    { title: "Email Marketing Pro", level: "Intermediate", students: 13200, rating: "4.8", icon: "📧" },
-                    { title: "Influencer Marketing", level: "Intermediate", students: 11300, rating: "4.9", icon: "⭐" },
-                    { title: "Growth Hacking Techniques", level: "Advanced", students: 9700, rating: "4.8", icon: "📈" },
-                    { title: "Analytics & Data Driven Marketing", level: "Intermediate", students: 14600, rating: "4.9", icon: "📉" },
-                    { title: "Brand Positioning", level: "Intermediate", students: 10200, rating: "4.8", icon: "🎯" },
+                    { title: "Digital Marketing Complete", level: "Beginner", icon: "📊" },
+                    { title: "SEO & SEM Mastery", level: "Intermediate", icon: "🔍" },
+                    { title: "Content Marketing Strategy", level: "Intermediate", icon: "📝" },
+                    { title: "Email Marketing Pro", level: "Intermediate", icon: "📧" },
+                    { title: "Influencer Marketing", level: "Intermediate", icon: "⭐" },
+                    { title: "Growth Hacking Techniques", level: "Advanced", icon: "📈" },
+                    { title: "Analytics & Data Driven Marketing", level: "Intermediate", icon: "📉" },
+                    { title: "Brand Positioning", level: "Intermediate", icon: "🎯" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-lime-500/40 bg-lime-500/10 p-3 hover:border-lime-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -677,10 +635,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-lime-300 bg-lime-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -694,14 +649,14 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-amber-400 mb-4">🚀 Entrepreneurship & Startups</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Startup Fundamentals", level: "Beginner", students: 18900, rating: "4.9", icon: "🚀" },
-                    { title: "Business Model Canvas", level: "Beginner", students: 14200, rating: "4.8", icon: "📋" },
-                    { title: "Pitch Deck Mastery", level: "Intermediate", students: 12800, rating: "4.9", icon: "💼" },
-                    { title: "Fundraising & Venture Capital", level: "Advanced", students: 9300, rating: "4.8", icon: "💰" },
-                    { title: "Product-Market Fit", level: "Intermediate", students: 11600, rating: "4.9", icon: "🎯" },
-                    { title: "Scaling Your Business", level: "Advanced", students: 8700, rating: "4.8", icon: "📈" },
-                    { title: "Customer Development", level: "Intermediate", students: 13400, rating: "4.9", icon: "👥" },
-                    { title: "Legal & Compliance", level: "Intermediate", students: 7900, rating: "4.8", icon: "⚖️" },
+                    { title: "Startup Fundamentals", level: "Beginner", icon: "🚀" },
+                    { title: "Business Model Canvas", level: "Beginner", icon: "📋" },
+                    { title: "Pitch Deck Mastery", level: "Intermediate", icon: "💼" },
+                    { title: "Fundraising & Venture Capital", level: "Advanced", icon: "💰" },
+                    { title: "Product-Market Fit", level: "Intermediate", icon: "🎯" },
+                    { title: "Scaling Your Business", level: "Advanced", icon: "📈" },
+                    { title: "Customer Development", level: "Intermediate", icon: "👥" },
+                    { title: "Legal & Compliance", level: "Intermediate", icon: "⚖️" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-amber-600/40 bg-amber-600/10 p-3 hover:border-amber-600/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -709,10 +664,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-amber-300 bg-amber-600/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -726,18 +678,18 @@ export default function LearningHub() {
                 <h2 className="text-xl font-black text-blue-300 mb-4">✍️ Writing & Storytelling</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { title: "Creative Writing Fundamentals", level: "Beginner", students: 24600, rating: "4.9", icon: "📚" },
-                    { title: "Copywriting Mastery", level: "Intermediate", students: 28300, rating: "4.8", icon: "✍️" },
-                    { title: "SEO Content Writing", level: "Intermediate", students: 26400, rating: "4.9", icon: "📝" },
-                    { title: "Blogging for Success", level: "Beginner", students: 22200, rating: "4.9", icon: "📖" },
-                    { title: "Screenplay & Scriptwriting", level: "Intermediate", students: 18700, rating: "4.8", icon: "🎬" },
-                    { title: "Email Marketing Copy", level: "Intermediate", students: 19800, rating: "4.8", icon: "📧" },
-                    { title: "Fiction Writing Workshop", level: "Intermediate", students: 20500, rating: "4.9", icon: "📕" },
-                    { title: "Editing & Proofreading Pro", level: "Advanced", students: 17300, rating: "4.8", icon: "✏️" },
-                    { title: "Technical Writing Essentials", level: "Beginner", students: 15400, rating: "4.9", icon: "📋" },
-                    { title: "Poetry & Verse Writing", level: "Intermediate", students: 12100, rating: "4.8", icon: "🎭" },
-                    { title: "Grant Writing Mastery", level: "Advanced", students: 9800, rating: "4.9", icon: "🏆" },
-                    { title: "Social Media Copywriting", level: "Beginner", students: 21200, rating: "4.8", icon: "📱" },
+                    { title: "Creative Writing Fundamentals", level: "Beginner", icon: "📚" },
+                    { title: "Copywriting Mastery", level: "Intermediate", icon: "✍️" },
+                    { title: "SEO Content Writing", level: "Intermediate", icon: "📝" },
+                    { title: "Blogging for Success", level: "Beginner", icon: "📖" },
+                    { title: "Screenplay & Scriptwriting", level: "Intermediate", icon: "🎬" },
+                    { title: "Email Marketing Copy", level: "Intermediate", icon: "📧" },
+                    { title: "Fiction Writing Workshop", level: "Intermediate", icon: "📕" },
+                    { title: "Editing & Proofreading Pro", level: "Advanced", icon: "✏️" },
+                    { title: "Technical Writing Essentials", level: "Beginner", icon: "📋" },
+                    { title: "Poetry & Verse Writing", level: "Intermediate", icon: "🎭" },
+                    { title: "Grant Writing Mastery", level: "Advanced", icon: "🏆" },
+                    { title: "Social Media Copywriting", level: "Beginner", icon: "📱" },
                   ].map((course, idx) => (
                     <button key={idx} className="text-left rounded-lg border border-blue-500/40 bg-blue-500/10 p-3 hover:border-blue-500/60 transition">
                       <div className="flex items-start justify-between mb-2">
@@ -745,10 +697,7 @@ export default function LearningHub() {
                         <span className="text-[9px] font-black text-blue-300 bg-blue-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
                       </div>
                       <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
-                      <div className="flex justify-between text-[9px] text-blue-100/60">
-                        <span>👥 {course.students}K</span>
-                        <span>⭐ {course.rating}</span>
-                      </div>
+                       <p className="text-[9px] text-blue-100/60">Start learning today</p>
                     </button>
                   ))}
                 </div>
@@ -950,17 +899,8 @@ export default function LearningHub() {
                   <h3 className="font-black text-white mb-1.5 group-hover:text-[#00c8ff] transition">{course.title}</h3>
                   <p className="text-xs text-blue-100/60 mb-3 line-clamp-2">{course.description}</p>
 
-                  <div className="space-y-1 mb-3 pb-3 border-b border-[#12305f]/50">
-                    <div className="flex items-center gap-2 text-[10px] text-blue-100/50">
-                      <Clock className="h-3 w-3" /> {course.duration}
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] text-blue-100/50">
-                      <Users className="h-3 w-3" /> No enrollments yet
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                      <span className="text-[10px] text-amber-300">No ratings yet</span>
-                    </div>
+                  <div className="flex items-center gap-2 text-[10px] text-blue-100/50 mb-3 pb-3 border-b border-[#12305f]/50">
+                    <Clock className="h-3 w-3" /> {course.duration}
                   </div>
 
                   <div className="flex flex-wrap gap-1 mb-3">
@@ -993,25 +933,26 @@ export default function LearningHub() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { name: "JavaScript Certified", courses: 5, progress: 60, icon: "📝" },
-                { name: "UI/UX Designer", courses: 4, progress: 75, icon: "🎨" },
-                { name: "Web Developer Pro", courses: 8, progress: 40, icon: "💻" },
-                { name: "Content Creator Expert", courses: 6, progress: 50, icon: "🎬" },
-                { name: "React Specialist", courses: 3, progress: 0, icon: "⚛️" },
-                { name: "Music Producer", courses: 4, progress: 25, icon: "🎵" },
-                { name: "Product Designer", courses: 5, progress: 0, icon: "📱" },
-                { name: "Full Stack Developer", courses: 12, progress: 30, icon: "🌐" },
+                { name: "JavaScript Certified", courses: 5, icon: "📝" },
+                  { name: "UI/UX Designer", courses: 4, icon: "🎨" },
+                  { name: "Web Developer Pro", courses: 8, icon: "💻" },
+                  { name: "Content Creator Expert", courses: 6, icon: "🎬" },
+                  { name: "React Specialist", courses: 3, icon: "⚛️" },
+                  { name: "Music Producer", courses: 4, icon: "🎵" },
+                  { name: "Product Designer", courses: 5, icon: "📱" },
+                  { name: "Full Stack Developer", courses: 12, icon: "🌐" },
               ].map((cert, idx) => (
-                <div key={idx} className="rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3 hover:border-amber-500/40 transition cursor-pointer">
+                <div key={idx} className="rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3 hover:border-amber-500/40 transition cursor-pointer group">
                   <div className="flex items-start justify-between mb-2">
                     <span className="text-xl">{cert.icon}</span>
-                    <span className="text-[9px] font-black text-amber-300">{cert.progress}%</span>
+                    <span className="text-[9px] font-black text-amber-400/60 bg-amber-500/10 px-1.5 py-0.5 rounded">Locked</span>
                   </div>
-                  <p className="font-black text-white text-xs mb-2">{cert.name}</p>
-                  <div className="w-full bg-[#12305f]/50 rounded-full h-1.5 mb-1">
-                    <div className="bg-amber-500 h-1.5 rounded-full transition-all" style={{ width: `${cert.progress}%` }}></div>
+                  <p className="font-black text-white text-xs mb-1">{cert.name}</p>
+                  <p className="text-[9px] text-blue-100/40 mb-2">{cert.courses} courses required</p>
+                  <div className="w-full bg-[#12305f]/50 rounded-full h-1.5">
+                    <div className="bg-amber-500/30 h-1.5 rounded-full" style={{ width: "0%" }}></div>
                   </div>
-                  <p className="text-[9px] text-blue-100/40">{cert.courses} courses</p>
+                  <p className="text-[9px] text-blue-100/30 mt-1.5">Enroll in courses to unlock</p>
                 </div>
               ))}
             </div>
@@ -1025,21 +966,21 @@ export default function LearningHub() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {[
-                { title: "100 Days of Code", participants: 2847, days: "45/100", prize: "1000 XP", icon: "💻", color: "border-[#1e78ff]" },
-                { title: "Design Sprint Challenge", participants: 523, days: "8/7", prize: "Certificate", icon: "🎨", color: "border-pink-500" },
-                { title: "YouTube Thumbnail Duel", participants: 156, days: "3/5", prize: "$100", icon: "🎬", color: "border-red-500" },
-                { title: "Music Production Hackathon", participants: 389, days: "2/7", prize: "Featured", icon: "🎵", color: "border-purple-500" },
+                { title: "100 Days of Code", duration: "100 days", prize: "1000 XP", icon: "💻", color: "border-[#1e78ff]", desc: "Build a coding habit — one hour a day for 100 days" },
+                { title: "Design Sprint Challenge", duration: "7 days", prize: "Certificate", icon: "🎨", color: "border-pink-500", desc: "Solve a design problem end-to-end in a week" },
+                { title: "YouTube Thumbnail Duel", duration: "5 days", prize: "Featured Spot", icon: "🎬", color: "border-red-500", desc: "Create the best performing thumbnail for a topic" },
+                { title: "Music Production Hackathon", duration: "7 days", prize: "Platform Feature", icon: "🎵", color: "border-purple-500", desc: "Produce an original track from scratch this week" },
               ].map((challenge, idx) => (
                 <button key={idx} className={`text-left rounded-xl border-2 ${challenge.color} bg-[#03080f]/55 p-4 hover:opacity-80 transition`}>
                   <div className="flex items-start justify-between mb-2">
                     <span className="text-2xl">{challenge.icon}</span>
                     <span className="text-[9px] font-black bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-full">Active</span>
                   </div>
-                  <h4 className="font-black text-white text-sm mb-2">{challenge.title}</h4>
-                  <div className="space-y-1 text-[10px]">
-                    <p className="text-blue-100/60">👥 {challenge.participants} Participants</p>
-                    <p className="text-blue-100/60">⏰ {challenge.days}</p>
-                    <p className="text-amber-300 font-black">🏆 {challenge.prize}</p>
+                  <h4 className="font-black text-white text-sm mb-1">{challenge.title}</h4>
+                  <p className="text-[10px] text-blue-100/50 mb-2">{challenge.desc}</p>
+                  <div className="flex items-center justify-between text-[10px]">
+                    <span className="text-blue-100/60">⏱ {challenge.duration}</span>
+                    <span className="text-amber-300 font-black">🏆 {challenge.prize}</span>
                   </div>
                 </button>
               ))}
@@ -1081,10 +1022,10 @@ export default function LearningHub() {
             </div>
             <div className="space-y-3">
               {[
-                { title: "React Hooks Deep Dive", date: "Jun 5, 2026", time: "2:00 PM", instructor: "Sarah Dayan", spots: "12/50", icon: "⚛️" },
-                { title: "Figma Design Critique Session", date: "Jun 6, 2026", time: "3:00 PM", instructor: "Sarah Dresner", spots: "8/30", icon: "🎨" },
-                { title: "Building Your Personal Brand", date: "Jun 7, 2026", time: "4:00 PM", instructor: "Ali Abdaal", spots: "25/100", icon: "⭐" },
-                { title: "Music Production Q&A", date: "Jun 8, 2026", time: "1:00 PM", instructor: "Busy Works Beats", spots: "5/20", icon: "🎵" },
+                { title: "React Hooks Deep Dive", date: "Jun 5, 2026", time: "2:00 PM", instructor: "Sarah Dayan", spots: "Open", icon: "⚛️" },
+                { title: "Figma Design Critique Session", date: "Jun 6, 2026", time: "3:00 PM", instructor: "Sarah Dresner", spots: "Open", icon: "🎨" },
+                { title: "Building Your Personal Brand", date: "Jun 7, 2026", time: "4:00 PM", instructor: "Ali Abdaal", spots: "Open", icon: "⭐" },
+                { title: "Music Production Q&A", date: "Jun 8, 2026", time: "1:00 PM", instructor: "Busy Works Beats", spots: "Open", icon: "🎵" },
               ].map((workshop, idx) => (
                 <div key={idx} className="flex items-start gap-3 rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3 hover:border-pink-500/40 transition">
                   <span className="text-xl">{workshop.icon}</span>
@@ -1096,7 +1037,7 @@ export default function LearningHub() {
                       <span className="text-blue-100/60">👨‍🏫 {workshop.instructor}</span>
                     </div>
                   </div>
-                  <button className="flex-shrink-0 text-[9px] font-black bg-pink-500/20 text-pink-300 px-2 py-1 rounded hover:bg-pink-500/30 transition">
+                  <button className="flex-shrink-0 text-[9px] font-black bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded hover:bg-emerald-500/30 transition">
                     {workshop.spots}
                   </button>
                 </div>
