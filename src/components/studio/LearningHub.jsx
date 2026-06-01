@@ -18,6 +18,13 @@ export default function LearningHub() {
   const [levelFilter, setLevelFilter] = useState("all");
   const [courseType, setCourseType] = useState("coding");
   const [activeTab, setActiveTab] = useState("explore");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+
+  const categoryOptions = {
+    coding: ["Web Development", "Mobile Apps", "Backend", "DevOps", "Data Science", "AI/ML"],
+    art: ["Digital Painting", "Character Design", "Animation", "3D Modeling", "Illustration", "Concept Art"],
+    creator: ["Video Editing", "Content Strategy", "Monetization", "Community Management", "Thumbnails", "Audio Production"],
+  };
 
   let allCourses = expandedCourses;
   if (courseType === "art") allCourses = artCoursesExpanded;
@@ -114,37 +121,66 @@ export default function LearningHub() {
                 ))}
               </div>
             </div>
-            <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={() => setCourseType("coding")}
-                className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
-                  courseType === "coding"
-                    ? "bg-[#1e78ff]/20 border border-[#1e78ff]/50 text-white"
-                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
-                }`}
-              >
-                💻 Coding <span className="text-xs opacity-70">({codingCoursesExpanded.length})</span>
-              </button>
-              <button
-                onClick={() => setCourseType("art")}
-                className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
-                  courseType === "art"
-                    ? "bg-purple-500/20 border border-purple-500/50 text-purple-300"
-                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
-                }`}
-              >
-                🎨 Art <span className="text-xs opacity-70">({artCoursesExpanded.length})</span>
-              </button>
-              <button
-                onClick={() => setCourseType("creator")}
-                className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
-                  courseType === "creator"
-                    ? "bg-amber-500/20 border border-amber-500/50 text-amber-300"
-                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
-                }`}
-              >
-                🚀 Creator <span className="text-xs opacity-70">({creatorCoursesExpanded.length})</span>
-              </button>
+            <div className="space-y-3">
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => { setCourseType("coding"); setCategoryFilter("all"); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                    courseType === "coding"
+                      ? "bg-[#1e78ff]/20 border border-[#1e78ff]/50 text-white"
+                      : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                  }`}
+                >
+                  💻 Coding <span className="text-xs opacity-70">({codingCoursesExpanded.length})</span>
+                </button>
+                <button
+                  onClick={() => { setCourseType("art"); setCategoryFilter("all"); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                    courseType === "art"
+                      ? "bg-purple-500/20 border border-purple-500/50 text-purple-300"
+                      : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                  }`}
+                >
+                  🎨 Art <span className="text-xs opacity-70">({artCoursesExpanded.length})</span>
+                </button>
+                <button
+                  onClick={() => { setCourseType("creator"); setCategoryFilter("all"); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                    courseType === "creator"
+                      ? "bg-amber-500/20 border border-amber-500/50 text-amber-300"
+                      : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                  }`}
+                >
+                  🚀 Creator <span className="text-xs opacity-70">({creatorCoursesExpanded.length})</span>
+                </button>
+              </div>
+
+              {/* Category buttons based on selected course type */}
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setCategoryFilter("all")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-black transition ${
+                    categoryFilter === "all"
+                      ? "bg-white/15 border border-white/30 text-white"
+                      : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/50 hover:text-blue-100"
+                  }`}
+                >
+                  All
+                </button>
+                {categoryOptions[courseType].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setCategoryFilter(cat)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-black transition ${
+                      categoryFilter === cat
+                        ? "bg-white/15 border border-white/30 text-white"
+                        : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/50 hover:text-blue-100"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
