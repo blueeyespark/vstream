@@ -477,29 +477,40 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
       )}
 
       {/* Tab bar — hidden when parent (ProductionHub) controls tabs externally */}
-      {!onTabChange && <div className="flex items-center gap-0.5 overflow-x-auto rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 p-1">
-        {tabs.map(({ id, label, icon: Icon, badge }) => (
-          <button key={id} onClick={() => { setActiveTab(id); onTabChange?.(id); }}
-            className={cls("relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black transition",
-              activeTab === id ? "bg-[#a855f7]/20 text-white border border-[#a855f7]/40" : "text-blue-200/45 hover:text-white hover:bg-white/5 border border-transparent")}>
-            <Icon className="h-3.5 w-3.5" />{label}
-            {badge > 0 && <span className="ml-0.5 rounded-full bg-[#a855f7] px-1.5 py-0.5 text-[9px] font-black text-white">{badge}</span>}
-          </button>
-        ))}
-      </div>}
+      {!onTabChange && (
+        <div className="flex items-center gap-2">
+          <div className="flex flex-1 items-center gap-0.5 overflow-x-auto rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 p-1">
+            {tabs.map(({ id, label, icon: Icon, badge }) => (
+              <button key={id} onClick={() => { setActiveTab(id); onTabChange?.(id); }}
+                className={cls("relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black transition",
+                  activeTab === id ? "bg-[#a855f7]/20 text-white border border-[#a855f7]/40" : "text-blue-200/45 hover:text-white hover:bg-white/5 border border-transparent")}>
+                <Icon className="h-3.5 w-3.5" />{label}
+                {badge > 0 && <span className="ml-0.5 rounded-full bg-[#a855f7] px-1.5 py-0.5 text-[9px] font-black text-white">{badge}</span>}
+              </button>
+            ))}
+          </div>
+          {activeTab === "generate" && (
+            <button onClick={handleGenerate} disabled={isGenerating}
+              className="shrink-0 flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#a855f7] to-[#1e78ff] px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-purple-950/40 hover:opacity-90 disabled:opacity-50 transition">
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+              {isGenerating ? "Generating…" : "Generate"}
+            </button>
+          )}
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
 
         {/* ── GENERATE TAB ─────────────────────────────────────────────── */}
         {activeTab === "generate" && (
           <motion.div key="generate" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            className="grid gap-3 lg:grid-cols-[190px_minmax(0,1fr)] xl:grid-cols-[200px_minmax(0,1fr)_250px]">
+            className="grid gap-3 lg:grid-cols-[180px_minmax(0,1fr)] xl:grid-cols-[180px_minmax(0,1fr)_240px]">
 
             {/* Left: Mode + Settings */}
             <aside className="space-y-3">
               {/* Mode selector — hidden when parent controls mode via project type */}
               {!hideModePicker && <Panel title="Creation Mode" icon={Sparkles} className="max-w-full">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-52 overflow-y-auto">
+                <div className="grid grid-cols-2 gap-1.5 max-h-60 overflow-y-auto">
                   {CREATION_MODES.map((item) => {
                     const Icon = item.icon;
                     const active = mode === item.id;
@@ -934,11 +945,26 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                 </div>
               </Panel>
 
+              {/* Recent outputs strip */}
+              {completedJobs.length > 0 && (
+                <Panel title="Recent Outputs" icon={Eye}
+                  action={<button onClick={() => setActiveTab("gallery")} className="text-[10px] text-[#a855f7] hover:text-white transition">Gallery →</button>}>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {completedJobs.slice(0, 4).map((job) => (
+                      <button key={job.id} onClick={() => setSelectedAsset({ url: job.result_url, type: job.mode, name: job.title })}
+                        className="aspect-square overflow-hidden rounded-lg border border-[#1a3a60]/50 bg-[#030e1f] hover:border-[#a855f7]/50 transition">
+                        <img src={job.result_url} alt="" className="h-full w-full object-cover hover:scale-105 transition-transform" />
+                      </button>
+                    ))}
+                  </div>
+                </Panel>
+              )}
+
               {/* Pipeline preview */}
-              <Panel title="Pipeline Prompt" icon={GitBranch}
-                action={<button onClick={copyPrompt} className="rounded-lg p-1.5 text-blue-300/50 hover:text-white transition"><Copy className="h-3.5 w-3.5" /></button>}>
-                <pre className="max-h-[180px] overflow-auto whitespace-pre-wrap rounded-xl border border-[#1a3a60]/40 bg-[#030e1f]/80 p-3 text-[11px] leading-5 text-blue-100/45">{pipelinePrompt}</pre>
-              </Panel>
+               <Panel title="Pipeline Prompt" icon={GitBranch}
+                 action={<button onClick={copyPrompt} className="rounded-lg p-1.5 text-blue-300/50 hover:text-white transition"><Copy className="h-3.5 w-3.5" /></button>}>
+                 <pre className="max-h-[140px] overflow-auto whitespace-pre-wrap rounded-xl border border-[#1a3a60]/40 bg-[#030e1f]/80 p-3 text-[11px] leading-5 text-blue-100/45">{pipelinePrompt}</pre>
+               </Panel>
 
             </aside>
           </motion.div>

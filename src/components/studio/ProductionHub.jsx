@@ -6,7 +6,7 @@ import {
   PackageCheck, Palette, PenTool, Radio, Save, Send, Smile,
   Upload, Video, WandSparkles, Zap, Film, Sparkles, ArrowRight,
   Play, FileVideo, Wand2, Grid2x2, Layers2, Brush, ScanLine,
-  LayoutGrid, Star, TrendingUp, Loader2, Circle, CheckCircle, Settings,
+  LayoutGrid, Star, TrendingUp, Loader2, Circle, CheckCircle, Settings, Eye,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import VStreamAIAssistant from "@/components/ai/VStreamAIAssistant";
@@ -185,6 +185,14 @@ export default function ProductionHub() {
 
         {/* Main workspace */}
         <main className="min-w-0 space-y-2 overflow-x-hidden">
+          {/* Project header with breadcrumb + Next CTA */}
+          <ProductionHeader
+            selectedType={selectedType}
+            activeStage={activeStage}
+            activeMode={activeModeMeta}
+            onNext={goNext}
+            readinessScore={readinessScore}
+          />
           <Panel>
             <ModeTabs
               activeMode={activeMode}
@@ -212,7 +220,7 @@ export default function ProductionHub() {
           </Panel>
         </main>
 
-        {/* Right rail */}
+        {/* Right rail — hidden on small/medium, visible on 2xl */}
         <ProductionRightRail
           selectedType={selectedType}
           activeStage={activeStage}
@@ -382,8 +390,8 @@ function ProductionHeader({ selectedType, activeStage, activeMode, onNext, readi
 const artforgeTabs = [
   { id: "generate", label: "Generate", icon: WandSparkles },
   { id: "gallery", label: "Gallery", icon: LayoutGrid },
+  { id: "trending", label: "Trending", icon: TrendingUp },
   { id: "canvas", label: "Canvas", icon: Layers2 },
-  { id: "workflow", label: "Workflow", icon: Zap },
   { id: "history", label: "History", icon: Clock },
   { id: "settings", label: "Settings", icon: Settings },
 ];
@@ -541,8 +549,10 @@ function AssetLibraryPanel({ assets, assetFilter, setAssetFilter, bucketCounts, 
                   : "border-[#1a3a60]/50 bg-[#030e1f]/80 hover:border-[#1e78ff]/50 hover:bg-[#0d1f38]/80"
               )}
             >
-              <div className="grid h-24 place-items-center bg-gradient-to-br from-[#0a1b35] to-[#170a2e]">
-                <ImageIcon className="h-7 w-7 text-[#1e78ff]/40" />
+              <div className="h-24 overflow-hidden bg-gradient-to-br from-[#0a1b35] to-[#170a2e]">
+                {(asset.url || asset.file_url || asset.thumbnail_url)
+                  ? <img src={asset.thumbnail_url || asset.url || asset.file_url} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  : <div className="grid h-full place-items-center"><ImageIcon className="h-7 w-7 text-[#1e78ff]/40" /></div>}
               </div>
               {isDemo && (
                 <span className="absolute right-2 top-2 rounded-full bg-amber-400/20 border border-amber-400/30 px-1.5 py-0.5 text-[9px] font-black text-amber-300">Demo</span>
