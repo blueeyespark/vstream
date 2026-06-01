@@ -86,34 +86,9 @@ export default function LearningHub() {
         <LearningPathGenerator />
       ) : (
         <>
-          {/* Search & Filter */}
-          <div className="flex flex-col gap-2 mb-6">
-            <div className="flex flex-col sm:flex-row gap-2">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-300/40" />
-                <Input
-                  placeholder="Search courses..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 bg-[#06101f] border-[#12305f]/60 text-white"
-                />
-              </div>
-              <div className="flex gap-1 bg-[#06101f]/90 border border-[#12305f]/60 rounded-xl p-1">
-                {["all", "beginner", "intermediate", "advanced"].map((level) => (
-                  <button
-                    key={level}
-                    onClick={() => setLevelFilter(level)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-black capitalize transition ${
-                      levelFilter === level
-                        ? "bg-[#1e78ff]/20 text-white border border-[#1e78ff]/50"
-                        : "text-blue-100/60 hover:text-white"
-                    }`}
-                  >
-                    {level}
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* What do creators want to make? */}
+          <div className="mb-6">
+            <h2 className="text-lg font-black text-white mb-3">What do creators want to make?</h2>
             <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => setCourseType("coding")}
@@ -145,8 +120,38 @@ export default function LearningHub() {
               >
                 🚀 Creator <span className="text-xs opacity-70">({creatorCoursesExpanded.length})</span>
               </button>
-            </div>
-          </div>
+              </div>
+              </div>
+
+              {/* Search & Filter */}
+              <div className="flex flex-col gap-2 mb-6">
+              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-300/40" />
+                <Input
+                  placeholder="Search courses..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10 bg-[#06101f] border-[#12305f]/60 text-white"
+                />
+              </div>
+              <div className="flex gap-1 bg-[#06101f]/90 border border-[#12305f]/60 rounded-xl p-1">
+                {["all", "beginner", "intermediate", "advanced"].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setLevelFilter(level)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-black capitalize transition ${
+                      levelFilter === level
+                        ? "bg-[#1e78ff]/20 text-white border border-[#1e78ff]/50"
+                        : "text-blue-100/60 hover:text-white"
+                    }`}
+                  >
+                    {level}
+                  </button>
+                ))}
+              </div>
+              </div>
+              </div>
 
           {/* Courses Grid */}
           {filtered.length === 0 ? (
