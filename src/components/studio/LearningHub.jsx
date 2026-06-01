@@ -6,46 +6,6 @@ import MyCourses from "@/components/learning/MyCourses";
 import LearningPathGenerator from "@/components/learning/LearningPathGenerator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const CourseCard = ({ course }) => (
-  <button className="group text-left rounded-2xl border border-[#12305f]/70 bg-[#06101f]/90 p-4 hover:border-[#1e78ff]/40 hover:shadow-lg hover:shadow-[#1e78ff]/10 transition">
-    <div className="flex items-start justify-between mb-3">
-      <span className="text-2xl">{course.icon}</span>
-      <span className="rounded-full bg-[#1e78ff]/20 px-2 py-1 text-[10px] font-black text-[#00c8ff] capitalize">
-        {course.level}
-      </span>
-    </div>
-    <h3 className="font-black text-white mb-1.5 group-hover:text-[#00c8ff] transition">{course.title}</h3>
-    <p className="text-xs text-blue-100/60 mb-3 line-clamp-2">{course.description}</p>
-
-    <div className="space-y-1 mb-3 pb-3 border-b border-[#12305f]/50">
-      <div className="flex items-center gap-2 text-[10px] text-blue-100/50">
-        <Clock className="h-3 w-3" /> {course.duration}
-      </div>
-      <div className="flex items-center gap-2 text-[10px] text-blue-100/50">
-        <Users className="h-3 w-3" /> No enrollments yet
-      </div>
-      <div className="flex items-center gap-1">
-        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-        <span className="text-[10px] text-amber-300">No ratings yet</span>
-      </div>
-    </div>
-
-    <div className="flex flex-wrap gap-1 mb-3">
-      {course.tags.slice(0, 3).map((tag) => (
-        <span key={tag} className="rounded-full bg-[#1e78ff]/10 px-2 py-0.5 text-[9px] font-black text-[#00c8ff]">
-          {tag}
-        </span>
-      ))}
-    </div>
-
-    <div className="flex items-center gap-2 font-black text-[#00c8ff] text-sm group-hover:gap-3 transition">
-      <Play className="h-3.5 w-3.5" />
-      Start Learning
-      <ChevronRight className="h-3.5 w-3.5 ml-auto" />
-    </div>
-  </button>
-);
-
 const resources = [
   { name: "MDN Web Docs", url: "https://developer.mozilla.org", icon: "📚", desc: "Comprehensive web dev reference" },
   { name: "GitHub", url: "https://github.com", icon: "🐙", desc: "Version control & code hosting" },
@@ -56,19 +16,28 @@ const resources = [
 export default function LearningHub() {
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("all");
+  const [courseType, setCourseType] = useState("coding");
   const [activeTab, setActiveTab] = useState("explore");
 
-  const filterCourses = (courses) => {
-    return courses.filter((course) => {
-      const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase()) || course.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
-      const matchesLevel = levelFilter === "all" || course.level === levelFilter;
-      return matchesSearch && matchesLevel;
-    });
-  };
+  let allCourses = expandedCourses;
+  if (courseType === "art") allCourses = artCoursesExpanded;
+  if (courseType === "coding") allCourses = codingCoursesExpanded;
+  if (courseType === "creator") allCourses = creatorCoursesExpanded;
 
-  const filteredCoding = filterCourses(codingCoursesExpanded);
-  const filteredArt = filterCourses(artCoursesExpanded);
-  const filteredCreator = filterCourses(creatorCoursesExpanded);
+  const filtered = allCourses.filter((course) => {
+    const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase()) || course.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
+    const matchesLevel = levelFilter === "all" || course.level === levelFilter;
+    return matchesSearch && matchesLevel;
+  });
+
+  const getCourseCount = () => {
+    switch(courseType) {
+      case "coding": return codingCoursesExpanded.length;
+      case "art": return artCoursesExpanded.length;
+      case "creator": return creatorCoursesExpanded.length;
+      default: return expandedCourses.length;
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -145,62 +114,95 @@ export default function LearningHub() {
                 ))}
               </div>
             </div>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setCourseType("coding")}
+                className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                  courseType === "coding"
+                    ? "bg-[#1e78ff]/20 border border-[#1e78ff]/50 text-white"
+                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                }`}
+              >
+                💻 Coding <span className="text-xs opacity-70">({codingCoursesExpanded.length})</span>
+              </button>
+              <button
+                onClick={() => setCourseType("art")}
+                className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                  courseType === "art"
+                    ? "bg-purple-500/20 border border-purple-500/50 text-purple-300"
+                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                }`}
+              >
+                🎨 Art <span className="text-xs opacity-70">({artCoursesExpanded.length})</span>
+              </button>
+              <button
+                onClick={() => setCourseType("creator")}
+                className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                  courseType === "creator"
+                    ? "bg-amber-500/20 border border-amber-500/50 text-amber-300"
+                    : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                }`}
+              >
+                🚀 Creator <span className="text-xs opacity-70">({creatorCoursesExpanded.length})</span>
+              </button>
+            </div>
           </div>
 
-          {/* Course Sections by Type */}
-          {/* Coding Courses */}
-          {filteredCoding.length > 0 && (
-            <section className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e78ff]/20 text-lg">💻</span>
-                <h2 className="text-xl font-black text-white">Coding Courses</h2>
-                <span className="ml-auto text-xs text-blue-100/50">({filteredCoding.length})</span>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredCoding.map((course) => (
-                  <CourseCard key={course.id} course={course} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Art Courses */}
-          {filteredArt.length > 0 && (
-            <section className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/20 text-lg">🎨</span>
-                <h2 className="text-xl font-black text-white">Art Courses</h2>
-                <span className="ml-auto text-xs text-blue-100/50">({filteredArt.length})</span>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredArt.map((course) => (
-                  <CourseCard key={course.id} course={course} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Creator Courses */}
-          {filteredCreator.length > 0 && (
-            <section className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/20 text-lg">🚀</span>
-                <h2 className="text-xl font-black text-white">Creator Growth Courses</h2>
-                <span className="ml-auto text-xs text-blue-100/50">({filteredCreator.length})</span>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredCreator.map((course) => (
-                  <CourseCard key={course.id} course={course} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {filteredCoding.length === 0 && filteredArt.length === 0 && filteredCreator.length === 0 && (
+          {/* Courses Grid */}
+          {filtered.length === 0 ? (
             <div className="rounded-lg border border-dashed border-[#12305f] bg-[#06101f]/50 p-12 text-center">
               <p className="text-blue-100/60 text-sm">No courses match your filters. Try adjusting your search.</p>
             </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((course) => (
+                <button
+                  key={course.id}
+                  className="group text-left rounded-2xl border border-[#12305f]/70 bg-[#06101f]/90 p-4 hover:border-[#1e78ff]/40 hover:shadow-lg hover:shadow-[#1e78ff]/10 transition"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <span className="text-2xl">{course.icon}</span>
+                    <span className="rounded-full bg-[#1e78ff]/20 px-2 py-1 text-[10px] font-black text-[#00c8ff] capitalize">
+                      {course.level}
+                    </span>
+                  </div>
+                  <h3 className="font-black text-white mb-1.5 group-hover:text-[#00c8ff] transition">{course.title}</h3>
+                  <p className="text-xs text-blue-100/60 mb-3 line-clamp-2">{course.description}</p>
+
+                  <div className="space-y-1 mb-3 pb-3 border-b border-[#12305f]/50">
+                    <div className="flex items-center gap-2 text-[10px] text-blue-100/50">
+                      <Clock className="h-3 w-3" /> {course.duration}
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] text-blue-100/50">
+                      <Users className="h-3 w-3" /> No enrollments yet
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      <span className="text-[10px] text-amber-300">No ratings yet</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {course.tags.slice(0, 3).map((tag) => (
+                      <span key={tag} className="rounded-full bg-[#1e78ff]/10 px-2 py-0.5 text-[9px] font-black text-[#00c8ff]">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2 font-black text-[#00c8ff] text-sm group-hover:gap-3 transition">
+                    <Play className="h-3.5 w-3.5" />
+                    Start Learning
+                    <ChevronRight className="h-3.5 w-3.5 ml-auto" />
+                  </div>
+                </button>
+              ))}
+            </div>
           )}
+
+          <div className="text-center py-4">
+            <p className="text-sm text-blue-100/50">Showing {filtered.length} of {getCourseCount()} courses in {courseType === "art" ? "Art" : courseType === "creator" ? "Creator Growth" : "Coding"}</p>
+          </div>
 
           {/* Resources */}
           <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
