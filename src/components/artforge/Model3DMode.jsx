@@ -394,7 +394,7 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
       </div>
 
       {/* Right — 3D viewer */}
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
         {/* Interactive 3D rig preview */}
         {!isGenerating && <Model3DRigPreview preset={selectedPreset} />}
 

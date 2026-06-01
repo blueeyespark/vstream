@@ -295,7 +295,7 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
       </div>
 
       {/* Right — preview + info */}
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
         {/* Live2D interactive rig preview */}
         {outputType === "live2d" && (
           <Live2DRigPreview
