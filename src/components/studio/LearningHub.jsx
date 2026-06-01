@@ -24,6 +24,11 @@ export default function LearningHub() {
     coding: ["Web Development", "Mobile Apps", "Backend", "DevOps", "Data Science", "AI/ML"],
     art: ["Digital Painting", "Character Design", "Animation", "3D Modeling", "Illustration", "Concept Art"],
     creator: ["Video Editing", "Content Strategy", "Monetization", "Community Management", "Thumbnails", "Audio Production"],
+    design: ["UI/UX Design", "Graphic Design", "Branding", "Web Design", "Motion Design", "Figma"],
+    business: ["Entrepreneurship", "Marketing", "Sales", "Analytics", "Finance", "Leadership"],
+    music: ["Music Production", "Beat Making", "Sound Design", "Mixing", "Mastering", "Music Theory"],
+    photography: ["Portrait Photography", "Landscape", "Product Photography", "Editing", "Lighting", "Composition"],
+    writing: ["Copywriting", "Storytelling", "Screenwriting", "Technical Writing", "Blogging", "SEO"],
   };
 
   let allCourses = expandedCourses;
@@ -152,6 +157,56 @@ export default function LearningHub() {
                   }`}
                 >
                   🚀 Creator <span className="text-xs opacity-70">({creatorCoursesExpanded.length})</span>
+                </button>
+                <button
+                  onClick={() => { setCourseType("design"); setCategoryFilter("all"); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                    courseType === "design"
+                      ? "bg-pink-500/20 border border-pink-500/50 text-pink-300"
+                      : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                  }`}
+                >
+                  🎭 Design <span className="text-xs opacity-70">(45)</span>
+                </button>
+                <button
+                  onClick={() => { setCourseType("business"); setCategoryFilter("all"); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                    courseType === "business"
+                      ? "bg-cyan-500/20 border border-cyan-500/50 text-cyan-300"
+                      : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                  }`}
+                >
+                  💼 Business <span className="text-xs opacity-70">(38)</span>
+                </button>
+                <button
+                  onClick={() => { setCourseType("music"); setCategoryFilter("all"); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                    courseType === "music"
+                      ? "bg-red-500/20 border border-red-500/50 text-red-300"
+                      : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                  }`}
+                >
+                  🎵 Music <span className="text-xs opacity-70">(32)</span>
+                </button>
+                <button
+                  onClick={() => { setCourseType("photography"); setCategoryFilter("all"); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                    courseType === "photography"
+                      ? "bg-green-500/20 border border-green-500/50 text-green-300"
+                      : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                  }`}
+                >
+                  📸 Photography <span className="text-xs opacity-70">(28)</span>
+                </button>
+                <button
+                  onClick={() => { setCourseType("writing"); setCategoryFilter("all"); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-black transition flex items-center gap-2 ${
+                    courseType === "writing"
+                      ? "bg-indigo-500/20 border border-indigo-500/50 text-indigo-300"
+                      : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
+                  }`}
+                >
+                  ✍️ Writing <span className="text-xs opacity-70">(25)</span>
                 </button>
               </div>
 
