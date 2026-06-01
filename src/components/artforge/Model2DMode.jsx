@@ -155,7 +155,7 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
       {/* Left — controls */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {/* Header */}
         <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
           <div className="flex items-center gap-3 mb-1">
@@ -204,7 +204,7 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
         />
 
         {/* Character customization */}
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {/* Art style */}
           <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
             <p className="mb-3 text-xs font-black uppercase tracking-widest text-blue-200/50">Art Style</p>
@@ -237,7 +237,7 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
         {/* Appearance details */}
         <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
           <p className="mb-3 text-xs font-black uppercase tracking-widest text-blue-200/50">Appearance Details</p>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-3">
             <label>
               <p className="mb-1.5 text-[10px] font-black uppercase tracking-widest text-blue-200/35">Hair Color</p>
               <input value={hairColor} onChange={(e) => setHairColor(e.target.value)}
@@ -295,7 +295,7 @@ export default function Model2DMode({ onGenerate, isGenerating, selectedAsset })
       </div>
 
       {/* Right — preview + info */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {/* Live2D interactive rig preview */}
         {outputType === "live2d" && (
           <Live2DRigPreview

@@ -277,7 +277,7 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
       {/* Left — controls */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {/* Header */}
         <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
           <div className="flex items-center gap-3 mb-3">
@@ -334,7 +334,7 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
         )}
 
         {/* Style options */}
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
             <p className="mb-3 text-xs font-black uppercase tracking-widest text-blue-200/50">Model Style</p>
             <div className="space-y-2">
@@ -351,7 +351,7 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="rounded-2xl border border-[#1a3a60]/70 bg-[#06101f]/90 p-4">
               <p className="mb-3 text-xs font-black uppercase tracking-widest text-blue-200/50">Texture Style</p>
               <div className="grid grid-cols-2 gap-2">
@@ -394,7 +394,7 @@ export default function Model3DMode({ onGenerate, isGenerating, selectedAsset })
       </div>
 
       {/* Right — 3D viewer */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {/* Interactive 3D rig preview */}
         {!isGenerating && <Model3DRigPreview preset={selectedPreset} />}
 
