@@ -45,7 +45,8 @@ export default function LearningHub() {
   const filtered = allCourses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase()) || course.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
     const matchesLevel = levelFilter === "all" || course.level === levelFilter;
-    return matchesSearch && matchesLevel;
+    const matchesCategory = categoryFilter === "all" || (course.category && course.category.includes(categoryFilter));
+    return matchesSearch && matchesLevel && matchesCategory;
   });
 
   const getCourseCount = () => {
@@ -99,8 +100,8 @@ export default function LearningHub() {
              <p className="text-xs text-blue-100/60 mt-1">Begin Your Journey</p>
           </div>
           <div className="text-center bg-gradient-to-br from-emerald-500/10 to-transparent rounded-xl p-3">
-            <p className="text-3xl font-black text-emerald-400">4.8+</p>
-            <p className="text-xs text-blue-100/60 mt-1">Avg Rating</p>
+            <p className="text-3xl font-black text-emerald-400">Explore</p>
+            <p className="text-xs text-blue-100/60 mt-1">17 Disciplines</p>
           </div>
         </div>
       </div>
