@@ -351,30 +351,208 @@ export default function LearningHub() {
             <p className="text-sm text-blue-100/50">Showing {filtered.length} of {getCourseCount()} courses in {courseType === "art" ? "Art" : courseType === "creator" ? "Creator Growth" : courseType === "design" ? "Design" : courseType === "business" ? "Business" : courseType === "music" ? "Music" : courseType === "photography" ? "Photography" : courseType === "writing" ? "Writing" : "Coding"}</p>
           </div>
 
-          {/* Resources */}
+          {/* Certifications & Credentials */}
           <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Code className="h-5 w-5 text-[#00c8ff]" />
-              <h2 className="text-lg font-black text-white">Recommended Resources</h2>
+              <Trophy className="h-5 w-5 text-amber-400" />
+              <h2 className="text-lg font-black text-white">🏆 Certifications Track</h2>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {resources.map((resource) => (
-                <a
-                  key={resource.name}
-                  href={resource.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-3 rounded-xl border border-[#12305f]/60 bg-[#03080f]/55 p-3 hover:border-[#1e78ff]/40 transition"
-                >
-                  <span className="text-xl">{resource.icon}</span>
-                  <div className="min-w-0">
-                    <p className="font-black text-white text-sm group-hover:text-[#00c8ff] truncate">{resource.name}</p>
-                    <p className="text-[10px] text-blue-100/40">{resource.desc}</p>
+              {[
+                { name: "JavaScript Certified", courses: 5, progress: 60, icon: "📝" },
+                { name: "UI/UX Designer", courses: 4, progress: 75, icon: "🎨" },
+                { name: "Web Developer Pro", courses: 8, progress: 40, icon: "💻" },
+                { name: "Content Creator Expert", courses: 6, progress: 50, icon: "🎬" },
+                { name: "React Specialist", courses: 3, progress: 0, icon: "⚛️" },
+                { name: "Music Producer", courses: 4, progress: 25, icon: "🎵" },
+                { name: "Product Designer", courses: 5, progress: 0, icon: "📱" },
+                { name: "Full Stack Developer", courses: 12, progress: 30, icon: "🌐" },
+              ].map((cert, idx) => (
+                <div key={idx} className="rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3 hover:border-amber-500/40 transition cursor-pointer">
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-xl">{cert.icon}</span>
+                    <span className="text-[9px] font-black text-amber-300">{cert.progress}%</span>
                   </div>
+                  <p className="font-black text-white text-xs mb-2">{cert.name}</p>
+                  <div className="w-full bg-[#12305f]/50 rounded-full h-1.5 mb-1">
+                    <div className="bg-amber-500 h-1.5 rounded-full transition-all" style={{ width: `${cert.progress}%` }}></div>
+                  </div>
+                  <p className="text-[9px] text-blue-100/40">{cert.courses} courses</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Community Challenges */}
+          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Zap className="h-5 w-5 text-emerald-400" />
+              <h2 className="text-lg font-black text-white">🎯 Active Challenges</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                { title: "100 Days of Code", participants: 2847, days: "45/100", prize: "1000 XP", icon: "💻", color: "border-[#1e78ff]" },
+                { title: "Design Sprint Challenge", participants: 523, days: "8/7", prize: "Certificate", icon: "🎨", color: "border-pink-500" },
+                { title: "YouTube Thumbnail Duel", participants: 156, days: "3/5", prize: "$100", icon: "🎬", color: "border-red-500" },
+                { title: "Music Production Hackathon", participants: 389, days: "2/7", prize: "Featured", icon: "🎵", color: "border-purple-500" },
+              ].map((challenge, idx) => (
+                <button key={idx} className={`text-left rounded-xl border-2 ${challenge.color} bg-[#03080f]/55 p-4 hover:opacity-80 transition`}>
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-2xl">{challenge.icon}</span>
+                    <span className="text-[9px] font-black bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-full">Active</span>
+                  </div>
+                  <h4 className="font-black text-white text-sm mb-2">{challenge.title}</h4>
+                  <div className="space-y-1 text-[10px]">
+                    <p className="text-blue-100/60">👥 {challenge.participants} Participants</p>
+                    <p className="text-blue-100/60">⏰ {challenge.days}</p>
+                    <p className="text-amber-300 font-black">🏆 {challenge.prize}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Expert Interviews & Insights */}
+          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Play className="h-5 w-5 text-red-400" />
+              <h2 className="text-lg font-black text-white">🎥 Expert Interviews</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                { title: "React Performance Tips with Kent C. Dodds", duration: "45 min", expert: "Kent C. Dodds", icon: "⚛️" },
+                { title: "Building a Design System from Scratch", duration: "1 hr", expert: "Jen Simmons", icon: "🎨" },
+                { title: "The Future of Web Development", duration: "38 min", expert: "Guillermo Rauch", icon: "🌐" },
+                { title: "Music Production Career Path", duration: "52 min", expert: "Andrew Huang", icon: "🎵" },
+              ].map((video, idx) => (
+                <button key={idx} className="group text-left rounded-xl border border-[#12305f]/60 bg-[#03080f]/55 p-3 hover:border-red-500/40 transition">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-2xl">{video.icon}</span>
+                    <span className="text-[9px] font-black text-red-400">{video.duration}</span>
+                  </div>
+                  <h4 className="font-black text-white text-xs group-hover:text-red-300 transition mb-1">{video.title}</h4>
+                  <p className="text-[10px] text-blue-100/50">with {video.expert}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Learning Resources Library */}
+          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Code className="h-5 w-5 text-cyan-400" />
+              <h2 className="text-lg font-black text-white">📚 Resource Library</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { name: "MDN Web Docs", type: "Reference", desc: "Comprehensive web dev docs", icon: "📖", url: "#" },
+                { name: "Figma Community", type: "Assets", desc: "10k+ design files & components", icon: "🎨", url: "#" },
+                { name: "GitHub Awesome Lists", type: "Curated", desc: "Topic-specific resource lists", icon: "⭐", url: "#" },
+                { name: "CSS Tricks", type: "Blog", desc: "Advanced CSS techniques & tips", icon: "✨", url: "#" },
+                { name: "Dev.to Articles", type: "Blog", desc: "Developer community articles", icon: "📝", url: "#" },
+                { name: "Stack Overflow", type: "Q&A", desc: "Ask and answer coding questions", icon: "❓", url: "#" },
+                { name: "Codepen", type: "Showcase", desc: "Share & discover code pens", icon: "💻", url: "#" },
+                { name: "Behance", type: "Portfolio", desc: "Design inspiration & portfolios", icon: "🎬", url: "#" },
+                { name: "Unsplash", type: "Photos", desc: "1M+ free high-quality images", icon: "📸", url: "#" },
+              ].map((resource, idx) => (
+                <a
+                  key={idx}
+                  href={resource.url}
+                  className="group rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3 hover:border-cyan-500/40 transition"
+                >
+                  <div className="flex items-start gap-2 mb-2">
+                    <span className="text-lg">{resource.icon}</span>
+                    <div className="min-w-0">
+                      <p className="font-black text-white text-xs group-hover:text-cyan-300 transition">{resource.name}</p>
+                      <p className="text-[9px] text-cyan-300/60">{resource.type}</p>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-blue-100/50">{resource.desc}</p>
                 </a>
               ))}
             </div>
           </div>
+
+          {/* Live Workshops & Events */}
+          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-5 w-5 text-pink-400" />
+              <h2 className="text-lg font-black text-white">📅 Upcoming Workshops</h2>
+            </div>
+            <div className="space-y-3">
+              {[
+                { title: "React Hooks Deep Dive", date: "Jun 5, 2026", time: "2:00 PM", instructor: "Sarah Dayan", spots: "12/50", icon: "⚛️" },
+                { title: "Figma Design Critique Session", date: "Jun 6, 2026", time: "3:00 PM", instructor: "Sarah Dresner", spots: "8/30", icon: "🎨" },
+                { title: "Building Your Personal Brand", date: "Jun 7, 2026", time: "4:00 PM", instructor: "Ali Abdaal", spots: "25/100", icon: "⭐" },
+                { title: "Music Production Q&A", date: "Jun 8, 2026", time: "1:00 PM", instructor: "Busy Works Beats", spots: "5/20", icon: "🎵" },
+              ].map((workshop, idx) => (
+                <div key={idx} className="flex items-start gap-3 rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3 hover:border-pink-500/40 transition">
+                  <span className="text-xl">{workshop.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-black text-white text-xs">{workshop.title}</p>
+                    <div className="flex flex-wrap gap-2 mt-1 text-[9px]">
+                      <span className="text-blue-100/60">📅 {workshop.date}</span>
+                      <span className="text-blue-100/60">⏰ {workshop.time}</span>
+                      <span className="text-blue-100/60">👨‍🏫 {workshop.instructor}</span>
+                    </div>
+                  </div>
+                  <button className="flex-shrink-0 text-[9px] font-black bg-pink-500/20 text-pink-300 px-2 py-1 rounded hover:bg-pink-500/30 transition">
+                    {workshop.spots}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Case Studies & Real-World Examples */}
+          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <BookOpen className="h-5 w-5 text-blue-400" />
+              <h2 className="text-lg font-black text-white">📊 Case Studies</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                { title: "How I Built a $1M SaaS in 6 Months", category: "Entrepreneurship", reads: "12.4K", icon: "💼" },
+                { title: "Redesigning Airbnb's Search Experience", category: "Product Design", reads: "8.9K", icon: "🎨" },
+                { title: "Growing YouTube Channel to 1M Subs", category: "Content Creation", reads: "15.2K", icon: "📺" },
+                { title: "Music Producer's Journey to 10M Streams", category: "Music", reads: "6.3K", icon: "🎵" },
+              ].map((study, idx) => (
+                <button key={idx} className="text-left rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3 hover:border-blue-500/40 transition">
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-lg">{study.icon}</span>
+                    <span className="text-[9px] font-black text-blue-300">{study.reads} reads</span>
+                  </div>
+                  <h4 className="font-black text-white text-xs mb-1 line-clamp-2">{study.title}</h4>
+                  <p className="text-[10px] text-blue-100/50">{study.category}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+           {/* Resources */}
+           <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+             <div className="flex items-center gap-2 mb-4">
+               <Code className="h-5 w-5 text-[#00c8ff]" />
+               <h2 className="text-lg font-black text-white">🔗 External Resources</h2>
+             </div>
+             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+               {resources.map((resource) => (
+                 <a
+                   key={resource.name}
+                   href={resource.url}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="group flex items-center gap-3 rounded-xl border border-[#12305f]/60 bg-[#03080f]/55 p-3 hover:border-[#1e78ff]/40 transition"
+                 >
+                   <span className="text-xl">{resource.icon}</span>
+                   <div className="min-w-0">
+                     <p className="font-black text-white text-sm group-hover:text-[#00c8ff] truncate">{resource.name}</p>
+                     <p className="text-[10px] text-blue-100/40">{resource.desc}</p>
+                   </div>
+                 </a>
+               ))}
+             </div>
+           </div>
 
           {/* Drawing Tools */}
           <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
