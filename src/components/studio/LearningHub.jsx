@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BookOpen, Code, Play, Star, Clock, Users, ChevronRight, Search, Sparkles, Trophy, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { expandedCourses, creatorCoursesExpanded, codingCoursesExpanded, artCoursesExpanded } from "@/lib/expandedCoursesData";
+import { expandedCourses, creatorCoursesExpanded, codingCoursesExpanded, artCoursesExpanded, designCoursesExpanded, businessCoursesExpanded, musicCoursesExpanded, photographyCoursesExpanded, writingCoursesExpanded } from "@/lib/expandedCoursesData";
 import MyCourses from "@/components/learning/MyCourses";
 import LearningPathGenerator from "@/components/learning/LearningPathGenerator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,6 +35,11 @@ export default function LearningHub() {
   if (courseType === "art") allCourses = artCoursesExpanded;
   if (courseType === "coding") allCourses = codingCoursesExpanded;
   if (courseType === "creator") allCourses = creatorCoursesExpanded;
+  if (courseType === "design") allCourses = designCoursesExpanded;
+  if (courseType === "business") allCourses = businessCoursesExpanded;
+  if (courseType === "music") allCourses = musicCoursesExpanded;
+  if (courseType === "photography") allCourses = photographyCoursesExpanded;
+  if (courseType === "writing") allCourses = writingCoursesExpanded;
 
   const filtered = allCourses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase()) || course.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
@@ -47,6 +52,11 @@ export default function LearningHub() {
       case "coding": return codingCoursesExpanded.length;
       case "art": return artCoursesExpanded.length;
       case "creator": return creatorCoursesExpanded.length;
+      case "design": return designCoursesExpanded.length;
+      case "business": return businessCoursesExpanded.length;
+      case "music": return musicCoursesExpanded.length;
+      case "photography": return photographyCoursesExpanded.length;
+      case "writing": return writingCoursesExpanded.length;
       default: return expandedCourses.length;
     }
   };
@@ -166,7 +176,7 @@ export default function LearningHub() {
                       : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
                   }`}
                 >
-                  🎭 Design <span className="text-xs opacity-70">(45)</span>
+                  🎭 Design <span className="text-xs opacity-70">({designCoursesExpanded.length})</span>
                 </button>
                 <button
                   onClick={() => { setCourseType("business"); setCategoryFilter("all"); }}
@@ -176,7 +186,7 @@ export default function LearningHub() {
                       : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
                   }`}
                 >
-                  💼 Business <span className="text-xs opacity-70">(38)</span>
+                  💼 Business <span className="text-xs opacity-70">({businessCoursesExpanded.length})</span>
                 </button>
                 <button
                   onClick={() => { setCourseType("music"); setCategoryFilter("all"); }}
@@ -186,7 +196,7 @@ export default function LearningHub() {
                       : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
                   }`}
                 >
-                  🎵 Music <span className="text-xs opacity-70">(32)</span>
+                  🎵 Music <span className="text-xs opacity-70">({musicCoursesExpanded.length})</span>
                 </button>
                 <button
                   onClick={() => { setCourseType("photography"); setCategoryFilter("all"); }}
@@ -196,7 +206,7 @@ export default function LearningHub() {
                       : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
                   }`}
                 >
-                  📸 Photography <span className="text-xs opacity-70">(28)</span>
+                  📸 Photography <span className="text-xs opacity-70">({photographyCoursesExpanded.length})</span>
                 </button>
                 <button
                   onClick={() => { setCourseType("writing"); setCategoryFilter("all"); }}
@@ -206,7 +216,7 @@ export default function LearningHub() {
                       : "bg-[#06101f] border border-[#12305f]/60 text-blue-100/60 hover:text-white"
                   }`}
                 >
-                  ✍️ Writing <span className="text-xs opacity-70">(25)</span>
+                  ✍️ Writing <span className="text-xs opacity-70">({writingCoursesExpanded.length})</span>
                 </button>
               </div>
 
@@ -292,7 +302,7 @@ export default function LearningHub() {
           )}
 
           <div className="text-center py-4">
-            <p className="text-sm text-blue-100/50">Showing {filtered.length} of {getCourseCount()} courses in {courseType === "art" ? "Art" : courseType === "creator" ? "Creator Growth" : "Coding"}</p>
+            <p className="text-sm text-blue-100/50">Showing {filtered.length} of {getCourseCount()} courses in {courseType === "art" ? "Art" : courseType === "creator" ? "Creator Growth" : courseType === "design" ? "Design" : courseType === "business" ? "Business" : courseType === "music" ? "Music" : courseType === "photography" ? "Photography" : courseType === "writing" ? "Writing" : "Coding"}</p>
           </div>
 
           {/* Resources */}
