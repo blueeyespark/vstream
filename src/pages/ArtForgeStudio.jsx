@@ -11,7 +11,7 @@ import {
   Zap, RefreshCw, Eye, ChevronDown,
   Heart, Grid3X3, List, ImagePlus, RotateCcw, ArrowUpRight,
   FlipHorizontal, Crop, Layers2, Shuffle,
-  History, Move, FileText,
+  History, Move, FileText, TrendingUp, Award,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Navigate } from "react-router-dom";
@@ -27,17 +27,17 @@ function RedirectToProduction() {
 }
 
 const CREATION_MODES = [
-  { id: "image", label: "Image", icon: WandSparkles, hint: "Text → stunning art", prompt: "A cinematic neon cyberpunk dragon over a rainy city, dramatic lighting, ultra-sharp detail, 8K", color: "from-blue-500 to-violet-600", badge: null },
+  { id: "image", label: "Image", icon: WandSparkles, hint: "Text → art", prompt: "A cinematic neon cyberpunk dragon over a rainy city, dramatic lighting, ultra-sharp detail, 8K", color: "from-blue-500 to-violet-600", badge: null },
   { id: "2d_model", label: "2D Model", icon: Layers, hint: "Sprites & PNGTubers", prompt: "Cute streamer mascot character sheet with idle, talking, happy, angry states, clean white background, transparent PNG", color: "from-violet-500 to-fuchsia-500", badge: null },
-  { id: "3d_model", label: "3D Model", icon: Box, hint: "Text or image → 3D model", prompt: "Stylized VTuber desk companion robot, rounded body, glowing blue eyes, game-ready low-poly", color: "from-orange-500 to-violet-500", badge: null },
+  { id: "3d_model", label: "3D Model", icon: Box, hint: "Text or image → 3D", prompt: "Stylized VTuber desk companion robot, rounded body, glowing blue eyes, game-ready low-poly", color: "from-orange-500 to-violet-500", badge: null },
   { id: "video", label: "Video", icon: Film, hint: "AI-generated clips", prompt: "Camera pushes through a glowing portal into a neon cyberpunk cityscape, cinematic vertical short", color: "from-pink-500 to-violet-500", badge: "NEW" },
   { id: "sticker", label: "Sticker", icon: Smile, hint: "Transparent packs", prompt: "Kawaii blue fire mascot sticker pack with bold outline, transparent background, expressive face", color: "from-amber-400 to-orange-500", badge: null },
   { id: "comic", label: "Comic", icon: LayoutGrid, hint: "Panels & strips", prompt: "Four-panel comic about a streamer discovering a magical AI art forge, vibrant manga style", color: "from-emerald-500 to-blue-500", badge: null },
-  { id: "image_edit", label: "Image Editor", icon: WandSparkles, hint: "Edit images with text prompts", prompt: "Edit this image", color: "from-fuchsia-500 to-violet-600", badge: "fal.ai" },
-  { id: "music", label: "Music Gen", icon: Film, hint: "AI music from text prompts", prompt: "Generate music", color: "from-orange-500 to-pink-500", badge: "ElevenLabs" },
-  { id: "thumbnail", label: "Thumbnail", icon: Image, hint: "YouTube thumbnails", prompt: "Eye-catching thumbnail for gaming video", color: "from-red-500 to-orange-500", badge: "NEW" },
-  { id: "script", label: "Script", icon: Type, hint: "YouTube scripts", prompt: "Write a compelling YouTube video script", color: "from-indigo-500 to-blue-500", badge: "NEW" },
-  { id: "viggle", label: "VTuber Avatar", icon: Smile, hint: "Motion capture avatar", prompt: "Animated character avatar with motion tracking", color: "from-pink-500 to-rose-500", badge: "NEW" },
+  { id: "image_edit", label: "Editor", icon: WandSparkles, hint: "Refine with text", prompt: "Edit this image", color: "from-fuchsia-500 to-violet-600", badge: "fal.ai" },
+  { id: "music", label: "Music", icon: Film, hint: "AI music", prompt: "Generate music", color: "from-orange-500 to-pink-500", badge: "ElevenLabs" },
+  { id: "thumbnail", label: "Thumbnail", icon: Image, hint: "YouTube thumbnails", prompt: "Eye-catching thumbnail for gaming video", color: "from-red-500 to-orange-500", badge: "HOT" },
+  { id: "script", label: "Script", icon: Type, hint: "YouTube scripts", prompt: "Write a compelling YouTube video script", color: "from-indigo-500 to-blue-500", badge: null },
+  { id: "viggle", label: "Avatar", icon: Smile, hint: "Motion capture", prompt: "Animated character avatar with motion tracking", color: "from-pink-500 to-rose-500", badge: null },
 ];
 
 const PROVIDERS = [
@@ -438,8 +438,8 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
   const tabs = [
     { id: "generate", label: "Generate", icon: WandSparkles },
     { id: "gallery", label: "Gallery", icon: Grid3X3, badge: completedJobs.length || null },
+    { id: "trending", label: "Trending", icon: TrendingUp, badge: null },
     { id: "canvas", label: "Canvas", icon: Layers },
-    { id: "workflow", label: "Workflow", icon: Workflow },
     { id: "history", label: "History", icon: History },
     { id: "settings", label: "Settings", icon: Settings },
   ];
@@ -454,7 +454,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
       {/* Status bar — only shown when generating or have results */}
       {(runningJobs.length > 0 || completedJobs.length > 0) && (
         <div className="flex items-center justify-between rounded-xl border border-[#1a3a60]/50 bg-[#06101f]/80 px-3 py-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {runningJobs.length > 0 && (
               <div className="flex items-center gap-2 rounded-full border border-[#a855f7]/30 bg-[#a855f7]/10 px-3 py-1">
                 <Loader2 className="h-3 w-3 animate-spin text-[#a855f7]" />
@@ -463,13 +463,16 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
             )}
             {completedJobs.length > 0 && (
               <span className="flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-black text-emerald-300">
-                <CheckCircle2 className="h-3 w-3" /> {completedJobs.length} created
+                <CheckCircle2 className="h-3 w-3" /> {completedJobs.length} ✨
               </span>
             )}
           </div>
-          <button onClick={handleSaveProject} className="rounded-lg border border-[#1a3a60]/60 px-2.5 py-1 text-xs font-black text-blue-200/50 hover:text-white transition">
-            <Save className="mr-1 inline h-3 w-3" /> Save
-          </button>
+          <div className="flex items-center gap-2">
+            {batchCount > 1 && <span className="text-[10px] text-blue-200/40 px-2 py-1 rounded-lg bg-[#1a3a60]/30">Batch ×{batchCount}</span>}
+            <button onClick={handleSaveProject} className="rounded-lg border border-[#1a3a60]/60 px-2.5 py-1 text-xs font-black text-blue-200/50 hover:text-white transition">
+              <Save className="mr-1 inline h-3 w-3" /> Save
+            </button>
+          </div>
         </div>
       )}
 
@@ -495,20 +498,22 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
             {/* Left: Mode + Settings */}
             <aside className="space-y-3">
               {/* Mode selector — hidden when parent controls mode via project type */}
-              {!hideModePicker && <Panel title="Creation Mode" icon={Sparkles}>
-                <div className="grid grid-cols-2 gap-2">
+              {!hideModePicker && <Panel title="Creation Mode" icon={Sparkles} className="max-w-full">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-52 overflow-y-auto">
                   {CREATION_MODES.map((item) => {
                     const Icon = item.icon;
                     const active = mode === item.id;
                     return (
                       <button key={item.id} onClick={() => handleModeChange(item)}
-                        className={cls("relative group rounded-xl border p-2 text-left transition-all", active ? "border-[#a855f7]/60 bg-[#a855f7]/15 shadow-lg shadow-purple-950/30" : "border-[#1a3a60]/60 bg-[#03080f]/60 hover:border-[#a855f7]/30 hover:bg-[#a855f7]/5")}>
-                        {item.badge && <span className="absolute right-1.5 top-1.5 rounded-full bg-[#a855f7] px-1.5 py-0.5 text-[8px] font-black text-white">{item.badge}</span>}
-                        <div className={cls("mb-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br text-white", item.color)}>
-                          <Icon className="h-3 w-3" />
+                        className={cls("group rounded-lg border p-2 text-left transition-all hover:scale-105", active ? "border-[#a855f7]/70 bg-[#a855f7]/20 shadow-lg shadow-purple-950/40" : "border-[#1a3a60]/50 bg-[#03080f]/50 hover:border-[#a855f7]/40")}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className={cls("flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br text-white text-sm", item.color)}>
+                            <Icon className="h-3 w-3" />
+                          </div>
+                          {item.badge && <span className="rounded-full bg-[#a855f7] px-1 py-0.5 text-[7px] font-black text-white">{item.badge}</span>}
                         </div>
-                        <div className="text-[11px] font-black text-white leading-tight">{item.label}</div>
-                        <p className="mt-0.5 text-[9px] text-blue-100/38 leading-3 truncate">{item.hint}</p>
+                        <div className="text-[10px] font-bold text-white">{item.label}</div>
+                        <p className="text-[8px] text-blue-100/50 leading-1">{item.hint}</p>
                       </button>
                     );
                   })}
@@ -725,23 +730,29 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                     placeholder={currentMode.prompt}
                     className="w-full resize-none rounded-xl border border-[#1a3a60]/60 bg-[#030e1f] p-3 text-sm leading-6 text-white outline-none placeholder:text-blue-200/18 focus:border-[#a855f7]/60 transition" />
 
-                  {/* Prompt ideas dropdown */}
-                  <AnimatePresence>
+                  {/* Quick style suggestions */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <FieldLabel>Quick Styles</FieldLabel>
+                      <button onClick={() => setShowPromptIdeas(!showPromptIdeas)}
+                        className="text-[9px] text-[#a855f7] hover:text-white transition">
+                        {showPromptIdeas ? "Hide" : "Show"} suggestions
+                      </button>
+                    </div>
                     {showPromptIdeas && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-                        className="rounded-xl border border-[#1a3a60]/60 bg-[#030e1f] overflow-hidden">
-                        <p className="border-b border-[#1a3a60]/50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-blue-200/40">Prompt Inspiration</p>
-                        <div className="max-h-48 overflow-y-auto p-2 space-y-1">
+                        className="rounded-xl border border-[#1a3a60]/60 bg-[#030e1f] overflow-hidden mb-3">
+                        <div className="max-h-32 overflow-y-auto p-2 space-y-1">
                           {PROMPT_EXAMPLES.map((ex) => (
-                            <button key={ex} onClick={() => { setPrompt(ex); setShowPromptIdeas(false); }}
-                              className="w-full rounded-lg px-3 py-2 text-left text-xs text-blue-100/60 hover:bg-[#1e78ff]/10 hover:text-white transition">
-                              {ex}
+                            <button key={ex} onClick={() => { setPrompt(prev => prev ? `${prev}, inspired by: ${ex.split(':')[1] || ex}` : ex); setShowPromptIdeas(false); }}
+                              className="w-full rounded-lg px-2.5 py-1.5 text-left text-xs text-blue-100/60 hover:bg-[#1e78ff]/10 hover:text-white transition truncate">
+                              💡 {ex.split('cinematic')[0].trim() || ex}
                             </button>
                           ))}
                         </div>
                       </motion.div>
                     )}
-                  </AnimatePresence>
+                  </div>
 
                   {/* Style presets */}
                   <div>
@@ -933,6 +944,55 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
           </motion.div>
         )}
 
+        {/* ── TRENDING TAB ─────────────────────────────────────────────── */}
+        {activeTab === "trending" && (
+          <motion.div key="trending" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+            <Panel noPad>
+              <div className="flex items-center gap-3 border-b border-[#1a3a60]/50 p-4">
+                <TrendingUp className="h-4 w-4 text-[#1e78ff]" />
+                <h3 className="font-black text-white flex-1">Community Showcase</h3>
+              </div>
+              <div className="p-4">
+                <div className="grid gap-3 mb-6">
+                  <p className="text-xs font-black uppercase tracking-widest text-[#a855f7]/70">🔥 Hot Right Now</p>
+                  <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                    {completedJobs.slice(0, 12).map((job) => (
+                      <GenerationCard key={job.id} job={job} onClick={() => setSelectedAsset({ url: job.result_url, type: job.mode, name: job.title })} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-blue-200/35 mb-3">📚 Recent Creations</p>
+                  {filteredAssets.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-[#1a3a60]/50 p-12 text-center">
+                      <Sparkles className="mx-auto mb-3 h-10 w-10 text-[#a855f7]/25" />
+                      <p className="font-black text-blue-200/40">No creations yet</p>
+                      <p className="mt-1 text-xs text-blue-200/25">Start generating to see them here.</p>
+                    </div>
+                  ) : (
+                    <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                      {filteredAssets.slice(0, 20).map((asset) => (
+                        <button key={asset.id} onClick={() => { setSelectedAsset(asset); setActiveTab("generate"); }}
+                          className="group overflow-hidden rounded-xl border border-[#1a3a60]/50 bg-[#030e1f]/80 hover:border-[#a855f7]/50 transition">
+                          <div className="aspect-square bg-[#020812] overflow-hidden relative">
+                            {(asset.url || asset.file_url || asset.thumbnail_url)
+                              ? <img src={asset.thumbnail_url || asset.url || asset.file_url} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                              : <div className="grid h-full place-items-center text-blue-200/20"><Award className="h-8 w-8" /></div>}
+                          </div>
+                          <div className="p-2">
+                            <p className="truncate text-xs font-black text-white">{asset.name || "Untitled"}</p>
+                            <p className="text-[10px] text-blue-200/35 capitalize">{asset.type || asset.category}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Panel>
+          </motion.div>
+        )}
+
         {/* ── GALLERY TAB ──────────────────────────────────────────────── */}
         {activeTab === "gallery" && (
           <motion.div key="gallery" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
@@ -964,9 +1024,9 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                 {/* Recent job grid */}
                 {completedJobs.length > 0 && (
                   <div className="mb-6">
-                    <p className="mb-3 text-xs font-black uppercase tracking-widest text-[#a855f7]/70">Just Created</p>
-                    <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-                      {completedJobs.slice(0, 12).map((job) => (
+                    <p className="mb-3 text-xs font-black uppercase tracking-widest text-[#a855f7]/70">✨ Just Created</p>
+                    <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                      {completedJobs.slice(0, 20).map((job) => (
                         <GenerationCard key={job.id} job={job} onClick={() => setSelectedAsset({ url: job.result_url, type: job.mode, name: job.title })} />
                       ))}
                     </div>
