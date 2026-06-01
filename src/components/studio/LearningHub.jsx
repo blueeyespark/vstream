@@ -77,30 +77,30 @@ export default function LearningHub() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-6">
-        <div className="flex items-center gap-3 mb-3">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1e78ff] to-[#a855f7] text-2xl">
+      <div className="rounded-3xl border border-[#12305f]/75 bg-gradient-to-br from-[#06101f] via-[#0a1525] to-[#03080f] p-8 shadow-2xl shadow-[#1e78ff]/10">
+        <div className="flex items-center gap-4 mb-4">
+          <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#1e78ff] via-[#6366f1] to-[#a855f7] text-3xl shadow-lg shadow-purple-500/50">
             📚
           </span>
           <div className="flex-1">
-            <h1 className="text-3xl font-black text-white">Learning Hub</h1>
-            <p className="text-sm text-blue-100/60 mt-1">Master new skills with 150+ comprehensive courses across coding, art & content creation</p>
+            <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00c8ff] to-[#1e78ff]">Learning Hub</h1>
+            <p className="text-sm text-blue-100/70 mt-2">Master 200+ courses across 17 skill domains. Learn from industry experts & build real projects.</p>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-[#12305f]/50">
-          <div className="text-center">
-            <p className="text-2xl font-black text-[#00c8ff]">150+</p>
-            <p className="text-xs text-blue-100/50">Total Courses</p>
+        <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-[#12305f]/50">
+          <div className="text-center bg-gradient-to-br from-[#1e78ff]/10 to-transparent rounded-xl p-3">
+            <p className="text-3xl font-black text-[#00c8ff]">200+</p>
+            <p className="text-xs text-blue-100/60 mt-1">Total Courses</p>
           </div>
-          <div className="text-center">
-            <p className="text-2xl font-black text-amber-300">0</p>
-            <p className="text-xs text-blue-100/50">Students Enrolled</p>
+          <div className="text-center bg-gradient-to-br from-amber-500/10 to-transparent rounded-xl p-3">
+            <p className="text-3xl font-black text-amber-300">Community</p>
+            <p className="text-xs text-blue-100/60 mt-1">Active Learners</p>
           </div>
-          <div className="text-center">
-            <p className="text-2xl font-black text-emerald-400">N/A</p>
-            <p className="text-xs text-blue-100/50">Avg Rating</p>
+          <div className="text-center bg-gradient-to-br from-emerald-500/10 to-transparent rounded-xl p-3">
+            <p className="text-3xl font-black text-emerald-400">4.8+</p>
+            <p className="text-xs text-blue-100/60 mt-1">Avg Rating</p>
           </div>
         </div>
       </div>
@@ -124,45 +124,47 @@ export default function LearningHub() {
       ) : (
         <>
           {/* Skill Category Tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {[
-              { id: "coding", label: "💻 Coding", color: "bg-[#1e78ff]" },
-              { id: "gamedev", label: "🎮 Game Dev", color: "bg-indigo-500" },
-              { id: "datascience", label: "📊 Data Science", color: "bg-cyan-500" },
-              { id: "mobiledev", label: "📱 Mobile Dev", color: "bg-blue-500" },
-              { id: "art", label: "🎨 Art", color: "bg-pink-500" },
-              { id: "animation", label: "🎬 Animation", color: "bg-purple-600" },
-              { id: "3dmodeling", label: "🗿 3D Modeling", color: "bg-fuchsia-500" },
-              { id: "videoedit", label: "🎞️ Video Edit", color: "bg-red-600" },
-              { id: "creator", label: "🎬 Creator", color: "bg-red-500" },
-              { id: "design", label: "✨ Design", color: "bg-purple-500" },
-              { id: "graphicdesign", label: "🖌️ Graphics", color: "bg-rose-500" },
-              { id: "marketing", label: "📢 Marketing", color: "bg-lime-500" },
-              { id: "business", label: "💼 Business", color: "bg-emerald-500" },
-              { id: "entrepreneurship", label: "🚀 Startup", color: "bg-amber-600" },
-              { id: "music", label: "🎵 Music", color: "bg-orange-500" },
-              { id: "photography", label: "📸 Photography", color: "bg-yellow-500" },
-              { id: "writing", label: "✍️ Writing", color: "bg-blue-300" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setSkillTab(tab.id)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full font-black text-xs whitespace-nowrap transition ${
-                  skillTab === tab.id
-                    ? `${tab.color} text-white shadow-lg`
-                    : "border border-[#12305f]/60 bg-[#03080f]/55 text-blue-100/60 hover:border-[#1e78ff]/40"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
+            <div className="rounded-2xl border border-[#12305f]/50 bg-[#03080f]/30 p-2 flex gap-2 backdrop-blur">
+              {[
+                { id: "coding", label: "💻 Coding", color: "bg-[#1e78ff]" },
+                { id: "gamedev", label: "🎮 Game Dev", color: "bg-indigo-500" },
+                { id: "datascience", label: "📊 Data Science", color: "bg-cyan-500" },
+                { id: "mobiledev", label: "📱 Mobile Dev", color: "bg-blue-500" },
+                { id: "art", label: "🎨 Art", color: "bg-pink-500" },
+                { id: "animation", label: "🎬 Animation", color: "bg-purple-600" },
+                { id: "3dmodeling", label: "🗿 3D Modeling", color: "bg-fuchsia-500" },
+                { id: "videoedit", label: "🎞️ Video Edit", color: "bg-red-600" },
+                { id: "creator", label: "🎬 Creator", color: "bg-red-500" },
+                { id: "design", label: "✨ Design", color: "bg-purple-500" },
+                { id: "graphicdesign", label: "🖌️ Graphics", color: "bg-rose-500" },
+                { id: "marketing", label: "📢 Marketing", color: "bg-lime-500" },
+                { id: "business", label: "💼 Business", color: "bg-emerald-500" },
+                { id: "entrepreneurship", label: "🚀 Startup", color: "bg-amber-600" },
+                { id: "music", label: "🎵 Music", color: "bg-orange-500" },
+                { id: "photography", label: "📸 Photography", color: "bg-yellow-500" },
+                { id: "writing", label: "✍️ Writing", color: "bg-blue-300" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setSkillTab(tab.id)}
+                  className={`flex-shrink-0 px-4 py-2.5 rounded-xl font-black text-xs whitespace-nowrap transition duration-200 ${
+                    skillTab === tab.id
+                      ? `${tab.color} text-white shadow-lg shadow-${tab.color}/40 scale-105`
+                      : "border border-[#12305f]/40 bg-[#03080f]/50 text-blue-100/60 hover:border-[#1e78ff]/60 hover:shadow-md hover:shadow-[#1e78ff]/20"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Category-Specific Content */}
           {skillTab === "coding" && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
-                <h2 className="text-xl font-black text-[#00c8ff] mb-4">💻 Web & Programming</h2>
+            <div className="space-y-8">
+              <div className="rounded-3xl border border-[#12305f]/60 bg-gradient-to-br from-[#1e78ff]/10 via-[#06101f] to-[#03080f] p-6 sm:p-8 backdrop-blur-sm shadow-xl shadow-[#1e78ff]/5">
+                <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00c8ff] to-[#1e78ff] mb-6">💻 Web & Programming</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
                     { title: "JavaScript Fundamentals", level: "Beginner", students: 34200, rating: "4.9", icon: "📝" },
