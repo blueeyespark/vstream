@@ -61,8 +61,22 @@ export default function LearningHub() {
     }
   };
 
+  const getFeaturedCourses = () => {
+    const shuffled = [...allCourses].sort(() => 0.5 - Math.random()).slice(0, 3);
+    return shuffled;
+  };
+
+  const getRecommendedPaths = () => {
+    return [
+      { title: "Web Developer Bootcamp", courses: ["JavaScript Fundamentals", "React.js Mastery", "Node.js & Express", "Database Design & SQL"], level: "6 months", icon: "🌐", color: "text-[#00c8ff]" },
+      { title: "UI/UX Designer Pro", courses: ["UI/UX Design Complete", "Figma Advanced Techniques", "Web Design Fundamentals", "Design Thinking Workshop"], level: "4 months", icon: "🎨", color: "text-pink-300" },
+      { title: "Content Creator Empire", courses: ["YouTube Growth Strategies", "Video Production Fundamentals", "Adobe Premiere Pro Mastery", "Personal Brand Building"], level: "3 months", icon: "🎬", color: "text-amber-300" },
+      { title: "Music Producer Pro", courses: ["Music Production Fundamentals", "Beat Making & Hip Hop Production", "Music Mixing & Mastering", "Music Theory for Producers"], level: "5 months", icon: "🎵", color: "text-red-300" },
+    ];
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header */}
       <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-6">
         <div className="flex items-center gap-3 mb-3">
@@ -107,6 +121,38 @@ export default function LearningHub() {
       ) : activeTab === "pathgen" ? (
         <LearningPathGenerator />
       ) : (
+        <>
+          {/* Featured Courses Section */}
+          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-5 w-5 text-[#00c8ff]" />
+              <h2 className="text-lg font-black text-white">🔥 Featured This Week</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {getFeaturedCourses().map((course) => (
+                <button
+                  key={course.id}
+                  className="group text-left rounded-xl border border-[#1e78ff]/40 bg-gradient-to-br from-[#1e78ff]/10 to-[#06101f] p-3 hover:border-[#1e78ff]/60 hover:shadow-lg hover:shadow-[#1e78ff]/10 transition"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-2xl">{course.icon}</span>
+                    <span className="text-[10px] font-black text-[#00c8ff] bg-[#1e78ff]/20 px-2 py-1 rounded-full capitalize">{course.level}</span>
+                  </div>
+                  <h3 className="font-black text-white text-sm group-hover:text-[#00c8ff] transition mb-1">{course.title}</h3>
+                  <p className="text-[10px] text-blue-100/50 line-clamp-1">{course.duration}</p>
+                  <div className="flex gap-1 mt-2">
+                    {course.tags.slice(0, 2).map((tag) => (
+                      <span key={tag} className="text-[8px] bg-[#1e78ff]/15 text-[#00c8ff] px-1.5 py-0.5 rounded">{tag}</span>
+                    ))}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === "explore" && (
         <>
           {/* Search & Filter */}
           <div className="flex flex-col gap-2 mb-6">
@@ -354,52 +400,136 @@ export default function LearningHub() {
             </div>
           </div>
 
-          {/* Learning Paths */}
+          {/* Curated Learning Paths */}
           <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <BookOpen className="h-5 w-5 text-[#a855f7]" />
-              <h2 className="text-lg font-black text-white">Popular Learning Paths</h2>
+              <h2 className="text-lg font-black text-white">📚 Structured Learning Paths</h2>
             </div>
-            <div className="space-y-4">
-              {[
-                { label: "🎨 Frontend Developer Path", color: "text-[#00c8ff]", dotColor: "bg-[#1e78ff]/20 text-[#00c8ff]", steps: [
-                  { title: "HTML & CSS Essentials", desc: "Web fundamentals" },
-                  { title: "JavaScript Fundamentals", desc: "Core language" },
-                  { title: "React Basics to Advanced", desc: "Modern UI library" },
-                  { title: "TypeScript Mastery", desc: "Type-safe code" },
-                ]},
-                { label: "⚙️ Backend Developer Path", color: "text-emerald-400", dotColor: "bg-emerald-500/20 text-emerald-400", steps: [
-                  { title: "Python for Beginners", desc: "Beginner-friendly language" },
-                  { title: "Building APIs with Node.js", desc: "JavaScript backend" },
-                  { title: "Database Design & SQL", desc: "Data persistence" },
-                  { title: "System Design for Scalability", desc: "Large-scale systems" },
-                ]},
-                { label: "🎨 Digital Artist Path", color: "text-purple-400", dotColor: "bg-purple-500/20 text-purple-400", steps: [
-                  { title: "Drawing Fundamentals", desc: "Core techniques & theory" },
-                  { title: "Digital Painting Fundamentals", desc: "Learn digital tools" },
-                  { title: "Character Design Essentials", desc: "Create unique characters" },
-                  { title: "Concept Art for Games", desc: "Production design" },
-                ]},
-              ].map((path) => (
-                <div key={path.label}>
-                  <h3 className={`text-sm font-black mb-2 ${path.color}`}>{path.label}</h3>
-                  <div className="space-y-1.5">
-                    {path.steps.map((step, idx) => (
-                      <div key={idx} className="flex items-start gap-3 rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-2.5">
-                        <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-black flex-shrink-0 ${path.dotColor}`}>
-                          {idx + 1}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-black text-white text-xs">{step.title}</p>
-                          <p className="text-[10px] text-blue-100/50">{step.desc}</p>
-                        </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {getRecommendedPaths().map((path) => (
+                <div key={path.title} className="rounded-xl border border-[#12305f]/60 bg-[#03080f]/55 p-4 hover:border-[#1e78ff]/40 transition">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className={`text-2xl mb-1`}>{path.icon}</p>
+                      <h3 className="font-black text-white text-sm">{path.title}</h3>
+                    </div>
+                    <span className="text-[10px] font-black bg-[#1e78ff]/20 text-[#00c8ff] px-2 py-1 rounded-full">{path.level}</span>
+                  </div>
+                  <div className="space-y-2 mb-3">
+                    {path.courses.map((course, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-xs">
+                        <div className="h-1.5 w-1.5 rounded-full bg-[#1e78ff]"></div>
+                        <span className="text-blue-100/70">{course}</span>
                       </div>
                     ))}
                   </div>
+                  <button className="w-full py-2 rounded-lg bg-[#1e78ff]/15 border border-[#1e78ff]/40 hover:bg-[#1e78ff]/25 text-[#00c8ff] font-black text-xs transition">
+                    Start Path
+                  </button>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* Skill Assessment & Progress */}
+          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Trophy className="h-5 w-5 text-amber-400" />
+              <h2 className="text-lg font-black text-white">🎯 Your Skill Level</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-4">
+              {[
+                { skill: "Programming", level: "Beginner", progress: 25, color: "bg-[#1e78ff]" },
+                { skill: "Design", level: "Intermediate", progress: 60, color: "bg-pink-500" },
+                { skill: "Content Creation", level: "Beginner", progress: 15, color: "bg-amber-500" },
+                { skill: "Music Production", level: "Not Started", progress: 0, color: "bg-red-500" },
+              ].map((item) => (
+                <div key={item.skill} className="rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-3">
+                  <p className="text-xs font-black text-white mb-1">{item.skill}</p>
+                  <p className="text-[10px] text-blue-100/50 mb-2">{item.level}</p>
+                  <div className="w-full bg-[#12305f]/50 rounded-full h-2">
+                    <div className={`${item.color} h-2 rounded-full transition-all`} style={{ width: `${item.progress}%` }}></div>
+                  </div>
+                  <p className="text-[9px] text-blue-100/40 mt-2">{item.progress}% complete</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Practice Projects */}
+          <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Code className="h-5 w-5 text-emerald-400" />
+              <h2 className="text-lg font-black text-white">🛠️ Hands-On Projects</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { title: "Build a Portfolio Website", desc: "Create a responsive portfolio using HTML, CSS & JavaScript", skills: ["HTML", "CSS", "JavaScript"], difficulty: "Beginner", icon: "💻" },
+                { title: "Mobile App Prototyping", desc: "Design a mobile app prototype in Figma with user flows", skills: ["Figma", "UX Design"], difficulty: "Intermediate", icon: "📱" },
+                { title: "Music Beat Production", desc: "Produce a 4-bar beat in your DAW with original drums", skills: ["Music Production", "DAW"], difficulty: "Beginner", icon: "🎵" },
+                { title: "Blog Post Series", desc: "Write 5 SEO-optimized blog posts on a chosen topic", skills: ["SEO", "Writing", "Content"], difficulty: "Intermediate", icon: "📝" },
+                { title: "Character Concept Art", desc: "Design a unique character with multiple poses and expressions", skills: ["Drawing", "Character Design"], difficulty: "Intermediate", icon: "🎨" },
+                { title: "YouTube Video Launch", desc: "Create, edit, and publish your first YouTube video", skills: ["Video Production", "Editing", "Storytelling"], difficulty: "Beginner", icon: "📺" },
+              ].map((project, idx) => (
+                <button key={idx} className="group text-left rounded-xl border border-[#12305f]/60 bg-[#03080f]/55 p-3 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/10 transition">
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-2xl">{project.icon}</span>
+                    <span className="text-[9px] font-black bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">{project.difficulty}</span>
+                  </div>
+                  <h4 className="font-black text-white text-sm group-hover:text-emerald-300 transition mb-1">{project.title}</h4>
+                  <p className="text-[10px] text-blue-100/60 mb-2 line-clamp-2">{project.desc}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {project.skills.map((skill) => (
+                      <span key={skill} className="text-[8px] bg-emerald-500/15 text-emerald-300 px-1.5 py-0.5 rounded">{skill}</span>
+                    ))}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+           {/* Popular Learning Paths */}
+           <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+             <div className="flex items-center gap-2 mb-4">
+               <Zap className="h-5 w-5 text-yellow-400" />
+               <h2 className="text-lg font-black text-white">⚡ Quick Start Guides</h2>
+             </div>
+             <div className="space-y-4">
+               {[
+                 { label: "🚀 30-Day Web Dev Challenge", color: "text-[#00c8ff]", dotColor: "bg-[#1e78ff]/20 text-[#00c8ff]", steps: [
+                   { title: "Week 1: HTML & CSS Basics", desc: "Learn semantic HTML and modern CSS" },
+                   { title: "Week 2: JavaScript Fundamentals", desc: "DOM manipulation and events" },
+                   { title: "Week 3: Build 3 Projects", desc: "Todo app, calculator, weather widget" },
+                   { title: "Week 4: Deploy & Share", desc: "Host on GitHub Pages, get feedback" },
+                 ]},
+                 { label: "🎨 30-Day Art Challenge", color: "text-purple-400", dotColor: "bg-purple-500/20 text-purple-400", steps: [
+                   { title: "Week 1: Drawing Fundamentals", desc: "Anatomy, perspective, basic shapes" },
+                   { title: "Week 2: Digital Painting", desc: "Color theory, brush techniques" },
+                   { title: "Week 3: Character Design", desc: "Create 5 original characters" },
+                   { title: "Week 4: Portfolio Piece", desc: "Polish your best work" },
+                 ]},
+               ].map((path) => (
+                 <div key={path.label}>
+                   <h3 className={`text-sm font-black mb-2 ${path.color}`}>{path.label}</h3>
+                   <div className="space-y-1.5">
+                     {path.steps.map((step, idx) => (
+                       <div key={idx} className="flex items-start gap-3 rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-2.5 hover:border-[#1e78ff]/40 transition cursor-pointer">
+                         <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-black flex-shrink-0 ${path.dotColor}`}>
+                           {idx + 1}
+                         </div>
+                         <div className="min-w-0 flex-1">
+                           <p className="font-black text-white text-xs">{step.title}</p>
+                           <p className="text-[10px] text-blue-100/50">{step.desc}</p>
+                         </div>
+                         <button className="text-[10px] font-black text-[#00c8ff] hover:text-[#1e78ff] transition whitespace-nowrap">Start</button>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               ))}
+             </div>
+           </div>
         </>
       )}
     </div>
