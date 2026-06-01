@@ -687,24 +687,28 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
               )}
 
               {mode === "3d_model" && (
-                <Model3DMode
-                  isGenerating={isGenerating}
-                  selectedAsset={selectedAsset}
-                  onGenerate={({ prompt: p, provider: prov, referenceImages: refs, quality: q, aspect: a }) => {
-                    setPrompt(p); if (prov) setProvider(prov); setReferenceImages(refs || []); setQuality(q || "ultra"); setAspect(a || "1:1");
-                    setTimeout(() => handleGenerate(), 50);
-                  }}
-                />
+                <div className="w-full">
+                  <Model3DMode
+                    isGenerating={isGenerating}
+                    selectedAsset={selectedAsset}
+                    onGenerate={({ prompt: p, provider: prov, referenceImages: refs, quality: q, aspect: a }) => {
+                      setPrompt(p); if (prov) setProvider(prov); setReferenceImages(refs || []); setQuality(q || "ultra"); setAspect(a || "1:1");
+                      setTimeout(() => handleGenerate(), 50);
+                    }}
+                  />
+                </div>
               )}
               {mode === "2d_model" && (
-                <Model2DMode
-                  isGenerating={isGenerating}
-                  selectedAsset={selectedAsset}
-                  onGenerate={({ prompt: p, referenceImages: refs, quality: q, aspect: a }) => {
-                    setPrompt(p); setReferenceImages(refs || []); setQuality(q || "ultra"); setAspect(a || "1:1");
-                    setTimeout(() => handleGenerate(), 50);
-                  }}
-                />
+                <div className="w-full">
+                  <Model2DMode
+                    isGenerating={isGenerating}
+                    selectedAsset={selectedAsset}
+                    onGenerate={({ prompt: p, referenceImages: refs, quality: q, aspect: a }) => {
+                      setPrompt(p); setReferenceImages(refs || []); setQuality(q || "ultra"); setAspect(a || "1:1");
+                      setTimeout(() => handleGenerate(), 50);
+                    }}
+                  />
+                </div>
               )}
               {mode === "image_edit" && (
                 <Panel title="AI Image Editor" icon={WandSparkles}>
