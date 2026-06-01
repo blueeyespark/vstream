@@ -52,10 +52,18 @@ export default function LearningHub() {
             <p className="text-sm text-blue-100/60 mt-1">Master new skills with 150+ comprehensive courses across coding, art & content creation</p>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-3 mt-4 pt-4 border-t border-[#12305f]/50">
+        <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-[#12305f]/50">
           <div className="text-center">
             <p className="text-2xl font-black text-[#00c8ff]">150+</p>
             <p className="text-xs text-blue-100/50">Total Courses</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-black text-amber-300">0</p>
+            <p className="text-xs text-blue-100/50">Students Enrolled</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-black text-emerald-400">N/A</p>
+            <p className="text-xs text-blue-100/50">Avg Rating</p>
           </div>
         </div>
       </div>
@@ -164,6 +172,13 @@ export default function LearningHub() {
                   <div className="space-y-1 mb-3 pb-3 border-b border-[#12305f]/50">
                     <div className="flex items-center gap-2 text-[10px] text-blue-100/50">
                       <Clock className="h-3 w-3" /> {course.duration}
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] text-blue-100/50">
+                      <Users className="h-3 w-3" /> No enrollments yet
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      <span className="text-[10px] text-amber-300">No ratings yet</span>
                     </div>
                   </div>
 
