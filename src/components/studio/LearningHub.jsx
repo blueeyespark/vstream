@@ -19,6 +19,7 @@ export default function LearningHub() {
   const [courseType, setCourseType] = useState("coding");
   const [activeTab, setActiveTab] = useState("explore");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [skillTab, setSkillTab] = useState("coding");
 
   const categoryOptions = {
     coding: ["Web Development", "Mobile Apps", "Backend", "DevOps", "Data Science", "AI/ML"],
@@ -122,6 +123,304 @@ export default function LearningHub() {
         <LearningPathGenerator />
       ) : (
         <>
+          {/* Skill Category Tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {[
+              { id: "coding", label: "💻 Coding", color: "bg-[#1e78ff]" },
+              { id: "art", label: "🎨 Art", color: "bg-pink-500" },
+              { id: "creator", label: "🎬 Creator", color: "bg-red-500" },
+              { id: "design", label: "✨ Design", color: "bg-purple-500" },
+              { id: "business", label: "💼 Business", color: "bg-emerald-500" },
+              { id: "music", label: "🎵 Music", color: "bg-orange-500" },
+              { id: "photography", label: "📸 Photography", color: "bg-yellow-500" },
+              { id: "writing", label: "✍️ Writing", color: "bg-blue-300" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setSkillTab(tab.id)}
+                className={`flex-shrink-0 px-4 py-2 rounded-full font-black text-xs whitespace-nowrap transition ${
+                  skillTab === tab.id
+                    ? `${tab.color} text-white shadow-lg`
+                    : "border border-[#12305f]/60 bg-[#03080f]/55 text-blue-100/60 hover:border-[#1e78ff]/40"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Category-Specific Content */}
+          {skillTab === "coding" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+                <h2 className="text-xl font-black text-[#00c8ff] mb-4">💻 Learn to Code</h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { title: "JavaScript Fundamentals", level: "Beginner", students: 12500, rating: "4.9", icon: "📝" },
+                    { title: "React.js Mastery", level: "Intermediate", students: 8900, rating: "4.8", icon: "⚛️" },
+                    { title: "Python for Data Science", level: "Intermediate", students: 15200, rating: "4.9", icon: "🐍" },
+                    { title: "Web APIs & REST", level: "Intermediate", students: 6300, rating: "4.7", icon: "🔌" },
+                    { title: "TypeScript Advanced", level: "Advanced", students: 4500, rating: "4.9", icon: "📘" },
+                    { title: "Node.js Backend Development", level: "Intermediate", students: 7800, rating: "4.8", icon: "⚙️" },
+                    { title: "Vue.js Complete Guide", level: "Beginner", students: 5600, rating: "4.8", icon: "💚" },
+                    { title: "Full Stack MERN Stack", level: "Advanced", students: 9200, rating: "4.9", icon: "🚀" },
+                  ].map((course, idx) => (
+                    <button key={idx} className="text-left rounded-lg border border-[#1e78ff]/40 bg-[#1e78ff]/10 p-3 hover:border-[#1e78ff]/60 transition">
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="text-xl">{course.icon}</span>
+                        <span className="text-[9px] font-black text-[#00c8ff] bg-[#1e78ff]/20 px-1.5 py-0.5 rounded">{course.level}</span>
+                      </div>
+                      <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
+                      <div className="flex justify-between text-[9px] text-blue-100/60">
+                        <span>👥 {course.students}K</span>
+                        <span>⭐ {course.rating}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-4 sm:p-6">
+                <h3 className="text-sm font-black text-white mb-3">🎯 Coding Resources</h3>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {[
+                    { name: "LeetCode", desc: "Algorithm & coding practice", icon: "🏆" },
+                    { name: "HackerRank", desc: "Coding challenges & competitions", icon: "⚡" },
+                    { name: "CodeSignal", desc: "Technical assessment platform", icon: "🎖️" },
+                  ].map((res, idx) => (
+                    <a key={idx} href="#" className="rounded-lg border border-[#12305f]/50 bg-[#03080f]/55 p-2 hover:border-[#1e78ff]/40 transition">
+                      <p className="font-black text-white text-xs flex items-center gap-1">{res.icon} {res.name}</p>
+                      <p className="text-[9px] text-blue-100/50">{res.desc}</p>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {skillTab === "art" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+                <h2 className="text-xl font-black text-pink-300 mb-4">🎨 Master Digital Art</h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { title: "Digital Painting Fundamentals", level: "Beginner", students: 7800, rating: "4.9", icon: "🖌️" },
+                    { title: "Character Design Essentials", level: "Intermediate", students: 6200, rating: "4.8", icon: "👤" },
+                    { title: "Animation Basics", level: "Beginner", students: 5400, rating: "4.7", icon: "🎬" },
+                    { title: "Concept Art for Games", level: "Advanced", students: 4100, rating: "4.9", icon: "🎮" },
+                    { title: "Illustration Masterclass", level: "Intermediate", students: 8900, rating: "4.9", icon: "🖼️" },
+                    { title: "Anatomy for Artists", level: "Intermediate", students: 9300, rating: "4.8", icon: "💀" },
+                    { title: "3D Sculpting Basics", level: "Beginner", students: 5600, rating: "4.8", icon: "🗿" },
+                    { title: "Color Theory Mastery", level: "Beginner", students: 12400, rating: "4.9", icon: "🎨" },
+                  ].map((course, idx) => (
+                    <button key={idx} className="text-left rounded-lg border border-pink-500/40 bg-pink-500/10 p-3 hover:border-pink-500/60 transition">
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="text-xl">{course.icon}</span>
+                        <span className="text-[9px] font-black text-pink-300 bg-pink-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
+                      </div>
+                      <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
+                      <div className="flex justify-between text-[9px] text-blue-100/60">
+                        <span>👥 {course.students}K</span>
+                        <span>⭐ {course.rating}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {skillTab === "creator" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+                <h2 className="text-xl font-black text-red-400 mb-4">🎬 Creator Mastery</h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { title: "YouTube Growth Strategies", level: "Beginner", students: 24500, rating: "4.9", icon: "📺" },
+                    { title: "Video Production Fundamentals", level: "Beginner", students: 18900, rating: "4.8", icon: "📹" },
+                    { title: "Adobe Premiere Pro Mastery", level: "Intermediate", students: 12300, rating: "4.9", icon: "🎞️" },
+                    { title: "Personal Branding 2025", level: "Intermediate", students: 9800, rating: "4.8", icon: "⭐" },
+                    { title: "Thumbnail Design Secrets", level: "Beginner", students: 15600, rating: "4.9", icon: "🎯" },
+                    { title: "Content Calendar Mastery", level: "Beginner", students: 8200, rating: "4.7", icon: "📅" },
+                    { title: "Podcast Production Pro", level: "Intermediate", students: 6300, rating: "4.8", icon: "🎙️" },
+                    { title: "Audience Building Psychology", level: "Advanced", students: 5100, rating: "4.9", icon: "👥" },
+                  ].map((course, idx) => (
+                    <button key={idx} className="text-left rounded-lg border border-red-500/40 bg-red-500/10 p-3 hover:border-red-500/60 transition">
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="text-xl">{course.icon}</span>
+                        <span className="text-[9px] font-black text-red-300 bg-red-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
+                      </div>
+                      <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
+                      <div className="flex justify-between text-[9px] text-blue-100/60">
+                        <span>👥 {course.students}K</span>
+                        <span>⭐ {course.rating}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {skillTab === "design" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+                <h2 className="text-xl font-black text-purple-400 mb-4">✨ Design Excellence</h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { title: "UI/UX Design Complete", level: "Beginner", students: 16700, rating: "4.9", icon: "🎨" },
+                    { title: "Figma Advanced Techniques", level: "Intermediate", students: 12400, rating: "4.8", icon: "📐" },
+                    { title: "Design System Creation", level: "Advanced", students: 7200, rating: "4.9", icon: "🔧" },
+                    { title: "Web Design Fundamentals", level: "Beginner", students: 14500, rating: "4.8", icon: "🌐" },
+                    { title: "Interaction Design Mastery", level: "Intermediate", students: 6800, rating: "4.9", icon: "⚡" },
+                    { title: "Mobile App Design", level: "Intermediate", students: 13200, rating: "4.8", icon: "📱" },
+                    { title: "Branding & Logo Design", level: "Intermediate", students: 10300, rating: "4.9", icon: "📛" },
+                    { title: "Accessibility in Design", level: "Beginner", students: 8900, rating: "4.8", icon: "♿" },
+                  ].map((course, idx) => (
+                    <button key={idx} className="text-left rounded-lg border border-purple-500/40 bg-purple-500/10 p-3 hover:border-purple-500/60 transition">
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="text-xl">{course.icon}</span>
+                        <span className="text-[9px] font-black text-purple-300 bg-purple-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
+                      </div>
+                      <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
+                      <div className="flex justify-between text-[9px] text-blue-100/60">
+                        <span>👥 {course.students}K</span>
+                        <span>⭐ {course.rating}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {skillTab === "business" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+                <h2 className="text-xl font-black text-emerald-400 mb-4">💼 Business Skills</h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { title: "Entrepreneurship 101", level: "Beginner", students: 19800, rating: "4.9", icon: "🚀" },
+                    { title: "Digital Marketing Mastery", level: "Intermediate", students: 24100, rating: "4.8", icon: "📊" },
+                    { title: "Sales Fundamentals", level: "Beginner", students: 17600, rating: "4.9", icon: "💰" },
+                    { title: "Financial Analysis Pro", level: "Advanced", students: 9300, rating: "4.8", icon: "📈" },
+                    { title: "Project Management Excellence", level: "Intermediate", students: 15400, rating: "4.9", icon: "📋" },
+                    { title: "Social Media Strategy", level: "Beginner", students: 22300, rating: "4.8", icon: "📱" },
+                    { title: "Copywriting & Content Marketing", level: "Intermediate", students: 18700, rating: "4.9", icon: "✍️" },
+                    { title: "Leadership & Team Building", level: "Intermediate", students: 12600, rating: "4.8", icon: "👔" },
+                  ].map((course, idx) => (
+                    <button key={idx} className="text-left rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 hover:border-emerald-500/60 transition">
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="text-xl">{course.icon}</span>
+                        <span className="text-[9px] font-black text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
+                      </div>
+                      <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
+                      <div className="flex justify-between text-[9px] text-blue-100/60">
+                        <span>👥 {course.students}K</span>
+                        <span>⭐ {course.rating}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {skillTab === "music" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+                <h2 className="text-xl font-black text-orange-400 mb-4">🎵 Music Production</h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { title: "Music Production Fundamentals", level: "Beginner", students: 13400, rating: "4.9", icon: "🎚️" },
+                    { title: "Beat Making & Hip Hop", level: "Intermediate", students: 9800, rating: "4.8", icon: "🎛️" },
+                    { title: "Music Mixing & Mastering", level: "Advanced", students: 8600, rating: "4.9", icon: "🎧" },
+                    { title: "Music Theory for Producers", level: "Beginner", students: 12300, rating: "4.8", icon: "🎼" },
+                    { title: "Electronic Music Production", level: "Intermediate", students: 10700, rating: "4.9", icon: "⚡" },
+                    { title: "Ableton Live Mastery", level: "Intermediate", students: 7400, rating: "4.8", icon: "🎹" },
+                    { title: "Sound Design Secrets", level: "Advanced", students: 6200, rating: "4.9", icon: "🔊" },
+                    { title: "Music Business & Licensing", level: "Intermediate", students: 5800, rating: "4.8", icon: "📜" },
+                  ].map((course, idx) => (
+                    <button key={idx} className="text-left rounded-lg border border-orange-500/40 bg-orange-500/10 p-3 hover:border-orange-500/60 transition">
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="text-xl">{course.icon}</span>
+                        <span className="text-[9px] font-black text-orange-300 bg-orange-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
+                      </div>
+                      <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
+                      <div className="flex justify-between text-[9px] text-blue-100/60">
+                        <span>👥 {course.students}K</span>
+                        <span>⭐ {course.rating}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {skillTab === "photography" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+                <h2 className="text-xl font-black text-yellow-400 mb-4">📸 Photography Mastery</h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { title: "Photography Fundamentals", level: "Beginner", students: 18900, rating: "4.9", icon: "📷" },
+                    { title: "Portrait Photography Pro", level: "Intermediate", students: 12700, rating: "4.8", icon: "👤" },
+                    { title: "Landscape Photography", level: "Intermediate", students: 10400, rating: "4.9", icon: "🏔️" },
+                    { title: "Photo Editing in Lightroom", level: "Beginner", students: 16200, rating: "4.8", icon: "🖼️" },
+                    { title: "Advanced Photoshop Techniques", level: "Advanced", students: 8900, rating: "4.9", icon: "🎨" },
+                    { title: "Product Photography Mastery", level: "Intermediate", students: 7600, rating: "4.8", icon: "📦" },
+                    { title: "Wedding Photography Pro", level: "Advanced", students: 6300, rating: "4.9", icon: "💍" },
+                    { title: "Photography Business", level: "Intermediate", students: 5400, rating: "4.8", icon: "💼" },
+                  ].map((course, idx) => (
+                    <button key={idx} className="text-left rounded-lg border border-yellow-500/40 bg-yellow-500/10 p-3 hover:border-yellow-500/60 transition">
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="text-xl">{course.icon}</span>
+                        <span className="text-[9px] font-black text-yellow-300 bg-yellow-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
+                      </div>
+                      <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
+                      <div className="flex justify-between text-[9px] text-blue-100/60">
+                        <span>👥 {course.students}K</span>
+                        <span>⭐ {course.rating}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {skillTab === "writing" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-[#12305f]/75 bg-gradient-to-r from-[#06101f]/90 to-[#0a1525]/90 p-4 sm:p-6">
+                <h2 className="text-xl font-black text-blue-300 mb-4">✍️ Writing & Content</h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { title: "Creative Writing Fundamentals", level: "Beginner", students: 14600, rating: "4.9", icon: "📚" },
+                    { title: "Copywriting Mastery", level: "Intermediate", students: 18300, rating: "4.8", icon: "✍️" },
+                    { title: "SEO Content Writing", level: "Intermediate", students: 16400, rating: "4.9", icon: "📝" },
+                    { title: "Screenplay & Scriptwriting", level: "Intermediate", students: 8700, rating: "4.8", icon: "🎬" },
+                    { title: "Blogging for Success", level: "Beginner", students: 12200, rating: "4.9", icon: "📖" },
+                    { title: "Email Marketing Copy", level: "Intermediate", students: 9800, rating: "4.8", icon: "📧" },
+                    { title: "Fiction Writing Workshop", level: "Intermediate", students: 10500, rating: "4.9", icon: "📕" },
+                    { title: "Editing & Proofreading Pro", level: "Advanced", students: 7300, rating: "4.8", icon: "✏️" },
+                  ].map((course, idx) => (
+                    <button key={idx} className="text-left rounded-lg border border-blue-500/40 bg-blue-500/10 p-3 hover:border-blue-500/60 transition">
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="text-xl">{course.icon}</span>
+                        <span className="text-[9px] font-black text-blue-300 bg-blue-500/20 px-1.5 py-0.5 rounded">{course.level}</span>
+                      </div>
+                      <h4 className="font-black text-white text-xs mb-1">{course.title}</h4>
+                      <div className="flex justify-between text-[9px] text-blue-100/60">
+                        <span>👥 {course.students}K</span>
+                        <span>⭐ {course.rating}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Featured Courses Section */}
           <div className="rounded-2xl border border-[#12305f]/75 bg-[#06101f]/90 p-6">
             <div className="flex items-center gap-2 mb-4">
