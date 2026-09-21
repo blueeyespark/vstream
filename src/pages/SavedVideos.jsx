@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bookmark, ArrowLeft, Plus } from "lucide-react";
@@ -38,19 +38,19 @@ export default function SavedVideos() {
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => data.Channel.list(),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 80),
+    queryFn: () => data.Video.list("-created_date", 80),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: playlists = [] } = useQuery({
     queryKey: ["playlists", user?.email],
-    queryFn: () => user?.email ? base44.entities.Playlist.filter({ owner_email: user.email }) : [],
+    queryFn: () => user?.email ? data.Playlist.filter({ owner_email: user.email }) : [],
     enabled: !!user?.email,
     staleTime: 2 * 60 * 1000,
   });
@@ -59,7 +59,7 @@ export default function SavedVideos() {
     mutationFn: ({ playlistId, videoId }) => {
       const playlist = playlists.find(p => p.id === playlistId);
       const updated = [...(playlist?.video_ids || []), videoId].filter((id, idx, arr) => arr.indexOf(id) === idx);
-      return base44.entities.Playlist.update(playlistId, { video_ids: updated });
+      return data.Playlist.update(playlistId, { video_ids: updated });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["playlists"] });
