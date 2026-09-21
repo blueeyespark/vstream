@@ -17,4 +17,10 @@ export const platform = {
   users: legacyProvider.users,
 };
 
+// Provider-neutral AI facade. Components should use platform.ai.generate()
+// rather than reaching into a provider-specific integration tree.
+platform.ai = {
+  generate: (request) => legacyProvider.integrations.Core.InvokeLLM(request),
+};
+
 export const platformProvider = "legacy-base44";
