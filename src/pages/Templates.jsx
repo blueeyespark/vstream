@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -198,17 +198,17 @@ export default function Templates() {
 
   const { data: myTemplates = [] } = useQuery({
     queryKey: ['templates'],
-    queryFn: () => base44.entities.ProjectTemplate.list('-created_date'),
+    queryFn: () => data.ProjectTemplate.list('-created_date'),
     enabled: !!user?.email,
   });
 
   const createTemplateMutation = useMutation({
-    mutationFn: (data) => base44.entities.ProjectTemplate.create(data),
+    mutationFn: (data) => data.ProjectTemplate.create(data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['templates'] }); setShowCreate(false); },
   });
 
   const deleteTemplateMutation = useMutation({
-    mutationFn: (id) => base44.entities.ProjectTemplate.delete(id),
+    mutationFn: (id) => data.ProjectTemplate.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['templates'] }),
   });
 
@@ -229,7 +229,7 @@ export default function Templates() {
     if (!newProjectName || !selectedTemplate || !user) return;
     setCreating(true);
     try {
-      const project = await base44.entities.Project.create({
+      const project = await data.Project.create({
         name: newProjectName,
         description: selectedTemplate.description,
         color: selectedTemplate.color,
@@ -240,14 +240,14 @@ export default function Templates() {
       });
       // Create tasks
       for (const task of (selectedTemplate.tasks || [])) {
-        await base44.entities.Task.create({
+        await data.Task.create({
           ...task,
           project_id: project.id,
         });
       }
       // Increment use count if not built-in
       if (selectedTemplate.id && !selectedTemplate.id.startsWith('builtin_')) {
-        await base44.entities.ProjectTemplate.update(selectedTemplate.id, {
+        await data.ProjectTemplate.update(selectedTemplate.id, {
           use_count: (selectedTemplate.use_count || 0) + 1
         });
       }
