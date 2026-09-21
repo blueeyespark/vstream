@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Save, Upload, X, ImageIcon, CheckCircle } from "lucide-react";
@@ -21,7 +21,7 @@ export default function ChannelEditor() {
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => platform.entities.Channel.list(),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -41,7 +41,7 @@ export default function ChannelEditor() {
   const handleImageUpload = async (file, type) => {
     if (type === "avatar") setUploadingAvatar(true);
     else setUploadingBanner(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await platform.storage.upload({ file });
     setForm(prev => ({ ...prev, [type === "avatar" ? "avatar_url" : "banner_url"]: file_url }));
     if (type === "avatar") setUploadingAvatar(false);
     else setUploadingBanner(false);
@@ -50,7 +50,7 @@ export default function ChannelEditor() {
   const handleSave = async () => {
     if (!channel || !form) return;
     setSaving(true);
-    await base44.entities.Channel.update(channel.id, {
+    await platform.entities.Channel.update(channel.id, {
       channel_name: form.channel_name,
       description: form.description,
       avatar_url: form.avatar_url,
