@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCreatorOSSafe } from "@/lib/CreatorOSContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,7 +15,7 @@ function MiniCreateForm({ userEmail, onCreated, onCancel }) {
     if (!name.trim()) { setError("Name required"); return; }
     setCreating(true);
     setError("");
-    const res = await base44.functions.invoke("createChannel", { channel_name: name.trim() });
+    const res = await platform.functions.invoke("createChannel", { channel_name: name.trim() });
     if (res.data?.error) { setError(res.data.error); setCreating(false); return; }
     setCreating(false);
     onCreated(res.data?.channel?.id);
