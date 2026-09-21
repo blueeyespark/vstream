@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
@@ -43,11 +43,11 @@ export default function BlogPage() {
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['blogposts'],
-    queryFn: () => base44.entities.BlogPost.list('-created_date'),
+    queryFn: () => data.BlogPost.list('-created_date'),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.BlogPost.delete(id),
+    mutationFn: (id) => data.BlogPost.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogposts'] });
       toast.success("Post deleted");
