@@ -1,4 +1,4 @@
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 
 const BADGE_CONFIG = {
   first_course: { icon: "🎓", name: "First Step", xp: 100, desc: "Complete your first course" },
@@ -15,14 +15,14 @@ export async function awardBadge(userEmail, badgeType, courseId = null) {
   if (!config) return null;
 
   // Check if already has badge
-  const existing = await base44.entities.UserBadge.filter({
+  const existing = await data.UserBadge.filter({
     user_email: userEmail,
     badge_type: badgeType
   });
 
   if (existing.length > 0) return null; // Already earned
 
-  const badge = await base44.entities.UserBadge.create({
+  const badge = await data.UserBadge.create({
     user_email: userEmail,
     badge_type: badgeType,
     badge_name: config.name,
@@ -35,12 +35,12 @@ export async function awardBadge(userEmail, badgeType, courseId = null) {
 
   // Update enrollment XP
   if (courseId) {
-    const enrollments = await base44.entities.UserEnrollment.filter({
+    const enrollments = await data.UserEnrollment.filter({
       user_email: userEmail,
       course_id: courseId
     });
     if (enrollments.length > 0) {
-      await base44.entities.UserEnrollment.update(enrollments[0].id, {
+      await data.UserEnrollment.update(enrollments[0].id, {
         total_xp: (enrollments[0].total_xp || 0) + config.xp
       });
     }
@@ -50,7 +50,7 @@ export async function awardBadge(userEmail, badgeType, courseId = null) {
 }
 
 export async function updateLearningStreak(enrollmentId) {
-  const enrollment = await base44.entities.UserEnrollment.get(enrollmentId);
+  const enrollment = await data.UserEnrollment.get(enrollmentId);
   const today = new Date().toISOString().split('T')[0];
   const lastDate = enrollment.last_learned_date;
 
@@ -70,7 +70,7 @@ export async function updateLearningStreak(enrollmentId) {
     newStreak = 1;
   }
 
-  await base44.entities.UserEnrollment.update(enrollmentId, {
+  await data.UserEnrollment.update(enrollmentId, {
     current_streak: newStreak,
     last_learned_date: today,
     total_xp: (enrollment.total_xp || 0) + 10 // Daily bonus
@@ -89,8 +89,8 @@ export async function updateLearningStreak(enrollmentId) {
 
 export async function checkAndAwardPerfectQuiz(enrollmentId, score) {
   if (score === 100) {
-    const enrollment = await base44.entities.UserEnrollment.get(enrollmentId);
-    await base44.entities.UserEnrollment.update(enrollmentId, {
+    const enrollment = await data.UserEnrollment.get(enrollmentId);
+    await data.UserEnrollment.update(enrollmentId, {
       perfect_quizzes: (enrollment.perfect_quizzes || 0) + 1,
       total_xp: (enrollment.total_xp || 0) + 200
     });
@@ -101,15 +101,15 @@ export async function checkAndAwardPerfectQuiz(enrollmentId, score) {
 }
 
 export async function recordFailedTopic(enrollmentId, topics) {
-  const enrollment = await base44.entities.UserEnrollment.get(enrollmentId);
+  const enrollment = await data.UserEnrollment.get(enrollmentId);
   const failed = new Set(enrollment.failed_topics || []);
   topics.forEach(t => failed.add(t));
   
-  await base44.entities.UserEnrollment.update(enrollmentId, {
+  await data.UserEnrollment.update(enrollmentId, {
     failed_topics: Array.from(failed)
   });
 }
 
 export async function getUserBadges(userEmail) {
-  return base44.entities.UserBadge.filter({ user_email: userEmail });
+  return data.UserBadge.filter({ user_email: userEmail });
 }
