@@ -1,37 +1,37 @@
-/**
- * Blue Platform compatibility gateway.
- *
- * UI code must import this module instead of importing Base44 directly.
- * Base44 is temporarily the legacy provider behind this boundary while
- * VStream services are migrated to infrastructure we control.
- *
- * Rule: no new code may import @/api/base44Client.
- */
-import { base44 as legacyProvider } from "@/api/base44Client";
+import { auth } from "./auth";
+import { blueRequest } from "./http";
 
 export const platform = {
-  auth: legacyProvider.auth,
-  entities: legacyProvider.entities,
-  functions: legacyProvider.functions,
-  integrations: legacyProvider.integrations,
-  users: legacyProvider.users,
+  auth,
+  functions: {
+    invoke: (name, payload = {}) =>
+      blueRequest(`/v1/functions/${encodeURIComponent(name)}`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+  },
+  storage: {
+    upload: ({ file, ...metadata }) => {
+      const body = new FormData();
+      body.append("file", file);
+      body.append("metadata", JSON.stringify(metadata));
+      return blueRequest("/v1/storage/upload", { method: "POST", body });
+    },
+  },
+  media: {
+    generateImage: (request) =>
+      blueRequest("/v1/media/generate-image", {
+        method: "POST",
+        body: JSON.stringify(request),
+      }),
+  },
+  ai: {
+    generate: (request) =>
+      blueRequest("/v1/ai/generate", {
+        method: "POST",
+        body: JSON.stringify(request),
+      }),
+  },
 };
 
-// Provider-neutral storage facade. Upload callers should use this rather than
-// provider-specific integration APIs.
-platform.storage = {
-  upload: (request) => legacyProvider.integrations.Core.UploadFile(request),
-};
-
-// Provider-neutral media generation facade.
-platform.media = {
-  generateImage: (request) => legacyProvider.integrations.Core.GenerateImage(request),
-};
-
-// Provider-neutral AI facade. Components should use platform.ai.generate()
-// rather than reaching into a provider-specific integration tree.
-platform.ai = {
-  generate: (request) => legacyProvider.integrations.Core.InvokeLLM(request),
-};
-
-export const platformProvider = "legacy-base44";
+export const platformProvider = "blue-owned";
