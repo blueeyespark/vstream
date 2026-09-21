@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { Sparkles, Loader2, Copy, Check } from "lucide-react";
 
 export default function AIAssistantHub() {
@@ -36,7 +36,7 @@ export default function AIAssistantHub() {
     if (!input.trim()) return;
     setLoading(true);
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await platform.ai.generate({
         prompt: tools[selectedTool].prompt(input),
         add_context_from_internet: false
       });
