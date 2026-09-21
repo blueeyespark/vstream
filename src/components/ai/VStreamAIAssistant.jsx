@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, Calendar, CheckCircle2, ChevronRight, Loader2, Send, Sparkles, Wand2, X, Zap } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 
 const PAGE_CONTEXT = {
   dashboard: {
@@ -101,7 +101,7 @@ export default function VStreamAIAssistant({
     setDemoMode(false);
     const userRequest = action || input.trim() || actions[0];
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await platform.ai.generate({
         prompt: `You are VStream AI, a creator assistant for a social video and live streaming platform.
 
 Context type: ${resolvedContext}
