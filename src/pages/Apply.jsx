@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Send, CheckCircle2, User, Mail, Tv, Link2,
@@ -57,7 +58,7 @@ export default function Apply() {
     }
     setSubmitting(true);
     try {
-      const res = await base44.functions.invoke("submitTalentApplication", form);
+      const res = await platform.functions.invoke("submitTalentApplication", form);
       if (res.data?.success) {
         setSubmitted(true);
       } else if (res.data?.duplicate) {
