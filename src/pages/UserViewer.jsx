@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -28,7 +28,7 @@ export default function UserViewer() {
   // Only query users if authenticated and is admin
   const { data: allUsers = [] } = useQuery({
     queryKey: ["users"],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: () => data.User.list(),
     enabled: isAdmin && !isLoadingUser,
     retry: false,
   });
@@ -40,13 +40,13 @@ export default function UserViewer() {
 
   const { data: projects = [] } = useQuery({
     queryKey: ["projects"],
-    queryFn: () => base44.entities.Project.list("-created_date"),
+    queryFn: () => data.Project.list("-created_date"),
     enabled: !isLoadingUser,
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks"],
-    queryFn: () => base44.entities.Task.list("-created_date"),
+    queryFn: () => data.Task.list("-created_date"),
     enabled: !isLoadingUser,
   });
 
