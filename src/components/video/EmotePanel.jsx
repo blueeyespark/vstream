@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { Smile } from "lucide-react";
 
 export default function EmotePanel({ channel, user }) {
@@ -8,7 +8,7 @@ export default function EmotePanel({ channel, user }) {
 
   const { data: emotes = [] } = useQuery({
     queryKey: ["emotes", channel?.id],
-    queryFn: () => base44.entities.Emote.filter({ channel_id: channel?.id }),
+    queryFn: () => data.Emote.filter({ channel_id: channel?.id }),
     enabled: !!channel?.id,
   });
 
