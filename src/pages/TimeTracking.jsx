@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -42,34 +42,34 @@ export default function TimeTracking() {
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.list(),
+    queryFn: () => data.Project.list(),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks'],
-    queryFn: () => base44.entities.Task.list(),
+    queryFn: () => data.Task.list(),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: entries = [] } = useQuery({
     queryKey: ['time-entries', user?.email],
-    queryFn: () => base44.entities.TimeEntry.filter({ user_email: user?.email }, '-created_date', 200),
+    queryFn: () => data.TimeEntry.filter({ user_email: user?.email }, '-created_date', 200),
     enabled: !!user?.email,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.TimeEntry.create(data),
+    mutationFn: (data) => data.TimeEntry.create(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['time-entries'] }),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.TimeEntry.update(id, data),
+    mutationFn: ({ id, data }) => data.TimeEntry.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['time-entries'] }),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.TimeEntry.delete(id),
+    mutationFn: (id) => data.TimeEntry.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['time-entries'] }),
   });
 
@@ -90,7 +90,7 @@ export default function TimeTracking() {
     setRunning(true);
     const task = tasks.find(t => t.id === selectedTask);
     const project = projects.find(p => p.id === selectedProject);
-    const entry = await base44.entities.TimeEntry.create({
+    const entry = await data.TimeEntry.create({
       task_id: selectedTask || null,
       task_title: task?.title || notes || "Manual entry",
       project_id: selectedProject || null,
@@ -109,7 +109,7 @@ export default function TimeTracking() {
     setRunning(false);
     const now = new Date().toISOString();
     if (activeEntryId) {
-      await base44.entities.TimeEntry.update(activeEntryId, {
+      await data.TimeEntry.update(activeEntryId, {
         end_time: now,
         duration_seconds: elapsed,
       });
