@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -52,11 +52,11 @@ export default function PlannerPage() {
 
   const { data: planners = [], isLoading } = useQuery({
     queryKey: ['planners'],
-    queryFn: () => base44.entities.Planner.list('-created_date'),
+    queryFn: () => data.Planner.list('-created_date'),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Planner.create({
+    mutationFn: (data) => data.Planner.create({
       ...data,
       owner_email: user?.email,
       custom_statuses: [
@@ -74,7 +74,7 @@ export default function PlannerPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Planner.update(id, data),
+    mutationFn: ({ id, data }) => data.Planner.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planners'] });
       setEditingPlanner(null);
@@ -84,7 +84,7 @@ export default function PlannerPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Planner.delete(id),
+    mutationFn: (id) => data.Planner.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planners'] });
       toast.success("Planner deleted");
