@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
 import { useQuery } from "@tanstack/react-query";
 import StreamerAnalytics from "./StreamerAnalytics";
 import MonetizationRevenue from "./MonetizationRevenue";
@@ -7,13 +7,13 @@ import MonetizationRevenue from "./MonetizationRevenue";
 export default function AnalyticsHub() {
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => platform.entities.Video.list("-created_date", 100),
+    queryFn: () => data.Video.list("-created_date", 100),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: analyticsRows = [] } = useQuery({
     queryKey: ["video-analytics-all"],
-    queryFn: () => platform.entities.VideoAnalytics.list("-date", 200),
+    queryFn: () => data.VideoAnalytics.list("-date", 200),
     staleTime: 5 * 60 * 1000,
   });
 
