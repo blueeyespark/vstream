@@ -3,7 +3,11 @@ import { newId } from "./db.js";
 export function entityRoutes(app, db) {
   app.get("/v1/entities/:type", (req,res) => {
     const rows=db.prepare("SELECT * FROM entities WHERE entity_type=? ORDER BY updated_at DESC").all(req.params.type);
-    res.json(rows.map(toEntity));
+    let entities=rows.map(toEntity);
+    for (const [key,value] of Object.entries(req.query)) {
+      entities=entities.filter((row) => String(row[key]) === String(value));
+    }
+    res.json(entities);
   });
   app.get("/v1/entities/:type/:id", (req,res) => {
     const row=db.prepare("SELECT * FROM entities WHERE entity_type=? AND id=?").get(req.params.type,req.params.id);
