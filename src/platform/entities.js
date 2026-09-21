@@ -8,13 +8,11 @@ function makeEntity(type) {
     update: async (id, data) => blueRequest(`/v1/entities/${type}/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
     delete: async (id) => blueRequest(`/v1/entities/${type}/${id}`, { method: "DELETE" }),
 
-    // Compatibility with the old SDK while callers are migrated. Filtering is
-    // intentionally client-side for now; server-side query support comes next.
     filter: async (criteria = {}) => {
-      const rows = await blueRequest(`/v1/entities/${type}`);
-      return rows.filter((row) =>
-        Object.entries(criteria).every(([key, value]) => row[key] === value)
+      const query = new URLSearchParams(
+        Object.entries(criteria).filter(([, value]) => value !== undefined && value !== null)
       );
+      return blueRequest(`/v1/entities/${type}?${query.toString()}`);
     },
   };
 }
