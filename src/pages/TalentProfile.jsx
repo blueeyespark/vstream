@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -50,13 +50,13 @@ export default function TalentProfile() {
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => data.Channel.list(),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 100),
+    queryFn: () => data.Video.list("-created_date", 100),
     staleTime: 5 * 60 * 1000,
   });
 
