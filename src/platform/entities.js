@@ -1,18 +1,28 @@
-/**
- * Provider-neutral entity access.
- *
- * Feature code should prefer entity(name) over provider-specific SDK objects.
- * This adapter preserves the current CRUD shape while allowing each entity to
- * move to an owned API/database independently.
- */
-import { platform } from "./client";
+import { blueRequest } from "./http";
 
+function makeEntity(type) {
+  return {
+    list: async () => blueRequest(`/v1/entities/${type}`),
+    get: async (id) => blueRequest(`/v1/entities/${type}/${id}`),
+    create: async (data) => blueRequest(`/v1/entities/${type}`, { method: "POST", body: JSON.stringify(data) }),
+    update: async (id, data) => blueRequest(`/v1/entities/${type}/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+    delete: async (id) => blueRequest(`/v1/entities/${type}/${id}`, { method: "DELETE" }),
+
+    // Compatibility with the old SDK while callers are migrated. Filtering is
+    // intentionally client-side for now; server-side query support comes next.
+    filter: async (criteria = {}) => {
+      const rows = await blueRequest(`/v1/entities/${type}`);
+      return rows.filter((row) =>
+        Object.entries(criteria).every(([key, value]) => row[key] === value)
+      );
+    },
+  };
+}
+
+const cache = new Map();
 export function entity(name) {
-  const model = platform.entities?.[name];
-  if (!model) {
-    throw new Error(`Unknown platform entity: ${name}`);
-  }
-  return model;
+  if (!cache.has(name)) cache.set(name, makeEntity(name));
+  return cache.get(name);
 }
 
 export const data = new Proxy({}, {
