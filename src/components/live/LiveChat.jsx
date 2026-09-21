@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
 import { Send, Zap, Shield, SmilePlus } from "lucide-react";
 
 const EMOTES = ["😂", "❤️", "🔥", "👏", "😮", "💯", "🎉", "⭐", "😎", "🤣", "👀", "🙏"];
@@ -27,11 +27,11 @@ export default function LiveChat({ streamId, user, compact = false }) {
   useEffect(() => {
     if (!streamId) return;
 
-    platform.entities.ChatMessage.filter({ channel: streamId }, "created_date", 50)
+    data.ChatMessage.filter({ channel: streamId }, "created_date", 50)
       .then(msgs => setMessages(msgs))
       .catch(() => {});
 
-    const unsubscribe = platform.entities.ChatMessage.subscribe((event) => {
+    const unsubscribe = data.ChatMessage.subscribe((event) => {
       if (event.data?.channel !== streamId) return;
       if (event.type === "create") {
         setMessages(prev => [...prev.slice(-99), event.data]);
@@ -56,7 +56,7 @@ export default function LiveChat({ streamId, user, compact = false }) {
       ? `💛 $${superChatAmount} Super Chat: ${input.trim()}`
       : input.trim();
 
-    await platform.entities.ChatMessage.create({
+    await data.ChatMessage.create({
       channel: streamId,
       content,
       sender_email: user?.email || "anonymous",
