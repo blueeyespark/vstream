@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import { createDatabase } from "./db.js";
 import { authRoutes } from "./auth.js";
 import { entityRoutes } from "./entities.js";
+import { functionRoutes } from "./functions.js";
 import multer from "multer";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
@@ -25,6 +26,7 @@ app.get("/health", (_req, res) => res.json({ ok: true, service: "blue-vstream-ap
 
 authRoutes(app, db);
 entityRoutes(app, db);
+functionRoutes(app, db);
 
 const upload = multer({ dest: uploadDir, limits: { fileSize: Number(process.env.BLUE_MAX_UPLOAD_BYTES || 536870912) } });
 app.post("/v1/storage/upload", upload.single("file"), async (req, res) => {
