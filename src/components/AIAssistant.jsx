@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, Loader2, RefreshCw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -191,7 +191,7 @@ Work Context:
     else if (unassigned > tasks.length * 0.3) priorityMsg = 'ORGANIZE - Assign pending tasks';
 
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await platform.ai.generate({
         prompt: `You are VStream AI, a warm, brief assistant. Be genuine and encouraging in 2-3 sentences max.
 
 Context: ${taskArray.length} tasks (${completionRate}% done, ${overdue} overdue)
@@ -225,7 +225,7 @@ Generate a contextual check-in message. Be specific.`,
     const completionRate = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
 
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await platform.ai.generate({
         prompt: `You are VStream AI — friendly, sharp, concise.
 
 Context: ${tasks.length} tasks (${completionRate}% done).
@@ -283,7 +283,7 @@ EXPERTISE: Content discovery, creator strategies, trending content, viewer engag
 PERSONALITY: Approachable, enthusiastic about discovery.`;
       };
 
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await platform.ai.generate({
         prompt: `${getRoleContext()}
 
 CONTEXT:
