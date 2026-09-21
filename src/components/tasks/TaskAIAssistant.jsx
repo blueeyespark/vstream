@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Loader2, CheckCircle2, Lightbulb, Zap, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,7 @@ export default function TaskAIAssistant({ taskTitle, taskDescription, projectId,
     setError(null);
     
     try {
-      const response = await base44.functions.invoke('analyzeTaskWithAI', {
+      const response = await platform.functions.invoke('analyzeTaskWithAI', {
         taskTitle,
         taskDescription,
         projectId
