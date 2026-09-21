@@ -17,6 +17,17 @@ export const platform = {
   users: legacyProvider.users,
 };
 
+// Provider-neutral storage facade. Upload callers should use this rather than
+// provider-specific integration APIs.
+platform.storage = {
+  upload: (request) => legacyProvider.integrations.Core.UploadFile(request),
+};
+
+// Provider-neutral media generation facade.
+platform.media = {
+  generateImage: (request) => legacyProvider.integrations.Core.GenerateImage(request),
+};
+
 // Provider-neutral AI facade. Components should use platform.ai.generate()
 // rather than reaching into a provider-specific integration tree.
 platform.ai = {
