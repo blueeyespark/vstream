@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -45,7 +45,7 @@ function TaskChip({ task, onEdit, provided }) {
     clearInterval(timerRef.current);
     setRunning(false);
     if (elapsed > 5) {
-      await base44.entities.TimeEntry.create({
+      await platform.entities.TimeEntry.create({
         task_id: task.id,
         task_title: task.title,
         project_id: task.project_id,
@@ -129,7 +129,7 @@ export default function Tasks() {
 
   const { data: rawTasks = [], isLoading } = useQuery({
     queryKey: ["all-tasks", user?.email],
-    queryFn: () => base44.entities.Task.list("-created_date"),
+    queryFn: () => platform.entities.Task.list("-created_date"),
     enabled: !!user?.email,
   });
 
@@ -147,17 +147,17 @@ export default function Tasks() {
 
   const { data: projects = [] } = useQuery({
     queryKey: ["projects"],
-    queryFn: () => base44.entities.Project.list(),
+    queryFn: () => platform.entities.Project.list(),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Task.update(id, data),
+    mutationFn: ({ id, data }) => platform.entities.Task.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["all-tasks", user?.email] }),
     onError: () => toast.error("Failed to update task"),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Task.create(data),
+    mutationFn: (data) => platform.entities.Task.create(data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["all-tasks", user?.email] }); setShowForm(false); toast.success("Task created"); },
   });
 
@@ -172,7 +172,7 @@ export default function Tasks() {
       status: t.status,
       current_priority: t.priority,
     }));
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await platform.ai.generate({
       prompt: `You are a task prioritization engine. Analyze these tasks and assign a priority (high, medium, or low) to each one based on:
 - Due date urgency (closer = higher priority)
 - Current status (todo > in_progress > review)
@@ -202,7 +202,7 @@ Return ONLY the JSON — no markdown, no explanation.`,
     for (const p of (result?.priorities || [])) {
       const task = tasks.find(t => t.id === p.id);
       if (task && task.priority !== p.priority) {
-        await base44.entities.Task.update(p.id, { priority: p.priority });
+        await platform.entities.Task.update(p.id, { priority: p.priority });
         updated++;
       }
     }
