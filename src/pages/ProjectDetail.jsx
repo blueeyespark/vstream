@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -66,23 +66,23 @@ export default function ProjectDetail() {
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['project', projectId],
-    queryFn: () => base44.entities.Project.filter({ id: projectId }).then(res => res[0]),
+    queryFn: () => data.Project.filter({ id: projectId }).then(res => res[0]),
     enabled: !!projectId,
   });
 
   const { data: tasks = [], isLoading: tasksLoading } = useQuery({
     queryKey: ['tasks', projectId],
-    queryFn: () => base44.entities.Task.filter({ project_id: projectId }, '-created_date'),
+    queryFn: () => data.Task.filter({ project_id: projectId }, '-created_date'),
     enabled: !!projectId,
   });
 
   const { data: reminderGroups = [] } = useQuery({
     queryKey: ['remindergroups'],
-    queryFn: () => base44.entities.ReminderGroup.list(),
+    queryFn: () => data.ReminderGroup.list(),
   });
 
   const updateProjectMutation = useMutation({
-    mutationFn: (data) => base44.entities.Project.update(projectId, data),
+    mutationFn: (data) => data.Project.update(projectId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -93,11 +93,11 @@ export default function ProjectDetail() {
 
   const createTaskMutation = useMutation({
     mutationFn: async (data) => {
-      const task = await base44.entities.Task.create(data);
+      const task = await data.Task.create(data);
       
       // Create notification if assigned to someone else
       if (data.assigned_to && data.assigned_to !== user?.email) {
-        await base44.entities.Notification.create({
+        await data.Notification.create({
           user_email: data.assigned_to,
           type: "task_assigned",
           title: "New task assigned to you",
@@ -117,11 +117,11 @@ export default function ProjectDetail() {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      const task = await base44.entities.Task.update(id, data);
+      const task = await data.Task.update(id, data);
       
       // Create notification on status change to completed
       if (data.status === 'completed' && project?.owner_email && project.owner_email !== user?.email) {
-        await base44.entities.Notification.create({
+        await data.Notification.create({
           user_email: project.owner_email,
           type: "task_completed",
           title: "Task completed",
@@ -141,7 +141,7 @@ export default function ProjectDetail() {
   });
 
   const deleteTaskMutation = useMutation({
-    mutationFn: (id) => base44.entities.Task.delete(id),
+    mutationFn: (id) => data.Task.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
       setDeleteTask(null);
