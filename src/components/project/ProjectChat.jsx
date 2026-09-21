@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -22,13 +22,13 @@ export default function ProjectChat({ projectId, projectName, onClose }) {
 
   const { data: messages = [] } = useQuery({
     queryKey: ['chat', projectId],
-    queryFn: () => base44.entities.ChatMessage.filter({ project_id: projectId }, 'created_date', 100),
+    queryFn: () => platform.entities.ChatMessage.filter({ project_id: projectId }, 'created_date', 100),
     refetchInterval: 3000,
   });
 
   // Subscribe to real-time updates
   useEffect(() => {
-    const unsub = base44.entities.ChatMessage.subscribe((event) => {
+    const unsub = platform.entities.ChatMessage.subscribe((event) => {
       if (event.data?.project_id === projectId) {
         queryClient.invalidateQueries({ queryKey: ['chat', projectId] });
       }
@@ -41,7 +41,7 @@ export default function ProjectChat({ projectId, projectName, onClose }) {
   }, [messages]);
 
   const sendMutation = useMutation({
-    mutationFn: (data) => base44.entities.ChatMessage.create(data),
+    mutationFn: (data) => platform.entities.ChatMessage.create(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['chat', projectId] }),
   });
 
@@ -61,7 +61,7 @@ export default function ProjectChat({ projectId, projectName, onClose }) {
     const file = e.target.files?.[0];
     if (!file || !user) return;
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await platform.storage.upload({ file });
     sendMutation.mutate({
       project_id: projectId,
       content: `📎 ${file.name}`,
