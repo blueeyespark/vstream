@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -79,11 +79,11 @@ export default function AIChangesLog() {
 
   const { data: changes = [], isLoading } = useQuery({
     queryKey: ["ai-changes"],
-    queryFn: () => base44.entities.AIAppliedChange.list("-created_date", 200),
+    queryFn: () => data.AIAppliedChange.list("-created_date", 200),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.AIAppliedChange.delete(id),
+    mutationFn: (id) => data.AIAppliedChange.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ai-changes"] }),
   });
 
