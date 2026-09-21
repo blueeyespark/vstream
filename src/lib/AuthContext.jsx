@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { platform } from '@/platform/client';
 
 const AuthContext = createContext();
 
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoadingAuth(true);
       setAuthError(null);
-      const currentUser = await base44.auth.me();
+      const currentUser = await platform.auth.me();
       setUser(currentUser);
       setIsAuthenticated(true);
       return currentUser;
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
 
     const nextUrl = typeof redirectUrl === 'string' ? redirectUrl : '/login';
     const absoluteRedirectUrl = new URL(nextUrl, window.location.origin).toString();
-    base44.auth.logout(absoluteRedirectUrl);
+    platform.auth.logout(absoluteRedirectUrl);
   }, []);
 
   const loginWithGoogle = useCallback((fromUrl = '/') => {
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
       redirectUrl.search = '';
       redirectUrl.hash = '';
     }
-    base44.auth.loginWithProvider('google', redirectUrl.toString());
+    platform.auth.loginWithProvider('google', redirectUrl.toString());
   }, []);
 
   const navigateToLogin = useCallback((fromUrl = window.location.href) => {
