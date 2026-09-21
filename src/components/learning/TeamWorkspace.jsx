@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Users, Plus, FileUp, MessageSquare, CheckCircle2, Trash2 } from "lucide-react";
 
@@ -12,13 +12,13 @@ export default function TeamWorkspace({ courseId, enrollmentId }) {
 
   const { data: projects = [] } = useQuery({
     queryKey: ["team-projects", courseId],
-    queryFn: () => base44.entities.TeamProject.filter({ course_id: courseId })
+    queryFn: () => platform.entities.TeamProject.filter({ course_id: courseId })
   });
 
   const createProjectMutation = useMutation({
     mutationFn: async () => {
-      const user = await base44.auth.me();
-      return base44.entities.TeamProject.create({
+      const user = await platform.auth.me();
+      return platform.entities.TeamProject.create({
         course_id: courseId,
         enrollment_id: enrollmentId,
         project_name: projectName,
@@ -138,7 +138,7 @@ function ProjectDetail({ project, onBack }) {
           joined_date: new Date().toISOString()
         }]
       };
-      await base44.entities.TeamProject.update(project.id, updated);
+      await platform.entities.TeamProject.update(project.id, updated);
       return updated;
     },
     onSuccess: () => {
@@ -153,14 +153,14 @@ function ProjectDetail({ project, onBack }) {
 
     setUploadingFile(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await platform.storage.upload({ file });
       
       const newFile = {
         id: Date.now().toString(),
         name: file.name,
         type: file.type,
         url: file_url,
-        uploaded_by: (await base44.auth.me()).email,
+        uploaded_by: (await platform.auth.me()).email,
         uploaded_at: new Date().toISOString(),
         version: 1
       };
@@ -169,7 +169,7 @@ function ProjectDetail({ project, onBack }) {
         ...project,
         files: [...(project.files || []), newFile]
       };
-      await base44.entities.TeamProject.update(project.id, updated);
+      await platform.entities.TeamProject.update(project.id, updated);
       queryClient.invalidateQueries({ queryKey: ["team-projects"] });
     } catch (e) {
       console.error("Upload failed", e);
