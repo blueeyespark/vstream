@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, ThumbsUp, CheckCircle2, Send, Plus } from "lucide-react";
 
@@ -13,7 +13,7 @@ export default function CourseQnA({ courseId, moduleIndex }) {
 
   const { data: questions = [] } = useQuery({
     queryKey: ["course-questions", courseId, moduleIndex],
-    queryFn: () => base44.entities.CourseQuestion.filter({
+    queryFn: () => platform.entities.CourseQuestion.filter({
       course_id: courseId,
       module_index: moduleIndex
     })
@@ -21,8 +21,8 @@ export default function CourseQnA({ courseId, moduleIndex }) {
 
   const postQuestionMutation = useMutation({
     mutationFn: async () => {
-      const user = await base44.auth.me();
-      return base44.entities.CourseQuestion.create({
+      const user = await platform.auth.me();
+      return platform.entities.CourseQuestion.create({
         course_id: courseId,
         module_index: moduleIndex,
         author_email: user.email,
@@ -43,8 +43,8 @@ export default function CourseQnA({ courseId, moduleIndex }) {
 
   const postAnswerMutation = useMutation({
     mutationFn: async () => {
-      const user = await base44.auth.me();
-      const answer = await base44.entities.CourseAnswer.create({
+      const user = await platform.auth.me();
+      const answer = await platform.entities.CourseAnswer.create({
         question_id: selectedQuestion.id,
         course_id: courseId,
         author_email: user.email,
@@ -54,7 +54,7 @@ export default function CourseQnA({ courseId, moduleIndex }) {
       });
 
       // Update answer count
-      await base44.entities.CourseQuestion.update(selectedQuestion.id, {
+      await platform.entities.CourseQuestion.update(selectedQuestion.id, {
         answer_count: (selectedQuestion.answer_count || 0) + 1
       });
 
@@ -149,7 +149,7 @@ export default function CourseQnA({ courseId, moduleIndex }) {
 function QuestionDetail({ question, courseId, onBack }) {
   const { data: answers = [] } = useQuery({
     queryKey: ["course-answers", question.id],
-    queryFn: () => base44.entities.CourseAnswer.filter({ question_id: question.id })
+    queryFn: () => platform.entities.CourseAnswer.filter({ question_id: question.id })
   });
 
   const [answerContent, setAnswerContent] = useState("");
@@ -157,8 +157,8 @@ function QuestionDetail({ question, courseId, onBack }) {
 
   const postAnswerMutation = useMutation({
     mutationFn: async () => {
-      const user = await base44.auth.me();
-      const answer = await base44.entities.CourseAnswer.create({
+      const user = await platform.auth.me();
+      const answer = await platform.entities.CourseAnswer.create({
         question_id: question.id,
         course_id: courseId,
         author_email: user.email,
@@ -167,7 +167,7 @@ function QuestionDetail({ question, courseId, onBack }) {
         content: answerContent
       });
 
-      await base44.entities.CourseQuestion.update(question.id, {
+      await platform.entities.CourseQuestion.update(question.id, {
         answer_count: (question.answer_count || 0) + 1
       });
 
