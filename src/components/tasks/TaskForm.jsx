@@ -23,7 +23,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon, Link2, Plus, X, Image, Copy, RefreshCw } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -143,7 +143,7 @@ export default function TaskForm({ open, onOpenChange, task, projectId, reminder
     if (!file) return;
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await blue.integrations.Core.UploadFile({ file });
       setFormData({ ...formData, image_urls: [...formData.image_urls, file_url] });
     } catch (error) {
       console.error("Upload failed");
