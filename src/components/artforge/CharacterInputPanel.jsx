@@ -62,9 +62,10 @@ export default function CharacterInputPanel({
           const blob = new Blob(chunksRef.current, { type: "audio/webm" });
           const audioFile = new File([blob], "recording.webm", { type: "audio/webm" });
           const { file_url } = await platform.storage.upload({ file: audioFile });
-          const transcript = await base44.integrations.Core.TranscribeAudio({ audio_url: file_url });
-          if (transcript) {
-            setTextPrompt((prev) => prev ? `${prev} ${transcript}` : transcript);
+          const transcript = await platform.ai.transcribe({ audio_url: file_url });
+          const transcriptText = transcript?.text || transcript;
+          if (transcriptText) {
+            setTextPrompt((prev) => prev ? `${prev} ${transcriptText}` : transcriptText);
             toast.success("Speech transcribed!");
           }
         } catch { toast.error("Transcription failed — try again"); }
