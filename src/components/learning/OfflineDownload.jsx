@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
+import { useAuth } from "@/lib/AuthContext";
 import { Download, Loader2, CheckCircle2, Wifi, WifiOff } from "lucide-react";
 
 export default function OfflineDownload({ enrollment, moduleIndex, moduleTitle, content }) {
+  const { user } = useAuth();
   const [downloading, setDownloading] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
 
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      await base44.entities.OfflineLesson.create({
-        user_email: (await base44.auth.me()).email,
+      await data.OfflineLesson.create({
+        user_email: user.email,
         enrollment_id: enrollment.id,
         course_id: enrollment.course_id,
         module_index: moduleIndex,
