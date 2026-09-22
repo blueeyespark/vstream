@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { format } from "date-fns";
 import { 
   History, Plus, Edit2, Trash2, Users, MessageSquare, 
@@ -38,9 +38,9 @@ export default function ActivityLogPanel({ open, onOpenChange, parentId, entityT
     queryKey: ['activity-logs', parentId, entityType],
     queryFn: () => {
       if (parentId) {
-        return base44.entities.ActivityLog.filter({ parent_id: parentId }, '-created_date', 100);
+        return blue.entities.ActivityLog.filter({ parent_id: parentId }, '-created_date', 100);
       } else if (entityType) {
-        return base44.entities.ActivityLog.filter({ entity_type: entityType }, '-created_date', 100);
+        return blue.entities.ActivityLog.filter({ entity_type: entityType }, '-created_date', 100);
       }
       return [];
     },
