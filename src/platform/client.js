@@ -36,6 +36,7 @@ export const platform = {
       }),
   },
   ai: {
+    capabilities: () => blueRequest("/v1/ai/capabilities"),
     transcribe: (request) =>
       blueRequest("/v1/ai/transcribe", {
         method: "POST",
