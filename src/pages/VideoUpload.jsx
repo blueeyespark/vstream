@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { motion } from "framer-motion";
 import { Upload, File, CheckCircle, Loader2 } from "lucide-react";
@@ -22,7 +23,7 @@ export default function VideoUpload() {
   useEffect(() => {
     setUser(authUser);
     if (authUser?.email) {
-      base44.entities.Channel.filter({ creator_email: authUser.email }).then(channels => {
+      data.Channel.filter({ creator_email: authUser.email }).then(channels => {
         setChannel(channels?.[0] || null);
       }).catch(() => setChannel(null));
     } else {
@@ -63,60 +64,19 @@ export default function VideoUpload() {
     setUploading(true);
 
     try {
-      // Step 1: Get upload URL
-      const uploadRes = await base44.functions.invoke("generateUploadURL", {
-        filename: file.name,
-        size: file.size,
-        content_type: file.type,
-      });
-
-      const { upload_url, video_id, upload_key } = uploadRes.data;
-
-      // Step 2: Upload file to S3
-      const uploadToS3 = async () => {
-        const xhr = new XMLHttpRequest();
-
-        xhr.upload.addEventListener("progress", (e) => {
-          if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
-            setUploadProgress(percentComplete);
-          }
-        });
-
-        return new Promise((resolve, reject) => {
-          xhr.addEventListener("load", () => {
-            if (xhr.status === 200) resolve();
-            else reject(new Error("Upload failed"));
-          });
-          xhr.addEventListener("error", () => reject(new Error("Upload error")));
-
-          xhr.open("PUT", upload_url);
-          xhr.setRequestHeader("Content-Type", file.type);
-          xhr.send(file);
-        });
-      };
-
-      await uploadToS3();
-      setUploadProgress(100);
-
-      // Step 3: Start transcoding
-      const transRes = await base44.functions.invoke("startTranscodingJob", {
-        video_id,
-        upload_key,
-      });
-
-      // Step 4: Create Video entity record so it appears on the channel
-      await base44.entities.Video.create({
+      const uploadRes = await platform.media.uploadVideo({
+        file,
         channel_id: channel?.id || "",
         title: videoTitle,
         description: videoDescription,
-        status: "processing",
-        visibility: "public",
-        raw_upload_url: upload_key,
-        transcoding_progress: 0,
       });
+      setUploadProgress(100);
 
-      setUploadedVideoId(video_id);
+      const videoId = uploadRes.video?.id;
+      if (!videoId) throw new Error("Upload completed without a video ID");
+
+      await platform.media.transcodeVideo(videoId);
+      setUploadedVideoId(videoId);
       toast.success("Video uploaded! Transcoding started.");
     } catch (error) {
       toast.error(`Upload failed: ${error.message}`);
