@@ -47,6 +47,7 @@ jobs:
           node --check src/index.js
           node --check src/auth.js
           node --check src/ai.js
+          node --check src/blue-control.js
           node --check src/db.js
           node --check src/entities.js
           node --check src/functions.js
@@ -88,6 +89,18 @@ jobs:
 
           curl -fsS -b /tmp/blue-cookie.txt http://127.0.0.1:8787/v1/ai/conversations >/tmp/conversations.json
           node -e 'const x=require("/tmp/conversations.json"); if(x.conversations?.length!==1 || x.conversations[0].mode!=="teacher") process.exit(1)'
+
+          curl -fsS -b /tmp/blue-cookie.txt http://127.0.0.1:8787/v1/blue/permissions >/tmp/permissions.json
+          node -e 'const x=require("/tmp/permissions.json"); if(x.action_level!=="guide") process.exit(1)'
+          curl -fsS -b /tmp/blue-cookie.txt -H 'Content-Type: application/json' -X PUT -d '{"action_level":"work-with-me"}' http://127.0.0.1:8787/v1/blue/permissions >/tmp/permission-set.json
+          node -e 'const x=require("/tmp/permission-set.json"); if(x.action_level!=="work-with-me") process.exit(1)'
+          curl -fsS -b /tmp/blue-cookie.txt -H 'Content-Type: application/json' -d '{"action_type":"desktop-control","risk":"high","reason":"CI approval test"}' http://127.0.0.1:8787/v1/blue/actions >/tmp/action.json
+          node -e 'const x=require("/tmp/action.json"); if(x.status!=="pending-approval" || x.requires_approval!==true) process.exit(1)'
+          ACTION_ID=$(node -e 'const x=require("/tmp/action.json"); process.stdout.write(x.id)')
+          curl -fsS -b /tmp/blue-cookie.txt -X POST "http://127.0.0.1:8787/v1/blue/actions/$ACTION_ID/approve" >/tmp/action-approved.json
+          node -e 'const x=require("/tmp/action-approved.json"); if(x.status!=="ready") process.exit(1)'
+          curl -fsS -b /tmp/blue-cookie.txt -H 'Content-Type: application/json' -X POST -d '{"verification_status":"verified","result":{"ci":true}}' "http://127.0.0.1:8787/v1/blue/actions/$ACTION_ID/verify" >/tmp/action-verified.json
+          node -e 'const x=require("/tmp/action-verified.json"); if(x.verification_status!=="verified") process.exit(1)'
 
           curl -fsS -b /tmp/blue-cookie.txt -H 'Content-Type: application/json'             -d '{"channel_name":"CI Channel","description":"runtime verification"}'             http://127.0.0.1:8787/v1/functions/createChannel >/tmp/channel.json
           node -e 'const x=require("/tmp/channel.json"); if(x.data?.channel?.channel_name!=="CI Channel") process.exit(1)'
