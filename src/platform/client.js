@@ -36,6 +36,9 @@ export const platform = {
       }),
   },
   blue: {
+    tools: () => blueRequest("/v1/blue/tools"),
+    resources: (type, limit = 50) => blueRequest(`/v1/blue/resources/${encodeURIComponent(type)}?limit=${encodeURIComponent(limit)}`),
+    resource: (type, id) => blueRequest(`/v1/blue/resources/${encodeURIComponent(type)}/${encodeURIComponent(id)}`),
     memory: (scope) => blueRequest(`/v1/blue/memory${scope ? `?scope=${encodeURIComponent(scope)}` : ""}`),
     remember: (memory) => blueRequest("/v1/blue/memory", { method: "POST", body: JSON.stringify(memory) }),
     forget: (id) => blueRequest(`/v1/blue/memory/${encodeURIComponent(id)}`, { method: "DELETE" }),
