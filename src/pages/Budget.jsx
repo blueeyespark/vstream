@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -77,21 +77,21 @@ export default function BudgetPage() {
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.list(),
+    queryFn: () => blue.entities.Project.list(),
   });
 
   const { data: timeEntries = [] } = useQuery({
     queryKey: ['time-entries-budget'],
-    queryFn: () => base44.entities.TimeEntry.list('-created_date', 500),
+    queryFn: () => blue.entities.TimeEntry.list('-created_date', 500),
   });
 
   const { data: budgetEntries = [] } = useQuery({
     queryKey: ['budget'],
-    queryFn: () => base44.entities.Budget.list('-date'),
+    queryFn: () => blue.entities.Budget.list('-date'),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Budget.create(data),
+    mutationFn: (data) => blue.entities.Budget.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budget'] });
       setShowForm(false);
