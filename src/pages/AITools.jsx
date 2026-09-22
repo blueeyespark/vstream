@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Scan, Users } from "lucide-react";
@@ -23,7 +23,7 @@ export default function AITools() {
   // Check if user is admin or confirmed staff
   useEffect(() => {
     if (!user?.email) return;
-    base44.entities.StaffAccess.filter({ email: user.email, is_active: true })
+    blue.entities.StaffAccess.filter({ email: user.email, is_active: true })
       .then(results => setConfirmedStaff(results.length > 0))
       .catch(() => setConfirmedStaff(false));
   }, [user?.email]);
