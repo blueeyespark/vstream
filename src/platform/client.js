@@ -51,6 +51,14 @@ export const platform = {
     approveAction: (id) => blueRequest(`/v1/blue/actions/${encodeURIComponent(id)}/approve`, { method: "POST" }),
     verifyAction: (id, verification) => blueRequest(`/v1/blue/actions/${encodeURIComponent(id)}/verify`, { method: "POST", body: JSON.stringify(verification) }),
   },
+  academy: {
+    dashboard: () => blueRequest("/v1/academy/me/dashboard"),
+    courses: () => blueRequest("/v1/academy/courses"),
+    course: (slug) => blueRequest(`/v1/academy/courses/${encodeURIComponent(slug)}`),
+    enroll: (courseId) => blueRequest(`/v1/academy/courses/${encodeURIComponent(courseId)}/enroll`, { method: "POST" }),
+    setProgress: (enrollmentId, progress_percent) => blueRequest(`/v1/academy/enrollments/${encodeURIComponent(enrollmentId)}/progress`, { method: "PATCH", body: JSON.stringify({ progress_percent }) }),
+    submitAssignment: (assignmentId, submission) => blueRequest(`/v1/academy/assignments/${encodeURIComponent(assignmentId)}/submissions`, { method: "POST", body: JSON.stringify(submission) }),
+  },
   ai: {
     capabilities: () => blueRequest("/v1/ai/capabilities"),
     conversations: () => blueRequest("/v1/ai/conversations"),
