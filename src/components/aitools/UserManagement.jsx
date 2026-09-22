@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Search, AlertTriangle, Ban, Zap, Eye, Calendar, Shield, Video } from "lucide-react";
@@ -13,18 +13,18 @@ export default function UserManagement({ user: currentUser }) {
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ["users-all"],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: () => blue.entities.User.list(),
     enabled: !!currentUser?.email,
   });
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => blue.entities.Channel.list(),
   });
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list(),
+    queryFn: () => blue.entities.Video.list(),
   });
 
   // Filter users by search
@@ -39,12 +39,12 @@ export default function UserManagement({ user: currentUser }) {
 
   // Mutations for admin actions
   const banMutation = useMutation({
-    mutationFn: () => base44.entities.User.update(selectedUser.id, { role: "banned" }),
+    mutationFn: () => blue.entities.User.update(selectedUser.id, { role: "banned" }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["users-all"] }); setSelectedUser(null); },
   });
 
   const demonetizeMutation = useMutation({
-    mutationFn: (videoId) => base44.entities.Video.update(videoId, { monetization_enabled: false }),
+    mutationFn: (videoId) => blue.entities.Video.update(videoId, { monetization_enabled: false }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["videos-all"] }),
   });
 
@@ -52,15 +52,15 @@ export default function UserManagement({ user: currentUser }) {
     mutationFn: () => {
       const newStrikes = (selectedUser.strikes || 0) + 1;
       if (newStrikes >= 3) {
-        return base44.entities.User.update(selectedUser.id, { role: "banned", strikes: newStrikes });
+        return blue.entities.User.update(selectedUser.id, { role: "banned", strikes: newStrikes });
       }
-      return base44.entities.User.update(selectedUser.id, { strikes: newStrikes });
+      return blue.entities.User.update(selectedUser.id, { strikes: newStrikes });
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["users-all"] }); },
   });
 
   const unrestrict = useMutation({
-    mutationFn: () => base44.entities.User.update(selectedUser.id, { role: "user", strikes: 0 }),
+    mutationFn: () => blue.entities.User.update(selectedUser.id, { role: "user", strikes: 0 }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["users-all"] }); setSelectedUser(null); },
   });
 
