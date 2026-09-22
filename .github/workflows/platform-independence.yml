@@ -84,7 +84,10 @@ jobs:
 
           STATUS=$(curl -sS -o /tmp/ai-none.json -w '%{http_code}' -b /tmp/blue-cookie.txt             -H 'Content-Type: application/json' -d '{"prompt":"hello"}'             http://127.0.0.1:8787/v1/ai/generate)
           test "$STATUS" = "503"
-          node -e 'const x=require("/tmp/ai-none.json"); if(x.message!=="No Blue AI provider configured") process.exit(1)'
+          node -e 'const x=require("/tmp/ai-none.json"); if(x.message!=="No Blue AI provider configured" || !x.conversation_id) process.exit(1)'
+
+          curl -fsS -b /tmp/blue-cookie.txt http://127.0.0.1:8787/v1/ai/conversations >/tmp/conversations.json
+          node -e 'const x=require("/tmp/conversations.json"); if(x.conversations?.length!==1 || x.conversations[0].mode!=="teacher") process.exit(1)'
 
           curl -fsS -b /tmp/blue-cookie.txt -H 'Content-Type: application/json'             -d '{"channel_name":"CI Channel","description":"runtime verification"}'             http://127.0.0.1:8787/v1/functions/createChannel >/tmp/channel.json
           node -e 'const x=require("/tmp/channel.json"); if(x.data?.channel?.channel_name!=="CI Channel") process.exit(1)'
