@@ -42,7 +42,7 @@ const CREATION_MODES = [
 
 const PROVIDERS = [
   // ✅ FREE
-  { id: "blue", label: "Base44 (Free)", note: "Built-in — no key needed", tier: "FREE", tag: "FREE", modes: ["image","2d_model","3d_model","video","sticker","comic"] },
+  { id: "blue", label: "Blue Built-in", note: "Blue-owned provider — no key needed", tier: "FREE", tag: "FREE", modes: ["image","2d_model","3d_model","video","sticker","comic"] },
   // fal.ai — FLUX 2 family (Premium)
   { id: "fal", label: "fal.ai · FLUX 2 Pro", note: "Requires FAL_API_KEY — high quality, 8 ref images", tier: "PREMIUM", tag: "FLUX", modes: ["image","2d_model","sticker","comic"] },
   { id: "fal-ultra", label: "fal.ai · FLUX 2 Ultra", note: "Requires FAL_API_KEY — highest fidelity, 4MP", tier: "PREMIUM", tag: "FLUX", modes: ["image","sticker"] },
