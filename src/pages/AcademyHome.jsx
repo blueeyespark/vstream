@@ -43,7 +43,7 @@ export default function AcademyHome(){
       </div>
       <section className="mt-10 rounded-3xl border border-purple-500/20 bg-gradient-to-br from-purple-500/10 via-[#06101f] to-[#03080f] p-6 sm:p-8">
         <p className="text-xs font-black uppercase tracking-[.22em] text-purple-300">First real course target</p><h2 className="mt-2 text-2xl font-black">3D Modeling Fundamentals</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-blue-100/60">Our end-to-end test course will connect instructor material, a real Blender starter project, Blue Teacher, versioned submission, faculty feedback, revision and an optional portfolio/VStream publishing bridge.</p>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-blue-100/60">Our end-to-end test course will connect instructor material, a real Blender starter project, Blue Teacher, versioned submission, faculty feedback, revision and an optional portfolio/VStream publishing bridge.</p><Link to="/Academy/Courses/3d-modeling-fundamentals" className="mt-5 inline-flex items-center gap-2 rounded-xl border border-purple-400/30 bg-purple-400/10 px-4 py-2 text-sm font-black text-purple-200">Open course-room preview <ArrowRight className="h-4 w-4"/></Link>
       </section>
     </main>
   </div>
