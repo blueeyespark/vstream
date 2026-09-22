@@ -40,6 +40,7 @@ export default function TopNav({
   const navigate = useNavigate();
   const { logout, navigateToLogin } = useAuth();
   const isAdmin = user?.role === "admin";
+  const inAcademy = currentPageName === "Academy";
 
   /** @type {any[]} */
   const _newVideos = newVideos;
@@ -62,7 +63,7 @@ export default function TopNav({
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(inAcademy ? `/Academy/Explore?search=${encodeURIComponent(searchQuery.trim())}` : `/?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
       setSearchQuery("");
     }
@@ -113,7 +114,7 @@ export default function TopNav({
           <input
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search videos, live creators, communities..."
+            placeholder={inAcademy ? "Search courses, school services, resources..." : "Search videos, live creators, communities..."}
             className="min-w-0 flex-1 bg-transparent text-sm text-[#e8f4ff] outline-none placeholder:text-blue-300/35"
           />
         </form>
