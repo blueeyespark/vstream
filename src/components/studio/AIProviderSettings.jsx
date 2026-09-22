@@ -8,14 +8,14 @@ const PROVIDERS = [
   // ── FREE PROVIDERS (Always Available) ──
   {
     id: "blue",
-    label: "Base44 (Free)",
+    label: "Blue Built-in",
     field: null,
     icon: Zap,
     color: "from-emerald-500 to-green-500",
-    description: "Free unlimited image generation, always available. No key needed.",
+    description: "Blue-managed image generation provider. No creator key needed.",
     tier: "FREE",
     tags: ["Images", "No Cost"],
-    note: "✅ Always included. Unlimited generations per month."
+    note: "✅ Built into the Blue provider layer."
   },
   
   // ── PREMIUM PROVIDERS (Optional, User Keys) ──
