@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { Eye, Users, TrendingUp, Play, Flame, ArrowUpRight } from "lucide-react";
 
 function fmt(n) {
@@ -12,13 +12,13 @@ function fmt(n) {
 export default function CreatorSummaryBanner() {
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 100),
+    queryFn: () => blue.entities.Video.list("-created_date", 100),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => blue.entities.Channel.list(),
     staleTime: 5 * 60 * 1000,
   });
 
