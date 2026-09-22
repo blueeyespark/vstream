@@ -16,6 +16,7 @@ import { aiRoutes } from "./ai.js";
 import { blueControlRoutes } from "./blue-control.js";
 import { blueMemoryRoutes } from "./blue-memory.js";
 import { blueToolRoutes } from "./blue-tools.js";
+import { academyRoutes } from "./academy.js";
 
 const app = express();
 const port = Number(process.env.PORT || 8787);
@@ -37,6 +38,7 @@ aiRoutes(app, db);
 blueControlRoutes(app, db);
 blueMemoryRoutes(app, db);
 blueToolRoutes(app, db);
+academyRoutes(app, db);
 
 const upload = multer({ dest: uploadDir, limits: { fileSize: Number(process.env.BLUE_MAX_UPLOAD_BYTES || 536870912) } });
 mediaRoutes(app, db, uploadDir, upload);
