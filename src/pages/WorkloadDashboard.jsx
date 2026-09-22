@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Users, AlertTriangle, CheckCircle, RefreshCw, Loader2, GripVertical, Clock, TrendingUp } from "lucide-react";
@@ -53,11 +53,11 @@ export default function WorkloadDashboard() {
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["workload-tasks"],
-    queryFn: () => base44.entities.Task.list(),
+    queryFn: () => blue.entities.Task.list(),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Task.update(id, data),
+    mutationFn: ({ id, data }) => blue.entities.Task.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workload-tasks"] });
       toast.success("Task reassigned");
@@ -86,7 +86,7 @@ export default function WorkloadDashboard() {
     const summary = members.map(m =>
       `${m.email === "__unassigned__" ? "Unassigned" : m.email.split("@")[0]}: ${m.tasks.length} tasks (capacity: ${getCapacity(m.email)})`
     ).join(", ");
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `Project management advisor. Team workload:\n${summary}\n\nSuggest specific task reassignments for over-allocated members. Be concise, bullet points only.`,
     });
     setSuggestions(result);
