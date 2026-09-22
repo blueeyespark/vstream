@@ -6,6 +6,7 @@ import { createDatabase } from "./db.js";
 import { authRoutes } from "./auth.js";
 import { entityRoutes } from "./entities.js";
 import { functionRoutes } from "./functions.js";
+import { requireAuth } from "./session.js";
 import multer from "multer";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
@@ -29,16 +30,16 @@ entityRoutes(app, db);
 functionRoutes(app, db);
 
 const upload = multer({ dest: uploadDir, limits: { fileSize: Number(process.env.BLUE_MAX_UPLOAD_BYTES || 536870912) } });
-app.post("/v1/storage/upload", upload.single("file"), async (req, res) => {
+app.post("/v1/storage/upload", requireAuth(db), upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ message: "file is required" });
   const id = crypto.randomUUID();
   const ext = path.extname(req.file.originalname);
   const storedName = `${id}${ext}`;
   await fs.rename(req.file.path, path.join(uploadDir, storedName));
-  res.status(201).json({ id, name: req.file.originalname, size: req.file.size, key: storedName, provider: "owned-local" });
+  res.status(201).json({ id, name: req.file.originalname, size: req.file.size, key: storedName, owner_user_id: req.user.id, provider: "owned-local" });
 });
 
-app.post("/v1/ai/generate", (_req, res) => {
+app.post("/v1/ai/generate", requireAuth(db), (_req, res) => {
   res.status(501).json({ message: "No owned AI provider configured yet" });
 });
 
