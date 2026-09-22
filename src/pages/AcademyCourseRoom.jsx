@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, BookOpen, Boxes, CalendarDays, CheckCircle2, Download, FileBox, MessageSquare, UserRound } from "lucide-react";
+import { ArrowLeft, BookOpen, Boxes, CalendarDays, CheckCircle2, Download, FileBox, MessageSquare, UserRound, Target, BriefcaseBusiness } from "lucide-react";
 import { useBlue } from "@/lib/BlueContext";
 
 const modules=[
@@ -21,13 +21,13 @@ export default function AcademyCourseRoom(){
     </div>
    </div>
   </div>
-  <main className="mx-auto grid max-w-7xl gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[1fr_320px]">
+  <div className="border-b border-[#12305f]/60 bg-[#03080f]/90"><div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-5 py-2 sm:px-8"><span className="rounded-lg bg-[#1e78ff]/15 px-3 py-2 text-xs font-black text-[#7ddcff]">Overview</span><span className="rounded-lg px-3 py-2 text-xs font-black text-blue-100/35">Lessons</span><span className="rounded-lg px-3 py-2 text-xs font-black text-blue-100/35">Assignments</span><span className="rounded-lg px-3 py-2 text-xs font-black text-blue-100/35">Discussion</span><span className="rounded-lg px-3 py-2 text-xs font-black text-blue-100/35">Grades</span></div></div><main className="mx-auto grid max-w-7xl gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[1fr_320px]">
    <div className="space-y-6">
     <section className="rounded-2xl border border-[#12305f]/70 bg-[#06101f]/80 p-6">
      <div className="flex items-center gap-3"><BookOpen className="h-5 w-5 text-[#00c8ff]"/><h2 className="text-xl font-black">Course modules</h2></div>
      <div className="mt-5 space-y-3">{modules.map((m,i)=><div key={m.n} className="flex gap-4 rounded-xl border border-[#12305f]/60 bg-[#03080f]/60 p-4"><span className="text-xs font-black text-[#00c8ff]">{m.n}</span><div className="flex-1"><h3 className="font-black">{m.title}</h3><p className="mt-1 text-sm leading-6 text-blue-100/50">{m.detail}</p></div>{i===0?<Link to="/Academy/Courses/3d-modeling-fundamentals/module-1" className="h-fit rounded-full bg-[#1e78ff]/15 px-2 py-1 text-[10px] font-black text-[#7ddcff]">OPEN</Link>:<span className="h-fit rounded-full bg-white/5 px-2 py-1 text-[10px] font-black text-white/30">BUILDING</span>}</div>)}</div>
     </section>
-    <section className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-6">
+    <section className="grid gap-4 md:grid-cols-2"><div className="rounded-2xl border border-[#12305f]/70 bg-[#06101f]/80 p-5"><div className="flex items-center gap-2"><Target className="h-4 w-4 text-[#00c8ff]"/><h2 className="font-black">What you will prove</h2></div><p className="mt-3 text-sm leading-6 text-blue-100/50">Model clean geometry, organize a professional Blender project, present the work clearly, respond to critique and document meaningful revisions.</p></div><div className="rounded-2xl border border-[#12305f]/70 bg-[#06101f]/80 p-5"><div className="flex items-center gap-2"><BriefcaseBusiness className="h-4 w-4 text-purple-300"/><h2 className="font-black">Professional outcome</h2></div><p className="mt-3 text-sm leading-6 text-blue-100/50">The final eligible project can become portfolio work instead of disappearing after a grade.</p></div></section><section className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-6">
      <div className="flex items-center gap-3"><Boxes className="h-5 w-5 text-purple-300"/><h2 className="text-xl font-black">Project workspace</h2></div>
      <p className="mt-3 text-sm leading-6 text-blue-100/55">The finished system will keep the working Blender project separate from versioned assignment snapshots so instructor feedback never destroys the student's current file.</p>
      <div className="mt-5 flex flex-wrap gap-3"><button disabled className="rounded-xl border border-[#12305f] px-4 py-2 text-xs font-black text-white/35"><Download className="mr-2 inline h-4 w-4"/>Starter .blend — building</button><button disabled className="rounded-xl border border-[#12305f] px-4 py-2 text-xs font-black text-white/35"><FileBox className="mr-2 inline h-4 w-4"/>Submit version — building</button></div>
