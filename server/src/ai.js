@@ -59,8 +59,34 @@ function normalizeRequest(body = {}) {
   return { mode, messages };
 }
 
-async function generate(cfg, mode, messages) {
-  const system = { role: "system", content: systemPrompt(mode) };
+function memoryScopesForMode(mode) {
+  const scopes=new Set(["personal"]);
+  if (["creator","stream","companion"].includes(mode)) scopes.add("vstream");
+  if (["creator","stream"].includes(mode)) scopes.add("creator");
+  if (mode==="teacher") scopes.add("academy");
+  if (mode==="build") scopes.add("build");
+  return [...scopes];
+}
+
+function relevantMemory(db,userId,mode,limit=12) {
+  const scopes=memoryScopesForMode(mode);
+  const placeholders=scopes.map(()=>"?").join(",");
+  return db.prepare(`SELECT id,memory_type,scope,content,source,provenance_json,updated_at
+    FROM blue_memory
+    WHERE owner_user_id=? AND status='approved' AND scope IN (${placeholders})
+    ORDER BY updated_at DESC LIMIT ?`).all(userId,...scopes,limit).map(row=>({
+      ...row, provenance:JSON.parse(row.provenance_json||"{}")
+    }));
+}
+
+function memoryPrompt(memories) {
+  if(!memories.length) return "";
+  return "\n\nApproved memory relevant to this mode. Treat it as context, not permission to disclose unrelated private information:\n" +
+    memories.map((m,i)=>`${i+1}. [${m.scope}/${m.memory_type}] ${m.content}`).join("\n");
+}
+
+async function generate(cfg, mode, messages, memories=[]) {
+  const system = { role: "system", content: systemPrompt(mode) + memoryPrompt(memories) };
   if (cfg.provider === "openai-compatible") {
     if (!cfg.apiKey) throw Object.assign(new Error("BLUE_AI_API_KEY is required for openai-compatible provider"), { status: 503 });
     const response = await fetch(`${cfg.baseUrl}/chat/completions`, {
@@ -128,9 +154,10 @@ export function aiRoutes(app, db) {
       const lastUser=[...messages].reverse().find(x=>x.role==="user")?.content || "";
       conversationId=ensureConversation(db,req.user.id,req.body?.conversation_id,mode,lastUser);
       saveMessage(db,conversationId,req.user.id,"user",lastUser);
-      const result=await generate(providerConfig(), mode, messages);
+      const memories=relevantMemory(db,req.user.id,mode);
+      const result=await generate(providerConfig(), mode, messages, memories);
       const saved=saveMessage(db,conversationId,req.user.id,"assistant",result.response,result.provider,result.model);
-      return res.json({...result,conversation_id:conversationId,message_id:saved.id});
+      return res.json({...result,conversation_id:conversationId,message_id:saved.id,memory_context:{count:memories.length,scopes:memoryScopesForMode(mode)}});
     } catch (error) {
       return res.status(error.status || 500).json({ message: error.message, conversation_id: conversationId || null });
     }
