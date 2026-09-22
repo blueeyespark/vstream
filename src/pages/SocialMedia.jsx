@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -84,11 +84,11 @@ export default function SocialMediaPage() {
 
   const { data: posts = [] } = useQuery({
     queryKey: ['socialposts'],
-    queryFn: () => base44.entities.SocialPost.list('-posted_date'),
+    queryFn: () => blue.entities.SocialPost.list('-posted_date'),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.SocialPost.create(data),
+    mutationFn: (data) => blue.entities.SocialPost.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['socialposts'] });
       setShowForm(false);
@@ -98,7 +98,7 @@ export default function SocialMediaPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.SocialPost.update(id, data),
+    mutationFn: ({ id, data }) => blue.entities.SocialPost.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['socialposts'] });
       setShowForm(false);
@@ -109,7 +109,7 @@ export default function SocialMediaPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.SocialPost.delete(id),
+    mutationFn: (id) => blue.entities.SocialPost.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['socialposts'] });
       toast.success("Post deleted");
@@ -152,7 +152,7 @@ export default function SocialMediaPage() {
     
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await blue.integrations.Core.UploadFile({ file });
       setFormData({ ...formData, file_urls: [...formData.file_urls, file_url] });
       toast.success("File uploaded");
     } catch (error) {
