@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { differenceInDays, parseISO, addDays, format } from "date-fns";
 import { Brain, AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ export default function ProjectHealthMonitor({ projects = [], tasks = [] }) {
     const isBehind = estimatedDaysLeft !== null && daysUntilDue !== null && estimatedDaysLeft > daysUntilDue;
     const overdueDays = isBehind ? estimatedDaysLeft - daysUntilDue : 0;
 
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `Analyze this project health and provide a concise 2-sentence assessment:
 Project: "${project.name}"
 Status: ${project.status}
@@ -71,7 +71,7 @@ Give a direct health assessment and one concrete recommendation. Be brief.`,
 
     // Alert owner if behind schedule
     if (isBehind && project.owner_email) {
-      await base44.entities.Notification.create({
+      await blue.entities.Notification.create({
         user_email: project.owner_email,
         type: 'project_update',
         title: `⚠️ "${project.name}" is trending behind schedule`,
