@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, Calendar, CheckCircle2, ChevronRight, Loader2, Send, Sparkles, Wand2, X, Zap } from "lucide-react";
-import { platform } from "@/platform/client";
+import { useBlue } from "@/lib/BlueContext";
 
 const PAGE_CONTEXT = {
   dashboard: {
@@ -91,6 +91,7 @@ export default function VStreamAIAssistant({
 }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const blue = useBlue();
   const resolvedContext = contextType || detectContext(location.pathname);
   const meta = PAGE_CONTEXT[resolvedContext] || PAGE_CONTEXT.general;
   const [open, setOpen] = useState(surface !== "floating");
@@ -98,7 +99,6 @@ export default function VStreamAIAssistant({
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState("");
   const [demoMode, setDemoMode] = useState(false);
-  const [conversationId, setConversationId] = useState(null);
 
   const actions = useMemo(() => context.actions || meta.actions, [context.actions, meta.actions]);
 
@@ -107,9 +107,8 @@ export default function VStreamAIAssistant({
     setDemoMode(false);
     const userRequest = action || input.trim() || actions[0];
     try {
-      const result = await platform.ai.generate({
+      const result = await blue.send({
         mode: ["creator","production","upload","artforge","analytics"].includes(resolvedContext) ? "creator" : "teacher",
-        conversation_id: conversationId,
         prompt: `You are Blue, the persistent assistant inside VStream. Use the current VStream page context while keeping Blue identity and capability limits.
 
 Context type: ${resolvedContext}
@@ -119,7 +118,6 @@ User request: ${userRequest}
 Return practical creator help. Include concise, usable suggestions for relevant items: video ideas, titles, descriptions, thumbnails, tags, scripts, clips, shorts/reels, livestream planning, moderation, growth, ArtForge prompts, publish checklist, content calendar, or analytics insights. Avoid pretending you performed unavailable backend actions.`,
         add_context_from_internet: false,
       });
-      if (result?.conversation_id) setConversationId(result.conversation_id);
       setSuggestion(typeof result === "string" ? result : result?.response || fallbackSuggestion(resolvedContext, userRequest, context));
     } catch {
       setDemoMode(true);
