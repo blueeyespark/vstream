@@ -4,8 +4,8 @@ import { useAuth } from "@/lib/AuthContext";
 import { useBlue } from "@/lib/BlueContext";
 
 const cards=[
-  {title:"My Courses",detail:"Continue lessons, projects, feedback and mastery.",icon:BookOpen,soon:true},
-  {title:"Course Room",detail:"Instructor-led lessons, real project files and Blue Teacher support.",icon:GraduationCap,soon:true},
+  {title:"My Courses",detail:"Continue lessons, projects, feedback and mastery.",icon:BookOpen,to:"/Academy/Courses/3d-modeling-fundamentals"},
+  {title:"Course Room",detail:"Instructor-led lessons, real project files and Blue Teacher support.",icon:GraduationCap,to:"/Academy/Courses/3d-modeling-fundamentals"},
   {title:"Projects",detail:"Work with professional files, versioned submissions and revisions.",icon:FolderKanban,soon:true},
   {title:"Campus",detail:"Clubs, teams, events, studios and collaborative spaces.",icon:Users,soon:true},
   {title:"Calendar",detail:"Classes, due dates, office hours and campus events.",icon:CalendarDays,soon:true},
@@ -30,6 +30,7 @@ export default function AcademyHome(){
       </div>
     </section>
     <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
+      <nav className="mb-8 flex gap-2 overflow-x-auto rounded-2xl border border-[#12305f]/60 bg-[#06101f]/70 p-2" aria-label="Academy sections">{["Student Home","My Courses","Projects","Campus","Calendar"].map((item,i)=><span key={item} className={`whitespace-nowrap rounded-xl px-4 py-2 text-xs font-black ${i===0?"bg-purple-500/20 text-purple-200":"text-blue-100/40"}`}>{item}{i>0&&" • building"}</span>)}</nav>
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div><p className="text-xs font-black uppercase tracking-[.22em] text-[#00c8ff]">Student Home</p><h2 className="mt-2 text-2xl font-black">{user?.full_name ? `Welcome, ${user.full_name}` : "Welcome to Blue Academy"}</h2></div>
         <p className="max-w-xl text-sm text-blue-100/50">This preview is intentionally honest: unfinished school systems are marked rather than filled with fake courses or grades.</p>
