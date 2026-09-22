@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 
 const CreatorOSContext = createContext(null);
@@ -32,7 +32,7 @@ export function CreatorOSProvider({ children }) {
 
   const { data: rawChannels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => platform.entities.Channel.list(),
+    queryFn: () => data.Channel.list(),
     enabled: !!user?.email,
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
@@ -40,7 +40,7 @@ export function CreatorOSProvider({ children }) {
 
   const { data: rawVideos = [] } = useQuery({
     queryKey: ["videos-all", user?.email],
-    queryFn: () => platform.entities.Video.list("-created_date", 120),
+    queryFn: () => data.Video.list("-created_date", 120),
     enabled: !!user?.email,
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
@@ -48,7 +48,7 @@ export function CreatorOSProvider({ children }) {
 
   const { data: rawAssets = [] } = useQuery({
     queryKey: ["creator-os-assets", user?.email],
-    queryFn: () => platform.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 120),
+    queryFn: () => data.MediaAsset.filter({ created_by: user.email }, "-created_date", 120),
     enabled: !!user?.email,
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
@@ -61,7 +61,7 @@ export function CreatorOSProvider({ children }) {
 
   const { data: analytics = [] } = useQuery({
     queryKey: ["creator-os-analytics"],
-    queryFn: () => platform.entities.VideoAnalytics.list("-date", 120),
+    queryFn: () => data.VideoAnalytics.list("-date", 120),
     enabled: !!user?.email,
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
