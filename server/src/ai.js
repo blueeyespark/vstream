@@ -1,4 +1,5 @@
 import { requireAuth } from "./session.js";
+import crypto from "node:crypto";
 
 const MODES = new Set(["teacher", "build", "creator", "stream", "desktop", "companion"]);
 
@@ -84,16 +85,54 @@ async function generate(cfg, mode, messages) {
   throw Object.assign(new Error("No Blue AI provider configured"), { status: 503 });
 }
 
+function ensureConversation(db, userId, requestedId, mode, prompt) {
+  if (requestedId) {
+    const existing=db.prepare("SELECT * FROM blue_conversations WHERE id=? AND owner_user_id=?").get(requestedId,userId);
+    if (!existing) throw Object.assign(new Error("Conversation not found"),{status:404});
+    if (existing.mode !== mode) db.prepare("UPDATE blue_conversations SET mode=?,updated_at=? WHERE id=?").run(mode,new Date().toISOString(),existing.id);
+    return existing.id;
+  }
+  const id=crypto.randomUUID(), now=new Date().toISOString();
+  const title=String(prompt||"New conversation").replace(/\s+/g," ").trim().slice(0,80) || "New conversation";
+  db.prepare("INSERT INTO blue_conversations(id,owner_user_id,title,mode,created_at,updated_at) VALUES(?,?,?,?,?,?)").run(id,userId,title,mode,now,now);
+  return id;
+}
+
+function saveMessage(db, conversationId, userId, role, content, provider=null, model=null) {
+  const id=crypto.randomUUID(), now=new Date().toISOString();
+  db.prepare("INSERT INTO blue_messages(id,conversation_id,owner_user_id,role,content,provider,model,created_at) VALUES(?,?,?,?,?,?,?,?)").run(id,conversationId,userId,role,content,provider,model,now);
+  db.prepare("UPDATE blue_conversations SET updated_at=? WHERE id=? AND owner_user_id=?").run(now,conversationId,userId);
+  return {id,conversation_id:conversationId,role,content,provider,model,created_at:now};
+}
+
 export function aiRoutes(app, db) {
   app.get("/v1/ai/capabilities", requireAuth(db), (_req, res) => res.json(capabilitySnapshot()));
+
+  app.get("/v1/ai/conversations", requireAuth(db), (req,res) => {
+    const conversations=db.prepare("SELECT id,title,mode,created_at,updated_at FROM blue_conversations WHERE owner_user_id=? ORDER BY updated_at DESC").all(req.user.id);
+    res.json({conversations});
+  });
+
+  app.get("/v1/ai/conversations/:id", requireAuth(db), (req,res) => {
+    const conversation=db.prepare("SELECT id,title,mode,created_at,updated_at FROM blue_conversations WHERE id=? AND owner_user_id=?").get(req.params.id,req.user.id);
+    if(!conversation) return res.status(404).json({message:"Conversation not found"});
+    const messages=db.prepare("SELECT id,role,content,provider,model,created_at FROM blue_messages WHERE conversation_id=? AND owner_user_id=? ORDER BY created_at ASC").all(conversation.id,req.user.id);
+    res.json({conversation,messages});
+  });
 
   app.post("/v1/ai/generate", requireAuth(db), async (req, res) => {
     const { mode, messages } = normalizeRequest(req.body);
     if (!messages.length) return res.status(400).json({ message: "prompt or messages is required" });
+    let conversationId;
     try {
-      return res.json(await generate(providerConfig(), mode, messages));
+      const lastUser=[...messages].reverse().find(x=>x.role==="user")?.content || "";
+      conversationId=ensureConversation(db,req.user.id,req.body?.conversation_id,mode,lastUser);
+      saveMessage(db,conversationId,req.user.id,"user",lastUser);
+      const result=await generate(providerConfig(), mode, messages);
+      const saved=saveMessage(db,conversationId,req.user.id,"assistant",result.response,result.provider,result.model);
+      return res.json({...result,conversation_id:conversationId,message_id:saved.id});
     } catch (error) {
-      return res.status(error.status || 500).json({ message: error.message });
+      return res.status(error.status || 500).json({ message: error.message, conversation_id: conversationId || null });
     }
   });
 
