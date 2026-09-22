@@ -60,6 +60,10 @@ app.delete("/v1/storage/files/:id", requireAuth(db), async (req,res) => {
   res.status(204).end();
 });
 
+app.post("/v1/ai/transcribe", requireAuth(db), (_req, res) => {
+  res.status(501).json({ message: "No owned transcription provider configured yet" });
+});
+
 app.post("/v1/ai/generate", requireAuth(db), (_req, res) => {
   res.status(501).json({ message: "No owned AI provider configured yet" });
 });
