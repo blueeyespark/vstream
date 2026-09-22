@@ -96,7 +96,11 @@ Results can open in workspace tabs and link back to the conversation/action that
 
 ## Cross-device Blue
 
-BlueMesh evolves into the synchronization layer for the same Blue across trusted devices. Git remains appropriate for source history; BlueMesh handles approved identity/memory/settings/live-state synchronization, trusted-node pairing, conflicts, and an append-only ledger.
+BlueMesh is historical design evidence, not a target subsystem for the web-first Blue architecture. It was part of an earlier/beta direction for synchronizing separate Blue installations. The current product should not recreate a peer-to-peer BlueMesh layer unless a future offline/device requirement proves that it is necessary.
+
+The website/server is the canonical synchronization point for Blue identity, conversations, approved memory, permissions, projects, results, and device sessions. PC/web, phone, Quest/XR, and future spatial clients use the same authenticated Blue APIs.
+
+Git remains the source-history mechanism for code. Normal server persistence/realtime APIs handle Blue state. Device-local secrets and machine-specific permissions remain local and are never silently synchronized.
 
 Targets: PC/web first, then phone and Quest/XR, with future spatial glasses as an interface rather than the host of Blue's intelligence.
 
@@ -109,7 +113,7 @@ Preserve the strongest AI-VTUBER concepts:
 - platform adapters
 - voice provider abstraction
 - creator project workspace
-- BlueMesh conflict review
+- useful conflict/review ideas from the historical BlueMesh work, implemented through normal server synchronization where needed
 - Daily Compass / self-audit
 - capability inventory
 - safe workspace agent
@@ -130,7 +134,7 @@ Blue Academy uses the same Blue Core but a scoped Academy persona/context. Human
 5. Add permission/approval/action-ledger primitives.
 6. Merge VStream AI surfaces onto one Blue client/context.
 7. Add Teacher as the default mode and Academy-scoped context.
-8. Port useful desktop/creator/stream/BlueMesh capabilities as services rather than copying the old monolith.
+8. Port useful desktop/creator/stream capabilities as services rather than copying the old monolith; do not rebuild BlueMesh unless a concrete future requirement needs it.
 9. Add phone/Quest clients against the same contracts.
 
 ## Historical AI-VTUBER commit review
@@ -139,8 +143,8 @@ The repository currently exposes eight commits, all reviewed as architectural ev
 
 - `93f03a7` Initial Project Blue v3.3 release — local core, constitution, storage/memory, providers, desktop pet/control center, security, data center.
 - `b65ff5a` Expand Project Blue desktop companion — richer avatar/Live2D/VRM, phone app, providers, desktop companion.
-- `734d153` Enable joint creator approval for shared BlueMesh upgrades — multi-creator approval and BlueMesh update management.
-- `f4d1a00` Build Project Blue UI, mesh, streaming, and companion systems — workbench shell, companion engine, streaming, presence, BlueMesh UI, safety/tests.
+- `734d153` Enable joint creator approval for shared BlueMesh upgrades — multi-creator approval and historical multi-creator approval and synchronization experiments.
+- `f4d1a00` Build Project Blue UI, mesh, streaming, and companion systems — workbench shell, companion engine, streaming, presence, historical synchronization UI, safety/tests.
 - `7427e7f` Update workspace progress — workspace evolution and integration work.
 - `c6d28d4` Project Blue V8 intelligence foundation — deeper intelligence/service foundation.
 - `adaeac7` Stabilize Project Blue app and Blue Next workspace — Daily Compass, workspace results, command routing, Quest companion, design-bible consolidation, capability audits.
