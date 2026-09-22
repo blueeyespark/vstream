@@ -42,6 +42,37 @@ export function createDatabase(dataDir) {
       created_at TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_files_owner ON files(owner_user_id);
+    CREATE TABLE IF NOT EXISTS blue_conversations (
+      id TEXT PRIMARY KEY,
+      owner_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      title TEXT,
+      mode TEXT NOT NULL DEFAULT 'teacher',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_blue_conversations_owner ON blue_conversations(owner_user_id);
+    CREATE TABLE IF NOT EXISTS blue_messages (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT NOT NULL REFERENCES blue_conversations(id) ON DELETE CASCADE,
+      owner_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role TEXT NOT NULL,
+      content TEXT NOT NULL,
+      provider TEXT,
+      model TEXT,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_blue_messages_conversation ON blue_messages(conversation_id,created_at);
+    CREATE TABLE IF NOT EXISTS blue_results (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT REFERENCES blue_conversations(id) ON DELETE SET NULL,
+      owner_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      result_type TEXT NOT NULL,
+      title TEXT,
+      data_json TEXT NOT NULL,
+      verification_status TEXT NOT NULL DEFAULT 'unverified',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_blue_results_owner ON blue_results(owner_user_id,created_at);
   `);
   return db;
 }
