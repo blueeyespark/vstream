@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, BookOpen, CalendarDays, GraduationCap, HeartHandshake, Library, Map, Users, Radio, BriefcaseBusiness } from "lucide-react";
 
 const sections=[
- {title:"Academics",detail:"Programs, course catalog, faculty, learning resources and academic policies.",icon:BookOpen,items:["Programs & fields of study","Course catalog","Faculty","Academic calendar"]},
+ {title:"Academics",detail:"Programs, course catalog, faculty, learning resources and academic policies.",icon:BookOpen,items:["Programs & fields of study","Course catalog","Faculty","Academic calendar","General & life education"]},
  {title:"Student Life",detail:"The parts of college life that live outside the course room.",icon:Users,items:["Clubs & organizations","Campus events","Study groups","Student communities","WorldChat spaces"]},
  {title:"Creator Campus",detail:"Streaming, video, creator education and the bridge from coursework into professional creator practice.",icon:Radio,to:"/Academy/CreatorCampus",items:["Student creator showcase","Live campus","Content Creator pathway","Creator communities"]},
- {title:"Careers & Industry",detail:"Prepare for professional work as a creator, manager, producer or other industry role.",icon:BriefcaseBusiness,items:["Career center","Creator & VTuber management","Production teams","Industry partnerships"]},
+ {title:"Careers & Industry",detail:"Prepare for professional work as a creator, manager, producer, developer, artist or other industry role.",icon:BriefcaseBusiness,items:["Career center","Creator management","Production teams","Freelancing & entrepreneurship","Industry partnerships"]},
  {title:"Student Support",detail:"Places to go when you need academic, accessibility or practical support.",icon:HeartHandshake,items:["Advising","Accessibility & accommodations","Career support","Help center"]},
  {title:"Campus & Labs",detail:"Virtual spaces and, later, partner facilities for work that needs the physical world.",icon:Map,items:["Virtual campus","Studios & labs","Partner facilities","Space reservations"]},
  {title:"Library & Resources",detail:"Course resources, guides, research material and school policies.",icon:Library,items:["Resource library","Software & tools","Policies","Student handbook"]},
