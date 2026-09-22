@@ -67,13 +67,18 @@ function fallbackSuggestion(contextType, action, context = {}) {
     dashboard: `Demo suggestion: Create a short recap around "${title}" with a 3-second cold open, one visual payoff, and a community question at the end.`,
     creator: `Demo suggestion: Move this project to Review next. Check title, thumbnail contrast, tags, visibility, and whether one short clip can be cut from the same asset.`,
     production: `Demo suggestion: For ${title}, finish the active tool, save the strongest asset, then open Publish and complete title, thumbnail, tags, visibility, and schedule.`,
-    upload: `Demo metadata:\nTitle: ${title} | The Moment Viewers Need To See\nDescription: A tight VStream upload built around the strongest moment, clear context, and a direct reason to watch through.\nTags: vstream, creator, live recap, shorts, community, behind the scenes`,
+    upload: `Demo metadata:
+Title: ${title} | The Moment Viewers Need To See
+Description: A tight VStream upload built around the strongest moment, clear context, and a direct reason to watch through.
+Tags: vstream, creator, live recap, shorts, community, behind the scenes`,
     artforge: `Demo prompt upgrade: ${title}, cinematic neon blue and violet lighting, strong subject silhouette, readable focal point, high contrast thumbnail composition, clean background, sharp detail. Negative prompt: blurry, extra fingers, muddy colors, unreadable text, warped face.`,
     communities: `Demo moderation note: Pin a calm room prompt, acknowledge the active topic, and move heated replies into a slow-mode reminder before removing anything.`,
     analytics: `Demo insight: Package the best-performing topic into one long video, two shorts, and one community post. Watch retention drop-offs and test a clearer thumbnail promise.`,
     general: `Demo suggestion: Start with a specific viewer promise, make the first 5 seconds visually obvious, then convert the idea into title, thumbnail, tags, and a publish checklist.`,
   };
-  return `${map[contextType] || map.general}\n\nAction: ${label}`;
+  return `${map[contextType] || map.general}
+
+Action: ${label}`;
 }
 
 export default function VStreamAIAssistant({
@@ -92,7 +97,8 @@ export default function VStreamAIAssistant({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState("");
-  const [demoMode, setDemoMode] = useState(false);\n  const [conversationId, setConversationId] = useState(null);
+  const [demoMode, setDemoMode] = useState(false);
+  const [conversationId, setConversationId] = useState(null);
 
   const actions = useMemo(() => context.actions || meta.actions, [context.actions, meta.actions]);
 
@@ -102,7 +108,9 @@ export default function VStreamAIAssistant({
     const userRequest = action || input.trim() || actions[0];
     try {
       const result = await platform.ai.generate({
-        mode: ["creator","production","upload","artforge","analytics"].includes(resolvedContext) ? "creator" : "teacher",\n        conversation_id: conversationId,\n        prompt: `You are Blue, the persistent assistant inside VStream. Use the current VStream page context while keeping Blue identity and capability limits.
+        mode: ["creator","production","upload","artforge","analytics"].includes(resolvedContext) ? "creator" : "teacher",
+        conversation_id: conversationId,
+        prompt: `You are Blue, the persistent assistant inside VStream. Use the current VStream page context while keeping Blue identity and capability limits.
 
 Context type: ${resolvedContext}
 Page data: ${JSON.stringify(context).slice(0, 2000)}
@@ -111,7 +119,8 @@ User request: ${userRequest}
 Return practical creator help. Include concise, usable suggestions for relevant items: video ideas, titles, descriptions, thumbnails, tags, scripts, clips, shorts/reels, livestream planning, moderation, growth, ArtForge prompts, publish checklist, content calendar, or analytics insights. Avoid pretending you performed unavailable backend actions.`,
         add_context_from_internet: false,
       });
-      if (result?.conversation_id) setConversationId(result.conversation_id);\n      setSuggestion(typeof result === "string" ? result : result?.response || fallbackSuggestion(resolvedContext, userRequest, context));
+      if (result?.conversation_id) setConversationId(result.conversation_id);
+      setSuggestion(typeof result === "string" ? result : result?.response || fallbackSuggestion(resolvedContext, userRequest, context));
     } catch {
       setDemoMode(true);
       setSuggestion(fallbackSuggestion(resolvedContext, userRequest, context));
