@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -21,11 +21,11 @@ import CodePreviewModal from "@/components/scanner/CodePreviewModal";
 function AppliedChangesLog() {
   const { data: changes = [], isLoading } = useQuery({
     queryKey: ["ai-changes"],
-    queryFn: () => base44.entities.AIAppliedChange.list("-created_date", 200),
+    queryFn: () => blue.entities.AIAppliedChange.list("-created_date", 200),
   });
   const qc = useQueryClient();
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.AIAppliedChange.delete(id),
+    mutationFn: (id) => blue.entities.AIAppliedChange.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-changes"] }),
   });
 
@@ -169,8 +169,8 @@ How it works: "${item.how_it_works || ''}"
 Implementation steps: "${item.implementation_steps || ''}"
 
 Generate a COMPLETE, PRODUCTION-READY React component:
-- Use Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react (valid icons only), base44 SDK
-- import { base44 } from '@/api/base44Client'
+- Use Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react (valid icons only), blue SDK
+- import { blue } from "@/platform/compat";
 - export default function ComponentName() pattern
 - Include all state management, data fetching, and logic
 - Include dark mode support
@@ -187,9 +187,9 @@ Generate a complete, production-ready implementation. Provide:
 2. The FULL component code ready to copy-paste
 3. A one-sentence summary of what was built
 
-Rules: Use React hooks, Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react (valid icons only), base44 SDK (import { base44 } from '@/api/base44Client'), export default function ComponentName() pattern.`;
+Rules: Use React hooks, Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react (valid icons only), blue SDK (import { blue } from "@/platform/compat";), export default function ComponentName() pattern.`;
 
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await blue.integrations.Core.InvokeLLM({
         prompt,
         model: 'claude_sonnet_4_6',
         response_json_schema: {
@@ -202,7 +202,7 @@ Rules: Use React hooks, Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react
         }
       });
       // Auto-log to AIAppliedChange
-      await base44.entities.AIAppliedChange.create({
+      await blue.entities.AIAppliedChange.create({
         title: itemKey,
         source: isExternal ? 'external_scan' : 'self_scan',
         change_type: type === 'ux' ? 'ux_improvement' : 'feature',
@@ -215,7 +215,7 @@ Rules: Use React hooks, Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react
       // Auto-apply the code via backend function
       if (result.code && result.file_path) {
         try {
-          await base44.functions.invoke('autoImplementCode', {
+          await blue.functions.invoke('autoImplementCode', {
             file_path: result.file_path,
             code: result.code,
           });
@@ -267,7 +267,7 @@ Rules: Use React hooks, Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react
 
   const analyzeSelf = async () => {
     setLoading(true);
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: SELF_ISSUES_PROMPT,
       response_json_schema: {
         type: "object",
@@ -292,7 +292,7 @@ Rules: Use React hooks, Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react
     setAutoFixingBugs(true);
     let created = 0;
     for (const bug of selfAnalysis.bugs) {
-      await base44.entities.BugReport.create({
+      await blue.entities.BugReport.create({
         title: bug.title,
         description: bug.description,
         severity: bug.severity || 'medium',
@@ -313,8 +313,8 @@ Rules: Use React hooks, Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react
     const key = `${type}-${item.title}`;
     setImplementing(key);
     toast.loading(`Generating code for "${item.title}"...`, { id: key });
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert React/Tailwind developer working on "Planify" — a project management app built with React, Tailwind CSS, shadcn/ui, and base44 SDK.
+    const result = await blue.integrations.Core.InvokeLLM({
+      prompt: `You are an expert React/Tailwind developer working on "Planify" — a project management app built with React, Tailwind CSS, shadcn/ui, and blue SDK.
 
 Feature/Improvement to implement: "${item.title}"
 Description: "${item.description}"
@@ -324,7 +324,7 @@ Generate a complete, production-ready React component or code snippet. Use:
 - React hooks (useState, useEffect, etc.)
 - Tailwind CSS for styling
 - lucide-react for icons (only valid icons)
-- base44 SDK: import { base44 } from '@/api/base44Client'; then base44.entities.Name.method()
+- blue SDK: import { blue } from "@/platform/compat"; then blue.entities.Name.method()
 - shadcn/ui from @/components/ui/
 - export default function ComponentName() pattern
 
@@ -354,7 +354,7 @@ Return the full component code, the suggested file path (e.g., components/featur
     const key = `ext-${feature.feature}`;
     setImplementing(key);
     toast.loading(`Generating code for "${feature.feature}"...`, { id: key });
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `You are an expert React/Tailwind developer working on "Planify" — a project management app.
 
 Adapt this feature from ${siteAnalysis?.site_name || url} for Planify:
@@ -364,8 +364,8 @@ How it works: "${feature.how_it_works || feature.description}"
 Implementation steps: "${feature.implementation_steps || ''}"
 
 Generate a COMPLETE, PRODUCTION-READY React component for this feature:
-- Use Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react (only valid icons), base44 SDK
-- import { base44 } from '@/api/base44Client'
+- Use Tailwind CSS, shadcn/ui (@/components/ui/), lucide-react (only valid icons), blue SDK
+- import { blue } from "@/platform/compat";
 - export default function ComponentName() pattern
 - Include dark mode support (dark: classes)
 - Include all state management, data fetching, and UI logic
@@ -383,7 +383,7 @@ Return the FULL component code (not a snippet), the suggested file path, and a b
       }
     });
     // Log to AIAppliedChange
-    await base44.entities.AIAppliedChange.create({
+    await blue.entities.AIAppliedChange.create({
       title: feature.feature,
       source: 'external_scan',
       change_type: 'feature',
@@ -408,7 +408,7 @@ Return the FULL component code (not a snippet), the suggested file path, and a b
   const analyzeSite = async () => {
     if (!url) return;
     setLoading(true);
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `You are a senior product engineer performing a deep technical audit of the website at "${url}". 
 
 Visit the site and analyze it thoroughly:
