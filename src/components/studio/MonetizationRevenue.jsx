@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { DollarSign, TrendingUp, Gift, Zap, Eye } from "lucide-react";
@@ -14,12 +14,12 @@ export default function MonetizationRevenue() {
 
   const { data: superChats = [] } = useQuery({
     queryKey: ["super-chats-revenue"],
-    queryFn: () => base44.entities.SuperChat.filter({ payment_status: "completed" }, "-created_date", 50),
+    queryFn: () => data.SuperChat.filter({ payment_status: "completed" }, "-created_date", 50),
   });
 
   const { data: budget = [] } = useQuery({
     queryKey: ["revenue-tracking"],
-    queryFn: () => base44.entities.CreatorBudget.filter({ type: "income" }, "-date", 30),
+    queryFn: () => data.CreatorBudget.filter({ type: "income" }, "-date", 30),
   });
 
   const totalSuperChatRevenue = superChats.reduce((s, sc) => s + (sc.amount || 0), 0);
