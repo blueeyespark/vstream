@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { UserPlus, Trash2, ShieldCheck, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,12 +11,12 @@ export default function StaffManager({ currentUser }) {
 
   const { data: staff = [] } = useQuery({
     queryKey: ["staff-access"],
-    queryFn: () => base44.entities.StaffAccess.list(),
+    queryFn: () => blue.entities.StaffAccess.list(),
     enabled: currentUser?.role === "admin",
   });
 
   const addMutation = useMutation({
-    mutationFn: () => base44.entities.StaffAccess.create({
+    mutationFn: () => blue.entities.StaffAccess.create({
       email: newEmail.trim().toLowerCase(),
       name: newName.trim(),
       approved_by: currentUser.email,
@@ -26,7 +26,7 @@ export default function StaffManager({ currentUser }) {
   });
 
   const removeMutation = useMutation({
-    mutationFn: (id) => base44.entities.StaffAccess.delete(id),
+    mutationFn: (id) => blue.entities.StaffAccess.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["staff-access"] }),
   });
 
