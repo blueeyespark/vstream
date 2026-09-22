@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { UserPlus, Send, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -18,7 +18,7 @@ export default function InviteButton() {
       return;
     }
     setLoading(true);
-    await base44.users.inviteUser(email.trim(), "user");
+    await blue.users.inviteUser(email.trim(), "user");
     setLoading(false);
     setSent(true);
     toast.success(`Invite sent to ${email.trim()}`);
