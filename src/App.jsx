@@ -32,6 +32,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider } from '@/lib/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import VStreamAIAssistant from '@/components/ai/VStreamAIAssistant';
+import { BlueProvider } from '@/lib/BlueContext';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? "Dashboard";
@@ -102,9 +103,11 @@ function App() {
     <QueryClientProvider client={queryClientInstance}>
       <Router>
         <AuthProvider>
-          <NavigationTracker />
-          <AppRoutes />
-          <VStreamAIAssistant surface="floating" />
+          <BlueProvider>
+            <NavigationTracker />
+            <AppRoutes />
+            <VStreamAIAssistant surface="floating" />
+          </BlueProvider>
         </AuthProvider>
       </Router>
       <Toaster />
