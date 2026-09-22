@@ -35,6 +35,14 @@ export const platform = {
         body: JSON.stringify(request),
       }),
   },
+  blue: {
+    permissions: () => blueRequest("/v1/blue/permissions"),
+    setPermissionLevel: (action_level) => blueRequest("/v1/blue/permissions", { method: "PUT", body: JSON.stringify({ action_level }) }),
+    actions: () => blueRequest("/v1/blue/actions"),
+    requestAction: (request) => blueRequest("/v1/blue/actions", { method: "POST", body: JSON.stringify(request) }),
+    approveAction: (id) => blueRequest(`/v1/blue/actions/${encodeURIComponent(id)}/approve`, { method: "POST" }),
+    verifyAction: (id, verification) => blueRequest(`/v1/blue/actions/${encodeURIComponent(id)}/verify`, { method: "POST", body: JSON.stringify(verification) }),
+  },
   ai: {
     capabilities: () => blueRequest("/v1/ai/capabilities"),
     conversations: () => blueRequest("/v1/ai/conversations"),
