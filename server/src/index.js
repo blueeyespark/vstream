@@ -7,6 +7,7 @@ import { authRoutes } from "./auth.js";
 import { entityRoutes } from "./entities.js";
 import { functionRoutes } from "./functions.js";
 import { requireAuth } from "./session.js";
+import { mediaRoutes } from "./media.js";
 import multer from "multer";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
@@ -30,6 +31,7 @@ entityRoutes(app, db);
 functionRoutes(app, db);
 
 const upload = multer({ dest: uploadDir, limits: { fileSize: Number(process.env.BLUE_MAX_UPLOAD_BYTES || 536870912) } });
+mediaRoutes(app, db, uploadDir, upload);
 app.post("/v1/storage/upload", requireAuth(db), upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ message: "file is required" });
   const id = crypto.randomUUID();
