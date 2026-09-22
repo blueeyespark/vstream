@@ -13,6 +13,7 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { aiRoutes } from "./ai.js";
+import { blueControlRoutes } from "./blue-control.js";
 
 const app = express();
 const port = Number(process.env.PORT || 8787);
@@ -31,6 +32,7 @@ authRoutes(app, db);
 entityRoutes(app, db);
 functionRoutes(app, db);
 aiRoutes(app, db);
+blueControlRoutes(app, db);
 
 const upload = multer({ dest: uploadDir, limits: { fileSize: Number(process.env.BLUE_MAX_UPLOAD_BYTES || 536870912) } });
 mediaRoutes(app, db, uploadDir, upload);
