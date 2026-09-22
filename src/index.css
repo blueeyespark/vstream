@@ -67,6 +67,13 @@
     font-family: 'Inter', sans-serif;
   }
 
+  /* Keep the decorative fixed grid behind the application UI. */
+  #root {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+  }
+
   /* Dark mode specific */
   .dark body {
     background: #03080f;
