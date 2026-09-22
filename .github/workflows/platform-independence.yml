@@ -46,8 +46,55 @@ jobs:
         run: |
           node --check src/index.js
           node --check src/auth.js
+          node --check src/ai.js
           node --check src/db.js
           node --check src/entities.js
           node --check src/functions.js
           node --check src/media.js
           node --check src/session.js
+
+      - name: Smoke-test owned Blue runtime
+        working-directory: server
+        shell: bash
+        env:
+          PORT: 8787
+          BLUE_WEB_ORIGIN: http://localhost:5173
+          BLUE_DATA_DIR: /tmp/blue-vstream-ci
+          BLUE_AI_PROVIDER: none
+          NODE_ENV: test
+        run: |
+          set -euo pipefail
+          rm -rf "$BLUE_DATA_DIR"
+          node src/index.js > /tmp/blue-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true; cat /tmp/blue-server.log' EXIT
+
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:8787/health >/tmp/health.json && break
+            sleep 1
+          done
+          node -e 'const x=require("/tmp/health.json"); if(!x.ok || x.provider!=="owned") process.exit(1)'
+
+          curl -fsS -c /tmp/blue-cookie.txt -H 'Content-Type: application/json'             -d '{"email":"ci@blue.local","display_name":"CI Blue"}'             http://127.0.0.1:8787/v1/auth/dev-login >/tmp/login.json
+          curl -fsS -b /tmp/blue-cookie.txt http://127.0.0.1:8787/v1/auth/me >/tmp/me.json
+          node -e 'const x=require("/tmp/me.json"); if(x.email!=="ci@blue.local") process.exit(1)'
+
+          curl -fsS -b /tmp/blue-cookie.txt http://127.0.0.1:8787/v1/ai/capabilities >/tmp/caps.json
+          node -e 'const x=require("/tmp/caps.json"); if(x.identity?.name!=="Blue" || x.identity?.default_mode!=="teacher" || x.provider?.configured!==false || x.capabilities?.chat!=="unavailable") process.exit(1)'
+
+          STATUS=$(curl -sS -o /tmp/ai-none.json -w '%{http_code}' -b /tmp/blue-cookie.txt             -H 'Content-Type: application/json' -d '{"prompt":"hello"}'             http://127.0.0.1:8787/v1/ai/generate)
+          test "$STATUS" = "503"
+          node -e 'const x=require("/tmp/ai-none.json"); if(x.message!=="No Blue AI provider configured") process.exit(1)'
+
+          curl -fsS -b /tmp/blue-cookie.txt -H 'Content-Type: application/json'             -d '{"channel_name":"CI Channel","description":"runtime verification"}'             http://127.0.0.1:8787/v1/functions/createChannel >/tmp/channel.json
+          node -e 'const x=require("/tmp/channel.json"); if(x.data?.channel?.channel_name!=="CI Channel") process.exit(1)'
+
+          printf 'blue runtime upload smoke test' >/tmp/blue-upload.txt
+          curl -fsS -b /tmp/blue-cookie.txt -F 'file=@/tmp/blue-upload.txt'             http://127.0.0.1:8787/v1/storage/upload >/tmp/upload.json
+          FILE_ID=$(node -e 'const x=require("/tmp/upload.json"); if(!x.id) process.exit(1); process.stdout.write(x.id)')
+          curl -fsS -b /tmp/blue-cookie.txt "http://127.0.0.1:8787/v1/storage/files/$FILE_ID" >/tmp/download.txt
+          cmp /tmp/blue-upload.txt /tmp/download.txt
+
+          curl -fsS -X POST -b /tmp/blue-cookie.txt http://127.0.0.1:8787/v1/auth/logout >/dev/null
+          STATUS=$(curl -sS -o /tmp/after-logout.json -w '%{http_code}' -b /tmp/blue-cookie.txt http://127.0.0.1:8787/v1/auth/me)
+          test "$STATUS" = "401"
