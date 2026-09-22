@@ -5,6 +5,18 @@ const now=()=>new Date().toISOString();
 const json=row=>row?{...row,metadata:JSON.parse(row.metadata_json||"{}")}:null;
 export function academyRoutes(app,db){
  const auth=requireAuth(db);
+ const seedAcademy=()=>{
+  const t=now(),courseId="academy-course-3d-modeling";
+  if(!db.prepare("SELECT id FROM academy_courses WHERE slug=?").get("3d-modeling-fundamentals")){
+   db.prepare("INSERT INTO academy_courses(id,slug,title,summary,status,metadata_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)").run(courseId,"3d-modeling-fundamentals","3D Modeling Fundamentals","Learn professional Blender foundations through real project work, critique and revision.","preview",JSON.stringify({tool:"Blender",delivery:"Instructor-led • Blue-supported"}),t,t);
+   const mods=[["academy-module-blender-foundations","Blender Foundations","Workspace, navigation, transforms and non-destructive habits.",1],["academy-module-modeling","Modeling Fundamentals","Build clean geometry using professional modeling workflows.",2],["academy-module-materials","Materials & Presentation","Materials, lighting and presentation for review.",3],["academy-module-final","Final Project","Submit, receive feedback, revise and prepare portfolio work.",4]];
+   const ins=db.prepare("INSERT INTO academy_modules(id,course_id,title,summary,position,metadata_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)");mods.forEach(m=>ins.run(m[0],courseId,m[1],m[2],m[3],"{}",t,t));
+   const lessons=[["academy-lesson-workspace","academy-module-blender-foundations","Welcome & Blender Workspace","Course expectations, navigation and professional file habits.",1],["academy-lesson-transforms","academy-module-blender-foundations","Transforms & Object Discipline","Move, rotate, scale, origins and clean scene organization.",2],["academy-lesson-first-model","academy-module-blender-foundations","First Modeling Exercise","Model a simple production-ready prop from a starter brief.",3]];
+   const il=db.prepare("INSERT INTO academy_lessons(id,course_id,module_id,title,summary,content,position,status,metadata_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)");lessons.forEach(l=>il.run(l[0],courseId,l[1],l[2],l[3],"Instructor-authored lesson content will live here.",l[4],"published","{}",t,t));
+   db.prepare("INSERT INTO academy_assignments(id,course_id,module_id,title,summary,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)").run("academy-assignment-first-prop",courseId,"academy-module-blender-foundations","First Production-Ready Prop","Submit a versioned Blender project showing clean transforms, organization and basic modeling discipline.","published",t,t);
+  }
+ };
+ seedAcademy();
  app.get("/v1/academy/me/dashboard",auth,(req,res)=>{
   const enrollments=db.prepare(`SELECT e.*,c.title,c.slug,c.summary,c.status AS course_status FROM academy_enrollments e JOIN academy_courses c ON c.id=e.course_id WHERE e.user_id=? ORDER BY e.updated_at DESC`).all(req.user.id);
   const submissions=db.prepare(`SELECT s.*,a.title AS assignment_title,a.course_id FROM academy_submissions s JOIN academy_assignments a ON a.id=s.assignment_id WHERE s.student_user_id=? ORDER BY s.updated_at DESC LIMIT 12`).all(req.user.id);
