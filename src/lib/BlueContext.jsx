@@ -13,17 +13,23 @@ export function BlueProvider({ children }) {
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState(null);
   const [activeConversation,setActiveConversation]=useState(null);
+  const [memory,setMemory]=useState([]);
+  const [results,setResults]=useState([]);
 
   const refresh=useCallback(async()=>{
     try {
-      const [caps,perms,convos]=await Promise.all([
+      const [caps,perms,convos,memoryData,resultData]=await Promise.all([
         platform.ai.capabilities(),
         platform.blue.permissions(),
         platform.ai.conversations(),
+        platform.blue.memory(),
+        platform.blue.results(),
       ]);
       setCapabilities(caps);
       setPermissions(perms);
       setHistory(convos?.conversations || []);
+      setMemory(memoryData?.memories || []);
+      setResults(resultData?.results || []);
       if (conversationId) {
         const current=(convos?.conversations || []).find((item)=>item.id===conversationId);
         if(current) setActiveConversation(current);
@@ -76,6 +82,23 @@ export function BlueProvider({ children }) {
     } finally { setLoading(false); }
   },[mode,conversationId,refresh]);
 
+  const remember=useCallback(async(entry)=>{
+    const value=await platform.blue.remember(entry);
+    await refresh();
+    return value;
+  },[refresh]);
+
+  const forget=useCallback(async(id)=>{
+    await platform.blue.forget(id);
+    await refresh();
+  },[refresh]);
+
+  const createResult=useCallback(async(result)=>{
+    const value=await platform.blue.createResult({...result,conversation_id:result?.conversation_id || conversationId});
+    await refresh();
+    return value;
+  },[conversationId,refresh]);
+
   const setPermissionLevel=useCallback(async(action_level)=>{
     const value=await platform.blue.setPermissionLevel(action_level);
     setPermissions(value);
@@ -87,8 +110,9 @@ export function BlueProvider({ children }) {
     modes:MODES,mode,setMode,
     conversationId,activeConversation,startConversation,openConversation,history,
     capabilities,permissions,setPermissionLevel,
+    memory,remember,forget,results,createResult,
     loading,error,send,refresh,
-  }),[mode,setMode,conversationId,activeConversation,startConversation,openConversation,history,capabilities,permissions,setPermissionLevel,loading,error,send,refresh]);
+  }),[mode,setMode,conversationId,activeConversation,startConversation,openConversation,history,capabilities,permissions,setPermissionLevel,memory,remember,forget,results,createResult,loading,error,send,refresh]);
 
   return <BlueContext.Provider value={value}>{children}</BlueContext.Provider>;
 }
