@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Radio, Eye, Heart, ChevronLeft, Users, Tv } from "lucide-react";
@@ -23,7 +23,7 @@ export default function LivePage() {
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => blue.entities.Channel.list(),
     staleTime: 5 * 60 * 1000,
   });
 
