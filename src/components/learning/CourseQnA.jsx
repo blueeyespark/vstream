@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
+import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, ThumbsUp, CheckCircle2, Send, Plus } from "lucide-react";
 
 export default function CourseQnA({ courseId, moduleIndex }) {
+  const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [questionTitle, setQuestionTitle] = useState("");
@@ -13,7 +15,7 @@ export default function CourseQnA({ courseId, moduleIndex }) {
 
   const { data: questions = [] } = useQuery({
     queryKey: ["course-questions", courseId, moduleIndex],
-    queryFn: () => platform.entities.CourseQuestion.filter({
+    queryFn: () => data.CourseQuestion.filter({
       course_id: courseId,
       module_index: moduleIndex
     })
@@ -21,8 +23,7 @@ export default function CourseQnA({ courseId, moduleIndex }) {
 
   const postQuestionMutation = useMutation({
     mutationFn: async () => {
-      const user = await platform.auth.me();
-      return platform.entities.CourseQuestion.create({
+      return data.CourseQuestion.create({
         course_id: courseId,
         module_index: moduleIndex,
         author_email: user.email,
@@ -43,8 +44,7 @@ export default function CourseQnA({ courseId, moduleIndex }) {
 
   const postAnswerMutation = useMutation({
     mutationFn: async () => {
-      const user = await platform.auth.me();
-      const answer = await platform.entities.CourseAnswer.create({
+      const answer = await data.CourseAnswer.create({
         question_id: selectedQuestion.id,
         course_id: courseId,
         author_email: user.email,
@@ -54,7 +54,7 @@ export default function CourseQnA({ courseId, moduleIndex }) {
       });
 
       // Update answer count
-      await platform.entities.CourseQuestion.update(selectedQuestion.id, {
+      await data.CourseQuestion.update(selectedQuestion.id, {
         answer_count: (selectedQuestion.answer_count || 0) + 1
       });
 
@@ -147,9 +147,10 @@ export default function CourseQnA({ courseId, moduleIndex }) {
 }
 
 function QuestionDetail({ question, courseId, onBack }) {
+  const { user } = useAuth();
   const { data: answers = [] } = useQuery({
     queryKey: ["course-answers", question.id],
-    queryFn: () => platform.entities.CourseAnswer.filter({ question_id: question.id })
+    queryFn: () => data.CourseAnswer.filter({ question_id: question.id })
   });
 
   const [answerContent, setAnswerContent] = useState("");
@@ -157,8 +158,7 @@ function QuestionDetail({ question, courseId, onBack }) {
 
   const postAnswerMutation = useMutation({
     mutationFn: async () => {
-      const user = await platform.auth.me();
-      const answer = await platform.entities.CourseAnswer.create({
+      const answer = await data.CourseAnswer.create({
         question_id: question.id,
         course_id: courseId,
         author_email: user.email,
@@ -167,7 +167,7 @@ function QuestionDetail({ question, courseId, onBack }) {
         content: answerContent
       });
 
-      await platform.entities.CourseQuestion.update(question.id, {
+      await data.CourseQuestion.update(question.id, {
         answer_count: (question.answer_count || 0) + 1
       });
 
