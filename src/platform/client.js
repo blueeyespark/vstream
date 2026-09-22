@@ -36,6 +36,11 @@ export const platform = {
       }),
   },
   blue: {
+    memory: (scope) => blueRequest(`/v1/blue/memory${scope ? `?scope=${encodeURIComponent(scope)}` : ""}`),
+    remember: (memory) => blueRequest("/v1/blue/memory", { method: "POST", body: JSON.stringify(memory) }),
+    forget: (id) => blueRequest(`/v1/blue/memory/${encodeURIComponent(id)}`, { method: "DELETE" }),
+    results: () => blueRequest("/v1/blue/results"),
+    createResult: (result) => blueRequest("/v1/blue/results", { method: "POST", body: JSON.stringify(result) }),
     permissions: () => blueRequest("/v1/blue/permissions"),
     setPermissionLevel: (action_level) => blueRequest("/v1/blue/permissions", { method: "PUT", body: JSON.stringify({ action_level }) }),
     actions: () => blueRequest("/v1/blue/actions"),
