@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Sparkles, TrendingUp, Heart, Play, BarChart } from "lucide-react";
@@ -13,12 +13,12 @@ export default function AnalyticsPlus() {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-discovery"],
-    queryFn: () => base44.entities.Video.list("-created_date", 40),
+    queryFn: () => blue.entities.Video.list("-created_date", 40),
   });
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-discovery"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => blue.entities.Channel.list(),
   });
 
   const channelMap = channels.reduce((acc, c) => { acc[c.id] = c; return acc; }, {});
