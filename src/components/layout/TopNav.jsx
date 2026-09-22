@@ -204,15 +204,17 @@ export default function TopNav({
 
                   {/* Creator actions */}
                   {user?.email && (
-                    <div className="border-t border-[#0d1820] py-1">
-                      <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Spaces</p>
-                      <MenuItem icon={GraduationCap} label="Blue Academy" to="/Academy" onClick={() => setAccountOpen(false)} />
-                    </div>
-                    <div className="border-t border-[#0d1820] py-1">
-                      <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Creator</p>
-                      <MenuButton icon={Mic2} label="Creator OS" onClick={() => openCreatorTool("/CreatorOS")} />
-                      <MenuItem icon={Radio} label="Go Live Now" to="/StreamerDashboard" onClick={() => setAccountOpen(false)} />
-                    </div>
+                    <>
+                      <div className="border-t border-[#0d1820] py-1">
+                        <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Spaces</p>
+                        <MenuItem icon={GraduationCap} label="Blue Academy" to="/Academy" onClick={() => setAccountOpen(false)} />
+                      </div>
+                      <div className="border-t border-[#0d1820] py-1">
+                        <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Creator</p>
+                        <MenuButton icon={Mic2} label="Creator OS" onClick={() => openCreatorTool("/CreatorOS")} />
+                        <MenuItem icon={Radio} label="Go Live Now" to="/StreamerDashboard" onClick={() => setAccountOpen(false)} />
+                      </div>
+                    </>
                   )}
 
                   {/* Staff */}
