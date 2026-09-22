@@ -1,16 +1,12 @@
+import { sessionUser } from "./session.js";
 import crypto from "node:crypto";
 
 const parse = (row) => row ? { id: row.id, ...JSON.parse(row.data_json), created_at: row.created_at, updated_at: row.updated_at } : null;
 const rows = (db,type) => db.prepare("SELECT * FROM entities WHERE entity_type=? ORDER BY updated_at DESC").all(type).map(parse);
-const create = (db,type,data) => {
+const create = (db,type,data,ownerUserId=null) => {
   const id=crypto.randomUUID(), now=new Date().toISOString();
-  db.prepare("INSERT INTO entities(id,entity_type,data_json,created_at,updated_at) VALUES(?,?,?,?,?)").run(id,type,JSON.stringify(data),now,now);
-  return {id,...data,created_at:now,updated_at:now};
-};
-const currentUser = (req,db) => {
-  const sid=req.cookies?.blue_session;
-  if(!sid) return null;
-  return db.prepare("SELECT u.* FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.id=? AND s.expires_at>?").get(sid,new Date().toISOString()) || null;
+  db.prepare("INSERT INTO entities(id,entity_type,owner_user_id,data_json,created_at,updated_at) VALUES(?,?,?,?,?,?)").run(id,type,ownerUserId,JSON.stringify(data),now,now);
+  return {id,...data,owner_user_id:ownerUserId,created_at:now,updated_at:now};
 };
 
 export function functionRoutes(app, db) {
@@ -18,13 +14,13 @@ export function functionRoutes(app, db) {
     try {
       const name=req.params.name;
       if(name==="createChannel") {
-        const user=currentUser(req,db);
+        const user=sessionUser(req,db);
         if(!user) return res.status(401).json({error:"Unauthorized"});
         const channel_name=String(req.body?.channel_name||"").trim();
         if(!channel_name) return res.status(400).json({error:"Channel name is required"});
         if(rows(db,"Channel").some(x=>x.channel_name?.toLowerCase()===channel_name.toLowerCase()))
           return res.status(409).json({error:"Channel name already taken"});
-        const channel=create(db,"Channel",{creator_email:user.email,channel_name,description:req.body?.description||"",rtmp_key:crypto.randomBytes(24).toString("hex"),categories:req.body?.categories||[]});
+        const channel=create(db,"Channel",{creator_email:user.email,channel_name,description:req.body?.description||"",rtmp_key:crypto.randomBytes(24).toString("hex"),categories:req.body?.categories||[]},user.id);
         return res.json({data:{channel},message:"Channel created successfully"});
       }
 
