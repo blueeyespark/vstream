@@ -19,6 +19,16 @@ export const platform = {
     },
   },
   media: {
+    uploadVideo: ({ file, ...metadata }) => {
+      const body = new FormData();
+      body.append("file", file);
+      Object.entries(metadata).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) body.append(key, String(value));
+      });
+      return blueRequest("/v1/media/video-upload", { method: "POST", body });
+    },
+    transcodeVideo: (id) => blueRequest(`/v1/media/videos/${id}/transcode`, { method: "POST" }),
+    editVideo: (id, edits) => blueRequest(`/v1/media/videos/${id}/edit`, { method: "PATCH", body: JSON.stringify(edits) }),
     generateImage: (request) =>
       blueRequest("/v1/media/generate-image", {
         method: "POST",
