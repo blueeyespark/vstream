@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { Zap, Link as LinkIcon, TrendingUp } from "lucide-react";
 
