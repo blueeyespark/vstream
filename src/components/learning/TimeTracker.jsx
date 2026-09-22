@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { Clock, Play, Pause, Save } from "lucide-react";
 
 export default function TimeTracker({ enrollmentId, onSessionSaved }) {
@@ -22,7 +22,7 @@ export default function TimeTracker({ enrollmentId, onSessionSaved }) {
     
     setIsSaving(true);
     try {
-      const enrollment = await base44.entities.UserEnrollment.get(enrollmentId);
+      const enrollment = await blue.entities.UserEnrollment.get(enrollmentId);
       const minutesSpent = Math.round(timeElapsed / 60);
       const hoursSpent = minutesSpent / 60;
       
@@ -33,7 +33,7 @@ export default function TimeTracker({ enrollmentId, onSessionSaved }) {
         module_index: enrollment.current_module || 0
       });
 
-      await base44.entities.UserEnrollment.update(enrollmentId, {
+      await blue.entities.UserEnrollment.update(enrollmentId, {
         learning_sessions: sessions,
         actual_hours_spent: (enrollment.actual_hours_spent || 0) + hoursSpent
       });
