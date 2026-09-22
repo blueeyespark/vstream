@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery } from "@tanstack/react-query";
 import { Sparkles, TrendingUp, RefreshCw, Lightbulb, Zap } from "lucide-react";
 
@@ -9,13 +9,13 @@ export default function TrendingForCreators() {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 20),
+    queryFn: () => blue.entities.Video.list("-created_date", 20),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => blue.entities.Channel.list(),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -26,7 +26,7 @@ export default function TrendingForCreators() {
 
   const fetchAdvice = async () => {
     setLoading(true);
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `You are an AI advisor for content creators. The creator makes content about: ${contentSummary}. Channel: ${myChannel?.channel_name || "unknown"}. Give 5 specific, actionable trending content ideas that match their niche RIGHT NOW in ${new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}. For each idea include: a catchy title idea, why it's trending, one quick tip, and a difficulty level (Easy/Medium/Hard). Be concise and practical.`,
       add_context_from_internet: true,
       response_json_schema: {
