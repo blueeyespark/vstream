@@ -73,6 +73,19 @@ export function createDatabase(dataDir) {
       created_at TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_blue_results_owner ON blue_results(owner_user_id,created_at);
+    CREATE TABLE IF NOT EXISTS blue_memory (
+      id TEXT PRIMARY KEY,
+      owner_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      memory_type TEXT NOT NULL,
+      scope TEXT NOT NULL DEFAULT 'personal',
+      content TEXT NOT NULL,
+      source TEXT NOT NULL DEFAULT 'user-approved',
+      provenance_json TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'approved',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_blue_memory_owner ON blue_memory(owner_user_id,scope,updated_at);
     CREATE TABLE IF NOT EXISTS blue_permissions (
       owner_user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
       action_level TEXT NOT NULL DEFAULT 'guide',
