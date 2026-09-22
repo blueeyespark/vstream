@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Calendar, Link2, RefreshCw, 
@@ -41,18 +41,18 @@ export default function TaskDetailSheet({
 
   const { data: comments = [] } = useQuery({
     queryKey: ['task-comments', task?.id],
-    queryFn: () => base44.entities.TaskComment.filter({ task_id: task?.id }, 'created_date'),
+    queryFn: () => data.TaskComment.filter({ task_id: task?.id }, 'created_date'),
     enabled: !!task?.id,
   });
 
   const { data: activityLogs = [] } = useQuery({
     queryKey: ['task-activity', task?.id],
-    queryFn: () => base44.entities.ActivityLog.filter({ entity_id: task?.id }, '-created_date', 20),
+    queryFn: () => data.ActivityLog.filter({ entity_id: task?.id }, '-created_date', 20),
     enabled: !!task?.id,
   });
 
   const addCommentMutation = useMutation({
-    mutationFn: (content) => base44.entities.TaskComment.create({
+    mutationFn: (content) => data.TaskComment.create({
       task_id: task.id,
       content,
       author_email: user?.email,
@@ -65,7 +65,7 @@ export default function TaskDetailSheet({
   });
 
   const updateTaskMutation = useMutation({
-    mutationFn: (data) => base44.entities.Task.update(task.id, data),
+    mutationFn: (data) => data.Task.update(task.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planner-tasks'] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
