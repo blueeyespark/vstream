@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { FolderKanban, CheckSquare, Clock, AlertTriangle } from "lucide-react";
@@ -19,14 +19,14 @@ export default function PlanningOverview() {
 
   const { data: projects = [] } = useQuery({
     queryKey: ["projects", user?.email],
-    queryFn: () => base44.entities.Project.list("-created_date"),
+    queryFn: () => blue.entities.Project.list("-created_date"),
     enabled: !!user?.email,
     staleTime: 10 * 60 * 1000,
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks", user?.email],
-    queryFn: () => base44.entities.Task.list("-created_date"),
+    queryFn: () => blue.entities.Task.list("-created_date"),
     enabled: !!user?.email,
     staleTime: 10 * 60 * 1000,
   });
