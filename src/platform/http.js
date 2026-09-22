@@ -1,7 +1,7 @@
 const trimSlash = (value = "") => value.replace(/\/$/, "");
 
 export const blueApiUrl = trimSlash(
-  import.meta.env.VITE_BLUE_API_URL || "http://localhost:8787"
+  import.meta.env.VITE_BLUE_API_URL || (typeof window !== "undefined" ? window.location.origin : "")
 );
 
 export class BlueApiError extends Error {
