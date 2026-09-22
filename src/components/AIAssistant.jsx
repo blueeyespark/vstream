@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { platform } from "@/platform/client";
+import { useBlue } from "@/lib/BlueContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, Loader2, RefreshCw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -58,6 +58,7 @@ function AvatarFace({ talking, thinking }) {
 }
 
 export default function AIAssistant({ projects = [], tasks = [], budget = [], userRole = 'viewer', channels = [], videos = [], subscriptions = [], user = null }) {
+  const blue = useBlue();
   const [open, setOpen] = useState(false);
   const [mood, setMood] = useState("curious");
   const [messages, setMessages] = useState([]);
@@ -141,12 +142,12 @@ export default function AIAssistant({ projects = [], tasks = [], budget = [], us
     switch (userRole) {
       case 'admin':
       case 'staff':
-        return "Hey! I'm VStream AI 📊 I break down creator trends, platform analytics, and growth strategies. What insight do you need?";
+        return "Hey! I'm Blue 📊 I break down creator trends, platform analytics, and growth strategies. What insight do you need?";
       case 'owner':
       case 'editor':
-        return "Hey! I'm VStream AI 🎬 Your AI co-creator for streams, videos, thumbnails, hooks, and viral strategies. What's your goal?";
+        return "Hey! I'm Blue 🎬 Your AI co-creator for streams, videos, thumbnails, hooks, and viral strategies. What's your goal?";
       default:
-        return "Hey! I'm VStream AI 👀 I break down creator trends and help you discover amazing channels. What would you like to know?";
+        return "Hey! I'm Blue 👀 I break down creator trends and help you discover amazing channels. What would you like to know?";
     }
   };
 
@@ -191,14 +192,12 @@ Work Context:
     else if (unassigned > tasks.length * 0.3) priorityMsg = 'ORGANIZE - Assign pending tasks';
 
     try {
-      const result = await platform.ai.generate({
-        prompt: `You are VStream AI, a warm, brief assistant. Be genuine and encouraging in 2-3 sentences max.
-
-Context: ${taskArray.length} tasks (${completionRate}% done, ${overdue} overdue)
+      const result = await blue.send({
+        mode: "companion",
+        context: { surface: "check-in", taskCount: taskArray.length, completionRate, overdue },
+        prompt: `Give me a warm, brief check-in in 2-3 sentences.
 Priority: ${priorityMsg}
-
-Generate a contextual check-in message. Be specific.`,
-        model: 'gpt_5_mini',
+Be specific and actionable.`
       });
 
       const msg = typeof result === 'string' ? result : result?.response || "Keep pushing—you've got this! 🚀";
@@ -226,7 +225,7 @@ Generate a contextual check-in message. Be specific.`,
 
     try {
       const result = await platform.ai.generate({
-        prompt: `You are VStream AI — friendly, sharp, concise.
+        prompt: `You are Blue — friendly, sharp, concise.
 
 Context: ${tasks.length} tasks (${completionRate}% done).
 
@@ -267,42 +266,31 @@ Respond naturally in 1-2 sentences. Stay warm and actionable.`,
 
       const getRoleContext = () => {
         if (userRole === 'admin' || userRole === 'staff') {
-          return `You are VStream AI — sharp, analytical assistant for platform insights. Mood: ${newMood}.
+          return `You are Blue — sharp, analytical assistant for platform insights. Mood: ${newMood}.
           
 EXPERTISE: Creator analytics, platform trends, growth strategies, multi-platform mechanics, monetization insights.
 PERSONALITY: Data-driven, direct, no fluff. Identify bottlenecks and opportunities.`;
         } else if (userRole === 'owner' || userRole === 'editor') {
-          return `You are VStream AI — the ultimate AI co-creator for streamers and content creators. Mood: ${newMood}.
+          return `You are Blue — the ultimate AI co-creator for streamers and content creators. Mood: ${newMood}.
           
 EXPERTISE: Streaming, YouTube strategy, short-form content, growth, monetization, production, community building, cross-platform promotion, creator business.
 PERSONALITY: Witty, sharp, brutally honest but actionable. Never repeat advice. Vary your tone based on context.`;
         }
-        return `You are VStream AI — a friendly guide to amazing creators and content. Mood: ${newMood}.
+        return `You are Blue — a friendly guide to amazing creators and content. Mood: ${newMood}.
         
 EXPERTISE: Content discovery, creator strategies, trending content, viewer engagement.
 PERSONALITY: Approachable, enthusiastic about discovery.`;
       };
 
-      const result = await platform.ai.generate({
+      const result = await blue.send({
+        mode: userRole === "admin" || userRole === "staff" ? "build" : "creator",
+        messages: messages.slice(-8),
+        context: { surface: "legacy-companion", role: userRole, platformContext: context, mood: newMood },
         prompt: `${getRoleContext()}
-
-CONTEXT:
-${context}
-
-CONVERSATION:
-${history}
 
 USER: ${userMsg}
 
-Respond naturally and conversationally. Be specific. Be memorable. Never sugarcoat. Include 3 punchy follow-up suggestions (max 7 words each).`,
-        model: 'gpt_5_mini',
-        response_json_schema: {
-          type: "object",
-          properties: {
-            response: { type: "string" },
-            suggestions: { type: "array", items: { type: "string" } }
-          }
-        }
+Respond naturally and conversationally. Be specific and actionable.`
       });
 
       const response = result?.response || "Sorry, I couldn't process that. Try again?";
