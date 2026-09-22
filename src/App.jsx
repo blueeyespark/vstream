@@ -47,25 +47,10 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
-const AcademyTestShell = () => (
-  <div style={{minHeight:'100vh',background:'#03080f',color:'#e8f4ff',padding:'32px',fontFamily:'Inter,system-ui,sans-serif'}}>
-    <div style={{maxWidth:960,margin:'0 auto'}}>
-      <div style={{display:'inline-block',padding:'6px 10px',border:'1px solid #1e78ff',borderRadius:999,color:'#7ddcff',fontSize:12,fontWeight:800}}>BLUE ACADEMY • TEST SHELL</div>
-      <h1 style={{fontSize:'clamp(36px,7vw,68px)',lineHeight:1.02,margin:'24px 0 12px'}}>The test site is rendering.</h1>
-      <p style={{maxWidth:720,color:'#9fc3e8',fontSize:18,lineHeight:1.7}}>This route intentionally bypasses the VStream layout, authentication UI, Blue UI, and data-loading surfaces. We use it to prove the deployed React application can render before reconnecting systems one layer at a time.</p>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:16,marginTop:32}}>
-        {['Academy UI','VStream Shell','Blue','Auth & Data'].map((label,index)=><div key={label} style={{padding:20,border:'1px solid #12305f',borderRadius:18,background:'#06101f'}}><div style={{color:index===0?'#67e8f9':'#94a3b8',fontWeight:900}}>{label}</div><div style={{marginTop:8,color:'#6a9ec5',fontSize:14}}>{index===0?'Preview foundation ready':'Reconnect after render verification'}</div></div>)}
-      </div>
-      <a href='/Academy' style={{display:'inline-block',marginTop:28,padding:'12px 16px',borderRadius:12,background:'#1e78ff',color:'white',fontWeight:900,textDecoration:'none'}}>Open current Academy</a>
-    </div>
-  </div>
-);
-
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/test" element={<AcademyTestShell />} />
       <Route path="/Academy" element={<LayoutWrapper currentPageName="Academy"><AcademyHome /></LayoutWrapper>} />
       <Route path="/Academy/Explore" element={<LayoutWrapper currentPageName="Academy"><AcademyExplore /></LayoutWrapper>} />
       <Route path="/Academy/CreatorCampus" element={<LayoutWrapper currentPageName="Academy"><AcademyCreatorCampus /></LayoutWrapper>} />
