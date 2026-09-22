@@ -37,6 +37,8 @@ export const platform = {
   },
   ai: {
     capabilities: () => blueRequest("/v1/ai/capabilities"),
+    conversations: () => blueRequest("/v1/ai/conversations"),
+    conversation: (id) => blueRequest(`/v1/ai/conversations/${encodeURIComponent(id)}`),
     transcribe: (request) =>
       blueRequest("/v1/ai/transcribe", {
         method: "POST",
