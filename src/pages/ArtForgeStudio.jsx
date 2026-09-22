@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -42,7 +42,7 @@ const CREATION_MODES = [
 
 const PROVIDERS = [
   // ✅ FREE
-  { id: "base44", label: "Base44 (Free)", note: "Built-in — no key needed", tier: "FREE", tag: "FREE", modes: ["image","2d_model","3d_model","video","sticker","comic"] },
+  { id: "blue", label: "Base44 (Free)", note: "Built-in — no key needed", tier: "FREE", tag: "FREE", modes: ["image","2d_model","3d_model","video","sticker","comic"] },
   // fal.ai — FLUX 2 family (Premium)
   { id: "fal", label: "fal.ai · FLUX 2 Pro", note: "Requires FAL_API_KEY — high quality, 8 ref images", tier: "PREMIUM", tag: "FLUX", modes: ["image","2d_model","sticker","comic"] },
   { id: "fal-ultra", label: "fal.ai · FLUX 2 Ultra", note: "Requires FAL_API_KEY — highest fidelity, 4MP", tier: "PREMIUM", tag: "FLUX", modes: ["image","sticker"] },
@@ -215,7 +215,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
   useEffect(() => {
     if (externalTab && externalTab !== activeTab) setActiveTab(externalTab);
   }, [externalTab]); // eslint-disable-line react-hooks/exhaustive-deps
-  const [provider, setProvider] = useState("base44");
+  const [provider, setProvider] = useState("blue");
   const [prompt, setPrompt] = useState(() => CREATION_MODES.find(m => m.id === initialMode)?.prompt || CREATION_MODES[0].prompt);
 
   // Sync when parent changes initialMode (e.g. different project type selected)
@@ -292,7 +292,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
     queryKey: ["artforge-assets", user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
-      const result = await base44.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 150);
+      const result = await blue.entities.MediaAsset.filter({ created_by: user.email }, "-created_date", 150);
       return Array.isArray(result) ? result : [];
     },
     staleTime: 15_000,
@@ -333,7 +333,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
     if (!fileList.length) return;
     for (const file of fileList.slice(0, 6)) {
       try {
-        const res = await base44.integrations.Core.UploadFile({ file });
+        const res = await blue.integrations.Core.UploadFile({ file });
         if (res?.file_url) setReferenceImages((prev) => [...prev, res.file_url].slice(0, 8));
       } catch { toast.error(`Failed to upload ${file.name}`); }
     }
@@ -344,7 +344,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
     if (!prompt.trim()) return;
     setIsEnhancing(true);
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await blue.integrations.Core.InvokeLLM({
         prompt: `You are a professional AI art director. Rewrite this into a production-grade generation prompt for "${currentMode.label}". Preserve the user's idea. Add: precise composition, lighting, color palette, style details, camera angle, technical quality descriptors. Return ONLY the improved prompt, no preamble or explanation.\n\nUser idea: ${prompt}`,
       });
       const text = typeof response === "string" ? response : response?.text || response?.content || "";
@@ -371,7 +371,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
         let resultType = mode;
 
         try {
-          const response = await base44.functions.invoke("generateArtForgeAsset", {
+          const response = await blue.functions.invoke("generateArtForgeAsset", {
             mode, provider, prompt: pipelinePrompt, negativePrompt, aspectRatio: aspect,
             durationSeconds: duration, seed: currentSeed, quality, referenceImages, layers, nodes, scenes,
           });
@@ -382,10 +382,10 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
 
         if (!resultUrl) {
           if (mode === "video") {
-            const video = await base44.integrations.Core.GenerateVideo({ prompt: pipelinePrompt, duration: Math.min(duration, 8), aspect_ratio: aspect === "9:16" ? "9:16" : "16:9" });
+            const video = await blue.integrations.Core.GenerateVideo({ prompt: pipelinePrompt, duration: Math.min(duration, 8), aspect_ratio: aspect === "9:16" ? "9:16" : "16:9" });
             resultUrl = video?.url; resultType = "video";
           } else {
-            const image = await base44.integrations.Core.GenerateImage({ prompt: pipelinePrompt, existing_image_urls: referenceImages.length ? referenceImages : undefined });
+            const image = await blue.integrations.Core.GenerateImage({ prompt: pipelinePrompt, existing_image_urls: referenceImages.length ? referenceImages : undefined });
             resultUrl = image?.url;
             resultType = ["tracer", "hand_helper"].includes(mode) ? "image" : mode;
           }
@@ -393,7 +393,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
 
         if (!resultUrl) throw new Error("No result returned");
 
-        const saved = await base44.entities.MediaAsset.create({
+        const saved = await blue.entities.MediaAsset.create({
           name: `${currentMode.label} · ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
           type: resultType, asset_type: mode === "video" ? "export" : "graphic",
           url: resultUrl, file_url: resultUrl, thumbnail_url: resultUrl,
@@ -420,7 +420,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
 
   const handleSaveProject = async () => {
     try {
-      await base44.entities.MediaAsset.create({
+      await blue.entities.MediaAsset.create({
         name: `ArtForge Project · ${new Date().toLocaleDateString()}`,
         type: "project", asset_type: "template", category: "artforge_project",
         description: JSON.stringify({ mode, prompt, styles, aspect, quality }).slice(0, 2000),
@@ -651,7 +651,7 @@ export default function ArtForgeStudio({ embedded = false, initialMode = "image"
                       </select>
                     </div>
                     <button onClick={async () => {
-                      const result = await base44.integrations.Core.InvokeLLM({ prompt });
+                      const result = await blue.integrations.Core.InvokeLLM({ prompt });
                       if (result) { setSelectedAsset({ name: "Script", description: result, type: "text" }); toast.success("Script generated!"); }
                     }} disabled={isGenerating}
                       className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 px-5 py-3 text-sm font-black text-white hover:opacity-90 disabled:opacity-50">
