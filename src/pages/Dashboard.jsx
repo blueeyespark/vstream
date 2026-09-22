@@ -27,7 +27,7 @@ import {
   Video,
   Zap,
 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import VideoPlayerModal from "@/components/dashboard/VideoPlayerModal";
 
@@ -534,7 +534,7 @@ export default function Dashboard() {
 
   const { data: rawVideos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 80),
+    queryFn: () => blue.entities.Video.list("-created_date", 80),
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -542,7 +542,7 @@ export default function Dashboard() {
 
   const { data: rawChannels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => blue.entities.Channel.list(),
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -550,7 +550,7 @@ export default function Dashboard() {
 
   const { data: subscriptions = [] } = useQuery({
     queryKey: ["my-subscriptions", user?.email],
-    queryFn: () => base44.entities.Subscription.filter({ subscriber_email: user.email, status: "active" }),
+    queryFn: () => blue.entities.Subscription.filter({ subscriber_email: user.email, status: "active" }),
     enabled: !!user?.email,
     staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
