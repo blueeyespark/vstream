@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BookOpen, GraduationCap, Hammer, Sparkles, Users, CalendarDays, FolderKanban, ArrowRight, Compass, WandSparkles } from "lucide-react";
+import { BookOpen, GraduationCap, Hammer, Sparkles, Users, CalendarDays, FolderKanban, ArrowRight, Compass, WandSparkles, Menu } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { useBlue } from "@/lib/BlueContext";
 
@@ -30,7 +30,7 @@ export default function AcademyHome(){
       </div>
     </section>
     <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
-      <nav className="mb-8 flex gap-2 overflow-x-auto rounded-2xl border border-[#12305f]/60 bg-[#06101f]/70 p-2" aria-label="Academy sections">{["Student Home","My Courses","Projects","Campus","Calendar"].map((item,i)=><span key={item} className={`whitespace-nowrap rounded-xl px-4 py-2 text-xs font-black ${i===0?"bg-purple-500/20 text-purple-200":"text-blue-100/40"}`}>{item}{i>0&&" • building"}</span>)}</nav>
+      <nav className="mb-8 flex items-center justify-between gap-3 rounded-2xl border border-[#12305f]/60 bg-[#06101f]/70 p-2" aria-label="Academy sections"><div className="flex gap-2 overflow-x-auto"><span className="whitespace-nowrap rounded-xl bg-purple-500/20 px-4 py-2 text-xs font-black text-purple-200">Student Home</span><Link to="/Academy/Courses/3d-modeling-fundamentals" className="whitespace-nowrap rounded-xl px-4 py-2 text-xs font-black text-blue-100/45 hover:text-white">My Courses</Link></div><Link to="/Academy/Explore" className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-[#12305f]/70 bg-[#03080f]/55 px-4 py-2 text-xs font-black text-[#7ddcff]"><Menu className="h-4 w-4"/> Explore School</Link></nav>
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div><p className="text-xs font-black uppercase tracking-[.22em] text-[#00c8ff]">Student Home</p><h2 className="mt-2 text-2xl font-black">{user?.full_name ? `Welcome, ${user.full_name}` : "Welcome to Blue Academy"}</h2></div>
         <p className="max-w-xl text-sm text-blue-100/50">One account connects school, professional creation and your portfolio without turning private academic work into public creator content.</p>
