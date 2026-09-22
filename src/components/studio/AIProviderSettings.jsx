@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { Key, Check, Eye, EyeOff, ExternalLink, Zap, Music, Video, Image, Loader2, Disc3 } from "lucide-react";
 import { toast } from "sonner";
@@ -7,7 +7,7 @@ import { toast } from "sonner";
 const PROVIDERS = [
   // ── FREE PROVIDERS (Always Available) ──
   {
-    id: "base44",
+    id: "blue",
     label: "Base44 (Free)",
     field: null,
     icon: Zap,
@@ -276,7 +276,7 @@ export default function AIProviderSettings() {
   const handleSave = async (field, value) => {
     setSaving(field);
     try {
-      await base44.auth.updateMe({ [field]: value });
+      await blue.auth.updateMe({ [field]: value });
       setKeys(prev => ({ ...prev, [field]: value }));
       toast.success(value ? "API key saved!" : "Key removed");
     } catch {
