@@ -109,6 +109,39 @@ export function createDatabase(dataDir) {
       updated_at TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_blue_actions_owner ON blue_actions(owner_user_id,created_at);
+    CREATE TABLE IF NOT EXISTS academy_courses (
+      id TEXT PRIMARY KEY, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, summary TEXT,
+      status TEXT NOT NULL DEFAULT 'preview', metadata_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS academy_modules (
+      id TEXT PRIMARY KEY, course_id TEXT NOT NULL REFERENCES academy_courses(id) ON DELETE CASCADE,
+      title TEXT NOT NULL, summary TEXT, position INTEGER NOT NULL DEFAULT 0,
+      metadata_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS academy_lessons (
+      id TEXT PRIMARY KEY, course_id TEXT NOT NULL REFERENCES academy_courses(id) ON DELETE CASCADE,
+      module_id TEXT REFERENCES academy_modules(id) ON DELETE SET NULL, title TEXT NOT NULL, summary TEXT,
+      content TEXT, position INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'draft',
+      metadata_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS academy_enrollments (
+      id TEXT PRIMARY KEY, course_id TEXT NOT NULL REFERENCES academy_courses(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, status TEXT NOT NULL DEFAULT 'active',
+      progress_percent INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+      UNIQUE(course_id,user_id)
+    );
+    CREATE TABLE IF NOT EXISTS academy_assignments (
+      id TEXT PRIMARY KEY, course_id TEXT NOT NULL REFERENCES academy_courses(id) ON DELETE CASCADE,
+      module_id TEXT REFERENCES academy_modules(id) ON DELETE SET NULL, title TEXT NOT NULL, summary TEXT,
+      due_at TEXT, status TEXT NOT NULL DEFAULT 'draft', created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS academy_submissions (
+      id TEXT PRIMARY KEY, assignment_id TEXT NOT NULL REFERENCES academy_assignments(id) ON DELETE CASCADE,
+      student_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, file_id TEXT REFERENCES files(id) ON DELETE SET NULL,
+      note TEXT, status TEXT NOT NULL DEFAULT 'submitted', grade TEXT, feedback TEXT,
+      created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+    );
   `);
   return db;
 }
