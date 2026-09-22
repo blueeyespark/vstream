@@ -26,6 +26,7 @@ import Login from './pages/Login';
 import AcademyHome from './pages/AcademyHome';
 import AcademyCourseRoom from './pages/AcademyCourseRoom';
 import AcademyLessonPreview from './pages/AcademyLessonPreview';
+import AcademyExplore from './pages/AcademyExplore';
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
@@ -50,6 +51,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/Academy" element={<LayoutWrapper currentPageName="Academy"><AcademyHome /></LayoutWrapper>} />
+      <Route path="/Academy/Explore" element={<LayoutWrapper currentPageName="Academy"><AcademyExplore /></LayoutWrapper>} />
       <Route path="/Academy/Courses/3d-modeling-fundamentals" element={<LayoutWrapper currentPageName="Academy"><AcademyCourseRoom /></LayoutWrapper>} />
       <Route path="/Academy/Courses/3d-modeling-fundamentals/module-1" element={<LayoutWrapper currentPageName="Academy"><AcademyLessonPreview /></LayoutWrapper>} />
 
