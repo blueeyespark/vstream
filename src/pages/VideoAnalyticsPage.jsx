@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { BarChart2, TrendingUp, Eye, Clock, ThumbsUp, Play } from "lucide-react";
@@ -34,13 +34,13 @@ export default function VideoAnalyticsPage() {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 100),
+    queryFn: () => blue.entities.Video.list("-created_date", 100),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: analytics = [] } = useQuery({
     queryKey: ["video-analytics-all"],
-    queryFn: () => base44.entities.VideoAnalytics.list("-date", 200),
+    queryFn: () => blue.entities.VideoAnalytics.list("-date", 200),
     staleTime: 5 * 60 * 1000,
   });
 
