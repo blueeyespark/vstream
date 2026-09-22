@@ -34,20 +34,20 @@ const navGroups = [
   {
     label: "Overview",
     items: [
-      { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, tagline: "Home & highlights" },
+      { id: "dashboard", label: "Creator Home", icon: LayoutDashboard, tagline: "Your work today" },
     ],
   },
   {
     label: "Create",
     items: [
-      { id: "production", label: "Production & ArtForge", icon: Clapperboard, tagline: "Create, generate & publish", accent: "purple" },
+      { id: "production", label: "Create & Production", icon: Clapperboard, tagline: "Plan, create & publish", accent: "purple" },
       { id: "live", label: "Live Room", icon: Radio, tagline: "Streams, scenes, chat", accent: "red" },
     ],
   },
   {
     label: "Manage",
     items: [
-      { id: "library", label: "Content Library", icon: Library, tagline: "Media, assets, drafts" },
+      { id: "library", label: "Library & Assets", icon: Library, tagline: "Media, assets & drafts" },
       { id: "analytics", label: "Analytics", icon: BarChart3, tagline: "Growth and revenue" },
       { id: "community", label: "Community", icon: MessageSquare, tagline: "Comments & moderation" },
       { id: "monetization", label: "Monetize", icon: CircleDollarSign, tagline: "Memberships & payouts" },
@@ -56,13 +56,13 @@ const navGroups = [
   {
     label: "Learn",
     items: [
-      { id: "learning", label: "Learning Hub", icon: BookOpen, tagline: "Code courses & resources", accent: "cyan" },
+      { id: "learning", label: "Creator Learning", icon: BookOpen, tagline: "Skills, courses & resources", accent: "cyan" },
     ],
   },
   {
     label: "AI Tools",
     items: [
-      { id: "chat_analyzer", label: "Chat Analyzer", icon: Bot, tagline: "Analyze ChatGPT convos", accent: "green" },
+      { id: "chat_analyzer", label: "Blue Creator", icon: Bot, tagline: "AI help for your work", accent: "green" },
     ],
   },
   {
@@ -213,7 +213,7 @@ function CreatorStudioContent() {
       </div>
 
       <div className={cx("mx-auto grid max-w-[1920px] gap-4 px-3 py-4 pb-24 sm:px-5 lg:px-6 transition-all items-start",
-        sidebarCollapsed ? "lg:grid-cols-[72px_minmax(0,1fr)]" : "lg:grid-cols-[220px_minmax(0,1fr)]")}>
+        sidebarCollapsed ? "lg:grid-cols-[72px_minmax(0,1fr)]" : "lg:grid-cols-[228px_minmax(0,1fr)]")}>
         <CreatorSidebar
           activeSection={activeSection}
           setSection={setSection}
@@ -222,8 +222,9 @@ function CreatorStudioContent() {
           collapsed={sidebarCollapsed}
           setCollapsed={setSidebarCollapsed}
         />
-        <main className="space-y-3 min-w-0 overflow-x-hidden">
+        <main className="space-y-4 min-w-0 overflow-x-hidden">
           {!channel && <ChannelSetupNotice />}
+          <SectionHeader section={section} channelName={channel?.channel_name} channel={channel} />
           {section.id === "dashboard" && <DashboardContent stats={stats} videos={videos} assets={assets} setSection={setSection} channel={channel} user={user} />}
           {section.id === "production" && <ProductionHub />}
           {section.id === "live" && <LiveControlRoom streamForm={streamForm} setStreamForm={setStreamForm} />}
