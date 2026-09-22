@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Lightbulb, TrendingUp, Search, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { toast } from "sonner";
 
 const trendingIdeas = [
@@ -30,7 +30,7 @@ export default function CreatorResourcesHub() {
   const handleGenerateIdeas = async () => {
     setGeneratingIdeas(true);
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await blue.integrations.Core.InvokeLLM({
         prompt: "Generate 5 creative VTuber/streamer content ideas that are trending right now. Be specific and actionable.",
         response_json_schema: { type: "object", properties: { ideas: { type: "array", items: { type: "string" } } } }
       });
