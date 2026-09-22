@@ -12,6 +12,7 @@ import multer from "multer";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { aiRoutes } from "./ai.js";
 
 const app = express();
 const port = Number(process.env.PORT || 8787);
@@ -29,6 +30,7 @@ app.get("/health", (_req, res) => res.json({ ok: true, service: "blue-vstream-ap
 authRoutes(app, db);
 entityRoutes(app, db);
 functionRoutes(app, db);
+aiRoutes(app, db);
 
 const upload = multer({ dest: uploadDir, limits: { fileSize: Number(process.env.BLUE_MAX_UPLOAD_BYTES || 536870912) } });
 mediaRoutes(app, db, uploadDir, upload);
@@ -60,12 +62,5 @@ app.delete("/v1/storage/files/:id", requireAuth(db), async (req,res) => {
   res.status(204).end();
 });
 
-app.post("/v1/ai/transcribe", requireAuth(db), (_req, res) => {
-  res.status(501).json({ message: "No owned transcription provider configured yet" });
-});
-
-app.post("/v1/ai/generate", requireAuth(db), (_req, res) => {
-  res.status(501).json({ message: "No owned AI provider configured yet" });
-});
 
 app.listen(port, () => console.log(`Blue VStream API listening on :${port}`));
