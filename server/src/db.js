@@ -73,6 +73,29 @@ export function createDatabase(dataDir) {
       created_at TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_blue_results_owner ON blue_results(owner_user_id,created_at);
+    CREATE TABLE IF NOT EXISTS blue_permissions (
+      owner_user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      action_level TEXT NOT NULL DEFAULT 'guide',
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS blue_actions (
+      id TEXT PRIMARY KEY,
+      owner_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      conversation_id TEXT REFERENCES blue_conversations(id) ON DELETE SET NULL,
+      action_type TEXT NOT NULL,
+      risk TEXT NOT NULL DEFAULT 'low',
+      status TEXT NOT NULL,
+      requires_approval INTEGER NOT NULL DEFAULT 0,
+      approved_at TEXT,
+      reason TEXT,
+      input_json TEXT NOT NULL DEFAULT '{}',
+      result_json TEXT,
+      verification_status TEXT NOT NULL DEFAULT 'unverified',
+      rollback_json TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_blue_actions_owner ON blue_actions(owner_user_id,created_at);
   `);
   return db;
 }
