@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -277,12 +277,12 @@ export default function CommunityPosts() {
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["community-posts"],
-    queryFn: () => base44.entities.SocialPost.filter({ platform: "youtube" }, "-created_date", 50),
+    queryFn: () => data.SocialPost.filter({ platform: "youtube" }, "-created_date", 50),
     staleTime: 30000,
   });
 
   const createPost = async (postData) => {
-    await base44.entities.SocialPost.create({
+    await data.SocialPost.create({
       title: postData.content.substring(0, 60),
       content: postData.content,
       platform: "youtube",
@@ -310,7 +310,7 @@ export default function CommunityPosts() {
     if (!post) return;
     const meta = safeParseChannel(post.channel);
     meta.likes = newLikes;
-    await base44.entities.SocialPost.update(postId, { channel: JSON.stringify(meta) });
+    await data.SocialPost.update(postId, { channel: JSON.stringify(meta) });
     queryClient.invalidateQueries({ queryKey: ["community-posts"] });
   };
 
@@ -319,7 +319,7 @@ export default function CommunityPosts() {
     if (!post) return;
     const meta = safeParseChannel(post.channel);
     meta.comments = [...(meta.comments || []), { author: user?.full_name || user?.email, text, time: new Date().toISOString() }];
-    await base44.entities.SocialPost.update(postId, { channel: JSON.stringify(meta) });
+    await data.SocialPost.update(postId, { channel: JSON.stringify(meta) });
     queryClient.invalidateQueries({ queryKey: ["community-posts"] });
   };
 
