@@ -1,0 +1,22 @@
+import { Link } from "react-router-dom";
+import { ArrowLeft, BookOpen, CheckCircle2, Circle, Clock3, FileText, GraduationCap, MessageSquare, PlayCircle, Sparkles } from "lucide-react";
+import { useBlue } from "@/lib/BlueContext";
+
+const lessons=[
+ {title:"Welcome & Blender Workspace",detail:"Course expectations, navigation and professional file habits.",time:"25 min"},
+ {title:"Transforms & Object Discipline",detail:"Move, rotate, scale, origins and clean scene organization.",time:"40 min"},
+ {title:"First Modeling Exercise",detail:"Use a provided starter brief to model a simple production-ready prop.",time:"60 min"},
+];
+export default function AcademyLessonPreview(){
+ const blue=useBlue();
+ return <div className="min-h-[calc(100vh-4rem)] bg-[#03080f] text-white">
+  <div className="border-b border-[#12305f]/70 bg-[#06101f]/90"><div className="mx-auto max-w-7xl px-5 py-5 sm:px-8"><Link to="/Academy/Courses/3d-modeling-fundamentals" className="inline-flex items-center gap-2 text-xs font-black text-[#7ddcff]"><ArrowLeft className="h-4 w-4"/> 3D Modeling Fundamentals</Link><div className="mt-4 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.2em] text-[#00c8ff]">Module 01 • Preview</p><h1 className="mt-2 text-3xl font-black">Blender Foundations</h1></div><button onClick={()=>blue?.setMode?.("teacher")} className="rounded-xl bg-[#1e78ff] px-4 py-2.5 text-sm font-black"><Sparkles className="mr-2 inline h-4 w-4"/>Ask Blue Teacher</button></div></div></div>
+  <main className="mx-auto grid max-w-7xl gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[300px_1fr]">
+   <aside className="h-fit rounded-2xl border border-[#12305f]/70 bg-[#06101f]/80 p-4"><div className="mb-4 flex items-center gap-2"><BookOpen className="h-4 w-4 text-[#00c8ff]"/><h2 className="font-black">Lessons</h2></div><div className="space-y-2">{lessons.map((l,i)=><button key={l.title} className={`w-full rounded-xl border p-3 text-left ${i===0?"border-[#1e78ff]/50 bg-[#1e78ff]/10":"border-[#12305f]/50 bg-[#03080f]/50"}`}><div className="flex gap-2">{i===0?<PlayCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#00c8ff]"/>:<Circle className="mt-0.5 h-4 w-4 shrink-0 text-white/20"/>}<div><p className="text-xs font-black">{l.title}</p><p className="mt-1 flex items-center gap-1 text-[10px] text-blue-100/35"><Clock3 className="h-3 w-3"/>{l.time}</p></div></div></button>)}</div></aside>
+   <div className="space-y-6">
+    <section className="rounded-2xl border border-[#12305f]/70 bg-[#06101f]/80 p-6 sm:p-8"><div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.18em] text-[#00c8ff]"><GraduationCap className="h-4 w-4"/> Instructor lesson</div><h2 className="mt-4 text-2xl font-black">Welcome & Blender Workspace</h2><p className="mt-4 max-w-3xl text-sm leading-7 text-blue-100/60">This page is the prototype for instructor-authored lesson material. The production version will support structured text, media, downloadable resources, captions/transcripts and links into the student's professional project workspace.</p><div className="mt-6 rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 text-sm text-amber-100/70">No fake lecture video is inserted here. When faculty authoring exists, this area will render the actual published lesson.</div></section>
+    <section className="grid gap-4 md:grid-cols-2"><div className="rounded-2xl border border-[#12305f]/70 bg-[#06101f]/80 p-5"><div className="flex items-center gap-2"><FileText className="h-4 w-4 text-purple-300"/><h3 className="font-black">Lesson resources</h3></div><p className="mt-3 text-sm leading-6 text-blue-100/50">Starter project, reference images and instructor resources will appear here with versions and access rules.</p><p className="mt-4 text-xs font-black text-white/25">RESOURCE SERVICE BUILDING</p></div><div className="rounded-2xl border border-[#12305f]/70 bg-[#06101f]/80 p-5"><div className="flex items-center gap-2"><MessageSquare className="h-4 w-4 text-[#00c8ff]"/><h3 className="font-black">Blue lesson context</h3></div><p className="mt-3 text-sm leading-6 text-blue-100/50">Blue Teacher will be able to see this lesson and authorized project context, explain concepts, diagnose confusion and use teach-back without pretending to be the professor.</p><div className="mt-4 flex items-center gap-2 text-xs font-black text-emerald-300"><CheckCircle2 className="h-4 w-4"/> Same Blue identity</div></div></section>
+   </div>
+  </main>
+ </div>
+}
