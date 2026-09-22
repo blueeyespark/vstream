@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { Loader2, Sparkles, Target, Calendar, BookOpen } from "lucide-react";
 
 export default function LearningPathGenerator({ onPathGenerated }) {
@@ -16,7 +16,7 @@ export default function LearningPathGenerator({ onPathGenerated }) {
 
     setGenerating(true);
     try {
-      const res = await base44.functions.invoke('generateLearningPath', {
+      const res = await blue.functions.invoke('generateLearningPath', {
         goals,
         skillLevel,
         targetSkills,
