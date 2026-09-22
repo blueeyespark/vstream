@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { motion } from "framer-motion";
 import {
   User, Bell, Palette, Shield, Save, Calendar, Loader2,
@@ -65,7 +65,7 @@ export default function Settings() {
 
   const handleSave = async () => {
     setSaving(true);
-    await base44.auth.updateMe(settings);
+    await blue.auth.updateMe(settings);
     toast.success("Settings saved");
     setSaving(false);
   };
@@ -73,7 +73,7 @@ export default function Settings() {
   const handleSyncNow = async () => {
     setSyncing(true);
     try {
-      await base44.functions.invoke("syncTasksToGoogleCalendar", {});
+      await blue.functions.invoke("syncTasksToGoogleCalendar", {});
       toast.success("Synced to Google Calendar");
     } catch {
       toast.error("Sync failed. Ensure Google Calendar is connected.");
