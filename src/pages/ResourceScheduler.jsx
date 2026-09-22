@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, Zap, CheckCircle, Loader2, UserCheck, AlertTriangle, ChevronRight } from "lucide-react";
@@ -29,12 +29,12 @@ export default function ResourceScheduler() {
   const [loading, setLoading] = useState(false);
   const [applying, setApplying] = useState(null);
 
-  const { data: tasks = [] } = useQuery({ queryKey: ["all-tasks"], queryFn: () => base44.entities.Task.list() });
-  const { data: projects = [] } = useQuery({ queryKey: ["projects"], queryFn: () => base44.entities.Project.list() });
-  const { data: timeEntries = [] } = useQuery({ queryKey: ["time-entries"], queryFn: () => base44.entities.TimeEntry.list() });
+  const { data: tasks = [] } = useQuery({ queryKey: ["all-tasks"], queryFn: () => blue.entities.Task.list() });
+  const { data: projects = [] } = useQuery({ queryKey: ["projects"], queryFn: () => blue.entities.Project.list() });
+  const { data: timeEntries = [] } = useQuery({ queryKey: ["time-entries"], queryFn: () => blue.entities.TimeEntry.list() });
 
   const updateTask = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Task.update(id, data),
+    mutationFn: ({ id, data }) => blue.entities.Task.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["all-tasks"] }),
   });
 
@@ -83,7 +83,7 @@ export default function ResourceScheduler() {
       `${m.email.split('@')[0]} has ${m.load} tasks (${m.load - CAPACITY} over capacity)`
     ).join('\n');
 
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `You are a resource scheduling AI for a project management tool. Analyze team workload and suggest optimal task assignments.
 
 TEAM AVAILABILITY (capacity = ${CAPACITY} tasks/person):
