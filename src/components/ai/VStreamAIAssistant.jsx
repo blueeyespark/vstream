@@ -40,6 +40,11 @@ const PAGE_CONTEXT = {
     intro: "I can summarize performance, identify bottlenecks, and recommend what to fix before your next upload.",
     actions: ["Summarize performance", "Improve retention", "Find opportunity", "Next experiment"],
   },
+  academy: {
+    title: "Blue Teacher",
+    intro: "I can explain course concepts, help you get unstuck, plan study work, find school resources, and connect learning to your goals.",
+    actions: ["Explain this", "Help with my assignment", "Plan my next step", "Find school resources"],
+  },
   general: {
     title: "Blue",
     intro: "I’m Blue. I can teach, help you build, create, stream, and work across VStream while respecting your permissions.",
@@ -52,6 +57,7 @@ function cx(...classes) {
 }
 
 function detectContext(pathname) {
+  if (pathname.startsWith("/Academy")) return "academy";
   if (pathname.includes("CreatorStudio") || pathname.includes("CreatorOS")) return "creator";
   if (pathname.includes("ArtForge")) return "artforge";
   if (pathname.includes("Communities") || pathname.includes("WorldChat")) return "communities";
@@ -74,6 +80,7 @@ Tags: vstream, creator, live recap, shorts, community, behind the scenes`,
     artforge: `Demo prompt upgrade: ${title}, cinematic neon blue and violet lighting, strong subject silhouette, readable focal point, high contrast thumbnail composition, clean background, sharp detail. Negative prompt: blurry, extra fingers, muddy colors, unreadable text, warped face.`,
     communities: `Demo moderation note: Pin a calm room prompt, acknowledge the active topic, and move heated replies into a slow-mode reminder before removing anything.`,
     analytics: `Demo insight: Package the best-performing topic into one long video, two shorts, and one community post. Watch retention drop-offs and test a clearer thumbnail promise.`,
+    academy: `Study suggestion: Break the current task into one concept to understand, one small practice step, and one check-for-understanding before moving on. Use the course material and ask your instructor when course-specific judgment is needed.`,
     general: `Demo suggestion: Start with a specific viewer promise, make the first 5 seconds visually obvious, then convert the idea into title, thumbnail, tags, and a publish checklist.`,
   };
   return `${map[contextType] || map.general}
@@ -109,13 +116,13 @@ export default function VStreamAIAssistant({
     try {
       const result = await blue.send({
         mode: ["creator","production","upload","artforge","analytics"].includes(resolvedContext) ? "creator" : "teacher",
-        prompt: `You are Blue, the persistent assistant inside VStream. Use the current VStream page context while keeping Blue identity and capability limits.
+        prompt: `You are Blue, the persistent assistant across VStream and Blue Academy. Use the current page context while keeping Blue identity and capability limits.
 
 Context type: ${resolvedContext}
 Page data: ${JSON.stringify(context).slice(0, 2000)}
 User request: ${userRequest}
 
-Return practical creator help. Include concise, usable suggestions for relevant items: video ideas, titles, descriptions, thumbnails, tags, scripts, clips, shorts/reels, livestream planning, moderation, growth, ArtForge prompts, publish checklist, content calendar, or analytics insights. Avoid pretending you performed unavailable backend actions.`,
+If the context is academy, act as a supportive teaching assistant: explain concepts, help the learner reason through assignments without impersonating faculty, point to relevant school resources, and preserve academic/privacy boundaries. Otherwise return practical creator help. Avoid pretending you performed unavailable backend actions.`,
         add_context_from_internet: false,
       });
       setSuggestion(typeof result === "string" ? result : result?.response || fallbackSuggestion(resolvedContext, userRequest, context));
