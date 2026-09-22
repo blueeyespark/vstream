@@ -41,8 +41,8 @@ const PAGE_CONTEXT = {
     actions: ["Summarize performance", "Improve retention", "Find opportunity", "Next experiment"],
   },
   general: {
-    title: "VStream AI",
-    intro: "I can help with ideas, titles, thumbnails, clips, livestreams, community, analytics, and publishing.",
+    title: "Blue",
+    intro: "I’m Blue. I can teach, help you build, create, stream, and work across VStream while respecting your permissions.",
     actions: ["Video idea", "Title ideas", "ArtForge prompt", "Publish checklist"],
   },
 };
@@ -92,7 +92,7 @@ export default function VStreamAIAssistant({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState("");
-  const [demoMode, setDemoMode] = useState(false);
+  const [demoMode, setDemoMode] = useState(false);\n  const [conversationId, setConversationId] = useState(null);
 
   const actions = useMemo(() => context.actions || meta.actions, [context.actions, meta.actions]);
 
@@ -102,7 +102,7 @@ export default function VStreamAIAssistant({
     const userRequest = action || input.trim() || actions[0];
     try {
       const result = await platform.ai.generate({
-        prompt: `You are VStream AI, a creator assistant for a social video and live streaming platform.
+        mode: ["creator","production","upload","artforge","analytics"].includes(resolvedContext) ? "creator" : "teacher",\n        conversation_id: conversationId,\n        prompt: `You are Blue, the persistent assistant inside VStream. Use the current VStream page context while keeping Blue identity and capability limits.
 
 Context type: ${resolvedContext}
 Page data: ${JSON.stringify(context).slice(0, 2000)}
@@ -111,7 +111,7 @@ User request: ${userRequest}
 Return practical creator help. Include concise, usable suggestions for relevant items: video ideas, titles, descriptions, thumbnails, tags, scripts, clips, shorts/reels, livestream planning, moderation, growth, ArtForge prompts, publish checklist, content calendar, or analytics insights. Avoid pretending you performed unavailable backend actions.`,
         add_context_from_internet: false,
       });
-      setSuggestion(typeof result === "string" ? result : result?.response || fallbackSuggestion(resolvedContext, userRequest, context));
+      if (result?.conversation_id) setConversationId(result.conversation_id);\n      setSuggestion(typeof result === "string" ? result : result?.response || fallbackSuggestion(resolvedContext, userRequest, context));
     } catch {
       setDemoMode(true);
       setSuggestion(fallbackSuggestion(resolvedContext, userRequest, context));
@@ -141,7 +141,7 @@ Return practical creator help. Include concise, usable suggestions for relevant 
           onClick={() => setOpen(true)}
           className={cx("fixed bottom-20 right-4 z-50 grid h-14 w-14 place-items-center rounded-full border border-[#00c8ff]/50 bg-gradient-to-br from-[#1e78ff] to-[#a855f7] text-white shadow-2xl shadow-blue-950/60 md:bottom-6 md:right-6", open && "hidden")}
           whileHover={{ scale: 1.06 }}
-          aria-label="Open VStream AI"
+          aria-label="Open Blue"
         >
           <Bot className="h-6 w-6" />
         </motion.button>
@@ -172,7 +172,7 @@ function AssistantPanel({ meta, actions, input, setInput, loading, suggestion, d
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-black text-white">{meta.title}</p>
-          <p className="truncate text-xs text-blue-200/45">Context-aware creator help</p>
+          <p className="truncate text-xs text-blue-200/45">One Blue • context-aware help</p>
         </div>
         {onClose && <button onClick={onClose} className="rounded-lg p-1 text-blue-200/45 hover:bg-blue-900/25 hover:text-white"><X className="h-4 w-4" /></button>}
       </div>
