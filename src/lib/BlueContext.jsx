@@ -12,6 +12,7 @@ export function BlueProvider({ children }) {
   const [history,setHistory]=useState([]);
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState(null);
+  const [activeConversation,setActiveConversation]=useState(null);
 
   const refresh=useCallback(async()=>{
     try {
@@ -23,11 +24,15 @@ export function BlueProvider({ children }) {
       setCapabilities(caps);
       setPermissions(perms);
       setHistory(convos?.conversations || []);
+      if (conversationId) {
+        const current=(convos?.conversations || []).find((item)=>item.id===conversationId);
+        if(current) setActiveConversation(current);
+      }
       setError(null);
     } catch (e) {
       setError(e?.message || "Blue is unavailable");
     }
-  },[]);
+  },[conversationId]);
 
   useEffect(()=>{ refresh(); },[refresh]);
 
@@ -39,12 +44,14 @@ export function BlueProvider({ children }) {
 
   const startConversation=useCallback((nextMode=mode)=>{
     setConversationId(null);
+    setActiveConversation(null);
     setMode(nextMode);
   },[mode,setMode]);
 
   const openConversation=useCallback(async(id)=>{
     const data=await platform.ai.conversation(id);
     setConversationId(data.conversation.id);
+    setActiveConversation(data.conversation);
     setMode(data.conversation.mode);
     return data;
   },[setMode]);
@@ -78,10 +85,10 @@ export function BlueProvider({ children }) {
   const value=useMemo(()=>({
     identity:{name:"Blue"},
     modes:MODES,mode,setMode,
-    conversationId,startConversation,openConversation,history,
+    conversationId,activeConversation,startConversation,openConversation,history,
     capabilities,permissions,setPermissionLevel,
     loading,error,send,refresh,
-  }),[mode,setMode,conversationId,startConversation,openConversation,history,capabilities,permissions,setPermissionLevel,loading,error,send,refresh]);
+  }),[mode,setMode,conversationId,activeConversation,startConversation,openConversation,history,capabilities,permissions,setPermissionLevel,loading,error,send,refresh]);
 
   return <BlueContext.Provider value={value}>{children}</BlueContext.Provider>;
 }
