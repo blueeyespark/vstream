@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCreatorOS } from "@/lib/CreatorOSContext";
@@ -52,7 +53,7 @@ export default function MediaLibrary() {
     mutationFn: async (data) => {
       const { file, ...assetData } = data;
       const uploaded = await platform.storage.upload({ file });
-      return platform.entities.MediaAsset.create({
+      return data.MediaAsset.create({
         ...assetData,
         file_url: uploaded.file_url,
         file_size_mb: (file.size / (1024 * 1024)).toFixed(2),
@@ -70,7 +71,7 @@ export default function MediaLibrary() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => platform.entities.MediaAsset.delete(id),
+    mutationFn: (id) => data.MediaAsset.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["creator-os-assets", user?.email] });
       toast.success("Asset deleted");
@@ -80,7 +81,7 @@ export default function MediaLibrary() {
   const favoriteMutation = useMutation({
     mutationFn: (id) => {
       const asset = assets.find(a => a.id === id);
-      return platform.entities.MediaAsset.update(id, { is_favorite: !asset.is_favorite });
+      return data.MediaAsset.update(id, { is_favorite: !asset.is_favorite });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["creator-os-assets", user?.email] });
