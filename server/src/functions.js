@@ -24,6 +24,16 @@ export function functionRoutes(app, db) {
         return res.json({data:{channel},message:"Channel created successfully"});
       }
 
+      if(name==="inviteUser") {
+        const user=sessionUser(req,db);
+        if(!user) return res.status(401).json({error:"Unauthorized"});
+        const email=String(req.body?.email||"").trim().toLowerCase();
+        const role=String(req.body?.role||"user");
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({error:"Valid email is required"});
+        const invite=create(db,"UserInvite",{email,role,status:"pending",invited_by:user.email},user.id);
+        return res.status(201).json({data:{invite},message:"Invitation recorded"});
+      }
+
       if(name==="submitTalentApplication") {
         const b=req.body||{}, email=String(b.email||"").trim().toLowerCase();
         if(!b.full_name||!email||!b.channel_name||!b.bio) return res.status(400).json({error:"Missing required fields"});
