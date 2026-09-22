@@ -23,6 +23,7 @@ import ChronosArchive from './pages/ChronosArchive';
 import MusicEditor from './pages/MusicEditor';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import AcademyHome from './pages/AcademyHome';
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
@@ -46,6 +47,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/Academy" element={<LayoutWrapper currentPageName="Academy"><AcademyHome /></LayoutWrapper>} />
 
       <Route path="/" element={
         <LayoutWrapper currentPageName={mainPageKey}>
