@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { Music, Loader2, Play, Download, Pause, AlertCircle, ExternalLink, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -33,7 +33,7 @@ export default function MusicGeneratorMode({ onAssetSaved }) {
     setIsGenerating(true);
     setResult(null);
     try {
-      const res = await base44.functions.invoke("generateArtForgeAsset", {
+      const res = await blue.functions.invoke("generateArtForgeAsset", {
         mode: "music",
         provider: "elevenlabs",
         prompt: buildPrompt(),
