@@ -36,7 +36,26 @@ app.post("/v1/storage/upload", requireAuth(db), upload.single("file"), async (re
   const ext = path.extname(req.file.originalname);
   const storedName = `${id}${ext}`;
   await fs.rename(req.file.path, path.join(uploadDir, storedName));
-  res.status(201).json({ id, name: req.file.originalname, size: req.file.size, key: storedName, owner_user_id: req.user.id, provider: "owned-local" });
+  const now = new Date().toISOString();
+  db.prepare("INSERT INTO files(id,owner_user_id,stored_name,original_name,mime_type,size_bytes,visibility,created_at) VALUES(?,?,?,?,?,?,?,?)")
+    .run(id,req.user.id,storedName,req.file.originalname,req.file.mimetype || null,req.file.size,"private",now);
+  res.status(201).json({ id, name: req.file.originalname, size: req.file.size, mime_type: req.file.mimetype, url: `/v1/storage/files/${id}`, file_url: `/v1/storage/files/${id}`, visibility: "private", provider: "owned-local" });
+});
+
+app.get("/v1/storage/files/:id", requireAuth(db), async (req,res) => {
+  const file=db.prepare("SELECT * FROM files WHERE id=? AND owner_user_id=?").get(req.params.id,req.user.id);
+  if(!file) return res.status(404).json({message:"File not found"});
+  res.type(file.mime_type || "application/octet-stream");
+  res.setHeader("Content-Disposition", `inline; filename="${encodeURIComponent(file.original_name)}"`);
+  res.sendFile(path.join(uploadDir,file.stored_name));
+});
+
+app.delete("/v1/storage/files/:id", requireAuth(db), async (req,res) => {
+  const file=db.prepare("SELECT * FROM files WHERE id=? AND owner_user_id=?").get(req.params.id,req.user.id);
+  if(!file) return res.status(404).json({message:"File not found"});
+  await fs.rm(path.join(uploadDir,file.stored_name),{force:true});
+  db.prepare("DELETE FROM files WHERE id=? AND owner_user_id=?").run(file.id,req.user.id);
+  res.status(204).end();
 });
 
 app.post("/v1/ai/generate", requireAuth(db), (_req, res) => {
