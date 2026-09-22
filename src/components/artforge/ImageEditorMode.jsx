@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { Upload, Wand2, Loader2, Download, RefreshCw, ExternalLink, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
@@ -32,7 +32,7 @@ export default function ImageEditorMode({ onAssetSaved }) {
     if (!file) return;
     setIsUploading(true);
     try {
-      const res = await base44.integrations.Core.UploadFile({ file });
+      const res = await blue.integrations.Core.UploadFile({ file });
       setSourceImage(res.file_url);
       toast.success("Image uploaded");
     } catch {
@@ -53,7 +53,7 @@ export default function ImageEditorMode({ onAssetSaved }) {
     setIsEditing(true);
     setResult(null);
     try {
-      const res = await base44.functions.invoke("generateArtForgeAsset", {
+      const res = await blue.functions.invoke("generateArtForgeAsset", {
         mode: "image_edit",
         provider: "fal",
         prompt: editPrompt.trim(),
