@@ -153,9 +153,16 @@ export function aiRoutes(app, db) {
     try {
       const lastUser=[...messages].reverse().find(x=>x.role==="user")?.content || "";
       conversationId=ensureConversation(db,req.user.id,req.body?.conversation_id,mode,lastUser);
+      const hasExisting=Boolean(req.body?.conversation_id);
+      const storedHistory=hasExisting
+        ? db.prepare("SELECT role,content FROM blue_messages WHERE conversation_id=? AND owner_user_id=? ORDER BY created_at DESC LIMIT 30").all(conversationId,req.user.id).reverse()
+        : [];
       saveMessage(db,conversationId,req.user.id,"user",lastUser);
+      const providerMessages=hasExisting
+        ? [...storedHistory,{role:"user",content:lastUser}]
+        : messages;
       const memories=relevantMemory(db,req.user.id,mode);
-      const result=await generate(providerConfig(), mode, messages, memories);
+      const result=await generate(providerConfig(), mode, providerMessages, memories);
       const saved=saveMessage(db,conversationId,req.user.id,"assistant",result.response,result.provider,result.model);
       return res.json({...result,conversation_id:conversationId,message_id:saved.id,memory_context:{count:memories.length,scopes:memoryScopesForMode(mode)}});
     } catch (error) {
