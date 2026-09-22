@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { format, differenceInDays, isPast } from "date-fns";
 import { 
   Brain, AlertTriangle, FileText, 
@@ -36,7 +36,7 @@ export default function AIProjectInsights({
     const metrics = calculateMetrics();
     
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await blue.integrations.Core.InvokeLLM({
         prompt: `Analyze this project portfolio and provide insights:
 
 Projects: ${projects?.length || 0}
@@ -127,7 +127,7 @@ Provide:
     const metrics = calculateMetrics();
     
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await blue.integrations.Core.InvokeLLM({
         prompt: `Generate a professional project status report for the following data:
 
 Date: ${format(new Date(), 'MMMM d, yyyy')}
