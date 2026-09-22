@@ -36,6 +36,11 @@ export const platform = {
       }),
   },
   ai: {
+    transcribe: (request) =>
+      blueRequest("/v1/ai/transcribe", {
+        method: "POST",
+        body: JSON.stringify(request),
+      }),
     generate: (request) =>
       blueRequest("/v1/ai/generate", {
         method: "POST",
