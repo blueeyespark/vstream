@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Gift, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 
 const TIERS = [
   { amount: 1, label: "$1", color: "#1e90ff" },
@@ -34,7 +34,7 @@ export default function SuperChatButton({ video, channel, user }) {
       const tier = TIERS.find(t => t.amount === selectedTier);
       
       // Create super chat record
-      const superChat = await base44.entities.SuperChat.create({
+      const superChat = await blue.entities.SuperChat.create({
         channel_id: channel.id,
         video_id: video?.id,
         sender_email: user.email,
@@ -47,7 +47,7 @@ export default function SuperChatButton({ video, channel, user }) {
       });
 
       // Process payment
-      const payment = await base44.functions.invoke("processPayment", {
+      const payment = await blue.functions.invoke("processPayment", {
         amount: selectedTier,
         currency: "USD",
         recipient: channel.creator_email,
@@ -56,7 +56,7 @@ export default function SuperChatButton({ video, channel, user }) {
 
       if (payment.data?.success) {
         // Update super chat to completed
-        await base44.entities.SuperChat.update(superChat.id, {
+        await blue.entities.SuperChat.update(superChat.id, {
           payment_status: "completed",
           transaction_id: payment.data.transaction_id,
         });

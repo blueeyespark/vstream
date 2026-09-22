@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { X, ThumbsUp, ThumbsDown, Share2, Bell, MoreHorizontal, ChevronUp, ChevronDown, Settings, Clock } from "lucide-react";
 import MerchShelf from "@/components/video/MerchShelf";
@@ -66,7 +66,7 @@ export default function VideoPlayerModal({ video, channel, relatedVideos = [], c
   }, [authUser]);
 
   useEffect(() => {
-    base44.entities.VideoComment.filter({ video_id: video.id }, "-created_date", 20)
+    data.VideoComment.filter({ video_id: video.id }, "-created_date", 20)
       .then(setComments).catch(() => {});
   }, [video.id]);
 
@@ -115,7 +115,7 @@ export default function VideoPlayerModal({ video, channel, relatedVideos = [], c
 
   const submitComment = async () => {
     if (!commentText.trim() || !user) return;
-    const c = await base44.entities.VideoComment.create({
+    const c = await data.VideoComment.create({
       video_id: video.id,
       channel_id: video.channel_id,
       author_email: user.email,

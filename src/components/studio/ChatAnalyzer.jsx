@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload, Link2, Send, Loader2, Copy,
@@ -63,7 +63,7 @@ export default function ChatAnalyzer() {
     setIsFetchingLink(true);
     setLinkFallback(false);
     try {
-      const res = await base44.functions.invoke("fetchChatGPTShare", { url: linkUrl.trim() });
+      const res = await blue.functions.invoke("fetchChatGPTShare", { url: linkUrl.trim() });
       const data = res?.data || res;
       if (data?.text && data.messageCount > 0) {
         setChatText(data.text);
@@ -107,7 +107,7 @@ export default function ChatAnalyzer() {
     setTimeout(scrollToBottom, 50);
 
     try {
-      const res = await base44.integrations.Core.InvokeLLM({
+      const res = await blue.integrations.Core.InvokeLLM({
         prompt: `You are analyzing a ChatGPT conversation. Answer the user's question based only on what's in the conversation. Be clear, structured, and concise. Use bullet points when appropriate.
 
 === CONVERSATION ===

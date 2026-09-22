@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Sparkles, TrendingUp, Heart, Play } from "lucide-react";
@@ -14,12 +14,12 @@ export default function DiscoveryRecommendations() {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-discovery"],
-    queryFn: () => base44.entities.Video.list("-created_date", 40),
+    queryFn: () => data.Video.list("-created_date", 40),
   });
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-discovery"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => data.Channel.list(),
   });
 
   const channelMap = channels.reduce((acc, c) => { acc[c.id] = c; return acc; }, {});

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -31,7 +31,7 @@ export default function TimeTracker({ taskId, taskTitle }) {
   }, [isRunning, sessionStart]);
 
   const createTimeEntryMutation = useMutation({
-    mutationFn: (data) => base44.entities.TimeEntry.create(data),
+    mutationFn: (data) => data.TimeEntry.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["time_entries"] });
       toast.success("Time tracked successfully");

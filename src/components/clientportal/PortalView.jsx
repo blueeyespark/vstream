@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -19,17 +19,17 @@ export default function PortalView({ portal, onClose, isPreview = false }) {
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['portal-tasks', portal.project_id],
-    queryFn: () => base44.entities.Task.filter({ project_id: portal.project_id }),
+    queryFn: () => blue.entities.Task.filter({ project_id: portal.project_id }),
     enabled: !!portal.project_id,
   });
 
   const { data: comments = [] } = useQuery({
     queryKey: ['portal-comments', portal.id],
-    queryFn: () => base44.entities.ClientComment.filter({ portal_id: portal.id }, '-created_date'),
+    queryFn: () => blue.entities.ClientComment.filter({ portal_id: portal.id }, '-created_date'),
   });
 
   const commentMutation = useMutation({
-    mutationFn: (data) => base44.entities.ClientComment.create(data),
+    mutationFn: (data) => blue.entities.ClientComment.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['portal-comments', portal.id] });
       queryClient.invalidateQueries({ queryKey: ['client-comments'] });
@@ -39,7 +39,7 @@ export default function PortalView({ portal, onClose, isPreview = false }) {
   });
 
   const approvalMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.ClientComment.update(id, { approval_status: status }),
+    mutationFn: ({ id, status }) => blue.entities.ClientComment.update(id, { approval_status: status }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['portal-comments', portal.id] }),
   });
 

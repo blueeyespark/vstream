@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Bot, Send, Loader2, CheckCircle, Zap, MessageSquare, Hash, AlertCircle } from "lucide-react";
@@ -27,8 +27,8 @@ export default function DiscordBot() {
   const [connected, setConnected] = useState(false);
   const [testResult, setTestResult] = useState(null);
 
-  const { data: tasks = [] } = useQuery({ queryKey: ['all-tasks'], queryFn: () => base44.entities.Task.list() });
-  const { data: projects = [] } = useQuery({ queryKey: ['projects'], queryFn: () => base44.entities.Project.list() });
+  const { data: tasks = [] } = useQuery({ queryKey: ['all-tasks'], queryFn: () => blue.entities.Task.list() });
+  const { data: projects = [] } = useQuery({ queryKey: ['projects'], queryFn: () => blue.entities.Project.list() });
 
   useEffect(() => {
     if (botToken) localStorage.setItem('discord_bot_token', botToken);
@@ -88,7 +88,7 @@ export default function DiscordBot() {
   const sendAIUpdate = async () => {
     setSending(true);
     const overdue = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'completed').length;
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `You are Planify AI posting a Discord update. Context: ${projects.filter(p => p.status !== 'completed').length} active projects, ${tasks.filter(t => t.status !== 'completed').length} open tasks, ${overdue} overdue. Write a short, helpful Discord-formatted team update (max 150 words). Use emojis. Start with "📊 **Daily Standup Update**".`,
     });
     const msg = typeof result === 'string' ? result : (result?.response || '📊 All systems operational!');

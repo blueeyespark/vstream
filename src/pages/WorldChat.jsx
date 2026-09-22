@@ -30,9 +30,10 @@ const communities = [
   { id: "creator-lab", name: "Creator Lab", short: "CL", status: "Creators", description: "Planning, growth, thumbnails, clips, and collaboration rooms.", color: "from-[#a855f7] to-[#1e78ff]" },
   { id: "artforge-circle", name: "ArtForge Circle", short: "AI", status: "AI Lab", description: "Prompt jams, asset reviews, and generative workflow critique.", color: "from-[#00c8ff] to-[#a855f7]" },
   { id: "blue-room", name: "Blue Room Radio", short: "BR", status: "Live", description: "Music, late-night streams, stage rooms, and community watch parties.", color: "from-red-500 to-[#a855f7]" },
+  { id: "academy", name: "Blue Academy", short: "BA", status: "Students", description: "Campus commons for study groups, clubs, course communities, events, and student life.", color: "from-[#00c8ff] to-[#7c3aed]" },
 ];
 
-const channelGroups = [
+const publicChannelGroups = [
   {
     title: "Text Channels",
     channels: [
@@ -60,7 +61,26 @@ const channelGroups = [
   },
 ];
 
+const academyChannelGroups = [
+  { title:"Campus", channels:[
+    { id:"academy-commons", label:"academy-commons", icon:Hash, unread:4 },
+    { id:"academy-announcements", label:"announcements", icon:Megaphone },
+    { id:"academy-events", label:"campus-events", icon:CalendarDays },
+  ]},
+  { title:"Learning & Community", channels:[
+    { id:"study-hall", label:"study-hall", icon:BookOpen },
+    { id:"clubs", label:"clubs-and-groups", icon:Users },
+    { id:"academy-stage", label:"student-stage", icon:Mic2, live:true },
+  ]},
+];
+
 const channelData = {
+  "academy-commons": {title:"academy-commons",description:"The shared student commons for Blue Academy.",stats:[["Space","Campus"],["Access","Students"],["Status","Preview"]],pins:["Course records stay in Academy, not public chat.","Use study-hall for peer learning and clubs-and-groups for student organizations."],composer:"Message academy-commons",messages:[message("Academy Guide","@academy","Staff","PREVIEW","This is the future campus commons. Course spaces, clubs and study groups will use real Academy membership and permissions when the backend is connected.","Now",[["welcome",12]],true)],members:["Academy Guide","Students","Club Leaders"],events:["Campus welcome","Student organization fair"]},
+  "academy-announcements": {title:"announcements",description:"Official Blue Academy notices.",stats:[["Mode","Read only"],["Scope","Academy"],["Status","Preview"]],pins:["Official notices will come from authorized school roles."],composer:"Announcements are read-only",messages:[message("Academy Guide","@academy","Staff","PREVIEW","Official school announcements will live here without mixing them into public VStream communities.","Today",[["notice",8]],true)],members:["Academy Guide"],events:["Academic notices"]},
+  "academy-events": {title:"campus-events",description:"Student life, workshops, showcases and campus events.",stats:[["Type","Campus"],["Access","Students"],["Status","Preview"]],pins:["Events will connect to the Academy calendar."],composer:"Discuss campus events",messages:[message("Academy Guide","@academy","Staff","PREVIEW","Clubs, workshops, creator showcases and study events will be discoverable here and on the Academy calendar.","Today",[["going",15]],true)],members:["Students","Club Leaders"],events:["Club fair","Creator showcase"]},
+  "study-hall": {title:"study-hall",description:"Peer learning and study groups across Academy.",stats:[["Type","Study"],["Blue","Optional"],["Status","Preview"]],pins:["Blue can support learning; it does not replace instructors."],composer:"Message study-hall",messages:[message("Academy Guide","@academy","Staff","PREVIEW","Use study spaces for peer questions, study sessions and course-adjacent collaboration. Private grades and submissions stay out of chat.","Today",[["study",9]],true)],members:["Students","Study Groups"],events:["Open study session"]},
+  "clubs": {title:"clubs-and-groups",description:"Discover and organize student clubs and communities.",stats:[["Type","Student life"],["Access","Students"],["Status","Preview"]],pins:["Club spaces will have their own membership and moderation."],composer:"Message clubs-and-groups",messages:[message("Academy Guide","@academy","Staff","PREVIEW","This area will help students find clubs, creator groups, gaming communities and other student organizations.","Today",[["join",14]],true)],members:["Students","Club Leaders"],events:["Organization fair"]},
+  "academy-stage": {title:"student-stage",description:"Voice/stage space for campus talks, club events and student presentations.",stats:[["Mode","Stage"],["Access","Students"],["Status","Preview"]],pins:["Voice is a preview until realtime infrastructure is connected."],composer:"Post a stage question",messages:[message("Academy Guide","@academy","Staff","PREVIEW","Future student stages can host talks, club meetings, critiques and presentations with scoped moderation.","Now",[["stage",7]],true)],members:["Students","Speakers"],events:["Student talk"]},
   "world-chat": {
     title: "world-chat",
     description: "Public VStream lobby for platform-wide conversation.",
@@ -228,7 +248,7 @@ function ServerSidebar({ activeCommunity, onSelectCommunity }) {
   );
 }
 
-function ChannelList({ activeChannel, setActiveChannel, community }) {
+function ChannelList({ activeChannel, setActiveChannel, community, groups }) {
   return (
     <aside className="hidden w-72 shrink-0 border-r border-[#12305f] bg-[#06101f]/86 lg:flex lg:flex-col">
       <div className="border-b border-[#12305f] p-4">
@@ -245,7 +265,7 @@ function ChannelList({ activeChannel, setActiveChannel, community }) {
         </div>
       </div>
       <div className="flex-1 overflow-y-auto p-3">
-        {channelGroups.map((group) => (
+        {groups.map((group) => (
           <div key={group.title} className="mb-4">
             <div className="mb-1 flex items-center gap-1 px-2 text-[11px] font-black uppercase tracking-[0.18em] text-blue-300/38">
               <ChevronDown className="h-3 w-3" /> {group.title}
@@ -420,7 +440,8 @@ export default function WorldChat() {
 
   const community = communities.find((item) => item.id === activeCommunity) || communities[0];
   const data = channelData[activeChannel] || channelData["world-chat"];
-  const flatChannels = useMemo(() => channelGroups.flatMap((group) => group.channels), []);
+  const channelGroups = activeCommunity === "academy" ? academyChannelGroups : publicChannelGroups;
+  const flatChannels = useMemo(() => channelGroups.flatMap((group) => group.channels), [activeCommunity]);
   const messages = [...data.messages, ...(localMessages[activeChannel] || [])];
 
   const handleCommunitySelect = (communityId) => {
@@ -429,6 +450,7 @@ export default function WorldChat() {
     if (communityId === "creator-lab") setActiveChannel("creator-help");
     if (communityId === "artforge-circle") setActiveChannel("pinned-drops");
     if (communityId === "world") setActiveChannel("world-chat");
+    if (communityId === "academy") setActiveChannel("academy-commons");
   };
 
   const handleSend = (content) => {
@@ -450,7 +472,7 @@ export default function WorldChat() {
       <div className="fixed inset-0 -z-10 bg-[linear-gradient(rgba(30,120,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(30,120,255,0.06)_1px,transparent_1px)] bg-[size:42px_42px]" />
       <div className="flex min-h-[calc(100vh-4rem)] flex-col overflow-hidden border-y border-[#12305f]/60 lg:flex-row">
         <ServerSidebar activeCommunity={activeCommunity} onSelectCommunity={handleCommunitySelect} />
-        <ChannelList activeChannel={activeChannel} setActiveChannel={setActiveChannel} community={community} />
+        <ChannelList activeChannel={activeChannel} setActiveChannel={setActiveChannel} community={community} groups={channelGroups} />
         <main className="flex min-w-0 flex-1 flex-col">
           <div className="border-b border-[#12305f] bg-[#03080f]/90 px-4 py-3 lg:hidden">
             <div className="mb-3 flex items-center justify-between">

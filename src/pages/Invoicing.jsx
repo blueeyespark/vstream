@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { FileText, DollarSign, Download, Plus, Loader2, CheckCircle, Clock, Mail } from "lucide-react";
@@ -34,15 +34,15 @@ export default function Invoicing() {
 
   const { data: timeEntries = [] } = useQuery({
     queryKey: ["time-entries"],
-    queryFn: () => base44.entities.TimeEntry.list("-created_date"),
+    queryFn: () => blue.entities.TimeEntry.list("-created_date"),
   });
   const { data: projects = [] } = useQuery({
     queryKey: ["projects"],
-    queryFn: () => base44.entities.Project.list(),
+    queryFn: () => blue.entities.Project.list(),
   });
   const { data: invoices = [] } = useQuery({
     queryKey: ["invoices"],
-    queryFn: () => base44.entities.Budget.filter({ type: "income", category: "invoice" }, "-created_date"),
+    queryFn: () => blue.entities.Budget.filter({ type: "income", category: "invoice" }, "-created_date"),
   });
 
   // Group billable time by project
@@ -150,7 +150,7 @@ export default function Invoicing() {
     );
     doc.save(`${invoiceNum}-${selectedStats.project.name.replace(/\s+/g, "-")}.pdf`);
     // Record as income
-    await base44.entities.Budget.create({
+    await blue.entities.Budget.create({
       title: `Invoice ${invoiceNum} — ${selectedStats.project.name}`,
       amount,
       type: "income",
@@ -169,7 +169,7 @@ export default function Invoicing() {
     setSending(stats.project.id);
     const invoiceNum = `INV-${Date.now().toString().slice(-6)}`;
     const emailBody = `Hi,\n\nPlease find attached invoice ${invoiceNum} for ${stats.project.name}.\n\nSummary:\n• Hours worked: ${stats.hours.toFixed(2)}h\n• Total amount: ${fmtMoney(stats.amount)}\n• Due date: ${format(new Date(Date.now() + 30 * 86400000), "MMMM d, yyyy")}\n\nThank you for your business!\n\n— Planify Invoicing`;
-    await base44.integrations.Core.SendEmail({
+    await blue.integrations.Core.SendEmail({
       to: clientEmail || "client@example.com",
       subject: `Invoice ${invoiceNum} — ${stats.project.name}`,
       body: emailBody,

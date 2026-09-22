@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCreatorOS } from "@/lib/CreatorOSContext";
@@ -43,7 +43,7 @@ function CreateChannelForm({ userEmail, onCreated, onCancel }) {
   const handleImageUpload = async (file, type) => {
     if (type === "avatar") setUploadingAvatar(true);
     else setUploadingBanner(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await platform.storage.upload({ file });
     if (type === "avatar") { setAvatarUrl(file_url); setUploadingAvatar(false); }
     else { setBannerUrl(file_url); setUploadingBanner(false); }
   };
@@ -53,7 +53,7 @@ function CreateChannelForm({ userEmail, onCreated, onCancel }) {
     setCreating(true);
     setError("");
     try {
-      const response = await base44.functions.invoke("createChannel", {
+      const response = await platform.functions.invoke("createChannel", {
         channel_name: channelName.trim(),
         description,
       });
@@ -64,7 +64,7 @@ function CreateChannelForm({ userEmail, onCreated, onCancel }) {
         if (avatarUrl) updates.avatar_url = avatarUrl;
         if (bannerUrl) updates.banner_url = bannerUrl;
         if (Object.keys(updates).length > 0) {
-          await base44.entities.Channel.update(created.id, updates);
+          await platform.entities.Channel.update(created.id, updates);
         }
       }
       setCreating(false);

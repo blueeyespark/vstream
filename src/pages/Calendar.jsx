@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -101,11 +101,11 @@ export default function CalendarPage() {
   const [showEventDetails, setShowEventDetails] = useState(false);
   const { refetch: refetchTasks } = useQuery({
     queryKey: ['tasks'],
-    queryFn: () => base44.entities.Task.list('-due_date'),
+    queryFn: () => data.Task.list('-due_date'),
   });
   const { refetch: refetchMeetings } = useQuery({
     queryKey: ['meetings'],
-    queryFn: () => base44.entities.Meeting.list('-date'),
+    queryFn: () => data.Meeting.list('-date'),
   });
 
   useEffect(() => {
@@ -114,22 +114,22 @@ export default function CalendarPage() {
 
   const { data: tasks = [], refetch: refetchTasksData } = useQuery({
     queryKey: ['tasks'],
-    queryFn: () => base44.entities.Task.list('-due_date'),
+    queryFn: () => data.Task.list('-due_date'),
   });
 
   const { data: meetings = [], refetch: refetchMeetingsData } = useQuery({
     queryKey: ['meetings'],
-    queryFn: () => base44.entities.Meeting.list('-date'),
+    queryFn: () => data.Meeting.list('-date'),
   });
 
   const { data: blogPosts = [] } = useQuery({
     queryKey: ['blogPosts'],
-    queryFn: () => base44.entities.BlogPost.list('-created_date'),
+    queryFn: () => data.BlogPost.list('-created_date'),
   });
 
   const { data: socialPosts = [] } = useQuery({
     queryKey: ['socialPosts'],
-    queryFn: () => base44.entities.SocialPost.list('-posted_date'),
+    queryFn: () => data.SocialPost.list('-posted_date'),
   });
 
   const getTasksForDay = (day) => {

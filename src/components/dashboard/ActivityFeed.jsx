@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { Activity, CheckSquare, Clock, ArrowRight, Plus } from "lucide-react";
@@ -22,14 +22,14 @@ export default function ActivityFeed({ projects = [], userEmail }) {
 
   const { data: logs = [], isLoading } = useQuery({
     queryKey: ["activity-logs"],
-    queryFn: () => base44.entities.ActivityLog.list("-created_date", 100),
+    queryFn: () => blue.entities.ActivityLog.list("-created_date", 100),
     refetchInterval: 30000,
   });
 
   // Also pull recent time entries as activity
   const { data: timeEntries = [] } = useQuery({
     queryKey: ["activity-time-entries"],
-    queryFn: () => base44.entities.TimeEntry.list("-created_date", 30),
+    queryFn: () => blue.entities.TimeEntry.list("-created_date", 30),
     refetchInterval: 60000,
   });
 

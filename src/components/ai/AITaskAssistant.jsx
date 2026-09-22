@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { 
   Sparkles, Users, MessageSquare, FileText, 
   Loader2, ChevronRight, ListTree, Brain
@@ -64,7 +64,7 @@ export default function AITaskAssistant({
     setLoading(true);
     setResult(null);
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await blue.integrations.Core.InvokeLLM({
         prompt: `Break down this goal into actionable tasks with clear titles and descriptions. Goal: "${input}"
         
 Consider:
@@ -115,7 +115,7 @@ Consider:
 
       const unassignedTasks = tasks.filter(t => !t.assigned_to && t.status !== 'completed' && t.status !== 'todo');
 
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await blue.integrations.Core.InvokeLLM({
         prompt: `Suggest task assignments based on workload balance.
 
 Team workload:
@@ -165,7 +165,7 @@ Assign tasks to balance workload. Consider task priority - high priority tasks s
     setLoading(true);
     setResult(null);
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await blue.integrations.Core.InvokeLLM({
         prompt: `Summarize the key points and decisions from these discussions:
 
 ${allContent.slice(-50).join('\n')}
@@ -199,7 +199,7 @@ Provide:
     setLoading(true);
     setResult(null);
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await blue.integrations.Core.InvokeLLM({
         prompt: `Generate a detailed task description from these brief notes: "${input}"
         
 Include:

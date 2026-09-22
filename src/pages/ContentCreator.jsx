@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { motion } from "framer-motion";
 import {
   Calendar, Lightbulb, BarChart3, Layout, Users,
@@ -25,17 +25,17 @@ export default function ContentCreator() {
 
   const { data: blogPosts = [] } = useQuery({
     queryKey: ["blogPosts"],
-    queryFn: () => base44.entities.BlogPost.list("-created_date"),
+    queryFn: () => blue.entities.BlogPost.list("-created_date"),
   });
 
   const { data: socialPosts = [] } = useQuery({
     queryKey: ["socialPosts"],
-    queryFn: () => base44.entities.SocialPost.list("-posted_date"),
+    queryFn: () => blue.entities.SocialPost.list("-posted_date"),
   });
 
   const { data: performance = [] } = useQuery({
     queryKey: ["contentPerformance"],
-    queryFn: () => base44.entities.ContentPerformance.list("-published_date"),
+    queryFn: () => blue.entities.ContentPerformance.list("-published_date"),
   });
 
   const totalContent = blogPosts.length + socialPosts.length;

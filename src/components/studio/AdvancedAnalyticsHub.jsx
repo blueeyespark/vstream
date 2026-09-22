@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, TrendingUp, Activity } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useQuery } from "@tanstack/react-query";
 import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
@@ -27,7 +27,7 @@ export default function AdvancedAnalyticsHub() {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 50),
+    queryFn: () => data.Video.list("-created_date", 50),
   });
 
   const totalViews = videos.reduce((s, v) => s + (v.view_count || 0), 0);

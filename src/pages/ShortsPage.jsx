@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Share2, Music, ChevronUp, ChevronDown, X, ArrowLeft } from "lucide-react";
@@ -111,14 +111,14 @@ export default function ShortsPage({ onClose }) {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["shorts"],
-    queryFn: () => base44.entities.Video.list("-created_date", 50),
+    queryFn: () => data.Video.list("-created_date", 50),
     select: (data) => data.filter(v => v.status !== "deleted" && v.duration_seconds > 0 && v.duration_seconds < 90),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => data.Channel.list(),
     staleTime: 5 * 60 * 1000,
   });
 

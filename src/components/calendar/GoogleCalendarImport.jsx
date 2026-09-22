@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
 import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -17,13 +18,13 @@ export default function GoogleCalendarImport({ open, onOpenChange, onImported })
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.list(),
+    queryFn: () => data.Project.list(),
   });
 
   const handleImport = async () => {
     setLoading(true);
     setResult(null);
-    const res = await base44.functions.invoke('importGoogleCalendar', {
+    const res = await platform.functions.invoke('importGoogleCalendar', {
       project_id: projectId || undefined,
       days_ahead: daysAhead,
     });

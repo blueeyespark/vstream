@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import BudgetPage from "./Budget";
 import TimeTracking from "./TimeTracking";
 import Invoicing from "./Invoicing";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -52,27 +52,27 @@ export default function ReportsPage() {
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.list(),
+    queryFn: () => data.Project.list(),
   });
 
   const { data: planners = [] } = useQuery({
     queryKey: ['planners'],
-    queryFn: () => base44.entities.Planner.list(),
+    queryFn: () => data.Planner.list(),
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks'],
-    queryFn: () => base44.entities.Task.list(),
+    queryFn: () => data.Task.list(),
   });
 
   const { data: budget = [] } = useQuery({
     queryKey: ['budget'],
-    queryFn: () => base44.entities.Budget.list(),
+    queryFn: () => data.Budget.list(),
   });
 
   const { data: timeEntries = [] } = useQuery({
     queryKey: ['time-entries'],
-    queryFn: () => base44.entities.TimeEntry.list(),
+    queryFn: () => data.TimeEntry.list(),
   });
 
   const [analyticsRange, setAnalyticsRange] = useState("30");

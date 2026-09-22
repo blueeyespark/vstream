@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Moon, Sun, Settings, LogOut, Search,
   Tv, Users, Scan, LayoutDashboard,
-  Radio, PlaySquare, ChevronRight, MessageSquare, Bookmark, ListVideo, Mic2
+  Radio, PlaySquare, ChevronRight, MessageSquare, Bookmark, ListVideo, Mic2, GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 /** @type {any} */
@@ -101,7 +101,13 @@ export default function TopNav({
           </Link>
         </div>
 
-        {/* Center: search */}
+        {/* Center: platform switcher + search */}
+        <div className="hidden lg:flex items-center gap-1 rounded-xl border border-[#12305f]/60 bg-[#06101f]/70 p-1">
+          <Link to="/" className={`rounded-lg px-3 py-1.5 text-xs font-black transition ${currentPageName !== "Academy" && currentPageName !== "CreatorOS" ? "bg-[#1e78ff]/20 text-[#7ddcff]" : "text-blue-100/45 hover:text-white"}`}>VStream</Link>
+          <Link to="/CreatorOS" className={`rounded-lg px-3 py-1.5 text-xs font-black transition ${currentPageName === "CreatorOS" ? "bg-[#1e78ff]/20 text-[#7ddcff]" : "text-blue-100/45 hover:text-white"}`}>CreatorOS</Link>
+          <Link to="/Academy" className={`rounded-lg px-3 py-1.5 text-xs font-black transition ${currentPageName === "Academy" ? "bg-purple-500/20 text-purple-200" : "text-blue-100/45 hover:text-white"}`}>Academy</Link>
+        </div>
+
         <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl items-center gap-2 rounded-full border border-[#12305f] bg-[#030810]/78 px-3 py-2">
           <Search className="h-4 w-4 text-blue-300/45" />
           <input
@@ -199,6 +205,10 @@ export default function TopNav({
                   {/* Creator actions */}
                   {user?.email && (
                     <div className="border-t border-[#0d1820] py-1">
+                      <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Spaces</p>
+                      <MenuItem icon={GraduationCap} label="Blue Academy" to="/Academy" onClick={() => setAccountOpen(false)} />
+                    </div>
+                    <div className="border-t border-[#0d1820] py-1">
                       <p className="text-xs font-bold text-blue-400/30 uppercase tracking-widest px-4 py-1.5">Creator</p>
                       <MenuButton icon={Mic2} label="Creator OS" onClick={() => openCreatorTool("/CreatorOS")} />
                       <MenuItem icon={Radio} label="Go Live Now" to="/StreamerDashboard" onClick={() => setAccountOpen(false)} />
@@ -280,6 +290,7 @@ export default function TopNav({
                 { label: "Live", icon: Radio, to: "/Live" },
                 { label: "Shorts/Reels", icon: PlaySquare, to: "/Shorts" },
                 { label: "Communities", icon: MessageSquare, to: "/Communities" },
+                { label: "Blue Academy", icon: GraduationCap, to: "/Academy" },
                 { label: "Saved", icon: Bookmark, to: "/SavedVideos" },
                 { label: "Playlists", icon: ListVideo, to: "/Playlists" },
                 ...(user ? [

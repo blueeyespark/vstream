@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { format, subDays, isToday, parseISO } from "date-fns";
 
 export default function ReminderChecker({ tasks, projectName, user }) {
@@ -61,7 +61,7 @@ export default function ReminderChecker({ tasks, projectName, user }) {
             
             try {
               // Create notification
-              await base44.entities.Notification.create({
+              await blue.entities.Notification.create({
                 user_email: assignee,
                 type: "deadline_approaching",
                 title: `Reminder: ${task.title}`,
@@ -76,7 +76,7 @@ export default function ReminderChecker({ tasks, projectName, user }) {
               const updatedReminders = [...task.reminders];
               updatedReminders[i] = { ...reminder, sent: true };
               
-              await base44.entities.Task.update(task.id, {
+              await blue.entities.Task.update(task.id, {
                 reminders: updatedReminders
               });
             } catch (error) {

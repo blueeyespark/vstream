@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, Check, 
   User, Crown, UserPlus
@@ -30,7 +31,7 @@ function InviteDialog() {
       return;
     }
     setLoading(true);
-    await base44.users.inviteUser(email.trim(), "user");
+    await platform.functions.invoke("inviteUser", { email: email.trim(), role: "user" });
     setLoading(false);
     setSent(true);
     toast.success(`Invite sent to ${email.trim()}`);
@@ -89,7 +90,7 @@ export default function WorkspaceSelector({ currentWorkspace, onWorkspaceChange,
 
   const { data: workspaces = [] } = useQuery({
     queryKey: ['workspaces', user?.email],
-    queryFn: () => base44.entities.Workspace.list(),
+    queryFn: () => data.Workspace.list(),
     enabled: !!user?.email,
   });
 
@@ -104,7 +105,7 @@ export default function WorkspaceSelector({ currentWorkspace, onWorkspaceChange,
 
   // Create personal workspace if it doesn't exist
   const createPersonalMutation = useMutation({
-    mutationFn: () => base44.entities.Workspace.create({
+    mutationFn: () => data.Workspace.create({
       name: "My Workspace",
       owner_email: user?.email,
       is_personal: true,

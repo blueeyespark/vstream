@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { X, Send } from "lucide-react";
@@ -13,13 +13,13 @@ export default function PlannerChat({ plannerId, user, onClose }) {
 
   const { data: messages = [] } = useQuery({
     queryKey: ['chat-messages', plannerId],
-    queryFn: () => base44.entities.ChatMessage.filter({ planner_id: plannerId }, 'created_date'),
+    queryFn: () => blue.entities.ChatMessage.filter({ planner_id: plannerId }, 'created_date'),
     refetchInterval: 3000,
   });
 
   // Subscribe to real-time messages
   useEffect(() => {
-    const unsubscribe = base44.entities.ChatMessage.subscribe((event) => {
+    const unsubscribe = blue.entities.ChatMessage.subscribe((event) => {
       if (event.data?.planner_id === plannerId) {
         queryClient.invalidateQueries({ queryKey: ['chat-messages', plannerId] });
       }
@@ -28,7 +28,7 @@ export default function PlannerChat({ plannerId, user, onClose }) {
   }, [plannerId, queryClient]);
 
   const sendMutation = useMutation({
-    mutationFn: (content) => base44.entities.ChatMessage.create({
+    mutationFn: (content) => blue.entities.ChatMessage.create({
       planner_id: plannerId,
       content,
       sender_email: user?.email,

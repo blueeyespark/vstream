@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useQuery } from "@tanstack/react-query";
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
@@ -204,13 +204,13 @@ export default function StreamerAnalytics() {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 100),
+    queryFn: () => data.Video.list("-created_date", 100),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: analyticsRows = [] } = useQuery({
     queryKey: ["video-analytics-all"],
-    queryFn: () => base44.entities.VideoAnalytics.list("-date", 200),
+    queryFn: () => data.VideoAnalytics.list("-date", 200),
     staleTime: 5 * 60 * 1000,
   });
 

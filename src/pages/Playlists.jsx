@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ListVideo, Plus, Trash2, ArrowLeft, Play } from "lucide-react";
@@ -16,20 +16,20 @@ export default function Playlists() {
 
   const { data: playlists = [] } = useQuery({
     queryKey: ["playlists", user?.email],
-    queryFn: () => base44.entities.Playlist.filter({ owner_email: user.email }),
+    queryFn: () => data.Playlist.filter({ owner_email: user.email }),
     enabled: !!user?.email,
     staleTime: 2 * 60 * 1000,
   });
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 80),
+    queryFn: () => data.Video.list("-created_date", 80),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => data.Channel.list(),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -37,12 +37,12 @@ export default function Playlists() {
   const videoMap = videos.reduce((acc, v) => { acc[v.id] = v; return acc; }, {});
 
   const createMutation = useMutation({
-    mutationFn: (name) => base44.entities.Playlist.create({ name, owner_email: user.email, video_ids: [] }),
+    mutationFn: (name) => data.Playlist.create({ name, owner_email: user.email, video_ids: [] }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["playlists"] }); setNewPlaylistName(""); },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Playlist.delete(id),
+    mutationFn: (id) => data.Playlist.delete(id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["playlists"] }); setSelectedPlaylist(null); },
   });
 
@@ -50,7 +50,7 @@ export default function Playlists() {
     mutationFn: ({ playlistId, videoId }) => {
       const playlist = playlists.find(p => p.id === playlistId);
       const updated = (playlist?.video_ids || []).filter(id => id !== videoId);
-      return base44.entities.Playlist.update(playlistId, { video_ids: updated });
+      return data.Playlist.update(playlistId, { video_ids: updated });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["playlists"] }),
   });

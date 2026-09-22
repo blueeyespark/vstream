@@ -1,4 +1,4 @@
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { format } from "date-fns";
 
 export const BADGES = [
@@ -25,11 +25,11 @@ export async function awardPoints(userEmail, userName, action, workspaceId) {
   const today = format(new Date(), 'yyyy-MM-dd');
 
   // Get or create stats
-  const existing = await base44.entities.UserStats.filter({ user_email: userEmail });
+  const existing = await blue.entities.UserStats.filter({ user_email: userEmail });
   let stats = existing[0];
 
   if (!stats) {
-    stats = await base44.entities.UserStats.create({
+    stats = await blue.entities.UserStats.create({
       user_email: userEmail,
       user_name: userName,
       total_points: 0,
@@ -83,6 +83,6 @@ export async function awardPoints(userEmail, userName, action, workspaceId) {
     updates.total_points += newBadges.reduce((sum, b) => sum + b.points, 0);
   }
 
-  await base44.entities.UserStats.update(stats.id, updates);
+  await blue.entities.UserStats.update(stats.id, updates);
   return { newBadges, pointsEarned: points };
 }

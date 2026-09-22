@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { Key, Check, Eye, EyeOff, ExternalLink, Zap, Music, Video, Image, Loader2, Disc3 } from "lucide-react";
 import { toast } from "sonner";
@@ -7,15 +7,15 @@ import { toast } from "sonner";
 const PROVIDERS = [
   // ── FREE PROVIDERS (Always Available) ──
   {
-    id: "base44",
-    label: "Base44 (Free)",
+    id: "blue",
+    label: "Blue Built-in",
     field: null,
     icon: Zap,
     color: "from-emerald-500 to-green-500",
-    description: "Free unlimited image generation, always available. No key needed.",
+    description: "Blue-managed image generation provider. No creator key needed.",
     tier: "FREE",
     tags: ["Images", "No Cost"],
-    note: "✅ Always included. Unlimited generations per month."
+    note: "✅ Built into the Blue provider layer."
   },
   
   // ── PREMIUM PROVIDERS (Optional, User Keys) ──
@@ -276,7 +276,7 @@ export default function AIProviderSettings() {
   const handleSave = async (field, value) => {
     setSaving(field);
     try {
-      await base44.auth.updateMe({ [field]: value });
+      await blue.auth.updateMe({ [field]: value });
       setKeys(prev => ({ ...prev, [field]: value }));
       toast.success(value ? "API key saved!" : "Key removed");
     } catch {

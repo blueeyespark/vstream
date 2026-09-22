@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -106,22 +106,22 @@ export default function ContentCalendar({ blogPosts = [], socialPosts = [] }) {
 
   const { data: tasks = [], refetch: refetchTasksData } = useQuery({
     queryKey: ['tasks'],
-    queryFn: () => base44.entities.Task.list('-due_date'),
+    queryFn: () => blue.entities.Task.list('-due_date'),
   });
 
   const { data: meetings = [], refetch: refetchMeetingsData } = useQuery({
     queryKey: ['meetings'],
-    queryFn: () => base44.entities.Meeting.list('-date'),
+    queryFn: () => blue.entities.Meeting.list('-date'),
   });
 
   const { data: allBlogPosts = [] } = useQuery({
     queryKey: ['blogPosts'],
-    queryFn: () => base44.entities.BlogPost.list('-created_date'),
+    queryFn: () => blue.entities.BlogPost.list('-created_date'),
   });
 
   const { data: allSocialPosts = [] } = useQuery({
     queryKey: ['socialPosts'],
-    queryFn: () => base44.entities.SocialPost.list('-posted_date'),
+    queryFn: () => blue.entities.SocialPost.list('-posted_date'),
   });
 
   const getTasksForDay = (day) => {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Zap, Search, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useCreatorOS } from "@/lib/CreatorOSContext";
 
 export default function RaidButton({ channel, user }) {
@@ -31,7 +31,7 @@ export default function RaidButton({ channel, user }) {
     setError("");
 
     try {
-      const raid = await base44.entities.Raid.create({
+      const raid = await blue.entities.Raid.create({
         from_channel_id: channel.id,
         to_channel_id: selectedChannel.id,
         viewer_count: Math.floor(Math.random() * 500) + 50, // Mock viewer count

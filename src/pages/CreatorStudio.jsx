@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CreatorOSProvider, useCreatorOS } from "@/lib/CreatorOSContext";
 import { useAuth } from "@/lib/AuthContext";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import {
   Activity, AlertTriangle, BarChart3, Calendar, CheckCircle2, ChevronRight,
     CircleDollarSign, Clapperboard, Edit3, Eye, FileVideo, Folder, Gauge,
@@ -690,7 +690,7 @@ function AIEditModal({ item, onClose }) {
     if (!prompt.trim()) return;
     setLoading(true);
     try {
-      const res = await base44.integrations.Core.InvokeLLM({
+      const res = await blue.integrations.Core.InvokeLLM({
         prompt: `You are an expert creative director. The user has a piece of content called "${item.title}" (type: ${item.type}). They want to improve it with this request: "${prompt}". Give a specific, actionable plan for how to edit or improve this content. Be concise and practical.`,
       });
       setResult(typeof res === "string" ? res : res?.text || res?.content || "");

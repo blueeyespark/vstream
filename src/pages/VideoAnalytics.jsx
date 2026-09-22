@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -17,7 +17,7 @@ export default function VideoAnalytics() {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["video_performance", user?.email],
-    queryFn: () => base44.entities.VideoPerformance.list("-published_date"),
+    queryFn: () => data.VideoPerformance.list("-published_date"),
     enabled: !!user?.email,
   });
 

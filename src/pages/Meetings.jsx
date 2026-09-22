@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -59,16 +59,16 @@ export default function MeetingsPage() {
 
   const { data: meetings = [] } = useQuery({
     queryKey: ['meetings'],
-    queryFn: () => base44.entities.Meeting.list('-date'),
+    queryFn: () => data.Meeting.list('-date'),
   });
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.list(),
+    queryFn: () => data.Project.list(),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Meeting.create(data),
+    mutationFn: (data) => data.Meeting.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
       setShowForm(false);
@@ -78,7 +78,7 @@ export default function MeetingsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Meeting.update(id, data),
+    mutationFn: ({ id, data }) => data.Meeting.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
       setShowForm(false);
@@ -89,7 +89,7 @@ export default function MeetingsPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Meeting.delete(id),
+    mutationFn: (id) => data.Meeting.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
       toast.success("Meeting deleted");

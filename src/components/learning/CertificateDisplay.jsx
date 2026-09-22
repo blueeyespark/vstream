@@ -1,18 +1,19 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
+import { useAuth } from "@/lib/AuthContext";
 import { Download, Share2, Lock, Loader2, FileText } from "lucide-react";
 
 export default function CertificateDisplay({ enrollment, onCertificateGenerated }) {
+  const { user } = useAuth();
   const [generating, setGenerating] = useState(false);
   const [certificateId] = useState(`CERT-${Date.now()}`);
 
   const generateCertificate = async () => {
     setGenerating(true);
     try {
-      const user = await base44.auth.me();
-      
       // Create certificate record
-      const cert = await base44.entities.Certificate.create({
+      const cert = await data.Certificate.create({
         user_email: user.email,
         user_name: user.full_name || user.email,
         course_id: enrollment.course_id,
@@ -25,7 +26,7 @@ export default function CertificateDisplay({ enrollment, onCertificateGenerated 
       });
 
       // Generate PDF
-      const res = await base44.functions.invoke('generateCertificatePDF', {
+      const res = await platform.functions.invoke('generateCertificatePDF', {
         courseTitle: enrollment.course_title,
         courseType: enrollment.course_type,
         completionDate: new Date(enrollment.completed_date).toLocaleDateString(),

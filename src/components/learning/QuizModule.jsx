@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
+import { data } from "@/platform/entities";
+import { useAuth } from "@/lib/AuthContext";
 import { Loader2, CheckCircle2, X, AlertCircle } from "lucide-react";
 import { checkAndAwardPerfectQuiz, recordFailedTopic } from "@/hooks/useGamification";
 
 export default function QuizModule({ courseTitle, lessonNumber, lessonTopic, courseId, difficulty = "intermediate" }) {
+  const { user } = useAuth();
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -14,7 +17,7 @@ export default function QuizModule({ courseTitle, lessonNumber, lessonTopic, cou
   const generateQuiz = async () => {
     setLoading(true);
     try {
-      const res = await base44.functions.invoke('generateQuizQuestions', {
+      const res = await platform.functions.invoke('generateQuizQuestions', {
         courseTitle,
         lessonTopic,
         difficulty
@@ -56,8 +59,8 @@ export default function QuizModule({ courseTitle, lessonNumber, lessonTopic, cou
 
     // Save quiz score
     try {
-      await base44.entities.QuizScore.create({
-        user_email: (await base44.auth.me()).email,
+      await data.QuizScore.create({
+        user_email: user.email,
         course_id: courseId,
         course_title: courseTitle,
         lesson_number: lessonNumber,

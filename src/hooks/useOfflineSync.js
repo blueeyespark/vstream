@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 
 const QUEUE_KEY = "planify_offline_queue";
 
@@ -34,7 +34,7 @@ export function useOfflineSync() {
     const failed = [];
     for (const item of q) {
       try {
-        const entityObj = base44.entities[item.entity];
+        const entityObj = blue.entities[item.entity];
         if (!entityObj) continue;
         if (item.operation === "create") await entityObj.create(item.data);
         else if (item.operation === "update") await entityObj.update(item.id, item.data);

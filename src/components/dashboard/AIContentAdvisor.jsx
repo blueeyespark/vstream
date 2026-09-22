@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { Sparkles, RefreshCw } from "lucide-react";
 
 export default function AIContentAdvisor({ videos = [], channels = [], user }) {
@@ -9,7 +9,7 @@ export default function AIContentAdvisor({ videos = [], channels = [], user }) {
   const fetchViewerIdeas = async () => {
     setLoading(true);
     const videoTitles = videos.slice(0, 8).map(v => v.title).join(", ");
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `You are a smart content recommender for a streaming platform. Based on these videos: ${videoTitles || "various content"}, give 4 personalized "what to watch" suggestions. Each should have a short reason and a mood/vibe tag. Be fun and conversational.`,
       add_context_from_internet: false,
       response_json_schema: {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,9 +20,9 @@ export default function EventActionsModal({ open, onOpenChange, event, type, onU
     try {
       const updateData = { title, description };
       if (type === "task") {
-        await base44.entities.Task.update(event.id, updateData);
+        await blue.entities.Task.update(event.id, updateData);
       } else {
-        await base44.entities.Meeting.update(event.id, updateData);
+        await blue.entities.Meeting.update(event.id, updateData);
       }
       toast.success(`${type === "task" ? "Task" : "Meeting"} updated`);
       onUpdate?.();
@@ -39,9 +39,9 @@ export default function EventActionsModal({ open, onOpenChange, event, type, onU
     setLoading(true);
     try {
       if (type === "task") {
-        await base44.entities.Task.delete(event.id);
+        await blue.entities.Task.delete(event.id);
       } else {
-        await base44.entities.Meeting.delete(event.id);
+        await blue.entities.Meeting.delete(event.id);
       }
       toast.success(`${type === "task" ? "Task" : "Meeting"} deleted`);
       onDelete?.();

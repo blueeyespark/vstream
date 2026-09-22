@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -37,28 +37,28 @@ export default function ClientPortal() {
 
   const { data: portals = [], isLoading } = useQuery({
     queryKey: ['client-portals'],
-    queryFn: () => base44.entities.ClientPortal.list('-created_date'),
+    queryFn: () => data.ClientPortal.list('-created_date'),
   });
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => base44.entities.Project.list(),
+    queryFn: () => data.Project.list(),
     enabled: !!user,
   });
 
   const { data: comments = [] } = useQuery({
     queryKey: ['client-comments'],
-    queryFn: () => base44.entities.ClientComment.list('-created_date'),
+    queryFn: () => data.ClientComment.list('-created_date'),
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks'],
-    queryFn: () => base44.entities.Task.list(),
+    queryFn: () => data.Task.list(),
     enabled: !!user,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.ClientPortal.create(data),
+    mutationFn: (data) => data.ClientPortal.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['client-portals'] });
       setShowCreate(false);
@@ -67,7 +67,7 @@ export default function ClientPortal() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.ClientPortal.delete(id),
+    mutationFn: (id) => data.ClientPortal.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['client-portals'] }),
   });
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { motion } from "framer-motion";
 import { AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -57,7 +57,7 @@ export default function FinancialOverview() {
 
   const { data: budgetData = [] } = useQuery({
     queryKey: ["creator-budget"],
-    queryFn: () => base44.entities.CreatorBudget.list("-date", 100),
+    queryFn: () => blue.entities.CreatorBudget.list("-date", 100),
   });
 
   const hasData = budgetData.length > 0;

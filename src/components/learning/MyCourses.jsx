@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
+import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen, CheckCircle2, Clock, Trophy, Play, Download, AlertCircle, Zap, Flame } from "lucide-react";
 import TimeTracker from "./TimeTracker";
@@ -9,19 +10,18 @@ import OfflineDownload from "./OfflineDownload";
 import CourseQnA from "./CourseQnA";
 
 export default function MyCourses() {
+  const { user: authUser } = useAuth();
   const { data: enrollments = [], isLoading } = useQuery({
-    queryKey: ["enrollments"],
+    queryKey: ["enrollments", authUser?.email],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      return base44.entities.UserEnrollment.filter({ user_email: user.email });
+      return data.UserEnrollment.filter({ user_email: authUser.email });
     },
   });
 
   const { data: certificates = [] } = useQuery({
-    queryKey: ["certificates"],
+    queryKey: ["certificates", authUser?.email],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      return base44.entities.Certificate.filter({ user_email: user.email });
+      return data.Certificate.filter({ user_email: authUser.email });
     },
   });
 
@@ -31,8 +31,8 @@ export default function MyCourses() {
   const [selectedEnrollment, setSelectedEnrollment] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
   const user = useQuery({
-    queryKey: ["current-user"],
-    queryFn: () => base44.auth.me(),
+    queryKey: ["current-user", authUser?.email],
+    queryFn: async () => authUser,
   });
 
   if (isLoading) return <div className="text-white">Loading...</div>;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { Plus, Check, Loader2 } from "lucide-react";
 
 export default function SaveToPlaylistMenu({ videoId, userEmail, onClose }) {
@@ -12,7 +12,7 @@ export default function SaveToPlaylistMenu({ videoId, userEmail, onClose }) {
 
   useEffect(() => {
     if (!userEmail) return;
-    base44.entities.Playlist.filter({ owner_email: userEmail })
+    blue.entities.Playlist.filter({ owner_email: userEmail })
       .then(data => {
         setPlaylists(data);
         const s = {};
@@ -33,7 +33,7 @@ export default function SaveToPlaylistMenu({ videoId, userEmail, onClose }) {
     const newIds = alreadySaved
       ? (playlist.video_ids || []).filter(id => id !== videoId)
       : [...(playlist.video_ids || []), videoId];
-    await base44.entities.Playlist.update(playlist.id, { video_ids: newIds });
+    await blue.entities.Playlist.update(playlist.id, { video_ids: newIds });
     setPlaylists(prev => prev.map(p => p.id === playlist.id ? { ...p, video_ids: newIds } : p));
     setSaved(prev => ({ ...prev, [playlist.id]: !alreadySaved }));
   };
@@ -41,7 +41,7 @@ export default function SaveToPlaylistMenu({ videoId, userEmail, onClose }) {
   const createAndSave = async () => {
     if (!newName.trim()) return;
     setCreating(true);
-    const pl = await base44.entities.Playlist.create({
+    const pl = await blue.entities.Playlist.create({
       name: newName.trim(),
       owner_email: userEmail,
       video_ids: [videoId],

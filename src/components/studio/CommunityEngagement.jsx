@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircle, Users, Heart, Zap } from "lucide-react";
@@ -13,12 +13,12 @@ export default function CommunityEngagement() {
 
   const { data: comments = [] } = useQuery({
     queryKey: ["community-comments"],
-    queryFn: () => base44.entities.VideoComment.list("-created_date", 30),
+    queryFn: () => blue.entities.VideoComment.list("-created_date", 30),
   });
 
   const { data: superChats = [] } = useQuery({
     queryKey: ["super-chats"],
-    queryFn: () => base44.entities.SuperChat.list("-created_date", 20),
+    queryFn: () => blue.entities.SuperChat.list("-created_date", 20),
   });
 
   const totalEngagement = comments.length + superChats.length;

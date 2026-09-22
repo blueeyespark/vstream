@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { History, ArrowLeft } from "lucide-react";
@@ -36,13 +36,13 @@ export default function WatchHistory() {
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => data.Channel.list(),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 80),
+    queryFn: () => data.Video.list("-created_date", 80),
     staleTime: 5 * 60 * 1000,
   });
 

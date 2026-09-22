@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { TrendingUp, Users, Eye, Clock } from "lucide-react";
@@ -9,12 +9,12 @@ export default function AnalyticsDeepDive() {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 50),
+    queryFn: () => data.Video.list("-created_date", 50),
   });
 
   const { data: analytics = [] } = useQuery({
     queryKey: ["video-analytics"],
-    queryFn: () => base44.entities.VideoAnalytics.list("-created_date", 100),
+    queryFn: () => data.VideoAnalytics.list("-created_date", 100),
   });
 
   const chartData = analytics.slice(0, 7).map(a => ({

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -49,7 +49,7 @@ export default function PlannerDetail() {
     if (!user?.email || !plannerId) return;
     
     const updatePresence = async () => {
-      const existing = await base44.entities.UserPresence.filter({ user_email: user.email });
+      const existing = await data.UserPresence.filter({ user_email: user.email });
       const data = {
         user_email: user.email,
         user_name: user.full_name,
@@ -58,9 +58,9 @@ export default function PlannerDetail() {
         last_seen: new Date().toISOString()
       };
       if (existing.length > 0) {
-        await base44.entities.UserPresence.update(existing[0].id, data);
+        await data.UserPresence.update(existing[0].id, data);
       } else {
-        await base44.entities.UserPresence.create(data);
+        await data.UserPresence.create(data);
       }
     };
     
@@ -71,19 +71,19 @@ export default function PlannerDetail() {
 
   const { data: planner, isLoading: plannerLoading } = useQuery({
     queryKey: ['planner', plannerId],
-    queryFn: () => base44.entities.Planner.filter({ id: plannerId }).then(r => r[0]),
+    queryFn: () => data.Planner.filter({ id: plannerId }).then(r => r[0]),
     enabled: !!plannerId,
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['planner-tasks', plannerId],
-    queryFn: () => base44.entities.Task.filter({ project_id: plannerId }, '-created_date'),
+    queryFn: () => data.Task.filter({ project_id: plannerId }, '-created_date'),
     enabled: !!plannerId,
   });
 
   const { data: presences = [] } = useQuery({
     queryKey: ['presences', plannerId],
-    queryFn: () => base44.entities.UserPresence.filter({ current_planner_id: plannerId }),
+    queryFn: () => data.UserPresence.filter({ current_planner_id: plannerId }),
     enabled: !!plannerId,
     refetchInterval: 10000,
   });
@@ -93,7 +93,7 @@ export default function PlannerDetail() {
     queryFn: async () => {
       const taskIds = tasks.map(t => t.id);
       if (taskIds.length === 0) return [];
-      const allComments = await base44.entities.TaskComment.list('-created_date');
+      const allComments = await data.TaskComment.list('-created_date');
       return allComments.filter(c => taskIds.includes(c.task_id));
     },
     enabled: !!plannerId && tasks.length > 0,
@@ -101,7 +101,7 @@ export default function PlannerDetail() {
 
   const { data: chatMessages = [] } = useQuery({
     queryKey: ['chat-messages', plannerId],
-    queryFn: () => base44.entities.ChatMessage.filter({ planner_id: plannerId }, '-created_date'),
+    queryFn: () => data.ChatMessage.filter({ planner_id: plannerId }, '-created_date'),
     enabled: !!plannerId,
   });
 
@@ -119,7 +119,7 @@ export default function PlannerDetail() {
   const canComment = canEdit || userRole === 'commenter';
 
   const logActivity = async (action, entityId, entityName, changes = null) => {
-    await base44.entities.ActivityLog.create({
+    await data.ActivityLog.create({
       entity_type: 'task',
       entity_id: entityId,
       entity_name: entityName,
@@ -132,7 +132,7 @@ export default function PlannerDetail() {
   };
 
   const createTaskMutation = useMutation({
-    mutationFn: (data) => base44.entities.Task.create({ ...data, project_id: plannerId }),
+    mutationFn: (data) => data.Task.create({ ...data, project_id: plannerId }),
     onSuccess: async (newTask, variables) => {
       queryClient.invalidateQueries({ queryKey: ['planner-tasks', plannerId] });
       setShowTaskForm(false);
@@ -150,7 +150,7 @@ export default function PlannerDetail() {
 
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, data, oldData }) => {
-      const result = await base44.entities.Task.update(id, data);
+      const result = await data.Task.update(id, data);
       
       // Log changes
       const changes = {};
@@ -176,7 +176,7 @@ export default function PlannerDetail() {
   const deleteTaskMutation = useMutation({
     mutationFn: async (id) => {
       const task = tasks.find(t => t.id === id);
-      await base44.entities.Task.delete(id);
+      await data.Task.delete(id);
       if (task) {
         await logActivity('deleted', id, task.title);
       }
@@ -188,7 +188,7 @@ export default function PlannerDetail() {
   });
 
   const updatePlannerMutation = useMutation({
-    mutationFn: (data) => base44.entities.Planner.update(plannerId, data),
+    mutationFn: (data) => data.Planner.update(plannerId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planner', plannerId] });
       toast.success("Planner updated");
@@ -221,7 +221,7 @@ export default function PlannerDetail() {
     }
 
     if (instances.length > 0) {
-      await base44.entities.Task.bulkCreate(instances);
+      await data.Task.bulkCreate(instances);
       queryClient.invalidateQueries({ queryKey: ['planner-tasks', plannerId] });
     }
   };
@@ -255,7 +255,7 @@ export default function PlannerDetail() {
 
   const handleCreateTasksFromAI = async (aiTasks) => {
     for (const task of aiTasks) {
-      await base44.entities.Task.create({
+      await data.Task.create({
         ...task,
         project_id: plannerId,
         status: 'todo'

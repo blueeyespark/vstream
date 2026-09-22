@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -26,9 +26,9 @@ export default function WeeklyReports() {
     setUser(authUser);
   }, [authUser]);
 
-  const { data: projects = [] } = useQuery({ queryKey: ["projects"], queryFn: () => base44.entities.Project.list() });
-  const { data: tasks = [] } = useQuery({ queryKey: ["tasks"], queryFn: () => base44.entities.Task.list() });
-  const { data: budget = [] } = useQuery({ queryKey: ["budget"], queryFn: () => base44.entities.Budget.list() });
+  const { data: projects = [] } = useQuery({ queryKey: ["projects"], queryFn: () => blue.entities.Project.list() });
+  const { data: tasks = [] } = useQuery({ queryKey: ["tasks"], queryFn: () => blue.entities.Task.list() });
+  const { data: budget = [] } = useQuery({ queryKey: ["budget"], queryFn: () => blue.entities.Budget.list() });
 
   if (user && user.role !== "admin") {
     return (
@@ -73,7 +73,7 @@ export default function WeeklyReports() {
     const completedSummary = completedThisWeek.slice(0, 20).map(t => `- ${t.title} (${t.priority || "medium"} priority)`).join("\n");
     const upcomingSummary = upcoming.slice(0, 10).map(t => `- ${t.title} due ${t.due_date}`).join("\n");
 
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `Generate a professional weekly progress report for stakeholders. Use markdown formatting with clear sections. Be concise but informative.
 
 WEEK: ${format(weekStart, "MMM d")} – ${format(new Date(), "MMM d, yyyy")}
@@ -105,7 +105,7 @@ Write an executive summary, then sections for: ✅ Completed Work, 📅 Upcoming
     setSending(true);
     const emails = emailTo.split(",").map(e => e.trim()).filter(Boolean);
     for (const email of emails) {
-      await base44.integrations.Core.SendEmail({
+      await blue.integrations.Core.SendEmail({
         to: email,
         subject: `Weekly Progress Report — ${format(new Date(), "MMM d, yyyy")}`,
         body: report,

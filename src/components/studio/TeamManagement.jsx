@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { useAuth } from "@/lib/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, UserPlus, Shield, Crown, Eye, Edit3, Trash2, Mail, Check, X } from "lucide-react";
@@ -101,7 +101,7 @@ export default function TeamManagement() {
 
     try {
       // Invite as 'user' role in the app — channel-level role is stored separately
-      await base44.users.inviteUser(inviteEmail.trim(), selectedRole === "admin" ? "admin" : "user");
+      await platform.functions.invoke("inviteUser", { email: inviteEmail.trim(), role: selectedRole === "admin" ? "admin" : "user" });
 
       const newMember = {
         id: Date.now().toString(),

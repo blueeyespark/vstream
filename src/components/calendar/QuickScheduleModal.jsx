@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,25 +19,25 @@ export default function QuickScheduleModal({ open, onOpenChange, selectedDate })
 
   const { data: projects = [] } = useQuery({
     queryKey: ["projects"],
-    queryFn: () => base44.entities.Project.list(),
+    queryFn: () => blue.entities.Project.list(),
     enabled: open,
   });
 
   const { data: planners = [] } = useQuery({
     queryKey: ["planners"],
-    queryFn: () => base44.entities.Planner.list(),
+    queryFn: () => blue.entities.Planner.list(),
     enabled: open,
   });
 
   const { data: templates = [], isLoading: loadingTemplates } = useQuery({
     queryKey: ["templates"],
-    queryFn: () => base44.entities.ProjectTemplate.list(),
+    queryFn: () => blue.entities.ProjectTemplate.list(),
     enabled: open,
   });
 
   const { data: channels = [] } = useQuery({
     queryKey: ["channels"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => blue.entities.Channel.list(),
     enabled: open,
   });
 
@@ -48,7 +48,7 @@ export default function QuickScheduleModal({ open, onOpenChange, selectedDate })
     if (!projectType) { toast.error("Select project type"); return; }
     setGeneratingTemplate(true);
     try {
-      const res = await base44.functions.invoke('generateAITemplates', { projectType });
+      const res = await blue.functions.invoke('generateAITemplates', { projectType });
       if (res.data?.template) {
         queryClient.invalidateQueries({ queryKey: ["templates"] });
         toast.success(`AI template created: ${res.data.template.name}`);
@@ -64,7 +64,7 @@ export default function QuickScheduleModal({ open, onOpenChange, selectedDate })
   const handleCreateTask = async () => {
     if (!form.title) { toast.error("Title required"); return; }
     setSubmitting(true);
-    await base44.entities.Task.create({
+    await blue.entities.Task.create({
       title: form.title,
       due_date: format(selectedDate, "yyyy-MM-dd"),
       priority: form.priority,
@@ -81,7 +81,7 @@ export default function QuickScheduleModal({ open, onOpenChange, selectedDate })
   const handleCreateProject = async () => {
     if (!form.title) { toast.error("Title required"); return; }
     setSubmitting(true);
-    await base44.entities.Project.create({
+    await blue.entities.Project.create({
       name: form.title,
       due_date: format(selectedDate, "yyyy-MM-dd"),
       priority: form.priority,
@@ -97,7 +97,7 @@ export default function QuickScheduleModal({ open, onOpenChange, selectedDate })
   const handleCreatePlanner = async () => {
     if (!form.title) { toast.error("Title required"); return; }
     setSubmitting(true);
-    await base44.entities.Planner.create({
+    await blue.entities.Planner.create({
       name: form.title,
       is_private: true,
     });
@@ -115,7 +115,7 @@ export default function QuickScheduleModal({ open, onOpenChange, selectedDate })
     }
     setSubmitting(true);
     try {
-      await base44.entities.Schedule.create({
+      await blue.entities.Schedule.create({
         title: form.title,
         channel_id: form.project_id,
         scheduled_date: selectedDate.toISOString(),
@@ -139,7 +139,7 @@ export default function QuickScheduleModal({ open, onOpenChange, selectedDate })
     setSubmitting(true);
     const template = templates.find(t => t.id === form.project_id);
     if (template) {
-      await base44.entities.Project.create({
+      await blue.entities.Project.create({
         name: form.title || template.name,
         due_date: format(selectedDate, "yyyy-MM-dd"),
         status: "planning",

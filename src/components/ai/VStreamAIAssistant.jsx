@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, Calendar, CheckCircle2, ChevronRight, Loader2, Send, Sparkles, Wand2, X, Zap } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { useBlue } from "@/lib/BlueContext";
 
 const PAGE_CONTEXT = {
   dashboard: {
@@ -41,8 +41,8 @@ const PAGE_CONTEXT = {
     actions: ["Summarize performance", "Improve retention", "Find opportunity", "Next experiment"],
   },
   general: {
-    title: "VStream AI",
-    intro: "I can help with ideas, titles, thumbnails, clips, livestreams, community, analytics, and publishing.",
+    title: "Blue",
+    intro: "I’m Blue. I can teach, help you build, create, stream, and work across VStream while respecting your permissions.",
     actions: ["Video idea", "Title ideas", "ArtForge prompt", "Publish checklist"],
   },
 };
@@ -67,13 +67,18 @@ function fallbackSuggestion(contextType, action, context = {}) {
     dashboard: `Demo suggestion: Create a short recap around "${title}" with a 3-second cold open, one visual payoff, and a community question at the end.`,
     creator: `Demo suggestion: Move this project to Review next. Check title, thumbnail contrast, tags, visibility, and whether one short clip can be cut from the same asset.`,
     production: `Demo suggestion: For ${title}, finish the active tool, save the strongest asset, then open Publish and complete title, thumbnail, tags, visibility, and schedule.`,
-    upload: `Demo metadata:\nTitle: ${title} | The Moment Viewers Need To See\nDescription: A tight VStream upload built around the strongest moment, clear context, and a direct reason to watch through.\nTags: vstream, creator, live recap, shorts, community, behind the scenes`,
+    upload: `Demo metadata:
+Title: ${title} | The Moment Viewers Need To See
+Description: A tight VStream upload built around the strongest moment, clear context, and a direct reason to watch through.
+Tags: vstream, creator, live recap, shorts, community, behind the scenes`,
     artforge: `Demo prompt upgrade: ${title}, cinematic neon blue and violet lighting, strong subject silhouette, readable focal point, high contrast thumbnail composition, clean background, sharp detail. Negative prompt: blurry, extra fingers, muddy colors, unreadable text, warped face.`,
     communities: `Demo moderation note: Pin a calm room prompt, acknowledge the active topic, and move heated replies into a slow-mode reminder before removing anything.`,
     analytics: `Demo insight: Package the best-performing topic into one long video, two shorts, and one community post. Watch retention drop-offs and test a clearer thumbnail promise.`,
     general: `Demo suggestion: Start with a specific viewer promise, make the first 5 seconds visually obvious, then convert the idea into title, thumbnail, tags, and a publish checklist.`,
   };
-  return `${map[contextType] || map.general}\n\nAction: ${label}`;
+  return `${map[contextType] || map.general}
+
+Action: ${label}`;
 }
 
 export default function VStreamAIAssistant({
@@ -86,6 +91,7 @@ export default function VStreamAIAssistant({
 }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const blue = useBlue();
   const resolvedContext = contextType || detectContext(location.pathname);
   const meta = PAGE_CONTEXT[resolvedContext] || PAGE_CONTEXT.general;
   const [open, setOpen] = useState(surface !== "floating");
@@ -101,8 +107,9 @@ export default function VStreamAIAssistant({
     setDemoMode(false);
     const userRequest = action || input.trim() || actions[0];
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are VStream AI, a creator assistant for a social video and live streaming platform.
+      const result = await blue.send({
+        mode: ["creator","production","upload","artforge","analytics"].includes(resolvedContext) ? "creator" : "teacher",
+        prompt: `You are Blue, the persistent assistant inside VStream. Use the current VStream page context while keeping Blue identity and capability limits.
 
 Context type: ${resolvedContext}
 Page data: ${JSON.stringify(context).slice(0, 2000)}
@@ -141,7 +148,7 @@ Return practical creator help. Include concise, usable suggestions for relevant 
           onClick={() => setOpen(true)}
           className={cx("fixed bottom-20 right-4 z-50 grid h-14 w-14 place-items-center rounded-full border border-[#00c8ff]/50 bg-gradient-to-br from-[#1e78ff] to-[#a855f7] text-white shadow-2xl shadow-blue-950/60 md:bottom-6 md:right-6", open && "hidden")}
           whileHover={{ scale: 1.06 }}
-          aria-label="Open VStream AI"
+          aria-label="Open Blue"
         >
           <Bot className="h-6 w-6" />
         </motion.button>
@@ -172,7 +179,7 @@ function AssistantPanel({ meta, actions, input, setInput, loading, suggestion, d
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-black text-white">{meta.title}</p>
-          <p className="truncate text-xs text-blue-200/45">Context-aware creator help</p>
+          <p className="truncate text-xs text-blue-200/45">One Blue • context-aware help</p>
         </div>
         {onClose && <button onClick={onClose} className="rounded-lg p-1 text-blue-200/45 hover:bg-blue-900/25 hover:text-white"><X className="h-4 w-4" /></button>}
       </div>

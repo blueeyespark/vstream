@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +32,7 @@ const YOUTUBE_FUNCTIONS = [
   { category: "Community", name: "Badges & Milestones", description: "Earn badges for being an early subscriber, liking X videos, commenting X times, watching X hours.", how_it_works: "Track viewer actions in a ViewerStats entity. Compare thresholds. Display badge grid in user profile/You tab.", effort: "medium" },
   { category: "Community", name: "Collaborative Playlists with QR code", description: "Invite friends to co-build a playlist via shareable link or QR code. Members can vote to reorder.", how_it_works: "Playlist entity with collaborators[] array. Voting stored as votes{} map on each entry. QR generated from playlist URL.", effort: "medium" },
   { category: "Community", name: "Nested Comment Threads", description: "Replies to comments shown in collapsible threads. Emoji reactions per comment.", how_it_works: "TaskComment entity with parent_comment_id. Render tree recursively. Collapse beyond depth 2. Emoji reaction map stored per comment.", effort: "medium" },
-  { category: "Community", name: "Watch Party / Synchronized Viewing", description: "Multiple users watch the same video in sync with shared chat. Host controls playback for all.", how_it_works: "WatchParty entity with host_id and current_time. Broadcast seek/play/pause events via base44 real-time subscribe. Shared chat via ChatMessage filter.", effort: "high" },
+  { category: "Community", name: "Watch Party / Synchronized Viewing", description: "Multiple users watch the same video in sync with shared chat. Host controls playback for all.", how_it_works: "WatchParty entity with host_id and current_time. Broadcast seek/play/pause events via blue real-time subscribe. Shared chat via ChatMessage filter.", effort: "high" },
   { category: "Community", name: "Viewer Profiles / Watch History", description: "Public or private profile showing watch history, liked videos, subscriptions, badges.", how_it_works: "User entity extended with privacy_settings. WatchHistory entity per user. Render feed of watched/liked videos with timestamps.", effort: "medium" },
 
   // Monetization
@@ -60,7 +60,7 @@ const YOUTUBE_FUNCTIONS = [
   { category: "Shorts", name: "Shorts Analytics Summary", description: "Swipe metrics per Short: views, likes, avg watch %, audience retention drop-off point.", how_it_works: "VideoAnalytics entity filtered by type='short'. Show retention as a gradient bar (high→low). Aggregate per 24h buckets.", effort: "medium" },
 
   // Live
-  { category: "Live", name: "Live Chat with Emotes", description: "Real-time chat during live streams with custom channel emotes, moderation tools, slow mode.", how_it_works: "WebSocket or base44 real-time subscription on ChatMessage entity. Filter by stream_id. Slow mode = rate limit per user.", effort: "done" },
+  { category: "Live", name: "Live Chat with Emotes", description: "Real-time chat during live streams with custom channel emotes, moderation tools, slow mode.", how_it_works: "WebSocket or blue real-time subscription on ChatMessage entity. Filter by stream_id. Slow mode = rate limit per user.", effort: "done" },
   { category: "Live", name: "Live Stream DVR / Rewind", description: "Viewers can rewind up to 4 hours into a live stream while it's still running.", how_it_works: "HLS stream with sliding window. Seek bar shows live edge and buffer. Click timestamps in chat to jump to that moment.", effort: "high" },
   { category: "Live", name: "Stream Info Editor (Mid-stream)", description: "Update title, category, and thumbnail while stream is live without interruption.", how_it_works: "Editable fields on StreamerDashboard. Update Channel entity in real-time. Viewers see updated info without page refresh via subscription.", effort: "low" },
   { category: "Live", name: "Multi-stream Destinations", description: "Go live simultaneously to YouTube, Twitch, and other platforms with a single click.", how_it_works: "Store multiple RTMP endpoints per channel. Backend function fans out stream to each destination using provided keys.", effort: "high" },
@@ -234,8 +234,8 @@ export default function DeepScanResults() {
     setImplementing(key);
     toast.loading(`Generating code for "${feature.name}"...`, { id: key });
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert React/Tailwind developer building "VStream" — a creator-focused platform (like YouTube + Twitch + TikTok + AI Studio) built with React, Tailwind CSS, shadcn/ui, and base44 SDK.
+    const result = await blue.integrations.Core.InvokeLLM({
+      prompt: `You are an expert React/Tailwind developer building "VStream" — a creator-focused platform (like YouTube + Twitch + TikTok + AI Studio) built with React, Tailwind CSS, shadcn/ui, and blue SDK.
 
 Implement this ${platform} feature for VStream:
 Feature: "${feature.name}"
@@ -246,7 +246,7 @@ Generate a COMPLETE, PRODUCTION-READY React component:
 - Tailwind CSS for ALL styling (dark: variants included)
 - shadcn/ui from @/components/ui/ where appropriate
 - lucide-react for icons (only use valid icons)
-- base44 SDK: import { base44 } from '@/api/base44Client'; for data
+- blue SDK: import { blue } from "@/platform/compat"; for data
 - useQuery from @tanstack/react-query for data fetching
 - export default function ComponentName() pattern
 - Must be fully functional, not just a skeleton
@@ -264,7 +264,7 @@ Return the FULL component code, the exact file path (e.g. components/live/Channe
       }
     });
 
-    await base44.entities.AIAppliedChange.create({
+    await blue.entities.AIAppliedChange.create({
       title: feature.name,
       source: "external_scan",
       change_type: "feature",

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { motion } from "framer-motion";
 import {
   LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -56,7 +56,7 @@ export default function AudienceAnalytics() {
 
   const { data: videos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 100),
+    queryFn: () => blue.entities.Video.list("-created_date", 100),
     staleTime: 5 * 60 * 1000,
   });
 

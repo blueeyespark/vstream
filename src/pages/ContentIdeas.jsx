@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { motion } from "framer-motion";
 import { Lightbulb, Loader2, Save, Trash2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ export default function ContentIdeas() {
 
     setLoading(true);
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await blue.integrations.Core.InvokeLLM({
         prompt: `Generate 5 creative ${contentType.replace(/_/g, " ")} content ideas for the topic: "${topic}". 
         Target platform: ${platform === "all" ? "all platforms" : platform}.
         

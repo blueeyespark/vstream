@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles, Send, Loader2 } from "lucide-react";
 
@@ -70,7 +70,7 @@ export default function AIProactivePopup({ tasks = [], projects = [], budget = [
     else if (completionRate > 75) priority = 'momentum';
     else if (unassigned > tasks.length * 0.3) priority = 'assignment';
 
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `You are Planify AI, a friendly project management assistant. Be warm, brief (max 25 words), and address the user directly.
 
 Context:
@@ -103,7 +103,7 @@ Generate a contextual message matching this priority. Be specific and encouragin
     const assigned = tasks.filter(t => t.assigned_to).length;
     const history = updated.slice(-6).map(m => `${m.role === 'user' ? 'User' : 'AI'}: ${m.content}`).join('\n');
 
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await blue.integrations.Core.InvokeLLM({
       prompt: `You are Planify AI — friendly, sharp, concise, data-aware.
 
 Context: ${projects.length} projects, ${tasks.length} tasks (${completionRate}% done, ${assigned} assigned, ${overdue} overdue).

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Mic, MicOff, Type, Image as ImageIcon, Loader2, X, CheckCircle2, ImagePlus } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { platform } from "@/platform/client";
 import { toast } from "sonner";
 
 // ── Input mode tabs ───────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ export default function CharacterInputPanel({
     reader.readAsDataURL(file);
     setIsUploading(true);
     try {
-      const res = await base44.integrations.Core.UploadFile({ file });
+      const res = await platform.storage.upload({ file });
       if (res?.file_url) {
         setSourceImage(res.file_url);
         toast.success("Photo uploaded — AI will match this character");
@@ -61,10 +61,11 @@ export default function CharacterInputPanel({
         try {
           const blob = new Blob(chunksRef.current, { type: "audio/webm" });
           const audioFile = new File([blob], "recording.webm", { type: "audio/webm" });
-          const { file_url } = await base44.integrations.Core.UploadFile({ file: audioFile });
-          const transcript = await base44.integrations.Core.TranscribeAudio({ audio_url: file_url });
-          if (transcript) {
-            setTextPrompt((prev) => prev ? `${prev} ${transcript}` : transcript);
+          const { file_url } = await platform.storage.upload({ file: audioFile });
+          const transcript = await platform.ai.transcribe({ audio_url: file_url });
+          const transcriptText = transcript?.text || transcript;
+          if (transcriptText) {
+            setTextPrompt((prev) => prev ? `${prev} ${transcriptText}` : transcriptText);
             toast.success("Speech transcribed!");
           }
         } catch { toast.error("Transcription failed — try again"); }

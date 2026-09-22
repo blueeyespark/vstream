@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useQuery } from "@tanstack/react-query";
 import { Trophy, Sparkles } from "lucide-react";
 
 export default function BadgeDisplay({ userEmail }) {
   const { data: badges = [] } = useQuery({
     queryKey: ["user-badges", userEmail],
-    queryFn: () => base44.entities.UserBadge.filter({ user_email: userEmail }),
+    queryFn: () => data.UserBadge.filter({ user_email: userEmail }),
     enabled: !!userEmail
   });
 
   const { data: enrollments = [] } = useQuery({
     queryKey: ["enrollments-xp", userEmail],
-    queryFn: () => base44.entities.UserEnrollment.filter({ user_email: userEmail }),
+    queryFn: () => data.UserEnrollment.filter({ user_email: userEmail }),
     enabled: !!userEmail
   });
 

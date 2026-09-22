@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { motion } from "framer-motion";
 import { Plus, Copy, Edit2, Trash2, Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,12 @@ export default function ContentTemplates() {
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ["contentTemplates"],
-    queryFn: () => base44.entities.ContentTemplate.list("-created_date"),
+    queryFn: () => data.ContentTemplate.list("-created_date"),
   });
 
   const duplicateMutation = useMutation({
     mutationFn: (template) => 
-      base44.entities.ContentTemplate.create({
+      data.ContentTemplate.create({
         ...template,
         title: `${template.title} (Copy)`,
       }),
@@ -28,7 +28,7 @@ export default function ContentTemplates() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.ContentTemplate.delete(id),
+    mutationFn: (id) => data.ContentTemplate.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contentTemplates"] });
       toast.success("Template deleted");

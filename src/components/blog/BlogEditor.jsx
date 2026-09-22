@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Sparkles, Wand2, Tags, Save, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -77,8 +77,8 @@ export default function BlogEditor({ open, onOpenChange, post }) {
 
   const saveMutation = useMutation({
     mutationFn: (data) => post 
-      ? base44.entities.BlogPost.update(post.id, data)
-      : base44.entities.BlogPost.create(data),
+      ? blue.entities.BlogPost.update(post.id, data)
+      : blue.entities.BlogPost.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogposts'] });
       onOpenChange(false);
@@ -101,7 +101,7 @@ export default function BlogEditor({ open, onOpenChange, post }) {
   const generatePost = async (topic) => {
     setAiLoading(true);
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await blue.integrations.Core.InvokeLLM({
         prompt: `Write a comprehensive blog post about: ${topic}. 
         Tone: ${formData.tone}
         Format the content in markdown with proper headings, paragraphs, and bullet points where appropriate.
@@ -131,7 +131,7 @@ export default function BlogEditor({ open, onOpenChange, post }) {
     }
     setAiLoading(true);
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await blue.integrations.Core.InvokeLLM({
         prompt: `Rewrite the following blog post content to have a ${newTone} tone. Keep the same information but adjust the style and language:
 
 ${formData.content}`,
@@ -158,7 +158,7 @@ ${formData.content}`,
     }
     setAiLoading(true);
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await blue.integrations.Core.InvokeLLM({
         prompt: `Based on this blog post, generate SEO-optimized tags and metadata:
 
 Title: ${formData.title}

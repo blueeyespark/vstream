@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { motion } from "framer-motion";
 import { Bot, Send, Lock, ShieldX, Loader2 } from "lucide-react";
 
@@ -50,7 +50,7 @@ export default function AITokenGate({ user, onGranted }) {
       // Check StaffAccess — only admins can read this entity, so non-staff will get an empty array or error
       let staffList = [];
       try {
-        staffList = await base44.entities.StaffAccess.filter({ is_active: true });
+        staffList = await blue.entities.StaffAccess.filter({ is_active: true });
       } catch {
         staffList = [];
       }

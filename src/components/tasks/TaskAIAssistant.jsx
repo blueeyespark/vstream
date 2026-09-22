@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { useBlue } from "@/lib/BlueContext";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Loader2, CheckCircle2, Lightbulb, Zap, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ const priorityIcons = {
 };
 
 export default function TaskAIAssistant({ taskTitle, taskDescription, projectId, onApplySuggestions }) {
+  const blue = useBlue();
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState(null);
   const [error, setError] = useState(null);
@@ -28,15 +29,19 @@ export default function TaskAIAssistant({ taskTitle, taskDescription, projectId,
     setError(null);
     
     try {
-      const response = await base44.functions.invoke('analyzeTaskWithAI', {
-        taskTitle,
-        taskDescription,
-        projectId
+      const response = await blue.send({
+        mode: "build",
+        context: { surface: "task-assistant", projectId, taskTitle },
+        prompt: `Analyze this task and return ONLY valid JSON with keys suggestedPriority (low|medium|high|urgent), priorityReason, estimatedDays, estimationReason, subtasks (array of {title, description}), and tips.
+Task: ${taskTitle}
+Description: ${taskDescription || "No description provided"}`
       });
-      setSuggestions(response.data);
+      const text = response?.response || response?.message || "";
+      const cleaned = text.replace(/^\`\`\`json\s*/i, "").replace(/\`\`\`$/,"").trim();
+      setSuggestions(JSON.parse(cleaned));
     } catch (err) {
       setError(err.message || 'Failed to analyze task');
-      console.error('AI Analysis error:', err);
+      console.error('Blue task analysis error:', err);
     } finally {
       setLoading(false);
     }
@@ -55,7 +60,7 @@ export default function TaskAIAssistant({ taskTitle, taskDescription, projectId,
           ) : (
             <Sparkles className="w-4 h-4" />
           )}
-          {loading ? 'Analyzing...' : 'Get AI Suggestions'}
+          {loading ? 'Analyzing...' : 'Ask Blue'}
         </Button>
       ) : (
         <motion.div

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -206,13 +206,13 @@ export default function AIBugMonitor() {
 
   const { data: bugs = [], isLoading } = useQuery({
     queryKey: ['bug-reports'],
-    queryFn: () => base44.entities.BugReport.list('-created_date'),
+    queryFn: () => blue.entities.BugReport.list('-created_date'),
   });
 
   // Auto-categorize incoming bug reports
   const categorizeBug = async (bugData) => {
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await blue.integrations.Core.InvokeLLM({
         prompt: `Analyze this bug report and categorize it:
 
 Title: ${bugData.title}
@@ -245,7 +245,7 @@ Provide:
     if (bugs.length === 0) return [];
     try {
       const bugSummaries = bugs.map(b => `- [${b.id}] ${b.title}: ${b.description}`).join('\n');
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await blue.integrations.Core.InvokeLLM({
         prompt: `You are a bug deduplication expert. Find any bugs similar to this new report:
 
 NEW BUG:
@@ -295,7 +295,7 @@ Return a list of bug IDs that are duplicates or very similar. Return empty array
         toast.warning(`⚠️ This bug may be a duplicate of bug #${duplicates[0]}. Linking...`);
       }
       
-      return base44.entities.BugReport.create(bugData);
+      return blue.entities.BugReport.create(bugData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bug-reports'] });
@@ -306,14 +306,14 @@ Return a list of bug IDs that are duplicates or very similar. Return empty array
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.BugReport.update(id, data),
+    mutationFn: ({ id, data }) => blue.entities.BugReport.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bug-reports'] }),
   });
 
   const analyzeBug = async (bug) => {
     updateMutation.mutate({ id: bug.id, data: { status: 'analyzing' } });
      try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await blue.integrations.Core.InvokeLLM({
         prompt: `You are an expert frontend developer analyzing a bug report for "Planify" — a React/Tailwind project management app.
 
 Bug Title: ${bug.title}
@@ -363,8 +363,8 @@ Provide:
   const autoFixBug = async (bug) => {
     setGeneratingFix(bug.id);
      try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are an expert React/Tailwind developer. Generate a complete, production-ready code fix for this bug in "Planify" — a React/Tailwind/base44 project management app.
+      const result = await blue.integrations.Core.InvokeLLM({
+        prompt: `You are an expert React/Tailwind developer. Generate a complete, production-ready code fix for this bug in "Planify" — a React/Tailwind/blue project management app.
 
 Bug: ${bug.title}
 Description: ${bug.description}
@@ -435,7 +435,7 @@ Make the code complete and copy-paste ready.`,
         setSelfFixLog(l => [...l, { id: bug.id, title: bug.title, stage: 'Analyzing...' }]);
         await analyzeBug(currentBug);
         // Refetch updated bug
-        const fresh = await base44.entities.BugReport.filter({ id: currentBug.id });
+        const fresh = await blue.entities.BugReport.filter({ id: currentBug.id });
         currentBug = fresh[0] || currentBug;
       }
 
@@ -444,7 +444,7 @@ Make the code complete and copy-paste ready.`,
         l.find(x => x.id === bug.id) ? [] : [{ id: bug.id, title: bug.title, stage: 'Generating fix...' }]
       ));
 
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await blue.integrations.Core.InvokeLLM({
         prompt: `You are an expert React/Tailwind developer. Generate a production-ready code fix for this bug in "Planify".
 
 Bug: ${currentBug.title}
@@ -466,7 +466,7 @@ Provide: complete copy-paste-ready code, the file path to edit, and a brief expl
       });
 
       // Log to AIAppliedChange
-      await base44.entities.AIAppliedChange.create({
+      await blue.entities.AIAppliedChange.create({
         title: `Bug Fix: ${currentBug.title}`,
         source: 'self_scan',
         change_type: 'bug_fix',
@@ -477,7 +477,7 @@ Provide: complete copy-paste-ready code, the file path to edit, and a brief expl
       });
 
       // Mark bug resolved
-      await base44.entities.BugReport.update(currentBug.id, {
+      await blue.entities.BugReport.update(currentBug.id, {
         status: 'resolved',
         resolution_notes: `Auto-fixed by AI at ${new Date().toLocaleString()}. File: ${result.file_path}. ${result.explanation}`,
       });

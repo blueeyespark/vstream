@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import PointsToast from "@/components/gamification/PointsToast";
 import MobileNav from "@/components/MobileNav";
@@ -37,7 +37,7 @@ export default function Layout({ children, currentPageName }) {
 
   const { data: projects = [] } = useQuery({
     queryKey: ["projects"],
-    queryFn: () => base44.entities.Project.list("-created_date"),
+    queryFn: () => data.Project.list("-created_date"),
     enabled: !!user?.email,
     staleTime: 10 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -47,7 +47,7 @@ export default function Layout({ children, currentPageName }) {
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks"],
-    queryFn: () => base44.entities.Task.list("-created_date"),
+    queryFn: () => data.Task.list("-created_date"),
     enabled: !!user?.email,
     staleTime: 10 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -57,7 +57,7 @@ export default function Layout({ children, currentPageName }) {
 
   const { data: budget = [] } = useQuery({
     queryKey: ["budget"],
-    queryFn: () => base44.entities.Budget.list("-date"),
+    queryFn: () => data.Budget.list("-date"),
     enabled: !!user?.email,
     staleTime: 15 * 60 * 1000,
     gcTime: 45 * 60 * 1000,
@@ -67,7 +67,7 @@ export default function Layout({ children, currentPageName }) {
 
   const { data: notifications = [] } = useQuery({
     queryKey: ["notifications", user?.email],
-    queryFn: () => base44.entities.Notification.filter({ user_email: user?.email }, "-created_date"),
+    queryFn: () => data.Notification.filter({ user_email: user?.email }, "-created_date"),
     enabled: !!user?.email,
     refetchInterval: 30000,
     gcTime: 90000,
@@ -75,7 +75,7 @@ export default function Layout({ children, currentPageName }) {
 
   const { data: subscriptions = [] } = useQuery({
     queryKey: ["my-subscriptions", user?.email],
-    queryFn: () => base44.entities.Subscription.filter({ subscriber_email: user?.email, status: "active" }),
+    queryFn: () => data.Subscription.filter({ subscriber_email: user?.email, status: "active" }),
     enabled: !!user?.email,
     staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -84,7 +84,7 @@ export default function Layout({ children, currentPageName }) {
 
   const { data: allVideos = [] } = useQuery({
     queryKey: ["videos-all"],
-    queryFn: () => base44.entities.Video.list("-created_date", 60),
+    queryFn: () => data.Video.list("-created_date", 60),
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -92,7 +92,7 @@ export default function Layout({ children, currentPageName }) {
 
   const { data: allChannels = [] } = useQuery({
     queryKey: ["channels-all"],
-    queryFn: () => base44.entities.Channel.list(),
+    queryFn: () => data.Channel.list(),
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -113,26 +113,26 @@ export default function Layout({ children, currentPageName }) {
   })();
 
   const markAsReadMutation = useMutation({
-    mutationFn: (id) => base44.entities.Notification.update(id, { is_read: true }),
+    mutationFn: (id) => data.Notification.update(id, { is_read: true }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
   const markAllReadMutation = useMutation({
     mutationFn: async () => {
       const unread = notifications.filter(n => !n.is_read);
-      await Promise.all(unread.map(n => base44.entities.Notification.update(n.id, { is_read: true })));
+      await Promise.all(unread.map(n => data.Notification.update(n.id, { is_read: true })));
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
   const deleteNotificationMutation = useMutation({
-    mutationFn: (id) => base44.entities.Notification.delete(id),
+    mutationFn: (id) => data.Notification.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
   useEffect(() => {
     if (!user?.email) return;
-    const unsubscribe = base44.entities.Notification.subscribe((event) => {
+    const unsubscribe = data.Notification.subscribe((event) => {
       if (event.data?.user_email === user.email) {
         queryClient.invalidateQueries({ queryKey: ["notifications"] });
       }

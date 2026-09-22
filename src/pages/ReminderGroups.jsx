@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -54,16 +54,16 @@ export default function ReminderGroupsPage() {
 
   const { data: groups = [] } = useQuery({
     queryKey: ['remindergroups'],
-    queryFn: () => base44.entities.ReminderGroup.list('-created_date'),
+    queryFn: () => blue.entities.ReminderGroup.list('-created_date'),
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks'],
-    queryFn: () => base44.entities.Task.list(),
+    queryFn: () => blue.entities.Task.list(),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.ReminderGroup.create(data),
+    mutationFn: (data) => blue.entities.ReminderGroup.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['remindergroups'] });
       setShowForm(false);
@@ -73,7 +73,7 @@ export default function ReminderGroupsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.ReminderGroup.update(id, data),
+    mutationFn: ({ id, data }) => blue.entities.ReminderGroup.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['remindergroups'] });
       setShowForm(false);
@@ -85,7 +85,7 @@ export default function ReminderGroupsPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.ReminderGroup.delete(id),
+    mutationFn: (id) => blue.entities.ReminderGroup.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['remindergroups'] });
       toast.success("Group deleted");
@@ -95,7 +95,7 @@ export default function ReminderGroupsPage() {
   const duplicateMutation = useMutation({
     mutationFn: async (group) => {
       const { id, created_date, updated_date, created_by, ...data } = group;
-      return base44.entities.ReminderGroup.create({
+      return blue.entities.ReminderGroup.create({
         ...data,
         name: `${data.name} (Copy)`
       });
@@ -128,7 +128,7 @@ export default function ReminderGroupsPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await blue.integrations.Core.UploadFile({ file });
       setFormData({ ...formData, image_url: file_url });
       toast.success("Image uploaded");
     } catch (error) {

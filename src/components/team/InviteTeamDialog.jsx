@@ -10,7 +10,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { UserPlus, Mail, Loader2 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { blue } from "@/platform/compat";
 import { toast } from "sonner";
 
 export default function InviteTeamDialog({ open, onOpenChange, project, onInvited }) {
@@ -24,16 +24,16 @@ export default function InviteTeamDialog({ open, onOpenChange, project, onInvite
     setIsLoading(true);
     try {
       // Invite user to the app
-      await base44.users.inviteUser(email.trim(), "user");
+      await blue.users.inviteUser(email.trim(), "user");
       
       // Add to project team members
       const updatedMembers = [...(project.team_members || []), email.trim()];
-      await base44.entities.Project.update(project.id, {
+      await blue.entities.Project.update(project.id, {
         team_members: updatedMembers
       });
 
       // Create notification for the invited user
-      await base44.entities.Notification.create({
+      await blue.entities.Notification.create({
         user_email: email.trim(),
         type: "team_invite",
         title: "You've been invited to a project",

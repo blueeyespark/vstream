@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { data } from "@/platform/entities";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -17,7 +17,7 @@ export default function Leaderboard() {
 
   const { data: allStats = [], isLoading } = useQuery({
     queryKey: ['user-stats'],
-    queryFn: () => base44.entities.UserStats.list('-total_points', 50),
+    queryFn: () => data.UserStats.list('-total_points', 50),
   });
 
   const sorted = [...allStats].sort((a, b) => (b.total_points || 0) - (a.total_points || 0));

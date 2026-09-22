@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { useBlue } from "@/lib/BlueContext";
 import { Sparkles, Loader2, Copy, Check } from "lucide-react";
 
 export default function AIAssistantHub() {
+  const blue = useBlue();
   const [selectedTool, setSelectedTool] = useState("titles");
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
@@ -36,11 +37,12 @@ export default function AIAssistantHub() {
     if (!input.trim()) return;
     setLoading(true);
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await blue.send({
+        mode: "creator",
         prompt: tools[selectedTool].prompt(input),
-        add_context_from_internet: false
+        context: { surface: "CreatorOS Blue Creator Hub", tool: selectedTool }
       });
-      setOutput(result);
+      setOutput(result?.response || result?.message || "Blue returned no text result.");
     } catch (error) {
       setOutput("Error generating content. Please try again.");
     }
@@ -61,7 +63,7 @@ export default function AIAssistantHub() {
         </div>
         <div>
           <h2 className="text-lg font-bold text-[#e8f4ff]">AI Assistant Hub</h2>
-          <p className="text-xs text-blue-400/50">Generate content ideas powered by AI</p>
+          <p className="text-xs text-blue-400/50">Create with the same Blue used across VStream</p>
         </div>
       </div>
 
